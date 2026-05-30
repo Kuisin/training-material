@@ -45,10 +45,16 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
     ),
   };
 
+  /** @type {string} */
+  let base = '/';
+
   return {
     name: 'tsx-mpa',
     config() {
       return { build: { rollupOptions: { input } } };
+    },
+    configResolved(config) {
+      base = config.base;
     },
     configureServer(server) {
       // Vite の index フォールバックより先に実行する（後ろだと一覧 index.html が返る）
@@ -71,9 +77,8 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
         }
       });
     },
-    generateBundle(options, bundle) {
-      const base = options.base?.replace(/\/$/, '') || '';
-      const basePrefix = base ? `${base}/` : '/';
+    generateBundle(_options, bundle) {
+      const basePrefix = base.endsWith('/') ? base : `${base}/`;
 
       for (const page of lessons) {
         const chunk = Object.values(bundle).find(
