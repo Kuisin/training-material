@@ -1,19 +1,29 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-function htmlShell(scriptHref) {
+function htmlShell(scriptHref, cssHrefs = []) {
+  const cssLinks = cssHrefs
+    .map((href) => `    <link rel="stylesheet" crossorigin href="${href}">`)
+    .join('\n');
+
   return `<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  </head>
+${cssLinks ? `${cssLinks}\n` : ''}  </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="${scriptHref}"></script>
+    <script type="module" crossorigin src="${scriptHref}"></script>
   </body>
 </html>
 `;
+}
+
+/** HTML 出力位置からアセットへの相対 URL（GitHub Pages の /repo/ 配下でも動く） */
+function assetHrefFromHtml(htmlOut, assetFile) {
+  const htmlDir = path.dirname(htmlOut);
+  return path.relative(htmlDir, assetFile).replace(/\\/g, '/');
 }
 
 /**
@@ -60,7 +70,16 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
       // Vite の index フォールバックより先に実行する（後ろだと一覧 index.html が返る）
       server.middlewares.use(async (req, res, next) => {
         const pathname = req.url?.split('?')[0]?.replace(/\/$/, '') ?? '';
-        const page = lessons.find((p) => pathname === `/${p.htmlOut}`);
+        const basePrefix = base.endsWith('/') ? base.slice(0, -1) : base;
+        const pathWithoutBase =
+          basePrefix && pathname.startsWith(basePrefix)
+            ? pathname.slice(basePrefix.length) || '/'
+            : pathname;
+        const page = lessons.find(
+          (p) =>
+            pathWithoutBase === `/${p.htmlOut}` ||
+            pathWithoutBase === `/${p.htmlOut.replace(/\.html$/, '')}`
+        );
         if (!page) return next();
 
         const scriptSrc = `/${path.relative(root, page.tsxPath).replace(/\\/g, '/')}`;
@@ -78,8 +97,6 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
       });
     },
     generateBundle(_options, bundle) {
-      const basePrefix = base.endsWith('/') ? base : `${base}/`;
-
       for (const page of lessons) {
         const chunk = Object.values(bundle).find(
           (item) =>
@@ -89,10 +106,16 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
         );
         if (!chunk) continue;
 
+        const scriptHref = assetHrefFromHtml(page.htmlOut, chunk.fileName);
+        const importedCss = chunk.viteMetadata?.importedCss;
+        const cssHrefs = importedCss
+          ? [...importedCss].map((file) => assetHrefFromHtml(page.htmlOut, file))
+          : [];
+
         this.emitFile({
           type: 'asset',
           fileName: page.htmlOut,
-          source: htmlShell(basePrefix + chunk.fileName),
+          source: htmlShell(scriptHref, cssHrefs),
         });
       }
     },

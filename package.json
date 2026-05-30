@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "preview:pages": "BASE_PATH=/traininig-material/ vite build && BASE_PATH=/traininig-material/ vite preview",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
