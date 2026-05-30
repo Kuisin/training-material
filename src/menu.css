@@ -1,7 +1,0 @@
-/* レッスン一覧（ルート index.html）のスタイル */
-:root { --brand:#d6001c; }
-.track{ margin:2rem 0; }
-.track ul{ list-style:none; padding:0; }
-.track li{ padding:.5rem 0; border-bottom:1px solid var(--pico-muted-border-color); }
-.track li small{ opacity:.7; }
-footer.site{ margin-top:3rem; padding-top:1rem; border-top:1px solid var(--pico-muted-border-color); font-size:.85rem; opacity:.8; }

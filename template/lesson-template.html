@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ============================================================================
-  レッスンテンプレート（Vite + 共有コンポーネント版）  ·  ABeam 研修教材
+  レッスンテンプレート（Vite + 共有コンポーネント版）  ·  研修教材
   ============================================================================
   使い方（AI向け）:
     1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
@@ -11,8 +11,10 @@
          data-next  … 次の章のファイル名（最後の章は空 "")
     3. #deck の中に <section class="slide" data-title="..."> を並べる（1スライド=1トピック）。
     4. 上部バー・前へ/次へ・ジャンプメニュー・進捗バー・AIボタン・Mermaid・確認テストは
-       すべて /src/engine.js（共有コンポーネント）が生成・配線する。ここには書かない。
-    5. スタイルは /src/styles.css（共有）から来る。独自CSSは書かない。
+       すべて /src/engine.js → /src/engine.tsx（React + TSX コンポーネント）が描画・配線する。
+       ここには書かない。各 .slide の HTML は自動で TSX コンポーネントへ変換される。
+    5. スタイルは Tailwind と /src/components/ の TSX コンポーネントから来る。独自CSSは書かない。
+       下記の HTML パターン（callout / quiz / pre>code / mermaid / lesson-meta）はそのまま使う。
     6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
     7. index.html にレッスンを追加する（template/index-template.html 参照）。
 
@@ -27,7 +29,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>{{LESSON_TITLE}}</title>
 </head>
 <body data-title="{{LESSON_TITLE}}" data-prev="{{PREV_HREF}}" data-next="{{NEXT_HREF}}">
   <div id="deck">

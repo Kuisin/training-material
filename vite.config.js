@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -14,6 +16,7 @@ for (const f of fs.readdirSync(lessonsDir)) {
 }
 
 export default defineConfig({
+  plugins: [react(), tailwindcss()],
   // GitHub Pages のプロジェクトサイトでは /<repo>/ がベースになる。
   // CI から BASE_PATH を渡す（未指定ならローカル用に '/'）。
   base: process.env.BASE_PATH || '/',
