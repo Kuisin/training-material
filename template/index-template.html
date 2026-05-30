@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  インデックステンプレート  ·  ABeam 研修教材
+  ============================================================================
+  使い方（AI向け）:
+    1. 初回のみ、このファイルをリポジトリ直下に index.html としてコピーする。
+    2. レッスンを作成するたびに、該当トラックの下に <li> リンクを追加する。
+    3. リンクはファイル番号（NN）の順に並べる。
+    4. <head> と <style> ブロックは編集しないこと。
+  ============================================================================
+-->
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABeam 研修教材</title>
+
+  <!-- UIライブラリ: レッスンと同じ見た目。置き換え禁止。 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+
+  <style>
+    :root { --brand:#d6001c; }
+    .track{ margin:2rem 0; }
+    .track ul{ list-style:none; padding:0; }
+    .track li{ padding:.5rem 0; border-bottom:1px solid var(--pico-muted-border-color); }
+    .track li small{ opacity:.7; }
+    footer.site{ margin-top:3rem; padding-top:1rem; border-top:1px solid var(--pico-muted-border-color); font-size:.85rem; opacity:.8; }
+  </style>
+</head>
+<body>
+  <main class="container">
+
+    <hgroup>
+      <h1>ABeam 研修教材</h1>
+      <p>自分のペースで学べるレッスン集。トピックを選んで始めましょう。</p>
+    </hgroup>
+
+    <!-- =====================================================================
+         トラック（コース）ごとに <section class="track"> を1つ作る。
+         レッスンごとに <li> を追加し、ファイル番号順に並べる。
+         ===================================================================== -->
+    <section class="track">
+      <h2>{{TRACK_NAME}}</h2>  <!-- 例: ABAP 基礎 -->
+      <ul>
+        <li><a href="{{TRACK_FOLDER}}/01-introduction.html">1. {{LESSON_1_TITLE}}</a>
+            <small>· {{LEVEL}} · {{DURATION}}</small></li>
+        <li><a href="{{TRACK_FOLDER}}/02-data-types.html">2. {{LESSON_2_TITLE}}</a>
+            <small>· {{LEVEL}} · {{DURATION}}</small></li>
+        <!-- ここにレッスンを順番に追加 -->
+      </ul>
+    </section>
+
+    <!-- トラックを追加する場合は <section class="track"> ブロックを複製 -->
+
+    <footer class="site">ABeam 研修教材</footer>
+  </main>
+</body>
+</html>
