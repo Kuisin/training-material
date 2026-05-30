@@ -9,7 +9,8 @@ const root = dirname(fileURLToPath(import.meta.url));
 const lessonsDir = resolve(root, 'abap-taining');
 
 export default defineConfig({
-  plugins: [tsxMpaPlugin({ root, lessonsDir }), react(), tailwindcss()],
+  appType: 'mpa',
+  plugins: [react(), tsxMpaPlugin({ root, lessonsDir }), tailwindcss()],
   base: process.env.BASE_PATH || '/',
   server: {
     port: 5173,

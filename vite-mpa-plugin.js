@@ -51,19 +51,25 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
       return { build: { rollupOptions: { input } } };
     },
     configureServer(server) {
-      // 内部ミドルウェアの後に実行し、レッスン HTML だけを補完する
-      return () => {
-        server.middlewares.use((req, res, next) => {
-          const pathname = req.url?.split('?')[0] ?? '';
-          const page = lessons.find((p) => pathname === `/${p.htmlOut}`);
-          if (!page) return next();
+      // Vite の index フォールバックより先に実行する（後ろだと一覧 index.html が返る）
+      server.middlewares.use(async (req, res, next) => {
+        const pathname = req.url?.split('?')[0]?.replace(/\/$/, '') ?? '';
+        const page = lessons.find((p) => pathname === `/${p.htmlOut}`);
+        if (!page) return next();
 
-          const scriptSrc = `/${path.relative(root, page.tsxPath).replace(/\\/g, '/')}`;
+        const scriptSrc = `/${path.relative(root, page.tsxPath).replace(/\\/g, '/')}`;
+        const url = req.originalUrl ?? req.url ?? pathname;
+
+        try {
+          // @vitejs/plugin-react の preamble / @vite/client を注入する（素の HTML だと HMR が壊れる）
+          const html = await server.transformIndexHtml(url, htmlShell(scriptSrc));
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
-          res.end(htmlShell(scriptSrc));
-        });
-      };
+          res.end(html);
+        } catch (err) {
+          next(err);
+        }
+      });
     },
     generateBundle(options, bundle) {
       const base = options.base?.replace(/\/$/, '') || '';
