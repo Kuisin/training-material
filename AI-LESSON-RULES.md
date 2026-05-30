@@ -103,7 +103,7 @@ mountLesson(MyLesson);
 <Dialog speaker="stumble">よくある誤解</Dialog>
 <Dialog speaker="closing">章末の励まし</Dialog>
 ```
-登場人物のセリフには `Callout` ではなく `Dialog` を使うこと（吹き出しアイコン＋話者バッジで区別）。
+登場人物のセリフには `Callout` ではなく `Dialog` を使うこと。先生・Aくん・Bちゃんはアバター（先・理・文）＋吹き出し、`stumble` / `closing` はバッジ付きブロックで区別。
 
 **コード:**
 ```tsx
