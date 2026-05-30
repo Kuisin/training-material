@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>なぜABAPを学ぶのか — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="01-overview.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>なぜABAPを学ぶのか</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,55 +92,120 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+
+
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>なぜABAPを学ぶのか</h1>
+        <p>「業務のお願いごと」を「システムの動き」に翻訳する仕事 — それがABAP開発です。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 15分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>SAPという完成品を入れても、なぜ「追加の開発」が必要になるのか</li>
+        <li>ABAPは「業務の言葉」を「コンピュータの言葉」に翻訳する仕事だ、という見方</li>
+        <li>プログラミング未経験でも大丈夫、という気持ちの土台づくり</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 導入会話 -->
+    <section class="slide" data-title="導入：3人の会話">
+      <h2>まずは、3人の登場人物から</h2>
+      <p>このレッスンには3人が出てきます。先生と、新卒2人です。あなたに近いほうの言葉を、特に拾ってください。</p>
+      <div class="callout note">先生：これから一緒にABAP（エービーアップ）を学びます。SAP（サップ）という会計システムを、会社ごとの事情に合わせて手直しするための言語です。怖がらなくて大丈夫ですよ。</div>
+      <div class="callout tip">Aくん：プログラミングは少しかじりました。理屈で納得したいタイプです。</div>
+      <div class="callout warning">Bちゃん：パソコンは得意じゃなくて…。例え話があると安心します。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 身近な例 -->
+    <section class="slide" data-title="完成品でも手直しは要る">
+      <h2>完成品の家でも、リフォームはする</h2>
+      <p>SAPは「すでに建っている立派な家」のようなものです。たいていの部屋（機能）は最初から揃っています。でも、住む人によって「ここに棚が欲しい」「この動線を変えたい」が出てきます。</p>
+      <div class="callout note">先生：SAPは世界中の会社で使えるよう、広く作られています。でも「うちの会社のこのやり方」までは、最初から入っていません。そこを足すのがABAP開発です。</div>
+      <div class="callout warning">つまずき：「パッケージ＝買えば終わり」と思いがちですが、実際は“自社に合わせる作業”がほぼ必ず発生します。</div>
+    </section>
+
+    <!-- スライド4 ・ 業務でこう見える -->
+    <section class="slide" data-title="追加開発が要る場面">
+      <h2>こんなとき、追加開発が登場する</h2>
+      <p>たとえば会計の現場では、こんな依頼がよく来ます。どれも「標準のSAPだけでは足りない」場面です。</p>
+      <ul>
+        <li>他システムから来た取引ファイルを、まとめてSAPに取り込みたい</li>
+        <li>自社の見やすい形で、取引の一覧（帳票）を出したい</li>
+        <li>登録前に「うちのルール」で自動チェックしたい</li>
+      </ul>
+      <div class="callout tip">Aくん：標準にない処理を“足す”ためのプログラム、ということですね。</div>
+    </section>
+
+    <!-- スライド5 ・ 翻訳という見方 -->
+    <section class="slide" data-title="翻訳という見方">
+      <h2>ABAP開発＝「翻訳」の仕事</h2>
+      <p>本レッスン全体を貫く合言葉は<strong>「業務 → システム → ABAP」</strong>です。人のお願いを、機械が分かる手順に直していきます。</p>
+      <div class="callout note">先生：いきなりコードを書くのではありません。まず「何をしたいか（業務）」を聞き、「システムでどう実現するか」を考え、最後に「ABAPでこう書く」へ降りていきます。この順番を絶対に崩しません。</div>
+    </section>
+
+    <!-- スライド6 ・ 図解 -->
+    <section class="slide" data-title="図解：翻訳の流れ">
+      <h2>図で見る「翻訳」の流れ</h2>
+      <p>依頼書（業務の言葉）が、仕様（システムの言葉）を経て、指示書（ABAPの言葉）になります。</p>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A["依頼書<br/>(業務の言葉)"] --> B["仕様<br/>(システムの言葉)"]
+  B --> C["プログラム<br/>(ABAPの言葉)"]
+  C --> D["動く機能"]
       </pre>
+      <div class="callout warning">Bちゃん：左から右へ、だんだん細かくしていくんですね。料理のレシピに近いかも。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド7 ・ キーワード紹介 -->
+    <section class="slide" data-title="出てくる言葉">
+      <h2>これから出てくる言葉（名前だけ）</h2>
+      <p>今は意味を覚えなくて大丈夫です。「こういう名前が出てくるんだな」とだけ知っておいてください。</p>
+      <div class="callout tip">この研修で出てくるABAPキーワード（位置づけ確認用）
+        <ul>
+          <li><code>REPORT</code> … プログラムの始まりを宣言する合図</li>
+          <li><code>PARAMETERS</code> … 利用者に値を入力してもらう欄</li>
+          <li><code>SELECT</code> … データベースから情報を取り出す</li>
+          <li><code>WRITE</code> … 画面に結果を書き出す</li>
+        </ul>
+      </div>
+      <div class="callout note">先生：丸暗記は不要です。「なぜ必要か」を理解すれば、書き方は後からついてきます。</div>
+    </section>
+
+    <!-- スライド8 ・ A/Bのつまずき予想 -->
+    <section class="slide" data-title="最初のつまずき">
+      <h2>最初につまずきやすいところ</h2>
+      <div class="callout tip">Aくん：理屈は分かるけど、SAP特有の用語（伝票、テーブル名…）が多くて道に迷いそう。→ 用語は出るたびに“やさしい言い換え”を付けるので大丈夫。</div>
+      <div class="callout warning">Bちゃん：英語のコードを見ると固まってしまう。→ コードは「指示文」。英単語の意味（select＝選ぶ など）で読めば怖くありません。</div>
+      <div class="callout note">先生：分からないのは「あなたの理解力」ではなく「まだ習っていないだけ」。順番に積めば必ず追いつけます。</div>
+    </section>
+
+    <!-- スライド9 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="SAPは広く使える完成品ですが、各社固有のやり方までは含まれません。そこを補うのがABAPによる追加開発です。">
+        <p><strong>SAPを導入しても追加開発（ABAP）が必要になるのは、主にどうして？</strong></p>
+        <button>SAPには機能がほとんど入っていないから</button>
+        <button>標準機能だけでは、自社固有のやり方を満たせないことがあるから</button>
+        <button>ABAPを書かないとSAPが起動しないから</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="0"
+           data-explanation="本研修の合言葉は「業務 → システム → ABAP」。先に“何をしたいか”を理解してから、コードに降ります。">
+        <p><strong>ABAP開発を進める正しい順番はどれ？</strong></p>
+        <button>業務 → システム → ABAP</button>
+        <button>ABAP → システム → 業務</button>
+        <button>まずコードを書いてから業務を考える</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：最初は「翻訳のイメージ」さえ持てれば十分。1つずつ進めば、必ずできるようになります。</div>
     </section>
+  </div>
+  </div>
 
   </div>
 
@@ -181,7 +221,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +282,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +296,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

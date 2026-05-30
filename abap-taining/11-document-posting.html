@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>会計伝票登録へ進む — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="12-real-world.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>会計伝票登録へ進む</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,54 +92,105 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>会計伝票登録へ進む</h1>
+        <p>「見る」から「書き込む」へ。登録の責任の重さと、安全に登録する仕組みを学びます。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 30分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>照会（見る）と登録（書き込む）の責任の違い</li>
+        <li>外部ファイル → 検証 → 登録 → 履歴 → 結果、という登録フロー</li>
+        <li>登録を支える部品：アドオンテーブル・汎用モジュール・BAPI・ロックオブジェクト</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 閲覧メモ vs 正式台帳 -->
+    <section class="slide" data-title="メモと正式台帳のたとえ">
+      <h2>閲覧メモ と 正式な台帳</h2>
+      <p>これまでは「台帳を見るだけ（照会）」でした。これからは「台帳に正式に書き込む（登録）」をします。書き込みは、間違えると正式記録が汚れるので、より慎重さが必要です。</p>
+      <div class="callout note">先生：見るのは何度やっても安全。でも書き込みは“消えない記録”を残します。だから検証やロックといった守りの仕組みが必要になります。</div>
+      <div class="callout warning">Bちゃん：下書きと、清書（提出する書類）の違いみたいですね。清書は緊張します。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 登録フロー図（sequence） -->
+    <section class="slide" data-title="図解：登録フロー">
+      <h2>図で見る：登録の一連の流れ</h2>
       <pre class="mermaid">
-flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+sequenceDiagram
+  participant F as 外部ファイル
+  participant P as ABAPプログラム
+  participant S as SAP(伝票)
+  F->>P: 取込（データを読む）
+  P->>P: 検証（ルールチェック）
+  P->>S: ロック（他から触らせない）
+  P->>S: 登録（BAPIで伝票作成）
+  S-->>P: 結果（伝票番号 or エラー）
+  P->>S: コミット（確定）
+  P->>P: 履歴・結果を記録/表示
       </pre>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド4 ・ BAPI -->
+    <section class="slide" data-title="BAPIはなぜ必要か">
+      <h2>BAPI ＝ SAP公式の「安全な登録窓口」</h2>
+      <p>伝票テーブルに直接書き込むのは危険です（整合性が崩れる）。<strong>BAPI</strong> は、SAPが用意した「正しい手順で登録してくれる公式の窓口」。これを通せば、必要なチェックや関連更新もまとめて面倒を見てくれます。</p>
+      <div class="callout warning">つまずき：「テーブルに直接 INSERT すればいい」は厳禁。会計伝票は必ず BAPI など正式な手段で登録します。</div>
+      <div class="callout tip">Aくん：APIを通すことで、内部の整合性ルールを破らずに済むんですね。</div>
+    </section>
+
+    <!-- スライド5 ・ ロックオブジェクト -->
+    <section class="slide" data-title="ロックは何を守るか">
+      <h2>ロック ＝ 「使用中」の札</h2>
+      <p>2人が同時に同じデータを書き込むと、記録が壊れます。<strong>ロックオブジェクト</strong>は、トイレの「使用中」札のように「今このデータは私が触っています」と示し、二重更新を防ぎます。</p>
+      <div class="callout warning">Bちゃん：試着室の「使用中」札と同じですね。空くまで待つ。</div>
+      <div class="callout note">先生：登録のような“書き込み”では、ロックで守ってから処理するのが基本です。終わったら必ず解放します。</div>
+    </section>
+
+    <!-- スライド6 ・ 周辺部品 -->
+    <section class="slide" data-title="登録を支える部品">
+      <h2>登録を支える部品（位置づけ）</h2>
+      <ul>
+        <li><strong>アドオンテーブル</strong>：標準にない情報を保存する“自社用の追加の表”（取込履歴など）</li>
+        <li><strong>汎用モジュール</strong>：部品化された処理のまとまり（FORMの強力版・他からも呼べる）</li>
+        <li><strong>BAPI</strong>：SAP公式の業務処理窓口（伝票登録など）</li>
+        <li><strong>ロックオブジェクト</strong>：同時更新を防ぐ「使用中」札</li>
+      </ul>
+      <div class="callout tip">この章のABAPキーワード：BAPI / ロックオブジェクト / 汎用モジュール / アドオンテーブル / コミット。</div>
+    </section>
+
+    <!-- スライド7 ・ 見ると登録の整理 -->
+    <section class="slide" data-title="「見る」と「登録」の整理">
+      <h2>照会と登録、責任の違いを整理</h2>
+      <div class="callout tip">Aくん：照会は読み取りだけ＝安全。登録は書き込み＝整合性・排他・確定（コミット）まで責任を持つ、という違いですね。</div>
+      <div class="callout warning">Bちゃん：見るのは気軽、書くのは責任重大。心構えから違うんですね。</div>
+      <div class="callout note">先生：その通り。だから登録処理は「検証 → ロック → BAPI → コミット → 結果記録」という型を守ります。怖がる必要はなく、型どおりに進めれば大丈夫です。</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="会計伝票は、整合性を保つため SAP公式の窓口である BAPI 等を通して登録します。テーブルへの直接書き込みは厳禁です。">
+        <p><strong>会計伝票を登録する正しい方法は？</strong></p>
+        <button>テーブルに直接 INSERT する</button>
+        <button>BAPI など公式の手段を通して登録する</button>
+        <button>WRITE で画面に出すだけでよい</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="0"
+           data-explanation="ロックオブジェクトは「使用中」の札のように、複数の処理が同時に同じデータを更新して壊すのを防ぎます。">
+        <p><strong>ロックオブジェクトの役割は？</strong></p>
+        <button>同時更新による不整合を防ぐ</button>
+        <button>画面を見やすく整える</button>
+        <button>データを並べ替える</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：登録は責任が重いぶん、守りの型がしっかり用意されています。型に乗れば安全に進めます。</div>
     </section>
 
   </div>
@@ -181,7 +207,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +268,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +282,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

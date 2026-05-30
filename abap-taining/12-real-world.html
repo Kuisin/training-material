@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>実務っぽい観点 — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="13-good-programming.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>実務っぽい観点</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,54 +92,96 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>実務っぽい観点</h1>
+        <p>追加要望が来たとき、どこを見て・どう直し・どう確かめるか。実務の進め方を学びます。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 20分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>仕様変更が来たときに、最初に見るべきポイント</li>
+        <li>「影響分析 → 修正 → 回帰テスト」という循環</li>
+        <li>コメント・命名・履歴・単体テストが、なぜ実務で大事か</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 増改築の比喩 -->
+    <section class="slide" data-title="増改築のたとえ">
+      <h2>増改築には「図面」が要る</h2>
+      <p>家を増築するとき、元の図面を見ずに壁を壊したら、水道管を切ってしまうかもしれません。プログラムの修正も同じで、まず「今どうなっているか」を把握してから手を入れます。</p>
+      <div class="callout note">先生：実務の修正は「ゼロから作る」より「既にあるものを安全に直す」ほうが多いです。だから“読む力”と“影響を見る力”が大切になります。</div>
+      <div class="callout warning">Bちゃん：模様替えの前に、家具の配置を確認するのと同じですね。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 最初に見る3点 -->
+    <section class="slide" data-title="最初に見る3点">
+      <h2>仕様変更で、最初に見る3つ</h2>
+      <ol>
+        <li><strong>入力</strong>：受け取る条件（選択画面）は変わる？</li>
+        <li><strong>取得</strong>：どのテーブルから取っている？ 条件は？</li>
+        <li><strong>出力</strong>：何を、どんな形で出している？</li>
+      </ol>
+      <div class="callout tip">Aくん：第1章のパイプライン（入力→取得→加工→出力）が、そのまま“調査の地図”になるんですね。</div>
+    </section>
+
+    <!-- スライド4 ・ 影響分析の循環（図） -->
+    <section class="slide" data-title="図解：修正の循環">
+      <h2>図で見る：影響分析 → 修正 → テスト</h2>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A[仕様差分を理解] --> B[影響分析]
+  B --> C[修正]
+  C --> D[回帰テスト]
+  D -->|問題あり| B
+  D -->|OK| E[リリース]
       </pre>
+      <div class="callout note">先生：直したら必ず「前と同じ動きが壊れていないか（回帰テスト）」を確認します。直した所だけでなく、周りも見るのがプロです。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド5 ・ コメント・命名・履歴・テスト -->
+    <section class="slide" data-title="実務を支える習慣">
+      <h2>地味だけど効く4つの習慣</h2>
+      <ul>
+        <li><strong>コメント</strong>：なぜそうしたかを残す（次に直す人のため）</li>
+        <li><strong>命名</strong>：名前で役割が分かる（<code>lv_total</code> など意味のある名前）</li>
+        <li><strong>変更履歴</strong>：いつ・誰が・なぜ変えたかを残す</li>
+        <li><strong>単体テスト</strong>：部品ごとに「期待通りか」を確かめる</li>
+      </ul>
+      <div class="callout warning">つまずき：「動いたから完成」と思いがち。実務では“次の人が安全に直せること”まで含めて完成です。</div>
+    </section>
+
+    <!-- スライド6 ・ 動けばよい ではない -->
+    <section class="slide" data-title="「動けば良い」ではない">
+      <h2>「動く」と「使い続けられる」は違う</h2>
+      <p>その場で動くだけのコードは、半年後に誰も触れなくなります。読みやすさ・直しやすさ・確認のしやすさまで含めて、はじめて“良いプログラム”です。</p>
+      <div class="callout tip">Aくん：品質は「今動くか」だけでなく「これからも安全に変えられるか」で測るんですね。</div>
+      <div class="callout warning">Bちゃん：丁寧に作っておくと、未来の自分が助かるんですね。やさしさだ…。</div>
+    </section>
+
+    <!-- スライド7 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="2"
+           data-explanation="修正後は「前と同じ動きが壊れていないか」を確認する回帰テストが欠かせません。直した所だけでなく周辺も確認します。">
+        <p><strong>プログラムを修正した後に必ず行うべきことは？</strong></p>
+        <button>コメントを全部消す</button>
+        <button>変数を全部グローバルにする</button>
+        <button>回帰テスト（前の動きが壊れていないか確認）</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="0"
+           data-explanation="仕様変更の調査では「入力・取得・出力」のパイプラインに沿って現状を把握するのが近道です。">
+        <p><strong>仕様変更の調査で、最初の手がかりになる見方は？</strong></p>
+        <button>入力→取得→出力のパイプラインで現状を追う</button>
+        <button>とにかくコードを上から全部書き直す</button>
+        <button>テストせずにすぐリリースする</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：丁寧な仕事は、未来の自分とチームへの贈り物。地味な習慣こそ一番効きます。</div>
     </section>
 
   </div>
@@ -181,7 +198,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +259,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +273,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

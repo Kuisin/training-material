@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>研修全体マップ — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="02-business-basics.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>研修全体マップ</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,55 +92,97 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+
+
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>研修全体マップ</h1>
+        <p>これから何を作れるようになるのか。ゴールを先に見て、地図を持って歩き出しましょう。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 15分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>研修全体の流れ（仕訳日記帳の演習 → 会計伝票登録 → 適切なプログラミング）</li>
+        <li>どのプログラムにも共通する「入力→取得→加工→出力」のパイプライン</li>
+        <li>「照会（見るだけ）」と「登録（書き込む）」の違いの予告</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 身近な例 -->
+    <section class="slide" data-title="まず地図を持つ">
+      <h2>知らない街は、地図があると怖くない</h2>
+      <p>初めての街でも、地図があれば「今ここ」「次はあそこ」が分かって安心できます。研修も同じで、最初に全体像を持つと、一つひとつの章が迷子になりません。</p>
+      <div class="callout note">先生：これから細かい話に入りますが、迷ったらこのスライドに戻ってきてください。「今どこを歩いているか」が分かるようにしておきます。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 研修マップ -->
+    <section class="slide" data-title="研修マップ">
+      <h2>研修の大きな流れ</h2>
+      <p>本研修は、おおきく3つのかたまりに分かれます。</p>
+      <ul>
+        <li><strong>前半（演習1〜4）</strong>：仕訳日記帳を「見る・一覧で出す」プログラム</li>
+        <li><strong>後半（演習5〜6）</strong>：会計伝票を「登録する」プログラム</li>
+        <li><strong>仕上げ（演習7）</strong>：性能と保守性 ＝「適切なプログラミング」</li>
+      </ul>
+      <div class="callout tip">Aくん：前半で“読む”を練習して、後半で“書く”に進む、という段階設計なんですね。</div>
+    </section>
+
+    <!-- スライド4 ・ システムの動き（パイプライン図） -->
+    <section class="slide" data-title="図解：処理パイプライン">
+      <h2>どのプログラムも、この5ステップ</h2>
+      <p>作るものが違っても、内部の流れは驚くほど似ています。この“型”を覚えるのが近道です。</p>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A[画面で入力] --> B[データを取得]
+  B --> C[加工・整形]
+  C --> D[出力]
+  D --> E[ダウンロード/登録]
       </pre>
+      <div class="callout warning">Bちゃん：材料を集めて → 下ごしらえして → 盛り付けて → 出す。やっぱり料理みたい。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド5 ・ 照会と登録の違い予告 -->
+    <section class="slide" data-title="照会と登録">
+      <h2>「見るだけ」と「書き込む」は責任が違う</h2>
+      <p>前半は<strong>照会</strong>（データを見る・出すだけ）。後半は<strong>登録</strong>（データを実際に書き込む）。同じプログラムでも、登録は“正式な記録を残す”ので、より慎重さが必要です。</p>
+      <div class="callout note">先生：今は「あとで登録という重い処理が出てくる」とだけ覚えておけば十分です。第11章でじっくり扱います。</div>
+      <div class="callout tip">この章で出てくる考え方：入力 / 取得 / 加工 / 出力 / 登録（パイプライン）、照会 vs 登録。</div>
+    </section>
+
+    <!-- スライド6 ・ つまずき -->
+    <section class="slide" data-title="つまずきポイント">
+      <h2>つまずきやすいところ</h2>
+      <div class="callout warning">つまずき：「章がたくさんあって不安」。→ 中身はどれも同じ5ステップの応用です。地図さえ持てば迷いません。</div>
+      <div class="callout tip">Aくん：個々の構文より、まず“流れの型”を押さえるのが効率的ということですね。</div>
+      <div class="callout warning">Bちゃん：全部いっぺんに覚えなくていいんだ、と思うと少しほっとしました。</div>
+    </section>
+
+    <!-- スライド7 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="2"
+           data-explanation="どのプログラムも「入力→取得→加工→出力（→登録）」という共通パイプラインで考えられます。">
+        <p><strong>多くのABAPプログラムに共通する処理の流れはどれ？</strong></p>
+        <button>出力 → 取得 → 入力</button>
+        <button>登録 → 入力 → 加工</button>
+        <button>入力 → 取得 → 加工 → 出力</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="0"
+           data-explanation="照会はデータを見る・出すだけ。登録は正式な記録を書き込むため、より慎重さが求められます。">
+        <p><strong>「照会」と「登録」の違いの説明として正しいのは？</strong></p>
+        <button>照会は見るだけ、登録は実際に書き込む</button>
+        <button>照会のほうが書き込み、登録は見るだけ</button>
+        <button>両者に違いはない</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：地図はもう手に入りました。あとは一歩ずつ。迷ったらここへ戻ってこられます。</div>
     </section>
+  </div>
+  </div>
 
   </div>
 
@@ -181,7 +198,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +259,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +273,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

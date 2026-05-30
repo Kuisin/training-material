@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>適切なプログラミング — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>適切なプログラミング</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,54 +92,119 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>適切なプログラミング</h1>
+        <p>性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 25分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>性能（速さ）と保守性（直しやすさ）を両立する書き方</li>
+        <li><code>SELECT</code> や <code>LOOP</code> の書き方で、なぜ速度に差が出るのか</li>
+        <li>悪い例・良い例の対比と、引き継げるコードの条件</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 渋滞する近道の比喩 -->
+    <section class="slide" data-title="近道のたとえ">
+      <h2>「近道」が、実は渋滞の原因になる</h2>
+      <p>その場では速そうに見える書き方が、データが増えると一気に遅くなることがあります。とくに「DBへ何度も取りに行く」書き方は、件数が増えるほど効いてきます。</p>
+      <div class="callout note">先生：性能は「少ないデータでは気づかない」のが怖いところ。本番の大量データで初めて遅さが牙をむきます。だから最初から良い型で書きます。</div>
+      <div class="callout warning">Bちゃん：少人数の試食会では平気でも、本番の宴会で回らなくなる…みたいなことですね。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ なぜ差が出るか -->
+    <section class="slide" data-title="なぜ差が出るか">
+      <h2>DBアクセスは「往復」が重い</h2>
+      <p>データベースへの問い合わせは、1回ごとに“往復の時間”がかかります。ループの中で毎回 <code>SELECT</code> すると、その往復が件数分くり返され、とても遅くなります。</p>
+      <div class="callout warning">つまずき：「LOOP の中で SELECT」は代表的なアンチパターン。件数×往復＝爆発的に遅くなります。</div>
+      <div class="callout tip">Aくん：計算量の話ですね。N件のループ内でN回問い合わせれば、コストはNに比例して膨らむ。</div>
+    </section>
+
+    <!-- スライド4 ・ 悪い例 -->
+    <section class="slide" data-title="悪い例">
+      <h2>悪い例：ループの中で毎回DBへ</h2>
+      <pre><code>" ❌ 明細1件ごとにDBへ取りに行く（往復が件数分）
+LOOP AT lt_bseg INTO ls_bseg.
+  SELECT SINGLE butxt FROM t001
+    INTO lv_name
+    WHERE bukrs = ls_bseg-bukrs.
+  WRITE: / ls_bseg-belnr, lv_name.
+ENDLOOP.</code></pre>
+      <div class="callout warning">Bちゃん：1件ごとに倉庫まで歩いて取りに行ってる…たしかに大変そう。</div>
+    </section>
+
+    <!-- スライド5 ・ 良い例 -->
+    <section class="slide" data-title="良い例">
+      <h2>良い例：先にまとめて取り、メモリで突き合わせ</h2>
+      <pre><code>" ✅ 必要な会社名を一度だけまとめて取得
+SELECT bukrs butxt FROM t001
+  INTO TABLE lt_t001
+  FOR ALL ENTRIES IN lt_bseg
+  WHERE bukrs = lt_bseg-bukrs.
+
+LOOP AT lt_bseg INTO ls_bseg.
+  READ TABLE lt_t001 INTO ls_t001
+    WITH KEY bukrs = ls_bseg-bukrs.   " メモリ内で照合（往復なし）
+  WRITE: / ls_bseg-belnr, ls_t001-butxt.
+ENDLOOP.</code></pre>
+      <div class="callout tip">Aくん：先に倉庫から必要分を台車でまとめて運び、あとは机の上で照合。往復が激減しますね。</div>
+      <div class="callout tip">この章のABAPキーワード：<code>FOR ALL ENTRIES</code> / <code>READ TABLE</code> / 必要な列だけ <code>SELECT</code> / 性能・保守性。</div>
+    </section>
+
+    <!-- スライド6 ・ 図解 -->
+    <section class="slide" data-title="図解：往復を減らす">
+      <h2>図で見る：無駄な往復を減らす</h2>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  subgraph 悪い例
+    L1[LOOP] --> Q1[毎回SELECT]
+    Q1 --> L1
+  end
+  subgraph 良い例
+    Q2[1回でまとめてSELECT] --> M[メモリ上で照合]
+  end
       </pre>
+      <div class="callout note">先生：ポイントは「DBへの往復を減らす」「必要な列だけ取る」。この2つだけでも、体感速度は大きく変わります。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド7 ・ 引き継げる書き方 -->
+    <section class="slide" data-title="引き継げる書き方">
+      <h2>保守性：10年後も誰かが直せるように</h2>
+      <ul>
+        <li><strong>コメント・命名</strong>：意図が読み取れる</li>
+        <li><strong>変更履歴</strong>：いつ・なぜ変えたか分かる</li>
+        <li><strong>開発標準に合わせる</strong>：チームで書き方を揃える</li>
+        <li><strong>部品化</strong>：直す範囲を狭く保つ</li>
+      </ul>
+      <div class="callout warning">Bちゃん：速さだけじゃなく、優しさ（読みやすさ）も品質なんですね。</div>
+      <div class="callout note">先生：速くて、読みやすくて、安全に直せる。この3つがそろって“適切なプログラミング”です。研修おつかれさまでした！</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="LOOP の中で毎回 SELECT すると、DBへの往復が件数分くり返されて遅くなります。先にまとめて取得してメモリで照合します。">
+        <p><strong>性能上、避けたい代表的な書き方は？</strong></p>
+        <button>必要な列だけを SELECT する</button>
+        <button>LOOP の中で毎回 SELECT する</button>
+        <button>FOR ALL ENTRIES でまとめて取得する</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="適切なプログラミングは、速さ（性能）だけでなく、読みやすさ・直しやすさ（保守性）まで含めて評価します。">
+        <p><strong>「適切なプログラミング」が満たすべきものは？</strong></p>
+        <button>とにかく実行が速いことだけ</button>
+        <button>とにかく短く書くことだけ</button>
+        <button>性能と保守性（読みやすさ・直しやすさ）の両立</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：ここまで来たあなたは、もう「翻訳者」の入口に立っています。良いコードは、未来へのやさしさです。</div>
     </section>
 
   </div>
@@ -181,7 +221,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +282,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +296,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

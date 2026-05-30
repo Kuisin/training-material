@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>複数データをまとめる — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="09-control-flow.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>複数データをまとめる</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,54 +92,107 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>複数データをまとめる</h1>
+        <p>ヘッダと明細を合わせて出力する。後で使いやすい形にデータを整える方法を学びます。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 25分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>複数の内部テーブル（ヘッダ用・明細用）を使い分ける</li>
+        <li>データを移す・対応づける命令（<code>MOVE</code> / <code>MOVE-CORRESPONDING</code>）</li>
+        <li>蓄える・消す命令（<code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code>）</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 領収書整理の比喩 -->
+    <section class="slide" data-title="領収書整理のたとえ">
+      <h2>バラバラの情報を、1枚の表にまとめる</h2>
+      <p>「お店の情報（ヘッダ）」と「買った品物（明細）」が別々にあると見づらいですよね。これらを突き合わせて、1つの見やすい一覧にするのが今回のテーマです。</p>
+      <div class="callout note">先生：会計でいうと、伝票ヘッダ（BKPF）と明細（BSEG）を組み合わせて、「1行で意味が分かる一覧」を作るイメージです。</div>
+      <div class="callout warning">Bちゃん：レシートと家計簿を見比べて、1行にまとめる作業に似てますね。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 複数テーブルの使い分け -->
+    <section class="slide" data-title="複数テーブルの使い分け">
+      <h2>用途ごとに「棚」を分ける</h2>
+      <p>取得用と出力用で内部テーブルを分けると、頭が整理されます。</p>
+      <pre><code>DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
+DATA lt_bseg TYPE TABLE OF bseg.   " 明細取得用
+DATA lt_out  TYPE TABLE OF ty_out. " 出力用（まとめた形）</code></pre>
+      <div class="callout tip">Aくん：入力（生データ）と出力（整形後）の棚を分けるんですね。役割が混ざらなくて良い設計です。</div>
+    </section>
+
+    <!-- スライド4 ・ MOVE系 -->
+    <section class="slide" data-title="MOVEと対応づけ">
+      <h2>値を移す：MOVE と MOVE-CORRESPONDING</h2>
+      <ul>
+        <li><code>MOVE a TO b</code>（または <code>b = a</code>）：1つの値を移す</li>
+        <li><code>MOVE-CORRESPONDING</code>：<strong>同じ名前の項目</strong>をまとめて移す（とても便利）</li>
+      </ul>
+      <pre><code>MOVE-CORRESPONDING ls_bkpf TO ls_out.  " 同名項目を一気にコピー
+ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す</code></pre>
+      <div class="callout note">先生：<code>MOVE-CORRESPONDING</code> は「名前が一致する欄だけ自動で詰め替える」便利屋さん。手作業のコピーを減らせます。</div>
+    </section>
+
+    <!-- スライド5 ・ APPEND/CLEAR/REFRESH -->
+    <section class="slide" data-title="蓄える・消す">
+      <h2>蓄える・消す：APPEND / CLEAR / REFRESH</h2>
+      <ul>
+        <li><code>APPEND ls_out TO lt_out</code>：作った1行を出力テーブルに追加</li>
+        <li><code>CLEAR ls_out</code>：作業領域（1行）を空にする</li>
+        <li><code>REFRESH lt_out</code>：内部テーブル（全行）を空にする</li>
+      </ul>
+      <div class="callout warning">つまずき：<code>APPEND</code> したあと <code>CLEAR</code> し忘れると、前の行の値が次に残ってしまう。→ 「1行作る → 追加 → クリア」をワンセットに。</div>
+    </section>
+
+    <!-- スライド6 ・ 図解 -->
+    <section class="slide" data-title="図解：取得→対応付け→蓄積">
+      <h2>図で見る：まとめる流れ</h2>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A[ヘッダ取得] --> C[1行を組み立て]
+  B[明細取得] --> C
+  C --> D[APPEND で蓄積]
+  D --> E[CLEAR して次の行へ]
+  E --> C
       </pre>
+      <div class="callout tip">この章のABAPキーワード：<code>MOVE</code> / <code>MOVE-CORRESPONDING</code> / <code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code>。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド7 ・ ミニ演習 -->
+    <section class="slide" data-title="ミニ演習">
+      <h2>確認質問＆ミニ演習</h2>
+      <p><strong>先生の問い：</strong>「1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？」</p>
+      <div class="callout tip">Aくん：作業領域を <code>CLEAR</code> します。前の値が残ると混ざるので。</div>
+      <div class="callout warning">Bちゃん：使った皿を洗ってから次の料理、みたいな感じですね。</div>
+      <div class="callout note">先生：その通り！「組み立て→APPEND→CLEAR」を口ぐせにすれば、混ざる事故はほぼ防げます。</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="MOVE-CORRESPONDING は、両者で名前が一致する項目だけをまとめてコピーします。">
+        <p><strong>同じ名前の項目をまとめて移すのに便利なのは？</strong></p>
+        <button>APPEND</button>
+        <button>MOVE-CORRESPONDING</button>
+        <button>REFRESH</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="CLEAR は作業領域（1行）を空にします。APPEND の後にこれを忘れると前の値が残ります。REFRESH はテーブル全体を空にします。">
+        <p><strong>1行をAPPENDした後、次の行の前に作業領域を空にする命令は？</strong></p>
+        <button>MOVE</button>
+        <button>ULINE</button>
+        <button>CLEAR</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：「組み立て→追加→クリア」。このリズムが身につけば、データ整形はもう得意分野です。</div>
     </section>
 
   </div>
@@ -181,7 +209,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +270,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +284,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>制御の考え方 — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="10-modularization.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>制御の考え方</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,54 +92,141 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>制御の考え方</h1>
+        <p>同じ見出しを繰り返さない「サプレス」、キーの変わり目で処理を分ける制御を学びます。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 30分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>サプレス（＝同じ表示を繰り返さないこと）の考え方</li>
+        <li>並びの「変わり目」で処理する制御（<code>AT FIRST</code> / <code>AT LAST</code> / <code>AT NEW</code> / <code>AT END OF</code>）</li>
+        <li>フラグ（旗）を使った状態の管理と、多重ネストを避ける意識</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ サプレスの比喩 -->
+    <section class="slide" data-title="サプレスのたとえ">
+      <h2>同じ見出しを何度も書かない</h2>
+      <p>名簿で「東京都　田中」「東京都　佐藤」「東京都　鈴木」と毎行「東京都」を書くより、最初の1回だけ「東京都」と出して、あとは省くほうが見やすいですよね。これが<strong>サプレス＝同じ表示を繰り返さないこと</strong>です。</p>
+      <div class="callout note">先生：用語は難しそうでも、中身は「重複する見出しを省いて見やすくする」だけ。日常でも自然にやっていることです。</div>
+      <div class="callout warning">Bちゃん：時刻表で「9時台」とまとめて、分だけ並べるのと同じですね。あれなら分かります！</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 変わり目の制御 -->
+    <section class="slide" data-title="変わり目で処理する">
+      <h2>「変わり目」をきっかけに処理する</h2>
+      <p>並べ替えたデータを上から見ていくと、グループの「変わり目」があります。そこで小計を出したり、見出しを出したりします。</p>
+      <ul>
+        <li><code>AT FIRST</code>：いちばん最初に1回（全体の見出しなど）</li>
+        <li><code>AT NEW 項目</code>：その項目が変わった最初の行（グループ見出し）</li>
+        <li><code>AT END OF 項目</code>：その項目が変わる直前の行（小計など）</li>
+        <li><code>AT LAST</code>：いちばん最後に1回（総合計など）</li>
+      </ul>
+      <div class="callout warning">つまずき：これらは<strong>事前に SORT してある</strong>ことが前提。並んでいないと「変わり目」が正しく取れません。</div>
+    </section>
+
+    <!-- スライド4 ・ コード例 -->
+    <section class="slide" data-title="制御のコード例">
+      <h2>LOOP の中に制御ブロックを置く</h2>
+      <pre><code>SORT lt_out BY bukrs.
+LOOP AT lt_out INTO ls_out.
+  AT FIRST.        WRITE: / '会社別 一覧'.        ENDAT.
+  AT NEW bukrs.    WRITE: / '■ 会社:', ls_out-bukrs. ENDAT.
+
+  WRITE: / ls_out-belnr, ls_out-amount.
+
+  AT END OF bukrs. WRITE: / '  小計 …'.          ENDAT.
+  AT LAST.         WRITE: / '== 総合計 ==' .       ENDAT.
+ENDLOOP.</code></pre>
+      <div class="callout tip">Aくん：LOOP を回しながら「最初／グループ頭／グループ末／最後」にフックを掛けるんですね。構造がきれい。</div>
+    </section>
+
+    <!-- スライド5 ・ 図解（必須） -->
+    <section class="slide" data-title="図解：キーの変わり目">
+      <h2>図で見る：キーが変わると分岐する</h2>
       <pre class="mermaid">
-flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+flowchart TD
+  S[次の行を読む] --> F{最初の行?}
+  F -->|はい| H1[AT FIRST: 全体見出し]
+  F -->|いいえ| N{会社が変わった?}
+  H1 --> N
+  N -->|はい| H2[AT NEW: グループ見出し]
+  N -->|いいえ| W[明細を出力]
+  H2 --> W
+  W --> E{会社の最終行?}
+  E -->|はい| H3[AT END OF: 小計]
+  E -->|いいえ| S
+  H3 --> S
       </pre>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド6 ・ フラグ -->
+    <section class="slide" data-title="フラグ（旗）">
+      <h2>フラグ ＝ 状態を覚えておく旗</h2>
+      <p>フラグは「ある状態が起きたか」を覚えておく小さな箱（多くは <code>'X'</code> か空）。例：「1件でもエラーがあったか」を覚えておき、最後にまとめて判断します。</p>
+      <pre><code>DATA lv_error TYPE flag.        " 旗（'X' で立てる）
+
+LOOP AT lt_in INTO ls_in.
+  IF ls_in-amount < 0.
+    lv_error = 'X'.            " エラーの旗を立てる
+  ENDIF.
+ENDLOOP.
+
+IF lv_error = 'X'.
+  MESSAGE 'エラーが含まれています' TYPE 'I'.
+ENDIF.</code></pre>
+      <div class="callout warning">Bちゃん：「あとで思い出すための付箋」みたいなものですね。立てておいて、最後に見る。</div>
+    </section>
+
+    <!-- スライド7 ・ SY-SUBRCだけでは足りない -->
+    <section class="slide" data-title="SY-SUBRCだけでは足りない時">
+      <h2>「取れた／取れない」だけでは足りない場面</h2>
+      <p><code>SY-SUBRC</code> は1回の処理の成否を表すだけ。「全体を通して見たときの状態（複数件のうち1件でも問題があったか等）」は、自分でフラグを使って覚えておく必要があります。</p>
+      <div class="callout note">先生：1回ごとの成否＝<code>SY-SUBRC</code>、流れ全体の状態＝<strong>フラグ</strong>。役割が違うので両方使います。</div>
+      <div class="callout tip">この章のABAPキーワード：<code>AT FIRST</code> / <code>AT NEW</code> / <code>AT END OF</code> / <code>AT LAST</code> / フラグ。</div>
+    </section>
+
+    <!-- スライド8 ・ 多重ネスト回避 -->
+    <section class="slide" data-title="多重ネストを避ける">
+      <h2>入れ子を深くしすぎない</h2>
+      <p><code>IF</code> の中に <code>IF</code>、さらにその中に <code>IF</code>…と深くなると、読めなくなります。条件を整理したり、早めに <code>CONTINUE</code> で抜けたりして、浅く保ちましょう。</p>
+      <div class="callout warning">つまずき：「とりあえず IF を足す」を繰り返すと、3ヶ月後に誰も読めないコードに。→ 深くなったら「分け方を見直すサイン」です。</div>
+      <div class="callout tip">Aくん：ネストの深さは“複雑さのメーター”だと思えば良いんですね。浅いほど健全。</div>
+    </section>
+
+    <!-- スライド9 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="0"
+           data-explanation="サプレスは「同じ表示を繰り返さない」こと。見出しの重複を省いて見やすくします。">
+        <p><strong>「サプレス」の意味として正しいのは？</strong></p>
+        <button>同じ表示を繰り返さず省くこと</button>
+        <button>データを並べ替えること</button>
+        <button>エラーを記録すること</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="AT NEW/AT END OF などの制御は、事前に SORT してグループが並んでいることが前提です。">
+        <p><strong>AT NEW・AT END OF を正しく使うための前提は？</strong></p>
+        <button>NEW-PAGE を入れること</button>
+        <button>フラグを必ず立てること</button>
+        <button>事前にキー項目で SORT しておくこと</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="quiz" data-answer="1"
+           data-explanation="フラグは流れ全体の状態（1件でも問題があったか等）を覚えておく旗。1回ごとの成否を表す SY-SUBRC とは役割が違います。">
+        <p><strong>「複数件のうち1件でもエラーがあったか」を覚えておくのに向くのは？</strong></p>
+        <button>SY-SUBRC を見るだけ</button>
+        <button>フラグ（旗）を使う</button>
+        <button>ULINE を引く</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：制御は“難しい呪文”ではなく「見やすく・正しく並べる工夫」。比喩に戻せば必ず分かります。</div>
     </section>
 
   </div>
@@ -181,7 +243,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +304,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +318,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

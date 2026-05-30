@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>データを扱う基本 — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="06-select-from-db.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>データを扱う基本</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,55 +92,108 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>データを扱う基本</h1>
+        <p>内部テーブル＝行の集まり、作業領域＝いま触っている1行。プログラムの中でのデータの持ち方を学びます。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 25分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>内部テーブル（複数行）と作業領域（1行）の関係</li>
+        <li>並べ替え・1件ずつ処理・1件取り出し（<code>SORT</code> / <code>LOOP</code> / <code>READ TABLE</code>）</li>
+        <li>「内部テーブルはDBそのものではない」という大事な区別</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 棚と1枚の比喩 -->
+    <section class="slide" data-title="棚と1枚のたとえ">
+      <h2>内部テーブル＝棚、作業領域＝手に取った1枚</h2>
+      <p>たくさんの書類が並んだ「棚」が内部テーブル。そこから1枚だけ手に取って机に置いたものが「作業領域（1行）」です。書き込みや確認は、机の上の1枚に対して行います。</p>
+      <div class="callout note">先生：プログラムは「棚全体」を一度に触るのではなく、「1枚ずつ机に出して処理する」のが基本です。</div>
+      <div class="callout warning">Bちゃん：棚の本を1冊ずつ取り出して読む、みたいなイメージなら分かります。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 1行 vs 複数行 -->
+    <section class="slide" data-title="1行と複数行">
+      <h2>1件の箱と、複数件の表</h2>
+      <p>ABAPでは、両方を用意します。</p>
+      <pre><code>" 1行ぶんの作業領域（机の上の1枚）
+DATA ls_row  TYPE bkpf.
+" 複数行の内部テーブル（棚）
+DATA lt_tab  TYPE TABLE OF bkpf.</code></pre>
+      <div class="callout tip">Aくん：<code>ls_</code> が単一行(structure)、<code>lt_</code> がテーブル、という命名の慣習なんですね。</div>
+    </section>
+
+    <!-- スライド4 ・ 主要操作 -->
+    <section class="slide" data-title="主要な操作">
+      <h2>並べ替え・1件ずつ・1件取り出し</h2>
+      <p>内部テーブルに対するよく使う操作は3つです。</p>
+      <pre><code>SORT lt_tab BY budat.            " 日付で並べ替え
+
+LOOP AT lt_tab INTO ls_row.      " 1行ずつ机に出して処理
+  WRITE: / ls_row-belnr.
+ENDLOOP.
+
+READ TABLE lt_tab INTO ls_row    " 条件に合う1件を取り出す
+  WITH KEY belnr = '0000000001'.</code></pre>
+      <div class="callout note">先生：<code>LOOP</code>＝「1行ずつ順番に」、<code>READ TABLE</code>＝「狙った1行を1発で」。目的で使い分けます。</div>
+    </section>
+
+    <!-- スライド5 ・ 図解 -->
+    <section class="slide" data-title="図解：棚と机">
+      <h2>図で見る：棚（テーブル）と机（作業領域）</h2>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  T["内部テーブル<br/>(複数行の棚)"] -->|LOOP / READ TABLE| W["作業領域<br/>(1行=机の上)"]
+  W -->|加工してから| O[出力 や 蓄積]
       </pre>
+      <div class="callout tip">この章のABAPキーワード：<code>TYPE TABLE OF</code> / <code>SORT</code> / <code>LOOP ... INTO</code> / <code>READ TABLE ... WITH KEY</code>。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド6 ・ Excelとの異同 -->
+    <section class="slide" data-title="Excelとの異同">
+      <h2>Excelの表と似て、ちょっと違う</h2>
+      <p>「行と列の表」という点はExcelに似ています。でも内部テーブルは<strong>プログラムが動いている間だけ、メモリ上にある一時的な表</strong>です。実行が終われば消えます。</p>
+      <div class="callout warning">つまずき：「内部テーブル＝データベース」ではありません。DBは倉庫（永続）、内部テーブルは作業机の上（一時的）です。</div>
+      <div class="callout warning">つまずき：「型そのもの」と混同しがち。<code>TYPE</code> は“形”の定義、内部テーブルは“その形に入った実データ”です。</div>
+    </section>
+
+    <!-- スライド7 ・ ミニ演習 -->
+    <section class="slide" data-title="ミニ演習">
+      <h2>確認質問＆ミニ演習</h2>
+      <p><strong>先生の問い：</strong>「棚にある全書類を、日付順に1枚ずつ確認したい」。どの操作を、どの順で使う？</p>
+      <div class="callout tip">Aくん：まず <code>SORT</code> で日付順に並べ、<code>LOOP</code> で1行ずつ回す、です。</div>
+      <div class="callout warning">Bちゃん：先に並べ替えてからめくる、なら家でもやってます。安心しました。</div>
+      <div class="callout note">先生：正解です。「並べる→1件ずつ」は今後あらゆる場面で使う黄金パターン。覚えておくとずっと楽になります。</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="作業領域は「いま処理している1行」。内部テーブルは複数行の集まりです。">
+        <p><strong>「作業領域」が表すのは？</strong></p>
+        <button>複数行の集まり全体</button>
+        <button>いま処理している1行</button>
+        <button>データベースの実体</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="内部テーブルはプログラム実行中だけメモリに存在する一時的な表。DB（永続的な倉庫）とは別物です。">
+        <p><strong>内部テーブルについて正しいのは？</strong></p>
+        <button>データベースと同じで、ずっと保存される</button>
+        <button>データの「型」の定義そのものである</button>
+        <button>実行中だけ存在する一時的な表である</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：「棚と机」のイメージさえあれば、データ操作はもう怖くありません。</div>
     </section>
+  </div>
 
   </div>
 
@@ -181,7 +209,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +270,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +284,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>はじめてのレポートプログラム — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="04-selection-screen.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>はじめてのレポートプログラム</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,55 +92,114 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+
+
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>はじめてのレポートプログラム</h1>
+        <p>ABAPの最小単位「レポートプログラム」を作り、変数・定数・コメントの意味を知ります。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 20分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>レポートプログラムとは何か（作る→実行する→結果を見る）</li>
+        <li>変数と定数の違い、それぞれ「何のために」あるのか</li>
+        <li>コメントを書く理由（未来の自分と仲間のため）</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 身近な例 -->
+    <section class="slide" data-title="レポートとは">
+      <h2>レポートプログラム＝「自動の作業手順書」</h2>
+      <p>レポートプログラムは、コンピュータに「この順番でこれをやって」と書いた手順書です。書いて実行すると、上から順に処理して、結果を画面に出してくれます。</p>
+      <div class="callout note">先生：まずは「画面に文字を出す」だけの小さなプログラムから始めます。最初の一歩はこれで十分です。</div>
+      <div class="callout warning">Bちゃん：手順書なら家電の説明書みたいなものですね。順番に書けばいいなら、できそう。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 作る→実行→結果 -->
+    <section class="slide" data-title="作る→実行→結果">
+      <h2>3つのステップで動かす</h2>
+      <p>ABAP開発は、いつもこのリズムです。</p>
+      <ol>
+        <li><strong>作る</strong>：エディタにプログラムを書く</li>
+        <li><strong>実行する</strong>：実行ボタンを押す</li>
+        <li><strong>結果を見る</strong>：画面に出た結果を確認する</li>
+      </ol>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A[作る] --> B[実行する]
+  B --> C[結果を見る]
+  C -->|直す| A
       </pre>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド4 ・ 最小コード -->
+    <section class="slide" data-title="最小のコード">
+      <h2>いちばん小さなプログラム</h2>
+      <p>最初の行 <code>REPORT</code> は「これはレポートプログラムです」という宣言。<code>WRITE</code> は「画面に書く」命令です。</p>
+      <pre><code>REPORT z_hello.
+
+WRITE 'こんにちは、ABAP'.</code></pre>
+      <div class="callout tip">Aくん：<code>REPORT</code> がプログラムの名札、<code>WRITE</code> が出力命令、と読めば素直ですね。</div>
+      <div class="callout note">先生：英語の意味そのまま。write＝書く、です。記号に身構えず「英単語の命令文」として読みましょう。</div>
+    </section>
+
+    <!-- スライド5 ・ 変数 -->
+    <section class="slide" data-title="変数">
+      <h2>変数 ＝ 中身を入れ替えられる箱</h2>
+      <p><code>DATA</code> で「箱」を用意します。箱には名前を付け、あとから値を入れたり替えたりできます。</p>
+      <pre><code>DATA lv_name TYPE string.
+lv_name = '田中'.
+WRITE lv_name.</code></pre>
+      <div class="callout tip">Aくん（理系向け）：数学の文字 x のようなもの。x にいろいろな値を代入できる、あの感覚です。</div>
+      <div class="callout warning">Bちゃん（生活の比喩）：ラベルを貼った“タッパー”。中身は入れ替えられるけど、容器の名前は同じ、という感じ。</div>
+    </section>
+
+    <!-- スライド6 ・ 定数 -->
+    <section class="slide" data-title="定数">
+      <h2>定数 ＝ 中身を変えない箱</h2>
+      <p><code>CONSTANTS</code> は、一度決めたら変えない値です。「消費税率」「会社コード」のように、途中で勝手に変わると困るものに使います。</p>
+      <pre><code>CONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.</code></pre>
+      <div class="callout note">先生：「変えていい箱（変数）」と「変えない箱（定数）」を区別すると、事故が減ります。固定の値に名前を付けておくと、読みやすさも上がります。</div>
+    </section>
+
+    <!-- スライド7 ・ コメント -->
+    <section class="slide" data-title="コメント">
+      <h2>コメント ＝ 未来の自分へのメモ</h2>
+      <p>行の先頭に <code>*</code>、または <code>"</code> を書くと、その部分は「実行されないメモ」になります。何のための処理かを残しておくためのものです。</p>
+      <pre><code>* 税込金額を計算する（社内ルール: 端数切り捨て）
+DATA lv_total TYPE i.
+lv_total = lv_price + lv_tax.   " ここで合算</code></pre>
+      <div class="callout warning">つまずき：「自分が書いたコードは覚えている」と思いがち。でも3ヶ月後の自分は他人同然です。理由をメモしておきましょう。</div>
+      <div class="callout tip">この章のABAPキーワード：<code>REPORT</code> / <code>DATA</code> / <code>CONSTANTS</code> / <code>WRITE</code> / コメント（<code>*</code>・<code>"</code>）。</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="変数(DATA)は途中で中身を入れ替えられる箱。定数(CONSTANTS)は決めたら変えない値です。">
+        <p><strong>「途中で中身を入れ替えられる箱」はどれ？</strong></p>
+        <button>CONSTANTS（定数）</button>
+        <button>DATA（変数）</button>
+        <button>REPORT</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="コメントは実行されないメモ。処理の意図を未来の自分や仲間に伝えるために書きます。">
+        <p><strong>コメントを書く一番の目的は？</strong></p>
+        <button>プログラムを速くするため</button>
+        <button>画面にきれいに表示するため</button>
+        <button>処理の意図を後で読む人に伝えるため</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：最初のプログラムは数行で十分。動いた瞬間の「できた！」を大切に。</div>
     </section>
+  </div>
+  </div>
 
   </div>
 
@@ -181,7 +215,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +276,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +290,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){

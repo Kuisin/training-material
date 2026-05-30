@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<!--
-  ============================================================================
-  レッスンテンプレート（スライド形式）  ·  ABeam 研修教材
-  ============================================================================
-  使い方（AI向け）:
-    1. このファイルを次の場所にコピーする:  <track>/NN-kebab-title.html
-       （例: abap/02-data-types.html）
-    2. <section class="slide" data-title="..."> 1つが1スライド。
-       data-title はジャンプメニューに表示されるラベル。必ず設定すること。
-    3. <section class="slide"> ブロックを追加／削除する。1スライド＝1トピック。
-    4. すべての {{PLACEHOLDER}} を実際の内容に置き換える。
-    5. <head>、<style>、上部バー、下部コントロール、<script>（スライド
-       エンジン＋メニュー）は編集しないこと。
-    6. Mermaid 図を1つ以上、確認テストのスライドを1つ以上必ず入れること。
-    7. 完成したら「TEMPLATE NOTE」コメントを削除する。
-    8. index.html にレッスンを追加する（template/index-template.html 参照）。
-
-  エンジンが自動で提供する機能:
-    ・「次へ／前へ」ボタン   ・← → / PageUp-Down / Home / End キー
-    ・進捗バー            ・「☰ メニュー」ジャンプ一覧（各スライドの data-title から生成）
-    ・ディープリンク: ファイルを #s3 で開くと3枚目のスライドから開始
-  ============================================================================
--->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{LESSON_TITLE}} — ABeam 研修</title>
+  <title>仕訳日記帳と会計伝票 — ABeam 研修</title>
 
   <!-- UIライブラリ: 全レッスンで同じ見た目を提供。置き換え禁止。 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -94,18 +71,16 @@
       padding:.4rem .8rem; font-size:.8rem; border-radius:999px; box-shadow:0 2px 8px #0003; }
   </style>
 </head>
-<body data-next="{{NEXT_HREF}}">
-  <!-- data-next: 次の章のファイル名（例: 02-data-types.html）。最終章では空のままにする。
-       最後のスライドで「次へ」ボタンが「次の章 →」に変わり、その章へ移動する。 -->
+<body data-next="03-abap-minimum-unit.html">
   <div class="progress" id="progress"></div>
 
-  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン（編集禁止） -->
+  <!-- AIに質問: レッスン内容をコピーして Copilot に貼り付けるためのボタン -->
   <button id="aiAskBtn" class="ai-fab contrast" title="このレッスンの内容をコピーして Copilot に質問する">🤖 Copilotに質問</button>
 
   <!-- 上部バー（編集禁止） -->
   <header class="topbar">
     <button id="menuBtn" class="secondary">☰ メニュー</button>
-    <h1>{{LESSON_TITLE}}</h1>
+    <h1>仕訳日記帳と会計伝票</h1>
     <span class="counter" id="counterTop"></span>
     <a href="../index.html" role="button" class="contrast outline">レッスン一覧</a>
   </header>
@@ -117,55 +92,111 @@
   <!-- ========================= スライド ========================= -->
   <div id="deck">
 
-    <!-- スライド1 ・ タイトル／概要（最初のスライドとして残すこと） -->
+
+
+    <!-- スライド1 ・ 概要 -->
     <section class="slide" data-title="概要">
       <hgroup>
-        <h1>{{LESSON_TITLE}}</h1>
-        <p>{{ONE_LINE_SUMMARY}}</p>
+        <h1>仕訳日記帳と会計伝票</h1>
+        <p>会計の2つの基本「仕訳日記帳＝動きの一覧」「会計伝票＝1件の正式記録」を、家計簿のたとえで理解します。</p>
       </hgroup>
       <div class="lesson-meta">
-        <span>⏱ {{DURATION}}</span><span>📶 {{LEVEL}}</span><span>🏷 {{TRACK}}</span>
+        <span>⏱ 20分</span><span>📶 初学者</span><span>🏷 ABAP研修</span>
       </div>
       <h3>この章で学ぶこと</h3>
       <ul>
-        <!-- TEMPLATE NOTE: 具体的な学習目標を2〜4個 -->
-        <li>{{GOAL_1}}</li>
-        <li>{{GOAL_2}}</li>
-        <li>{{GOAL_3}}</li>
+        <li>仕訳日記帳と会計伝票は何が違うのか（一覧 vs 1件）</li>
+        <li>「ヘッダ（見出し）」と「明細（中身）」という二段構造</li>
+        <li>外部ファイルを取り込んで登録する、という業務の流れ</li>
       </ul>
     </section>
 
-    <!-- スライド2 ・ 概念（トピックごとにこのブロックを複製） -->
-    <section class="slide" data-title="{{SLIDE_2_MENU_LABEL}}">
-      <h2>{{SLIDE_2_HEADING}}</h2>
-      <p>{{PARAGRAPH}}</p>
-      <pre><code>{{CODE_EXAMPLE}}</code></pre>
-      <div class="callout tip">{{TIP_TEXT}}</div>
+    <!-- スライド2 ・ 家計簿の比喩 -->
+    <section class="slide" data-title="家計簿のたとえ">
+      <h2>会計は「会社の家計簿」</h2>
+      <p>会計と聞くと身構えますが、根っこは家計簿と同じです。「いつ・何に・いくら使った／もらった」を記録しているだけです。</p>
+      <div class="callout note">先生：難しい簿記の知識はいりません。まずは「お金の出入りをメモする台帳」とイメージしてください。</div>
+      <div class="callout warning">Bちゃん：家計簿なら毎日つけてます！それと同じならイメージできそう。</div>
     </section>
 
-    <!-- スライド3 ・ 図のスライド（必須: レッスンに図を1つ以上） -->
-    <section class="slide" data-title="仕組み">
-      <h2>仕組み</h2>
-      <!-- Mermaid の種類: flowchart | sequenceDiagram | erDiagram | mindmap -->
+    <!-- スライド3 ・ 仕訳日記帳 vs 会計伝票 -->
+    <section class="slide" data-title="日記帳と伝票">
+      <h2>「一覧」と「1件の正式記録」</h2>
+      <ul>
+        <li><strong>仕訳日記帳</strong>：取引を時系列に並べた<strong>一覧表</strong>。「最近の動きをまとめて見る」ためのもの。</li>
+        <li><strong>会計伝票</strong>：取引<strong>1件ごと</strong>の正式な記録。「この1件はこうだった」という証拠。</li>
+      </ul>
+      <div class="callout note">先生：日記帳は“まとめ表”、伝票は“1枚の正式な記録”。レシートの束（伝票）と、家計簿のページ（日記帳）の関係に近いです。</div>
+      <div class="callout tip">Aくん：伝票が1件1件あって、それを並べて見た景色が日記帳、という包含関係ですね。</div>
+    </section>
+
+    <!-- スライド4 ・ ヘッダと明細 -->
+    <section class="slide" data-title="ヘッダと明細">
+      <h2>伝票は「見出し」と「中身」でできている</h2>
+      <p>会計伝票1枚は、2段構造になっています。</p>
+      <ul>
+        <li><strong>ヘッダ</strong>：伝票全体の見出し（日付・会社・伝票番号など、1件に1つ）</li>
+        <li><strong>明細</strong>：実際の中身の行（勘定科目・金額など、複数行ありうる）</li>
+      </ul>
+      <div class="callout warning">Bちゃん：レシートの「お店の名前・日付」がヘッダで、「商品ごとの行」が明細、という感じですか？ → まさにそのイメージです。</div>
+    </section>
+
+    <!-- スライド5 ・ 登録と照会 -->
+    <section class="slide" data-title="登録と照会の流れ">
+      <h2>「書き込む」と「見る」</h2>
+      <p>会計データに対してやることは大きく2つです。</p>
+      <ul>
+        <li><strong>登録</strong>：新しい取引を台帳に書き込む</li>
+        <li><strong>照会</strong>：すでにある取引を見る・一覧で出す</li>
+      </ul>
+      <div class="callout note">先生：この研修の前半は「照会」、後半は「登録」を作ります。今日はその土台となる“何を記録しているか”を押さえました。</div>
+    </section>
+
+    <!-- スライド6 ・ 外部ファイル取込（図） -->
+    <section class="slide" data-title="図解：外部ファイル取込">
+      <h2>外部ファイルを取り込むとは</h2>
+      <p>他システムやExcelから来た取引データ（ファイル）を、チェックして・形を整えて・SAPに登録する流れです。後半の演習でこの形を作ります。</p>
       <pre class="mermaid">
 flowchart LR
-  A[{{NODE_A}}] --> B[{{NODE_B}}]
+  A[外部ファイル] --> B{チェック}
+  B -->|OK| C[変換・整形]
+  B -->|NG| E[エラーとして報告]
+  C --> D[SAPに登録]
+  D --> F[結果を表示]
       </pre>
+      <div class="callout tip">Aくん：いきなり登録せず、必ず“チェック”の関所を通すんですね。</div>
     </section>
 
-    <!-- スライド4 ・ 確認テスト（必須: テストのスライドを1つ以上・最後に置く） -->
+    <!-- スライド7 ・ つまずき -->
+    <section class="slide" data-title="つまずきポイント">
+      <h2>つまずきやすいところ</h2>
+      <div class="callout warning">つまずき：「日記帳」と「伝票」を同じものと思ってしまう。→ 伝票＝1件、日記帳＝それらを並べた一覧、と区別しましょう。</div>
+      <div class="callout warning">つまずき：ヘッダと明細を1つに混ぜて考えてしまう。→ 「1件に1つの見出し」「中身は複数行」と分けて持つのが基本です。</div>
+    </section>
+
+    <!-- スライド8 ・ クイズ -->
     <section class="slide" data-title="確認テスト">
       <h2>理解度チェック</h2>
-      <!-- data-answer = 正解ボタンの0始まりインデックス。data-explanation は必ず設定 -->
-      <div class="quiz" data-answer="{{CORRECT_INDEX}}"
-           data-explanation="{{EXPLANATION}}">
-        <p><strong>{{QUESTION}}</strong></p>
-        <button>{{OPTION_0}}</button>
-        <button>{{OPTION_1}}</button>
-        <button>{{OPTION_2}}</button>
+      <div class="quiz" data-answer="1"
+           data-explanation="会計伝票は取引1件ごとの正式記録。仕訳日記帳はそれらを時系列に並べた一覧表です。">
+        <p><strong>「会計伝票」の説明として正しいのは？</strong></p>
+        <button>取引を時系列に並べた一覧表</button>
+        <button>取引1件ごとの正式な記録</button>
+        <button>外部から来たファイルそのもの</button>
         <p class="feedback"></p>
       </div>
+      <div class="quiz" data-answer="2"
+           data-explanation="ヘッダは伝票全体の見出し（1件に1つ）、明細は中身の行（複数ありうる）です。">
+        <p><strong>伝票の「ヘッダ」にあたるのはどれ？</strong></p>
+        <button>勘定科目ごとの金額の行</button>
+        <button>明細の1行1行</button>
+        <button>日付・会社・伝票番号など全体の見出し</button>
+        <p class="feedback"></p>
+      </div>
+      <div class="callout note">今日のひとこと：会計＝会社の家計簿。難しい用語も、たとえに戻せば必ず腹落ちします。</div>
     </section>
+  </div>
+  </div>
 
   </div>
 
@@ -181,7 +212,6 @@ flowchart LR
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad:false });
-    // デッキがレイアウトされている間（visibility:hidden）に図を描画し、幅を正しく取得する
     try { await mermaid.run({ querySelector:'.mermaid' }); } catch (e) {}
 
     const slides   = [...document.querySelectorAll('#deck .slide')];
@@ -243,7 +273,6 @@ flowchart LR
       else if (e.key === 'Escape') closeMenu();
     });
 
-    // 確認テストのロジック
     document.querySelectorAll('.quiz').forEach(q => {
       const answer = Number(q.dataset.answer);
       const fb = q.querySelector('.feedback');
@@ -258,7 +287,6 @@ flowchart LR
       }));
     });
 
-    // 開始（#s3 のようなディープリンクに対応）
     // AIに質問: レッスン全文をコピーして Copilot へ貼り付けてもらう
     const aiBtn = document.getElementById('aiAskBtn');
     function slideText(s){
