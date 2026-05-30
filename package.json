@@ -1,0 +1,19 @@
+{
+  "name": "abeam-training-material",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "ABeam 研修教材（Vite + 共有コンポーネントのスライド教材）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.0.6",
+    "mermaid": "^11.4.0"
+  }
+}

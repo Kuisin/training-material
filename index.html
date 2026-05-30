@@ -1,28 +1,14 @@
 <!DOCTYPE html>
 <!--
-  ============================================================================
-  インデックス  ·  ABeam 研修教材
-  ============================================================================
-  template/index-template.html からコピー。<head>/<style> は編集しない。
-  ============================================================================
+  レッスン一覧（ルート）。スタイルは /src/menu.js が読み込む共有CSSから来る。
+  レッスンを追加したら、該当トラックに <li> を番号順で足すだけ。
 -->
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ABeam 研修教材</title>
-
-  <!-- UIライブラリ: レッスンと同じ見た目。置き換え禁止。 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-
-  <style>
-    :root { --brand:#d6001c; }
-    .track{ margin:2rem 0; }
-    .track ul{ list-style:none; padding:0; }
-    .track li{ padding:.5rem 0; border-bottom:1px solid var(--pico-muted-border-color); }
-    .track li small{ opacity:.7; }
-    footer.site{ margin-top:3rem; padding-top:1rem; border-top:1px solid var(--pico-muted-border-color); font-size:.85rem; opacity:.8; }
-  </style>
+  <script type="module" src="/src/menu.js"></script>
 </head>
 <body>
   <main class="container">
