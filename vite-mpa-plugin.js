@@ -26,6 +26,25 @@ function assetHrefFromHtml(htmlOut, assetFile) {
   return path.relative(htmlDir, assetFile).replace(/\\/g, '/');
 }
 
+/** エントリ chunk とその静的 import 先から CSS を再帰収集（共有 chunk 内の styles.css 用） */
+function collectImportedCss(chunk, bundle, visited = new Set()) {
+  if (!chunk || visited.has(chunk.fileName)) return [];
+  visited.add(chunk.fileName);
+
+  const css = chunk.viteMetadata?.importedCss
+    ? [...chunk.viteMetadata.importedCss]
+    : [];
+
+  for (const id of chunk.imports ?? []) {
+    const dep = bundle[id];
+    if (dep?.type === 'chunk') {
+      css.push(...collectImportedCss(dep, bundle, visited));
+    }
+  }
+
+  return css;
+}
+
 /**
  * レッスン .tsx 用の HTML をビルド時に生成し、dev では仮想ルートで配信する。
  * ルート index はプロジェクト直下の index.html を使う（Vite 標準）。
@@ -107,10 +126,9 @@ export function tsxMpaPlugin({ root, lessonsDir }) {
         if (!chunk) continue;
 
         const scriptHref = assetHrefFromHtml(page.htmlOut, chunk.fileName);
-        const importedCss = chunk.viteMetadata?.importedCss;
-        const cssHrefs = importedCss
-          ? [...importedCss].map((file) => assetHrefFromHtml(page.htmlOut, file))
-          : [];
+        const cssHrefs = [...new Set(collectImportedCss(chunk, bundle))].map(
+          (file) => assetHrefFromHtml(page.htmlOut, file)
+        );
 
         this.emitFile({
           type: 'asset',
