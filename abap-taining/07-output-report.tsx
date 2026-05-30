@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>同じ内容でも、整え方で伝わり方が変わる</h2>
         <p>改行も見出しもない、文字がびっしりの議事録は読む気が失せますよね。逆に、見出し・区切り線・適度な空きがあると、ぐっと読みやすくなります。帳票も同じです。</p>
-        <Callout variant="note">
-先生：取得したデータをそのまま並べるだけでは「読めるけど、つらい」状態。整えて初めて“使える資料”になります。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：レシピでも、材料と手順が分かれてると作りやすいです。あれと同じですね。
-        </Callout>
+        <Dialog speaker="teacher">
+取得したデータをそのまま並べるだけでは「読めるけど、つらい」状態。整えて初めて“使える資料”になります。
+        </Dialog>
+        <Dialog speaker="b">
+レシピでも、材料と手順が分かれてると作りやすいです。あれと同じですね。
+        </Dialog>
       </>
     ),
   },
@@ -48,9 +49,9 @@ Bちゃん：レシピでも、材料と手順が分かれてると作りやす�
       <>
         <h2>見た目を整える基本命令</h2>
         <ul>          <li>            <code>WRITE</code>：文字や値を書き出す（            <code>/</code>で改行つき）</li>          <li>            <code>ULINE</code>：横の区切り線を引く</li>          <li>            <code>SKIP</code>：空行を入れる</li>          <li>            <code>NEW-LINE</code>：次の行へ移る</li>          <li>            <code>NEW-PAGE</code>：改ページする</li></ul>
-        <Callout variant="tip">
-Aくん：文章でいう「改行」「罫線」「空行」「改ページ」に1対1で対応しているんですね。
-        </Callout>
+        <Dialog speaker="a">
+文章でいう「改行」「罫線」「空行」「改ページ」に1対1で対応しているんですね。
+        </Dialog>
       </>
     ),
   },
@@ -67,9 +68,9 @@ ULINE.
 LOOP AT lt_out INTO ls_out.
   WRITE: / ls_out-belnr, 20 ls_out-budat, 40 ls_out-amount.
 ENDLOOP.</code>`} />
-        <Callout variant="note">
-先生：数字（20, 40）は「何桁目から書くか」という位置指定。列をそろえると一気に表らしくなります。
-        </Callout>
+        <Dialog speaker="teacher">
+数字（20, 40）は「何桁目から書くか」という位置指定。列をそろえると一気に表らしくなります。
+        </Dialog>
       </>
     ),
   },
@@ -106,12 +107,12 @@ ENDLOOP.</code>`} />
       <>
         <h2>見やすさ＝ユーザーへの思いやり</h2>
         <p>帳票を見るのは「人」です。少し整えるだけで、相手の確認作業が何倍も楽になります。これは技術というより“気づかい”の部分です。</p>
-        <Callout variant="warning">
-つまずき：「データが合っていればOK」と思いがち。でも見づらい帳票は、現場では「使えない」と言われてしまいます。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：正しいだけじゃなく、優しい資料にしたいですね。
-        </Callout>
+        <Dialog speaker="stumble">
+「データが合っていればOK」と思いがち。でも見づらい帳票は、現場では「使えない」と言われてしまいます。
+        </Dialog>
+        <Dialog speaker="b">
+正しいだけじゃなく、優しい資料にしたいですね。
+        </Dialog>
       </>
     ),
   },
@@ -121,15 +122,15 @@ Bちゃん：正しいだけじゃなく、優しい資料にしたいですね�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章のポイントは、出力を「正しい情報を届けるための最後の設計工程」と捉えることです。WRITEで値を出すだけでなく、ULINEやSKIPで視線の流れを整えて、判断しやすい帳票に仕上げます。
-        </Callout>
-        <Callout variant="tip">
-Aくん：つまり帳票はUI設計に近く、同じデータでも配置や区切りで読み取りコストが大きく変わるんですね。列位置のそろえ方も品質要件の一部になる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：数字が並ぶ画面でも、見出しや空行があるだけで安心して読めます。使う人が迷わないように整えるのが、開発側の仕事だと実感しました。
-        </Callout>
+        <Dialog speaker="teacher">
+この章のポイントは、出力を「正しい情報を届けるための最後の設計工程」と捉えることです。WRITEで値を出すだけでなく、ULINEやSKIPで視線の流れを整えて、判断しやすい帳票に仕上げます。
+        </Dialog>
+        <Dialog speaker="a">
+つまり帳票はUI設計に近く、同じデータでも配置や区切りで読み取りコストが大きく変わるんですね。列位置のそろえ方も品質要件の一部になる。
+        </Dialog>
+        <Dialog speaker="b">
+数字が並ぶ画面でも、見出しや空行があるだけで安心して読めます。使う人が迷わないように整えるのが、開発側の仕事だと実感しました。
+        </Dialog>
       </>
     ),
   },
@@ -157,9 +158,9 @@ Bちゃん：数字が並ぶ画面でも、見出しや空行があるだけで�
           question={<>            <strong>「伝票番号・日付・金額」を見やすく横並びにする工夫として適切なのは？</strong></>}
           options={["全項目を同じ位置に連続で出す", "WRITEの桁位置指定で列をそろえる", "ULINEだけを増やして列位置は気にしない"]}
         />
-        <Callout variant="note">
-今日のひとこと：ひと手間の整えが、相手の「ありがとう」につながります。
-        </Callout>
+        <Dialog speaker="closing">
+ひと手間の整えが、相手の「ありがとう」につながります。
+        </Dialog>
       </>
     ),
   }

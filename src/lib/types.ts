@@ -21,3 +21,6 @@ export interface LessonChrome {
 }
 
 export type CalloutVariant = "tip" | "warning" | "note";
+
+/** 対話型レッスンの登場人物・つまずき・締めの一言 */
+export type DialogSpeaker = "teacher" | "a" | "b" | "stumble" | "closing";

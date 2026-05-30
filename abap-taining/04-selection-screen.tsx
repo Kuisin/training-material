@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>選択画面 ＝ 通販サイトの検索フォーム</h2>
         <p>通販サイトで「価格 1000円〜3000円」「ブランド: ○○」と入れて検索しますよね。あれと同じで、プログラムの最初に「どのデータが欲しいか」を入力してもらう画面が選択画面です。</p>
-        <Callout variant="note">
-先生：プログラムは入力された条件を読み取り、「その条件に合うデータだけ」を後で取りに行きます。入口の設計がとても大事です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：検索フォームならいつも使ってます。条件を入れて「検索」ボタン、ですね。
-        </Callout>
+        <Dialog speaker="teacher">
+プログラムは入力された条件を読み取り、「その条件に合うデータだけ」を後で取りに行きます。入口の設計がとても大事です。
+        </Dialog>
+        <Dialog speaker="b">
+検索フォームならいつも使ってます。条件を入れて「検索」ボタン、ですね。
+        </Dialog>
       </>
     ),
   },
@@ -50,9 +51,9 @@ Bちゃん：検索フォームならいつも使ってます。条件を入れ�
         <p>          <code>PARAMETERS</code>は「会社コードは1000」のように、値を          <strong>1つだけ</strong>受け取る欄を作ります。</p>
         <CodeBlock code={`<code>PARAMETERS p_bukrs TYPE bkpf-bukrs.</code>`} />
         <p>これで「会社コードを入力してください」という入力欄が1つ、画面に出ます。</p>
-        <Callout variant="tip">
-Aくん：1変数に1値。ピンポイントで指定したいときの形ですね。
-        </Callout>
+        <Dialog speaker="a">
+1変数に1値。ピンポイントで指定したいときの形ですね。
+        </Dialog>
       </>
     ),
   },
@@ -65,12 +66,12 @@ Aくん：1変数に1値。ピンポイントで指定したいときの形で�
         <p>          <code>SELECT-OPTIONS</code>は「日付 4/1〜4/30」「伝票番号 これとこれ」のように、          <strong>範囲や複数</strong>を受け取れる欄です。</p>
         <CodeBlock code={`<code>SELECT-OPTIONS s_budat FOR bkpf-budat.</code>`} />
         <p>「From（から）」「To（まで）」の2つの欄が出て、期間で絞り込めます。</p>
-        <Callout variant="warning">
-Bちゃん：宿の予約で「チェックイン〜チェックアウト」を選ぶのと同じ感じですね。
-        </Callout>
-        <Callout variant="note">
-先生：1点を指すなら PARAMETERS、幅で指すなら SELECT-OPTIONS。これが使い分けの軸です。
-        </Callout>
+        <Dialog speaker="b">
+宿の予約で「チェックイン〜チェックアウト」を選ぶのと同じ感じですね。
+        </Dialog>
+        <Dialog speaker="teacher">
+1点を指すなら PARAMETERS、幅で指すなら SELECT-OPTIONS。これが使い分けの軸です。
+        </Dialog>
       </>
     ),
   },
@@ -103,15 +104,15 @@ Bちゃん：宿の予約で「チェックイン〜チェックアウト」を�
     content: (
       <>
         <h2>つまずきやすいところ（入力条件の設計）</h2>
-        <Callout variant="warning">
-つまずき：条件を入れずに実行 → 全データを取得してしまい、とても重くなる。→ 「必要な分だけ取る」ために条件設計は超重要です。
-        </Callout>
-        <Callout variant="warning">
-つまずき：1点で十分なのに範囲指定にする／逆もある。→ 「ピンポイント？ 幅？」を最初に決めましょう。
-        </Callout>
-        <Callout variant="tip">
-Aくん：入口を絞れば、後ろの処理が軽くなる。性能の話にも直結しますね。
-        </Callout>
+        <Dialog speaker="stumble">
+条件を入れずに実行 → 全データを取得してしまい、とても重くなる。→ 「必要な分だけ取る」ために条件設計は超重要です。
+        </Dialog>
+        <Dialog speaker="stumble">
+1点で十分なのに範囲指定にする／逆もある。→ 「ピンポイント？ 幅？」を最初に決めましょう。
+        </Dialog>
+        <Dialog speaker="a">
+入口を絞れば、後ろの処理が軽くなる。性能の話にも直結しますね。
+        </Dialog>
       </>
     ),
   },
@@ -122,16 +123,16 @@ Aくん：入口を絞れば、後ろの処理が軽くなる。性能の話に�
       <>
         <h2>確認質問＆ミニ演習</h2>
         <p>          <strong>先生の問い：</strong>「特定の1社の、ある1ヶ月分の伝票を見たい」。会社コードと日付、それぞれどちらの入力欄が向いている？</p>
-        <Callout variant="tip">
-Aくん：会社コードは1社だから
+        <Dialog speaker="a">
+会社コードは1社だから
           <code>PARAMETERS</code>
 、日付は期間だから
           <code>SELECT-OPTIONS</code>
 です。
-        </Callout>
-        <Callout variant="note">
-先生：その通り！「1つに決まるもの＝PARAMETERS／幅があるもの＝SELECT-OPTIONS」で考えれば大丈夫。迷っても、この問いに戻れば選べます。
-        </Callout>
+        </Dialog>
+        <Dialog speaker="teacher">
+その通り！「1つに決まるもの＝PARAMETERS／幅があるもの＝SELECT-OPTIONS」で考えれば大丈夫。迷っても、この問いに戻れば選べます。
+        </Dialog>
       </>
     ),
   },
@@ -141,15 +142,15 @@ Aくん：会社コードは1社だから
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章の核心は、選択画面を「後続処理の品質を決める入口」として設計することです。PARAMETERSで単一値、SELECT-OPTIONSで範囲や複数値を受け取り、WHEREに正しく渡します。
-        </Callout>
-        <Callout variant="tip">
-Aくん：入力方式を誤ると、必要以上のデータ取得につながって性能も可読性も落ちますね。だから「1点指定か、幅指定か」を先に決めるのが設計上の判断になる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：検索フォームの作り方で結果の見やすさも速度も変わると分かりました。条件を入れずに全件取得しないように、実行前に入力内容を確認する習慣も大事そうです。
-        </Callout>
+        <Dialog speaker="teacher">
+この章の核心は、選択画面を「後続処理の品質を決める入口」として設計することです。PARAMETERSで単一値、SELECT-OPTIONSで範囲や複数値を受け取り、WHEREに正しく渡します。
+        </Dialog>
+        <Dialog speaker="a">
+入力方式を誤ると、必要以上のデータ取得につながって性能も可読性も落ちますね。だから「1点指定か、幅指定か」を先に決めるのが設計上の判断になる。
+        </Dialog>
+        <Dialog speaker="b">
+検索フォームの作り方で結果の見やすさも速度も変わると分かりました。条件を入れずに全件取得しないように、実行前に入力内容を確認する習慣も大事そうです。
+        </Dialog>
       </>
     ),
   },
@@ -177,9 +178,9 @@ Bちゃん：検索フォームの作り方で結果の見やすさも速度も�
           question={<>            <strong>「会社コードを1社だけ指定したい」条件設計として適切なのは？</strong></>}
           options={["SELECT-OPTIONSで必ずFrom/Toを入力させる", "入力欄を作らず全件取得して後で絞る", "PARAMETERSで単一入力にする"]}
         />
-        <Callout variant="note">
-今日のひとこと：良い入口は、良いプログラムの第一歩。条件設計はこれからずっと役立ちます。
-        </Callout>
+        <Dialog speaker="closing">
+良い入口は、良いプログラムの第一歩。条件設計はこれからずっと役立ちます。
+        </Dialog>
       </>
     ),
   }

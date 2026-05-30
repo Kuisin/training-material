@@ -9,6 +9,7 @@
  */
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -55,6 +56,7 @@ const slides = [
         <h2>{{SLIDE_2_HEADING}}</h2>
         <p>{{PARAGRAPH}}</p>
         <CodeBlock code={`{{CODE_EXAMPLE}}`} />
+        <Dialog speaker="teacher">{{TEACHER_LINE}}</Dialog>
         <Callout variant="tip">{{TIP_TEXT}}</Callout>
       </>
     ),

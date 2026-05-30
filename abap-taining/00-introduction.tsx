@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,15 +33,15 @@ const slides = [
       <>
         <h2>まずは、3人の登場人物から</h2>
         <p>このレッスンには3人が出てきます。先生と、新卒2人です。あなたに近いほうの言葉を、特に拾ってください。</p>
-        <Callout variant="note">
-          先生：これから一緒にABAP（エービーアップ）を学びます。SAP（サップ）という会計システムを、会社ごとの事情に合わせて手直しするための言語です。怖がらなくて大丈夫ですよ。
-        </Callout>
-        <Callout variant="tip">
-          Aくん：プログラミングは少しかじりました。理屈で納得したいタイプです。
-        </Callout>
-        <Callout variant="warning">
-          Bちゃん：パソコンは得意じゃなくて…。例え話があると安心します。
-        </Callout>
+        <Dialog speaker="teacher">
+これから一緒にABAP（エービーアップ）を学びます。SAP（サップ）という会計システムを、会社ごとの事情に合わせて手直しするための言語です。怖がらなくて大丈夫ですよ。
+        </Dialog>
+        <Dialog speaker="a">
+プログラミングは少しかじりました。理屈で納得したいタイプです。
+        </Dialog>
+        <Dialog speaker="b">
+パソコンは得意じゃなくて…。例え話があると安心します。
+        </Dialog>
       </>
     ),
   },
@@ -51,12 +52,12 @@ const slides = [
       <>
         <h2>完成品の家でも、リフォームはする</h2>
         <p>SAPは「すでに建っている立派な家」のようなものです。たいていの部屋（機能）は最初から揃っています。でも、住む人によって「ここに棚が欲しい」「この動線を変えたい」が出てきます。</p>
-        <Callout variant="note">
-          先生：SAPは世界中の会社で使えるよう、広く作られています。でも「うちの会社のこのやり方」までは、最初から入っていません。そこを足すのがABAP開発です。
-        </Callout>
-        <Callout variant="warning">
-          つまずき：「パッケージ＝買えば終わり」と思いがちですが、実際は“自社に合わせる作業”がほぼ必ず発生します。
-        </Callout>
+        <Dialog speaker="teacher">
+SAPは世界中の会社で使えるよう、広く作られています。でも「うちの会社のこのやり方」までは、最初から入っていません。そこを足すのがABAP開発です。
+        </Dialog>
+        <Dialog speaker="stumble">
+「パッケージ＝買えば終わり」と思いがちですが、実際は“自社に合わせる作業”がほぼ必ず発生します。
+        </Dialog>
       </>
     ),
   },
@@ -68,9 +69,9 @@ const slides = [
         <h2>こんなとき、追加開発が登場する</h2>
         <p>たとえば会計の現場では、こんな依頼がよく来ます。どれも「標準のSAPだけでは足りない」場面です。</p>
         <ul>          <li>他システムから来た取引ファイルを、まとめてSAPに取り込みたい</li>          <li>自社の見やすい形で、取引の一覧（帳票）を出したい</li>          <li>登録前に「うちのルール」で自動チェックしたい</li></ul>
-        <Callout variant="tip">
-          Aくん：標準にない処理を“足す”ためのプログラム、ということですね。
-        </Callout>
+        <Dialog speaker="a">
+標準にない処理を“足す”ためのプログラム、ということですね。
+        </Dialog>
       </>
     ),
   },
@@ -81,9 +82,9 @@ const slides = [
       <>
         <h2>ABAP開発＝「翻訳」の仕事</h2>
         <p>本レッスン全体を貫く合言葉は          <strong>「業務 → システム → ABAP」</strong>です。人のお願いを、機械が分かる手順に直していきます。</p>
-        <Callout variant="note">
-          先生：いきなりコードを書くのではありません。まず「何をしたいか（業務）」を聞き、「システムでどう実現するか」を考え、最後に「ABAPでこう書く」へ降りていきます。この順番を絶対に崩しません。
-        </Callout>
+        <Dialog speaker="teacher">
+いきなりコードを書くのではありません。まず「何をしたいか（業務）」を聞き、「システムでどう実現するか」を考え、最後に「ABAPでこう書く」へ降りていきます。この順番を絶対に崩しません。
+        </Dialog>
       </>
     ),
   },
@@ -98,9 +99,9 @@ const slides = [
   A["依頼書<br/>(業務の言葉)"] --> B["仕様<br/>(システムの言葉)"]
   B --> C["プログラム<br/>(ABAPの言葉)"]
   C --> D["動く機能"]`} />
-        <Callout variant="warning">
-          Bちゃん：左から右へ、だんだん細かくしていくんですね。料理のレシピに近いかも。
-        </Callout>
+        <Dialog speaker="b">
+左から右へ、だんだん細かくしていくんですね。料理のレシピに近いかも。
+        </Dialog>
       </>
     ),
   },
@@ -115,9 +116,9 @@ const slides = [
           この研修で出てくるABAPキーワード（位置づけ確認用）
           <ul>            <li>              <code>REPORT</code>… プログラムの始まりを宣言する合図</li>            <li>              <code>PARAMETERS</code>… 利用者に値を入力してもらう欄</li>            <li>              <code>SELECT</code>… データベースから情報を取り出す</li>            <li>              <code>WRITE</code>… 画面に結果を書き出す</li></ul>
         </Callout>
-        <Callout variant="note">
-          先生：丸暗記は不要です。「なぜ必要か」を理解すれば、書き方は後からついてきます。
-        </Callout>
+        <Dialog speaker="teacher">
+丸暗記は不要です。「なぜ必要か」を理解すれば、書き方は後からついてきます。
+        </Dialog>
       </>
     ),
   },
@@ -127,15 +128,15 @@ const slides = [
     content: (
       <>
         <h2>最初につまずきやすいところ</h2>
-        <Callout variant="tip">
-          Aくん：理屈は分かるけど、SAP特有の用語（伝票、テーブル名…）が多くて道に迷いそう。→ 用語は出るたびに“やさしい言い換え”を付けるので大丈夫。
-        </Callout>
-        <Callout variant="warning">
-          Bちゃん：英語のコードを見ると固まってしまう。→ コードは「指示文」。英単語の意味（select＝選ぶ など）で読めば怖くありません。
-        </Callout>
-        <Callout variant="note">
-          先生：分からないのは「あなたの理解力」ではなく「まだ習っていないだけ」。順番に積めば必ず追いつけます。
-        </Callout>
+        <Dialog speaker="a">
+理屈は分かるけど、SAP特有の用語（伝票、テーブル名…）が多くて道に迷いそう。→ 用語は出るたびに“やさしい言い換え”を付けるので大丈夫。
+        </Dialog>
+        <Dialog speaker="b">
+英語のコードを見ると固まってしまう。→ コードは「指示文」。英単語の意味（select＝選ぶ など）で読めば怖くありません。
+        </Dialog>
+        <Dialog speaker="teacher">
+分からないのは「あなたの理解力」ではなく「まだ習っていないだけ」。順番に積めば必ず追いつけます。
+        </Dialog>
       </>
     ),
   },
@@ -145,15 +146,15 @@ const slides = [
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-          先生：この章のゴールは「なぜABAPが必要か」を、業務担当にも説明できる言葉で持つことです。SAPは完成品ですが、会社ごとの運用差分まで最初から埋まっているわけではありません。
-        </Callout>
-        <Callout variant="tip">
-          Aくん：つまり、要求をそのままコードにするのではなく、業務の意図を分解して「システムで何を実現するか」に変換する工程が本体なんですね。だから合言葉が「業務 → システム → ABAP」になる。
-        </Callout>
-        <Callout variant="warning">
-          Bちゃん：最初は英語の命令を見るだけで緊張したけど、翻訳の順番があると分かると気持ちが楽です。いきなり書くより、まず「何を助ける処理か」を言葉で確認すれば迷いにくいです。
-        </Callout>
+        <Dialog speaker="teacher">
+この章のゴールは「なぜABAPが必要か」を、業務担当にも説明できる言葉で持つことです。SAPは完成品ですが、会社ごとの運用差分まで最初から埋まっているわけではありません。
+        </Dialog>
+        <Dialog speaker="a">
+つまり、要求をそのままコードにするのではなく、業務の意図を分解して「システムで何を実現するか」に変換する工程が本体なんですね。だから合言葉が「業務 → システム → ABAP」になる。
+        </Dialog>
+        <Dialog speaker="b">
+最初は英語の命令を見るだけで緊張したけど、翻訳の順番があると分かると気持ちが楽です。いきなり書くより、まず「何を助ける処理か」を言葉で確認すれば迷いにくいです。
+        </Dialog>
       </>
     ),
   },
@@ -181,9 +182,9 @@ const slides = [
           question={<>            <strong>この章で示した「ABAP開発の本質」に最も近い説明はどれ？</strong></>}
           options={["英語構文を暗記して素早く入力する作業", "業務のお願いをシステムの手順へ翻訳する作業", "SAP標準機能を停止して自前機能へ置き換える作業"]}
         />
-        <Callout variant="note">
-          今日のひとこと：最初は「翻訳のイメージ」さえ持てれば十分。1つずつ進めば、必ずできるようになります。
-        </Callout>
+        <Dialog speaker="closing">
+最初は「翻訳のイメージ」さえ持てれば十分。1つずつ進めば、必ずできるようになります。
+        </Dialog>
       </>
     ),
   }

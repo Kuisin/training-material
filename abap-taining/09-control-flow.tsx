@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>同じ見出しを何度も書かない</h2>
         <p>名簿で「東京都 田中」「東京都 佐藤」「東京都 鈴木」と毎行「東京都」を書くより、最初の1回だけ「東京都」と出して、あとは省くほうが見やすいですよね。これが          <strong>サプレス＝同じ表示を繰り返さないこと</strong>です。</p>
-        <Callout variant="note">
-先生：用語は難しそうでも、中身は「重複する見出しを省いて見やすくする」だけ。日常でも自然にやっていることです。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：時刻表で「9時台」とまとめて、分だけ並べるのと同じですね。あれなら分かります！
-        </Callout>
+        <Dialog speaker="teacher">
+用語は難しそうでも、中身は「重複する見出しを省いて見やすくする」だけ。日常でも自然にやっていることです。
+        </Dialog>
+        <Dialog speaker="b">
+時刻表で「9時台」とまとめて、分だけ並べるのと同じですね。あれなら分かります！
+        </Dialog>
       </>
     ),
   },
@@ -49,11 +50,11 @@ Bちゃん：時刻表で「9時台」とまとめて、分だけ並べるのと
         <h2>「変わり目」をきっかけに処理する</h2>
         <p>並べ替えたデータを上から見ていくと、グループの「変わり目」があります。そこで小計を出したり、見出しを出したりします。</p>
         <ul>          <li>            <code>AT FIRST</code>：いちばん最初に1回（全体の見出しなど）</li>          <li>            <code>AT NEW 項目</code>：その項目が変わった最初の行（グループ見出し）</li>          <li>            <code>AT END OF 項目</code>：その項目が変わる直前の行（小計など）</li>          <li>            <code>AT LAST</code>：いちばん最後に1回（総合計など）</li></ul>
-        <Callout variant="warning">
-つまずき：これらは
+        <Dialog speaker="stumble">
+これらは
           <strong>事前に SORT してある</strong>
 ことが前提。並んでいないと「変わり目」が正しく取れません。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -73,9 +74,9 @@ LOOP AT lt_out INTO ls_out.
   AT END OF bukrs. WRITE: / '  小計 …'.          ENDAT.
   AT LAST.         WRITE: / '== 総合計 ==' .       ENDAT.
 ENDLOOP.</code>`} />
-        <Callout variant="tip">
-Aくん：LOOP を回しながら「最初／グループ頭／グループ末／最後」にフックを掛けるんですね。構造がきれい。
-        </Callout>
+        <Dialog speaker="a">
+LOOP を回しながら「最初／グループ頭／グループ末／最後」にフックを掛けるんですね。構造がきれい。
+        </Dialog>
       </>
     ),
   },
@@ -118,9 +119,9 @@ ENDLOOP.
 IF lv_error = 'X'.
   MESSAGE 'エラーが含まれています' TYPE 'I'.
 ENDIF.</code>`} />
-        <Callout variant="warning">
-Bちゃん：「あとで思い出すための付箋」みたいなものですね。立てておいて、最後に見る。
-        </Callout>
+        <Dialog speaker="b">
+「あとで思い出すための付箋」みたいなものですね。立てておいて、最後に見る。
+        </Dialog>
       </>
     ),
   },
@@ -131,13 +132,13 @@ Bちゃん：「あとで思い出すための付箋」みたいなものです�
       <>
         <h2>「取れた／取れない」だけでは足りない場面</h2>
         <p>          <code>SY-SUBRC</code>は1回の処理の成否を表すだけ。「全体を通して見たときの状態（複数件のうち1件でも問題があったか等）」は、自分でフラグを使って覚えておく必要があります。</p>
-        <Callout variant="note">
-先生：1回ごとの成否＝
+        <Dialog speaker="teacher">
+1回ごとの成否＝
           <code>SY-SUBRC</code>
 、流れ全体の状態＝
           <strong>フラグ</strong>
 。役割が違うので両方使います。
-        </Callout>
+        </Dialog>
         <Callout variant="tip">
 この章のABAPキーワード：
           <code>AT FIRST</code>
@@ -159,12 +160,12 @@ Bちゃん：「あとで思い出すための付箋」みたいなものです�
       <>
         <h2>入れ子を深くしすぎない</h2>
         <p>          <code>IF</code>の中に          <code>IF</code>、さらにその中に          <code>IF</code>…と深くなると、読めなくなります。条件を整理したり、早めに          <code>CONTINUE</code>で抜けたりして、浅く保ちましょう。</p>
-        <Callout variant="warning">
-つまずき：「とりあえず IF を足す」を繰り返すと、3ヶ月後に誰も読めないコードに。→ 深くなったら「分け方を見直すサイン」です。
-        </Callout>
-        <Callout variant="tip">
-Aくん：ネストの深さは“複雑さのメーター”だと思えば良いんですね。浅いほど健全。
-        </Callout>
+        <Dialog speaker="stumble">
+「とりあえず IF を足す」を繰り返すと、3ヶ月後に誰も読めないコードに。→ 深くなったら「分け方を見直すサイン」です。
+        </Dialog>
+        <Dialog speaker="a">
+ネストの深さは“複雑さのメーター”だと思えば良いんですね。浅いほど健全。
+        </Dialog>
       </>
     ),
   },
@@ -174,15 +175,15 @@ Aくん：ネストの深さは“複雑さのメーター”だと思えば良�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章は、LOOP中の「変わり目」を捕まえて表示や集計を制御する考え方を身につける章です。AT FIRST / AT NEW / AT END OF / AT LASTは、並び順が正しいときに初めて意味を持ちます。
-        </Callout>
-        <Callout variant="tip">
-Aくん：つまり制御文の理解だけでは不十分で、事前SORTを含めて1セットの設計なんですね。さらに1回ごとの成否はSY-SUBRC、全体状態はフラグで管理すると責務分離ができる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：サプレスは難しい言葉に見えたけど、同じ見出しを省いて見やすくする工夫だと分かりました。条件を増やしすぎてネストが深くなったら、処理の分け方を見直します。
-        </Callout>
+        <Dialog speaker="teacher">
+この章は、LOOP中の「変わり目」を捕まえて表示や集計を制御する考え方を身につける章です。AT FIRST / AT NEW / AT END OF / AT LASTは、並び順が正しいときに初めて意味を持ちます。
+        </Dialog>
+        <Dialog speaker="a">
+つまり制御文の理解だけでは不十分で、事前SORTを含めて1セットの設計なんですね。さらに1回ごとの成否はSY-SUBRC、全体状態はフラグで管理すると責務分離ができる。
+        </Dialog>
+        <Dialog speaker="b">
+サプレスは難しい言葉に見えたけど、同じ見出しを省いて見やすくする工夫だと分かりました。条件を増やしすぎてネストが深くなったら、処理の分け方を見直します。
+        </Dialog>
       </>
     ),
   },
@@ -216,9 +217,9 @@ Bちゃん：サプレスは難しい言葉に見えたけど、同じ見出し�
           question={<>            <strong>全体見出しを「最初の1回だけ」出したい場合に適切なのは？</strong></>}
           options={["AT FIRST を使う", "AT END OF を使う", "LOOPの外でSY-SUBRCを確認する"]}
         />
-        <Callout variant="note">
-今日のひとこと：制御は“難しい呪文”ではなく「見やすく・正しく並べる工夫」。比喩に戻せば必ず分かります。
-        </Callout>
+        <Dialog speaker="closing">
+制御は“難しい呪文”ではなく「見やすく・正しく並べる工夫」。比喩に戻せば必ず分かります。
+        </Dialog>
       </>
     ),
   }

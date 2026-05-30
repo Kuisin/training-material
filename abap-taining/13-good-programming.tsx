@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>「近道」が、実は渋滞の原因になる</h2>
         <p>その場では速そうに見える書き方が、データが増えると一気に遅くなることがあります。とくに「DBへ何度も取りに行く」書き方は、件数が増えるほど効いてきます。</p>
-        <Callout variant="note">
-先生：性能は「少ないデータでは気づかない」のが怖いところ。本番の大量データで初めて遅さが牙をむきます。だから最初から良い型で書きます。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：少人数の試食会では平気でも、本番の宴会で回らなくなる…みたいなことですね。
-        </Callout>
+        <Dialog speaker="teacher">
+性能は「少ないデータでは気づかない」のが怖いところ。本番の大量データで初めて遅さが牙をむきます。だから最初から良い型で書きます。
+        </Dialog>
+        <Dialog speaker="b">
+少人数の試食会では平気でも、本番の宴会で回らなくなる…みたいなことですね。
+        </Dialog>
       </>
     ),
   },
@@ -48,12 +49,12 @@ Bちゃん：少人数の試食会では平気でも、本番の宴会で回ら�
       <>
         <h2>DBアクセスは「往復」が重い</h2>
         <p>データベースへの問い合わせは、1回ごとに“往復の時間”がかかります。ループの中で毎回          <code>SELECT</code>すると、その往復が件数分くり返され、とても遅くなります。</p>
-        <Callout variant="warning">
-つまずき：「LOOP の中で SELECT」は代表的なアンチパターン。件数×往復＝爆発的に遅くなります。
-        </Callout>
-        <Callout variant="tip">
-Aくん：計算量の話ですね。N件のループ内でN回問い合わせれば、コストはNに比例して膨らむ。
-        </Callout>
+        <Dialog speaker="stumble">
+「LOOP の中で SELECT」は代表的なアンチパターン。件数×往復＝爆発的に遅くなります。
+        </Dialog>
+        <Dialog speaker="a">
+計算量の話ですね。N件のループ内でN回問い合わせれば、コストはNに比例して膨らむ。
+        </Dialog>
       </>
     ),
   },
@@ -70,9 +71,9 @@ LOOP AT lt_bseg INTO ls_bseg.
     WHERE bukrs = ls_bseg-bukrs.
   WRITE: / ls_bseg-belnr, lv_name.
 ENDLOOP.</code>`} />
-        <Callout variant="warning">
-Bちゃん：1件ごとに倉庫まで歩いて取りに行ってる…たしかに大変そう。
-        </Callout>
+        <Dialog speaker="b">
+1件ごとに倉庫まで歩いて取りに行ってる…たしかに大変そう。
+        </Dialog>
       </>
     ),
   },
@@ -93,9 +94,9 @@ LOOP AT lt_bseg INTO ls_bseg.
     WITH KEY bukrs = ls_bseg-bukrs.   " メモリ内で照合（往復なし）
   WRITE: / ls_bseg-belnr, ls_t001-butxt.
 ENDLOOP.</code>`} />
-        <Callout variant="tip">
-Aくん：先に倉庫から必要分を台車でまとめて運び、あとは机の上で照合。往復が激減しますね。
-        </Callout>
+        <Dialog speaker="a">
+先に倉庫から必要分を台車でまとめて運び、あとは机の上で照合。往復が激減しますね。
+        </Dialog>
         <Callout variant="tip">
 この章のABAPキーワード：
           <code>FOR ALL ENTRIES</code>
@@ -122,9 +123,9 @@ Aくん：先に倉庫から必要分を台車でまとめて運び、あとは�
   subgraph 良い例
     Q2[1回でまとめてSELECT] --> M[メモリ上で照合]
   end`} />
-        <Callout variant="note">
-先生：ポイントは「DBへの往復を減らす」「必要な列だけ取る」。この2つだけでも、体感速度は大きく変わります。
-        </Callout>
+        <Dialog speaker="teacher">
+ポイントは「DBへの往復を減らす」「必要な列だけ取る」。この2つだけでも、体感速度は大きく変わります。
+        </Dialog>
       </>
     ),
   },
@@ -135,12 +136,12 @@ Aくん：先に倉庫から必要分を台車でまとめて運び、あとは�
       <>
         <h2>保守性：10年後も誰かが直せるように</h2>
         <ul>          <li>            <strong>コメント・命名</strong>：意図が読み取れる</li>          <li>            <strong>変更履歴</strong>：いつ・なぜ変えたか分かる</li>          <li>            <strong>開発標準に合わせる</strong>：チームで書き方を揃える</li>          <li>            <strong>部品化</strong>：直す範囲を狭く保つ</li></ul>
-        <Callout variant="warning">
-Bちゃん：速さだけじゃなく、優しさ（読みやすさ）も品質なんですね。
-        </Callout>
-        <Callout variant="note">
-先生：速くて、読みやすくて、安全に直せる。この3つがそろって“適切なプログラミング”です。研修おつかれさまでした！
-        </Callout>
+        <Dialog speaker="b">
+速さだけじゃなく、優しさ（読みやすさ）も品質なんですね。
+        </Dialog>
+        <Dialog speaker="teacher">
+速くて、読みやすくて、安全に直せる。この3つがそろって“適切なプログラミング”です。研修おつかれさまでした！
+        </Dialog>
       </>
     ),
   },
@@ -150,15 +151,15 @@ Bちゃん：速さだけじゃなく、優しさ（読みやすさ）も品質�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：最終章の結論は、良いプログラムは「速いだけ」でも「読みやすいだけ」でも不十分で、性能と保守性の両立が必要だという点です。特にDBアクセス回数を減らす設計は、実務で体感差が最も大きく出ます。
-        </Callout>
-        <Callout variant="tip">
-Aくん：LOOP内SELECTのようなアンチパターンを避け、先にまとめて取得してメモリ照合する構造にすると、スケール時の劣化を抑えられますね。さらに命名や部品化を整えることで、将来改修も安全にできる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：今は動いていても、データ量が増えたときに困らない書き方を最初から選ぶのが大事なんですね。未来の人が読めるように書くことまで含めて品質だと理解できました。
-        </Callout>
+        <Dialog speaker="teacher">
+最終章の結論は、良いプログラムは「速いだけ」でも「読みやすいだけ」でも不十分で、性能と保守性の両立が必要だという点です。特にDBアクセス回数を減らす設計は、実務で体感差が最も大きく出ます。
+        </Dialog>
+        <Dialog speaker="a">
+LOOP内SELECTのようなアンチパターンを避け、先にまとめて取得してメモリ照合する構造にすると、スケール時の劣化を抑えられますね。さらに命名や部品化を整えることで、将来改修も安全にできる。
+        </Dialog>
+        <Dialog speaker="b">
+今は動いていても、データ量が増えたときに困らない書き方を最初から選ぶのが大事なんですね。未来の人が読めるように書くことまで含めて品質だと理解できました。
+        </Dialog>
       </>
     ),
   },
@@ -186,9 +187,9 @@ Bちゃん：今は動いていても、データ量が増えたときに困ら�
           question={<>            <strong>「DB往復を減らす」と並んで性能改善に有効な基本方針は？</strong></>}
           options={["毎回SELECT *で全列を取得する", "必要な列に絞ってSELECTする", "READ TABLEを使わず常に二重LOOPにする"]}
         />
-        <Callout variant="note">
-今日のひとこと：ここまで来たあなたは、もう「翻訳者」の入口に立っています。良いコードは、未来へのやさしさです。
-        </Callout>
+        <Dialog speaker="closing">
+ここまで来たあなたは、もう「翻訳者」の入口に立っています。良いコードは、未来へのやさしさです。
+        </Dialog>
       </>
     ),
   }

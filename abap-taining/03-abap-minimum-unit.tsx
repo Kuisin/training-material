@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>レポートプログラム＝「自動の作業手順書」</h2>
         <p>レポートプログラムは、コンピュータに「この順番でこれをやって」と書いた手順書です。書いて実行すると、上から順に処理して、結果を画面に出してくれます。</p>
-        <Callout variant="note">
-先生：まずは「画面に文字を出す」だけの小さなプログラムから始めます。最初の一歩はこれで十分です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：手順書なら家電の説明書みたいなものですね。順番に書けばいいなら、できそう。
-        </Callout>
+        <Dialog speaker="teacher">
+まずは「画面に文字を出す」だけの小さなプログラムから始めます。最初の一歩はこれで十分です。
+        </Dialog>
+        <Dialog speaker="b">
+手順書なら家電の説明書みたいなものですね。順番に書けばいいなら、できそう。
+        </Dialog>
       </>
     ),
   },
@@ -66,16 +67,15 @@ Bちゃん：手順書なら家電の説明書みたいなものですね。順�
         <CodeBlock code={`<code>REPORT z_hello.
 
 WRITE 'こんにちは、ABAP'.</code>`} />
-        <Callout variant="tip">
-Aくん：
-          <code>REPORT</code>
+        <Dialog speaker="a">
+<code>REPORT</code>
 がプログラムの名札、
           <code>WRITE</code>
 が出力命令、と読めば素直ですね。
-        </Callout>
-        <Callout variant="note">
-先生：英語の意味そのまま。write＝書く、です。記号に身構えず「英単語の命令文」として読みましょう。
-        </Callout>
+        </Dialog>
+        <Dialog speaker="teacher">
+英語の意味そのまま。write＝書く、です。記号に身構えず「英単語の命令文」として読みましょう。
+        </Dialog>
       </>
     ),
   },
@@ -89,12 +89,12 @@ Aくん：
         <CodeBlock code={`<code>DATA lv_name TYPE string.
 lv_name = '田中'.
 WRITE lv_name.</code>`} />
-        <Callout variant="tip">
-Aくん（理系向け）：数学の文字 x のようなもの。x にいろいろな値を代入できる、あの感覚です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん（生活の比喩）：ラベルを貼った“タッパー”。中身は入れ替えられるけど、容器の名前は同じ、という感じ。
-        </Callout>
+        <Dialog speaker="a">
+数学の文字 x のようなもの。x にいろいろな値を代入できる、あの感覚です。
+        </Dialog>
+        <Dialog speaker="b">
+ラベルを貼った“タッパー”。中身は入れ替えられるけど、容器の名前は同じ、という感じ。
+        </Dialog>
       </>
     ),
   },
@@ -106,9 +106,9 @@ Bちゃん（生活の比喩）：ラベルを貼った“タッパー”。中�
         <h2>定数 ＝ 中身を変えない箱</h2>
         <p>          <code>CONSTANTS</code>は、一度決めたら変えない値です。「消費税率」「会社コード」のように、途中で勝手に変わると困るものに使います。</p>
         <CodeBlock code={`<code>CONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.</code>`} />
-        <Callout variant="note">
-先生：「変えていい箱（変数）」と「変えない箱（定数）」を区別すると、事故が減ります。固定の値に名前を付けておくと、読みやすさも上がります。
-        </Callout>
+        <Dialog speaker="teacher">
+「変えていい箱（変数）」と「変えない箱（定数）」を区別すると、事故が減ります。固定の値に名前を付けておくと、読みやすさも上がります。
+        </Dialog>
       </>
     ),
   },
@@ -122,9 +122,9 @@ Bちゃん（生活の比喩）：ラベルを貼った“タッパー”。中�
         <CodeBlock code={`<code>* 税込金額を計算する（社内ルール: 端数切り捨て）
 DATA lv_total TYPE i.
 lv_total = lv_price + lv_tax.   " ここで合算</code>`} />
-        <Callout variant="warning">
-つまずき：「自分が書いたコードは覚えている」と思いがち。でも3ヶ月後の自分は他人同然です。理由をメモしておきましょう。
-        </Callout>
+        <Dialog speaker="stumble">
+「自分が書いたコードは覚えている」と思いがち。でも3ヶ月後の自分は他人同然です。理由をメモしておきましょう。
+        </Dialog>
         <Callout variant="tip">
 この章のABAPキーワード：
           <code>REPORT</code>
@@ -149,15 +149,15 @@ lv_total = lv_price + lv_tax.   " ここで合算</code>`} />
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章の到達点は、最小のレポートを「読んで意図を説明できる」状態になることです。REPORTで始まり、DATAやCONSTANTSで値を準備し、WRITEで結果を出す流れが基本になります。
-        </Callout>
-        <Callout variant="tip">
-Aくん：変数は途中で値が変わる箱、定数は固定値の箱、コメントは処理意図を残すメモという役割分担ですね。単語の意味を押さえるとコードが命令文として読めます。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすいです。特にコメントが「未来の自分への手紙」だと思うと、書く意味がちゃんとあります。
-        </Callout>
+        <Dialog speaker="teacher">
+この章の到達点は、最小のレポートを「読んで意図を説明できる」状態になることです。REPORTで始まり、DATAやCONSTANTSで値を準備し、WRITEで結果を出す流れが基本になります。
+        </Dialog>
+        <Dialog speaker="a">
+変数は途中で値が変わる箱、定数は固定値の箱、コメントは処理意図を残すメモという役割分担ですね。単語の意味を押さえるとコードが命令文として読めます。
+        </Dialog>
+        <Dialog speaker="b">
+英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすいです。特にコメントが「未来の自分への手紙」だと思うと、書く意味がちゃんとあります。
+        </Dialog>
       </>
     ),
   },
@@ -185,9 +185,9 @@ Bちゃん：英語が怖かったけど、箱にラベルを貼る感覚で考�
           question={<>            <strong>最小レポートコードで `REPORT` を最初に書く主な理由は？</strong></>}
           options={["レポートプログラムであることを宣言するため", "画面の色を変更するため", "変数を自動的に初期化するため"]}
         />
-        <Callout variant="note">
-今日のひとこと：最初のプログラムは数行で十分。動いた瞬間の「できた！」を大切に。
-        </Callout>
+        <Dialog speaker="closing">
+最初のプログラムは数行で十分。動いた瞬間の「できた！」を大切に。
+        </Dialog>
       </>
     ),
   }

@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>長い手順書は「章」に分ける</h2>
         <p>1000行の手順書がのっぺり続くと、どこに何が書いてあるか分かりません。「準備」「本作業」「片付け」と章に分ければ、探すのも直すのも楽になります。プログラムも同じです。</p>
-        <Callout variant="note">
-先生：処理を意味のかたまり（部品）に分けて名前を付ける。これがサブルーチンの発想です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：料理本も「下ごしらえ」「焼く」「盛り付け」に分かれてると作りやすいです。
-        </Callout>
+        <Dialog speaker="teacher">
+処理を意味のかたまり（部品）に分けて名前を付ける。これがサブルーチンの発想です。
+        </Dialog>
+        <Dialog speaker="b">
+料理本も「下ごしらえ」「焼く」「盛り付け」に分かれてると作りやすいです。
+        </Dialog>
       </>
     ),
   },
@@ -48,9 +49,9 @@ Bちゃん：料理本も「下ごしらえ」「焼く」「盛り付け」に�
       <>
         <h2>分けると、3つ良いことがある</h2>
         <ul>          <li>            <strong>読みやすい</strong>：名前を見れば「何をする部分か」が分かる</li>          <li>            <strong>直しやすい</strong>：その部品だけ直せばよい（影響範囲が狭い）</li>          <li>            <strong>再利用できる</strong>：同じ処理を何度も呼べる</li></ul>
-        <Callout variant="tip">
-Aくん：関数に切り出すのと同じ発想ですね。重複を1か所にまとめられる。
-        </Callout>
+        <Dialog speaker="a">
+関数に切り出すのと同じ発想ですね。重複を1か所にまとめられる。
+        </Dialog>
       </>
     ),
   },
@@ -69,13 +70,12 @@ FORM calc_tax USING    p_price TYPE i
               CHANGING p_tax   TYPE i.
   p_tax = p_price / 10.
 ENDFORM.</code>`} />
-        <Callout variant="note">
-先生：
-          <code>USING</code>
+        <Dialog speaker="teacher">
+<code>USING</code>
 ＝「材料を渡す」、
           <code>CHANGING</code>
 ＝「材料を渡して、加工後を返してもらう」。役割で使い分けます。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -86,12 +86,12 @@ ENDFORM.</code>`} />
       <>
         <h2>グローバル と ローカル</h2>
         <ul>          <li>            <strong>グローバル変数</strong>：プログラム全体のどこからでも見える（共有の掲示板）</li>          <li>            <strong>ローカル変数</strong>：その部品の中だけで使える（手元のメモ）</li></ul>
-        <Callout variant="warning">
-つまずき：何でもグローバルにすると、どこで値が変わったか追えなくなる。→ できるだけローカルに閉じ込めるのが安全です。
-        </Callout>
-        <Callout variant="tip">
-Aくん：スコープを狭く保つと、影響範囲が読めて安心ですね。
-        </Callout>
+        <Dialog speaker="stumble">
+何でもグローバルにすると、どこで値が変わったか追えなくなる。→ できるだけローカルに閉じ込めるのが安全です。
+        </Dialog>
+        <Dialog speaker="a">
+スコープを狭く保つと、影響範囲が読めて安心ですね。
+        </Dialog>
       </>
     ),
   },
@@ -127,9 +127,9 @@ Aくん：スコープを狭く保つと、影響範囲が読めて安心です�
       <>
         <h2>画面・イベント・ダウンロード処理も「部品」に</h2>
         <p>実務では、画面の表示・ボタンが押されたときの処理（イベント）・ファイルのダウンロードなども、それぞれ部品に分けて整理します。機能が増えるほど、この“分ける力”が効いてきます。</p>
-        <Callout variant="note">
-先生：今は「役割ごとに分ける」という発想だけ持てれば十分。詳しい書き方は使うときに覚えれば大丈夫です。
-        </Callout>
+        <Dialog speaker="teacher">
+今は「役割ごとに分ける」という発想だけ持てれば十分。詳しい書き方は使うときに覚えれば大丈夫です。
+        </Dialog>
       </>
     ),
   },
@@ -139,15 +139,15 @@ Aくん：スコープを狭く保つと、影響範囲が読めて安心です�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章の要点は、処理を役割単位で部品化して、読む人が流れを追える構造にすることです。FORMで定義しPERFORMで呼び、USINGとCHANGINGでデータの出入りを明確にします。
-        </Callout>
-        <Callout variant="tip">
-Aくん：引数の向きを明示すると副作用が見えやすくなりますね。さらにローカル変数中心にすれば、どこで値が変わるか追跡しやすく、修正時の影響範囲も限定できる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：長いコードを章立てして読む感覚で、部品ごとに意味がまとまっていると安心です。後で機能追加するときも、どこを触るか判断しやすくなります。
-        </Callout>
+        <Dialog speaker="teacher">
+この章の要点は、処理を役割単位で部品化して、読む人が流れを追える構造にすることです。FORMで定義しPERFORMで呼び、USINGとCHANGINGでデータの出入りを明確にします。
+        </Dialog>
+        <Dialog speaker="a">
+引数の向きを明示すると副作用が見えやすくなりますね。さらにローカル変数中心にすれば、どこで値が変わるか追跡しやすく、修正時の影響範囲も限定できる。
+        </Dialog>
+        <Dialog speaker="b">
+長いコードを章立てして読む感覚で、部品ごとに意味がまとまっていると安心です。後で機能追加するときも、どこを触るか判断しやすくなります。
+        </Dialog>
       </>
     ),
   },
@@ -175,9 +175,9 @@ Bちゃん：長いコードを章立てして読む感覚で、部品ごとに�
           question={<>            <strong>保守性を高めるための変数設計として望ましいのは？</strong></>}
           options={["更新が必要な値はすべてグローバルに置く", "可能な限りローカル変数に閉じ込める", "変数名を短くしてスコープを気にしない"]}
         />
-        <Callout variant="note">
-今日のひとこと：分けることは、未来の自分と仲間への親切。整理されたコードは、それだけで価値があります。
-        </Callout>
+        <Dialog speaker="closing">
+分けることは、未来の自分と仲間への親切。整理されたコードは、それだけで価値があります。
+        </Dialog>
       </>
     ),
   }

@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>SELECT ＝ 倉庫から必要な箱を取り出す</h2>
         <p>データベースは、たくさんの箱（データ）が整理された巨大な倉庫です。          <code>SELECT</code>は倉庫番に「この条件の箱だけ持ってきて」とお願いする命令です。</p>
-        <Callout variant="note">
-先生：倉庫の中身を全部出すと大変です。だから前章の「入力＝条件」が効いてきます。条件で絞って、必要な箱だけ取り出します。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：図書館で読みたい本だけ借りる、みたいな感じですね。
-        </Callout>
+        <Dialog speaker="teacher">
+倉庫の中身を全部出すと大変です。だから前章の「入力＝条件」が効いてきます。条件で絞って、必要な箱だけ取り出します。
+        </Dialog>
+        <Dialog speaker="b">
+図書館で読みたい本だけ借りる、みたいな感じですね。
+        </Dialog>
       </>
     ),
   },
@@ -49,9 +50,9 @@ Bちゃん：図書館で読みたい本だけ借りる、みたいな感じで�
         <h2>会計でよく出る表（ざっくり）</h2>
         <p>細かい列名は今は不要。「どんな情報の表か」だけ掴めば十分です。</p>
         <ul>          <li>            <strong>BKPF</strong>：会計伝票の            <strong>ヘッダ</strong>（見出し：日付・会社など）</li>          <li>            <strong>BSEG</strong>：会計伝票の            <strong>明細</strong>（中身の行：金額・科目）</li>          <li>            <strong>T001</strong>：会社コードの            <strong>マスタ</strong>（会社の一覧）</li>          <li>            <strong>T003T</strong>：伝票タイプの            <strong>名称</strong>（コードの読み仮名表）</li></ul>
-        <Callout variant="tip">
-Aくん：ヘッダ＝BKPF、明細＝BSEG。第2章の「ヘッダと明細」がそのまま表になっているんですね。
-        </Callout>
+        <Dialog speaker="a">
+ヘッダ＝BKPF、明細＝BSEG。第2章の「ヘッダと明細」がそのまま表になっているんですね。
+        </Dialog>
       </>
     ),
   },
@@ -67,13 +68,12 @@ Aくん：ヘッダ＝BKPF、明細＝BSEG。第2章の「ヘッダと明細」�
   INTO TABLE lt_bkpf
   WHERE bukrs IN s_bukrs
     AND budat IN s_budat.</code>`} />
-        <Callout variant="note">
-先生：
-          <code>INTO TABLE</code>
+        <Dialog speaker="teacher">
+<code>INTO TABLE</code>
 は「複数行をまとめて棚（内部テーブル）に入れる」という意味。1件だけなら
           <code>SELECT SINGLE</code>
 を使います。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -91,11 +91,11 @@ IF sy-subrc = 0.
 ELSE.
   MESSAGE '該当する伝票がありません' TYPE 'I'.
 ENDIF.</code>`} />
-        <Callout variant="warning">
-つまずき：取れなかったのに、そのまま後続処理に進んで空っぽの結果を出してしまう。→ 必ず
+        <Dialog speaker="stumble">
+取れなかったのに、そのまま後続処理に進んで空っぽの結果を出してしまう。→ 必ず
           <code>SY-SUBRC</code>
 を確認しましょう。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -138,17 +138,16 @@ ENDIF.</code>`} />
     content: (
       <>
         <h2>2人の理解ポイント</h2>
-        <Callout variant="tip">
-Aくん：
-          <code>SY-SUBRC</code>
+        <Dialog speaker="a">
+<code>SY-SUBRC</code>
 は“戻り値”ですね。0=正常という規約だと思えば腹落ちします。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：「取れたか確認してから次へ」。お弁当を買えたか確かめてからレジを離れる、みたいなことですね。
-        </Callout>
-        <Callout variant="note">
-先生：その感覚で大丈夫。「取得 → 確認 → 分岐」は、登録処理でも繰り返し出てくる超基本です。
-        </Callout>
+        </Dialog>
+        <Dialog speaker="b">
+「取れたか確認してから次へ」。お弁当を買えたか確かめてからレジを離れる、みたいなことですね。
+        </Dialog>
+        <Dialog speaker="teacher">
+その感覚で大丈夫。「取得 → 確認 → 分岐」は、登録処理でも繰り返し出てくる超基本です。
+        </Dialog>
       </>
     ),
   },
@@ -158,15 +157,15 @@ Bちゃん：「取れたか確認してから次へ」。お弁当を買えた�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章では、SELECTを「倉庫への問い合わせ」として正しく扱うことが大切です。必要な条件で取得し、結果をSY-SUBRCで確認してから次の処理へ進むのが基本の型になります。
-        </Callout>
-        <Callout variant="tip">
-Aくん：BKPFとBSEGの役割を切り分けたうえで、WHERE句で絞ってINTO TABLEへ受ける流れですね。取得件数が0の可能性を前提に分岐を置くと、後続処理の安全性が上がる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：取れたか確認せず先へ進むのが一番こわいと分かりました。メッセージ表示まで含めて「利用者に状態を伝える」設計にすることを意識します。
-        </Callout>
+        <Dialog speaker="teacher">
+この章では、SELECTを「倉庫への問い合わせ」として正しく扱うことが大切です。必要な条件で取得し、結果をSY-SUBRCで確認してから次の処理へ進むのが基本の型になります。
+        </Dialog>
+        <Dialog speaker="a">
+BKPFとBSEGの役割を切り分けたうえで、WHERE句で絞ってINTO TABLEへ受ける流れですね。取得件数が0の可能性を前提に分岐を置くと、後続処理の安全性が上がる。
+        </Dialog>
+        <Dialog speaker="b">
+取れたか確認せず先へ進むのが一番こわいと分かりました。メッセージ表示まで含めて「利用者に状態を伝える」設計にすることを意識します。
+        </Dialog>
       </>
     ),
   },
@@ -194,9 +193,9 @@ Bちゃん：取れたか確認せず先へ進むのが一番こわいと分か�
           question={<>            <strong>条件に合う複数伝票をまとめて取得したいときの基本構文は？</strong></>}
           options={["SELECT SINGLE ... INTO ...", "READ TABLE ... WITH KEY ...", "SELECT ... INTO TABLE ... WHERE ..."]}
         />
-        <Callout variant="note">
-今日のひとこと：「取って終わり」ではなく「取れたか確認」まで。これができると一気にプロっぽくなります。
-        </Callout>
+        <Dialog speaker="closing">
+「取って終わり」ではなく「取れたか確認」まで。これができると一気にプロっぽくなります。
+        </Dialog>
       </>
     ),
   }

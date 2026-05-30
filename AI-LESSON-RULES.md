@@ -62,13 +62,24 @@ traininig-material/
 
 ```tsx
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
 import { LessonMeta } from "../src/components/lesson-meta";
 ```
 
-**コールアウト:** `<Callout variant="tip|warning|note">…</Callout>`
+**コールアウト（補足・キーワード一覧など）:** `<Callout variant="tip|warning|note">…</Callout>`
+
+**対話（先生・Aくん・Bちゃん・つまずき・今日のひとこと）:**
+```tsx
+<Dialog speaker="teacher">説明文</Dialog>
+<Dialog speaker="a">理系向けの反応</Dialog>
+<Dialog speaker="b">比喩で理解する反応</Dialog>
+<Dialog speaker="stumble">よくある誤解</Dialog>
+<Dialog speaker="closing">章末の励まし</Dialog>
+```
+登場人物のセリフには `Callout` ではなく `Dialog` を使うこと（吹き出しアイコン＋話者バッジで区別）。
 
 **コード:**
 ```tsx

@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>バラバラの情報を、1枚の表にまとめる</h2>
         <p>「お店の情報（ヘッダ）」と「買った品物（明細）」が別々にあると見づらいですよね。これらを突き合わせて、1つの見やすい一覧にするのが今回のテーマです。</p>
-        <Callout variant="note">
-先生：会計でいうと、伝票ヘッダ（BKPF）と明細（BSEG）を組み合わせて、「1行で意味が分かる一覧」を作るイメージです。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：レシートと家計簿を見比べて、1行にまとめる作業に似てますね。
-        </Callout>
+        <Dialog speaker="teacher">
+会計でいうと、伝票ヘッダ（BKPF）と明細（BSEG）を組み合わせて、「1行で意味が分かる一覧」を作るイメージです。
+        </Dialog>
+        <Dialog speaker="b">
+レシートと家計簿を見比べて、1行にまとめる作業に似てますね。
+        </Dialog>
       </>
     ),
   },
@@ -51,9 +52,9 @@ Bちゃん：レシートと家計簿を見比べて、1行にまとめる作業
         <CodeBlock code={`<code>DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
 DATA lt_bseg TYPE TABLE OF bseg.   " 明細取得用
 DATA lt_out  TYPE TABLE OF ty_out. " 出力用（まとめた形）</code>`} />
-        <Callout variant="tip">
-Aくん：入力（生データ）と出力（整形後）の棚を分けるんですね。役割が混ざらなくて良い設計です。
-        </Callout>
+        <Dialog speaker="a">
+入力（生データ）と出力（整形後）の棚を分けるんですね。役割が混ざらなくて良い設計です。
+        </Dialog>
       </>
     ),
   },
@@ -66,11 +67,10 @@ Aくん：入力（生データ）と出力（整形後）の棚を分けるん�
         <ul>          <li>            <code>MOVE a TO b</code>（または            <code>b = a</code>）：1つの値を移す</li>          <li>            <code>MOVE-CORRESPONDING</code>：            <strong>同じ名前の項目</strong>をまとめて移す（とても便利）</li></ul>
         <CodeBlock code={`<code>MOVE-CORRESPONDING ls_bkpf TO ls_out.  " 同名項目を一気にコピー
 ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す</code>`} />
-        <Callout variant="note">
-先生：
-          <code>MOVE-CORRESPONDING</code>
+        <Dialog speaker="teacher">
+<code>MOVE-CORRESPONDING</code>
 は「名前が一致する欄だけ自動で詰め替える」便利屋さん。手作業のコピーを減らせます。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -81,13 +81,12 @@ ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す</code>`} /
       <>
         <h2>蓄える・消す：APPEND / CLEAR / REFRESH</h2>
         <ul>          <li>            <code>APPEND ls_out TO lt_out</code>：作った1行を出力テーブルに追加</li>          <li>            <code>CLEAR ls_out</code>：作業領域（1行）を空にする</li>          <li>            <code>REFRESH lt_out</code>：内部テーブル（全行）を空にする</li></ul>
-        <Callout variant="warning">
-つまずき：
-          <code>APPEND</code>
+        <Dialog speaker="stumble">
+<code>APPEND</code>
 したあと
           <code>CLEAR</code>
 し忘れると、前の行の値が次に残ってしまう。→ 「1行作る → 追加 → クリア」をワンセットに。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -126,17 +125,17 @@ ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す</code>`} /
       <>
         <h2>確認質問＆ミニ演習</h2>
         <p>          <strong>先生の問い：</strong>「1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？」</p>
-        <Callout variant="tip">
-Aくん：作業領域を
+        <Dialog speaker="a">
+作業領域を
           <code>CLEAR</code>
 します。前の値が残ると混ざるので。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：使った皿を洗ってから次の料理、みたいな感じですね。
-        </Callout>
-        <Callout variant="note">
-先生：その通り！「組み立て→APPEND→CLEAR」を口ぐせにすれば、混ざる事故はほぼ防げます。
-        </Callout>
+        </Dialog>
+        <Dialog speaker="b">
+使った皿を洗ってから次の料理、みたいな感じですね。
+        </Dialog>
+        <Dialog speaker="teacher">
+その通り！「組み立て→APPEND→CLEAR」を口ぐせにすれば、混ざる事故はほぼ防げます。
+        </Dialog>
       </>
     ),
   },
@@ -146,15 +145,15 @@ Bちゃん：使った皿を洗ってから次の料理、みたいな感じで�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章は、ヘッダと明細をただ並べるのではなく「後続で使える出力構造に組み立てる」ことが主題です。取得用テーブルと出力用テーブルを分け、1行ずつ作ってAPPENDする流れを崩さないことが重要です。
-        </Callout>
-        <Callout variant="tip">
-Aくん：MOVE-CORRESPONDINGで共通項目をまとめて移し、差分項目を個別代入する設計が効率的ですね。さらにAPPEND後にCLEARすることで、前行の残値混入を防げる。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：毎回「組み立てる→追加する→片付ける」の順にするとミスが減ると実感しました。料理で使った道具を次の工程前に戻す感覚に近いです。
-        </Callout>
+        <Dialog speaker="teacher">
+この章は、ヘッダと明細をただ並べるのではなく「後続で使える出力構造に組み立てる」ことが主題です。取得用テーブルと出力用テーブルを分け、1行ずつ作ってAPPENDする流れを崩さないことが重要です。
+        </Dialog>
+        <Dialog speaker="a">
+MOVE-CORRESPONDINGで共通項目をまとめて移し、差分項目を個別代入する設計が効率的ですね。さらにAPPEND後にCLEARすることで、前行の残値混入を防げる。
+        </Dialog>
+        <Dialog speaker="b">
+毎回「組み立てる→追加する→片付ける」の順にするとミスが減ると実感しました。料理で使った道具を次の工程前に戻す感覚に近いです。
+        </Dialog>
       </>
     ),
   },
@@ -182,9 +181,9 @@ Bちゃん：毎回「組み立てる→追加する→片付ける」の順に�
           question={<>            <strong>内部テーブルを「取得用」と「出力用」に分ける主な利点は？</strong></>}
           options={["役割が分離され、整形処理を安全に管理できる", "必ず実行速度が2倍になる", "CLEARやAPPENDが不要になる"]}
         />
-        <Callout variant="note">
-今日のひとこと：「組み立て→追加→クリア」。このリズムが身につけば、データ整形はもう得意分野です。
-        </Callout>
+        <Dialog speaker="closing">
+「組み立て→追加→クリア」。このリズムが身につけば、データ整形はもう得意分野です。
+        </Dialog>
       </>
     ),
   }

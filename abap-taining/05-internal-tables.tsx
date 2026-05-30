@@ -1,5 +1,6 @@
 import { renderLesson } from "../src/render-lesson";
 import { Callout } from "../src/components/callout";
+import { Dialog } from "../src/components/dialog";
 import { CodeBlock } from "../src/components/code-block";
 import { Quiz } from "../src/components/quiz";
 import { MermaidDiagram } from "../src/components/mermaid-diagram";
@@ -32,12 +33,12 @@ const slides = [
       <>
         <h2>内部テーブル＝棚、作業領域＝手に取った1枚</h2>
         <p>たくさんの書類が並んだ「棚」が内部テーブル。そこから1枚だけ手に取って机に置いたものが「作業領域（1行）」です。書き込みや確認は、机の上の1枚に対して行います。</p>
-        <Callout variant="note">
-先生：プログラムは「棚全体」を一度に触るのではなく、「1枚ずつ机に出して処理する」のが基本です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：棚の本を1冊ずつ取り出して読む、みたいなイメージなら分かります。
-        </Callout>
+        <Dialog speaker="teacher">
+プログラムは「棚全体」を一度に触るのではなく、「1枚ずつ机に出して処理する」のが基本です。
+        </Dialog>
+        <Dialog speaker="b">
+棚の本を1冊ずつ取り出して読む、みたいなイメージなら分かります。
+        </Dialog>
       </>
     ),
   },
@@ -52,13 +53,12 @@ Bちゃん：棚の本を1冊ずつ取り出して読む、みたいなイメー
 DATA ls_row  TYPE bkpf.
 " 複数行の内部テーブル（棚）
 DATA lt_tab  TYPE TABLE OF bkpf.</code>`} />
-        <Callout variant="tip">
-Aくん：
-          <code>ls_</code>
+        <Dialog speaker="a">
+<code>ls_</code>
 が単一行(structure)、
           <code>lt_</code>
 がテーブル、という命名の慣習なんですね。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -77,13 +77,12 @@ ENDLOOP.
 
 READ TABLE lt_tab INTO ls_row    " 条件に合う1件を取り出す
   WITH KEY belnr = '0000000001'.</code>`} />
-        <Callout variant="note">
-先生：
-          <code>LOOP</code>
+        <Dialog speaker="teacher">
+<code>LOOP</code>
 ＝「1行ずつ順番に」、
           <code>READ TABLE</code>
 ＝「狙った1行を1発で」。目的で使い分けます。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -117,14 +116,14 @@ READ TABLE lt_tab INTO ls_row    " 条件に合う1件を取り出す
       <>
         <h2>Excelの表と似て、ちょっと違う</h2>
         <p>「行と列の表」という点はExcelに似ています。でも内部テーブルは          <strong>プログラムが動いている間だけ、メモリ上にある一時的な表</strong>です。実行が終われば消えます。</p>
-        <Callout variant="warning">
-つまずき：「内部テーブル＝データベース」ではありません。DBは倉庫（永続）、内部テーブルは作業机の上（一時的）です。
-        </Callout>
-        <Callout variant="warning">
-つまずき：「型そのもの」と混同しがち。
+        <Dialog speaker="stumble">
+「内部テーブル＝データベース」ではありません。DBは倉庫（永続）、内部テーブルは作業机の上（一時的）です。
+        </Dialog>
+        <Dialog speaker="stumble">
+「型そのもの」と混同しがち。
           <code>TYPE</code>
 は“形”の定義、内部テーブルは“その形に入った実データ”です。
-        </Callout>
+        </Dialog>
       </>
     ),
   },
@@ -135,19 +134,19 @@ READ TABLE lt_tab INTO ls_row    " 条件に合う1件を取り出す
       <>
         <h2>確認質問＆ミニ演習</h2>
         <p>          <strong>先生の問い：</strong>「棚にある全書類を、日付順に1枚ずつ確認したい」。どの操作を、どの順で使う？</p>
-        <Callout variant="tip">
-Aくん：まず
+        <Dialog speaker="a">
+まず
           <code>SORT</code>
 で日付順に並べ、
           <code>LOOP</code>
 で1行ずつ回す、です。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：先に並べ替えてからめくる、なら家でもやってます。安心しました。
-        </Callout>
-        <Callout variant="note">
-先生：正解です。「並べる→1件ずつ」は今後あらゆる場面で使う黄金パターン。覚えておくとずっと楽になります。
-        </Callout>
+        </Dialog>
+        <Dialog speaker="b">
+先に並べ替えてからめくる、なら家でもやってます。安心しました。
+        </Dialog>
+        <Dialog speaker="teacher">
+正解です。「並べる→1件ずつ」は今後あらゆる場面で使う黄金パターン。覚えておくとずっと楽になります。
+        </Dialog>
       </>
     ),
   },
@@ -157,15 +156,15 @@ Bちゃん：先に並べ替えてからめくる、なら家でもやってま�
     content: (
       <>
         <h2>対話で整理</h2>
-        <Callout variant="note">
-先生：この章は「棚（内部テーブル）と机（作業領域）」の役割を混ぜないことがポイントです。複数行データを保持する場所と、いま処理する1行を分けることで、操作の意図が明確になります。
-        </Callout>
-        <Callout variant="tip">
-Aくん：処理パターンとしては、SORTで順序を整えてLOOPで全件処理、必要ならREAD TABLEで特定行を参照する流れですね。アクセス目的ごとに命令を選ぶ整理が重要だと分かりました。
-        </Callout>
-        <Callout variant="warning">
-Bちゃん：Excelの表に似ていても、内部テーブルは実行中だけの一時データだと理解できました。DBと同じと思い込まないように、毎回「これは作業机の上か」を確認します。
-        </Callout>
+        <Dialog speaker="teacher">
+この章は「棚（内部テーブル）と机（作業領域）」の役割を混ぜないことがポイントです。複数行データを保持する場所と、いま処理する1行を分けることで、操作の意図が明確になります。
+        </Dialog>
+        <Dialog speaker="a">
+処理パターンとしては、SORTで順序を整えてLOOPで全件処理、必要ならREAD TABLEで特定行を参照する流れですね。アクセス目的ごとに命令を選ぶ整理が重要だと分かりました。
+        </Dialog>
+        <Dialog speaker="b">
+Excelの表に似ていても、内部テーブルは実行中だけの一時データだと理解できました。DBと同じと思い込まないように、毎回「これは作業机の上か」を確認します。
+        </Dialog>
       </>
     ),
   },
@@ -193,9 +192,9 @@ Bちゃん：Excelの表に似ていても、内部テーブルは実行中だ�
           question={<>            <strong>「伝票番号が一致する1件だけ確認したい」場面で最も適切なのは？</strong></>}
           options={["LOOPで全件を必ず走査する", "READ TABLE ... WITH KEY を使う", "REFRESHで内部テーブルを空にしてから探す"]}
         />
-        <Callout variant="note">
-今日のひとこと：「棚と机」のイメージさえあれば、データ操作はもう怖くありません。
-        </Callout>
+        <Dialog speaker="closing">
+「棚と机」のイメージさえあれば、データ操作はもう怖くありません。
+        </Dialog>
       </>
     ),
   }
