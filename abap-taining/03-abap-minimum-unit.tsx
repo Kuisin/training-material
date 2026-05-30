@@ -64,9 +64,9 @@ const slides = [
       <>
         <h2>いちばん小さなプログラム</h2>
         <p>最初の行          <code>REPORT</code>は「これはレポートプログラムです」という宣言。          <code>WRITE</code>は「画面に書く」命令です。</p>
-        <CodeBlock code={`<code>REPORT z_hello.
+        <CodeBlock code={`REPORT z_hello.
 
-WRITE 'こんにちは、ABAP'.</code>`} />
+WRITE 'こんにちは、ABAP'.`} />
         <Dialog speaker="a">
 <code>REPORT</code>
 がプログラムの名札、
@@ -86,9 +86,9 @@ WRITE 'こんにちは、ABAP'.</code>`} />
       <>
         <h2>変数 ＝ 中身を入れ替えられる箱</h2>
         <p>          <code>DATA</code>で「箱」を用意します。箱には名前を付け、あとから値を入れたり替えたりできます。</p>
-        <CodeBlock code={`<code>DATA lv_name TYPE string.
+        <CodeBlock code={`DATA lv_name TYPE string.
 lv_name = '田中'.
-WRITE lv_name.</code>`} />
+WRITE lv_name.`} />
         <Dialog speaker="a">
 数学の文字 x のようなもの。x にいろいろな値を代入できる、あの感覚です。
         </Dialog>
@@ -105,7 +105,7 @@ WRITE lv_name.</code>`} />
       <>
         <h2>定数 ＝ 中身を変えない箱</h2>
         <p>          <code>CONSTANTS</code>は、一度決めたら変えない値です。「消費税率」「会社コード」のように、途中で勝手に変わると困るものに使います。</p>
-        <CodeBlock code={`<code>CONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.</code>`} />
+        <CodeBlock code={`CONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.`} />
         <Dialog speaker="teacher">
 「変えていい箱（変数）」と「変えない箱（定数）」を区別すると、事故が減ります。固定の値に名前を付けておくと、読みやすさも上がります。
         </Dialog>
@@ -119,9 +119,9 @@ WRITE lv_name.</code>`} />
       <>
         <h2>コメント ＝ 未来の自分へのメモ</h2>
         <p>行の先頭に          <code>*</code>、または          <code>"</code>を書くと、その部分は「実行されないメモ」になります。何のための処理かを残しておくためのものです。</p>
-        <CodeBlock code={`<code>* 税込金額を計算する（社内ルール: 端数切り捨て）
+        <CodeBlock code={`* 税込金額を計算する（社内ルール: 端数切り捨て）
 DATA lv_total TYPE i.
-lv_total = lv_price + lv_tax.   " ここで合算</code>`} />
+lv_total = lv_price + lv_tax.   " ここで合算`} />
         <Dialog speaker="stumble">
 「自分が書いたコードは覚えている」と思いがち。でも3ヶ月後の自分は他人同然です。理由をメモしておきましょう。
         </Dialog>

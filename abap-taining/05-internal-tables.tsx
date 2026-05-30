@@ -49,10 +49,10 @@ const slides = [
       <>
         <h2>1件の箱と、複数件の表</h2>
         <p>ABAPでは、両方を用意します。</p>
-        <CodeBlock code={`<code>" 1行ぶんの作業領域（机の上の1枚）
+        <CodeBlock code={`" 1行ぶんの作業領域（机の上の1枚）
 DATA ls_row  TYPE bkpf.
 " 複数行の内部テーブル（棚）
-DATA lt_tab  TYPE TABLE OF bkpf.</code>`} />
+DATA lt_tab  TYPE TABLE OF bkpf.`} />
         <Dialog speaker="a">
 <code>ls_</code>
 が単一行(structure)、
@@ -69,14 +69,14 @@ DATA lt_tab  TYPE TABLE OF bkpf.</code>`} />
       <>
         <h2>並べ替え・1件ずつ・1件取り出し</h2>
         <p>内部テーブルに対するよく使う操作は3つです。</p>
-        <CodeBlock code={`<code>SORT lt_tab BY budat.            " 日付で並べ替え
+        <CodeBlock code={`SORT lt_tab BY budat.            " 日付で並べ替え
 
 LOOP AT lt_tab INTO ls_row.      " 1行ずつ机に出して処理
   WRITE: / ls_row-belnr.
 ENDLOOP.
 
 READ TABLE lt_tab INTO ls_row    " 条件に合う1件を取り出す
-  WITH KEY belnr = '0000000001'.</code>`} />
+  WITH KEY belnr = '0000000001'.`} />
         <Dialog speaker="teacher">
 <code>LOOP</code>
 ＝「1行ずつ順番に」、

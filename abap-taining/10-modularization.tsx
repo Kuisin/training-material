@@ -62,14 +62,14 @@ const slides = [
       <>
         <h2>部品を作る FORM、呼ぶ PERFORM</h2>
         <p>          <code>FORM</code>で部品を定義し、          <code>PERFORM</code>で呼び出します。値を渡すときは          <code>USING</code>（渡すだけ）／          <code>CHANGING</code>（渡して結果も受け取る）。</p>
-        <CodeBlock code={`<code>" 呼び出し側
+        <CodeBlock code={`" 呼び出し側
 PERFORM calc_tax USING lv_price CHANGING lv_tax.
 
 " 部品の定義
 FORM calc_tax USING    p_price TYPE i
               CHANGING p_tax   TYPE i.
   p_tax = p_price / 10.
-ENDFORM.</code>`} />
+ENDFORM.`} />
         <Dialog speaker="teacher">
 <code>USING</code>
 ＝「材料を渡す」、

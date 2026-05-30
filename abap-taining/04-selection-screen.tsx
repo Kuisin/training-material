@@ -49,7 +49,7 @@ const slides = [
       <>
         <h2>PARAMETERS ＝ 1つだけ入れる欄</h2>
         <p>          <code>PARAMETERS</code>は「会社コードは1000」のように、値を          <strong>1つだけ</strong>受け取る欄を作ります。</p>
-        <CodeBlock code={`<code>PARAMETERS p_bukrs TYPE bkpf-bukrs.</code>`} />
+        <CodeBlock code={`PARAMETERS p_bukrs TYPE bkpf-bukrs.`} />
         <p>これで「会社コードを入力してください」という入力欄が1つ、画面に出ます。</p>
         <Dialog speaker="a">
 1変数に1値。ピンポイントで指定したいときの形ですね。
@@ -64,7 +64,7 @@ const slides = [
       <>
         <h2>SELECT-OPTIONS ＝ 範囲や複数を入れる欄</h2>
         <p>          <code>SELECT-OPTIONS</code>は「日付 4/1〜4/30」「伝票番号 これとこれ」のように、          <strong>範囲や複数</strong>を受け取れる欄です。</p>
-        <CodeBlock code={`<code>SELECT-OPTIONS s_budat FOR bkpf-budat.</code>`} />
+        <CodeBlock code={`SELECT-OPTIONS s_budat FOR bkpf-budat.`} />
         <p>「From（から）」「To（まで）」の2つの欄が出て、期間で絞り込めます。</p>
         <Dialog speaker="b">
 宿の予約で「チェックイン〜チェックアウト」を選ぶのと同じ感じですね。

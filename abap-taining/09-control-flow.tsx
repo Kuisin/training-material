@@ -64,7 +64,7 @@ const slides = [
     content: (
       <>
         <h2>LOOP の中に制御ブロックを置く</h2>
-        <CodeBlock code={`<code>SORT lt_out BY bukrs.
+        <CodeBlock code={`SORT lt_out BY bukrs.
 LOOP AT lt_out INTO ls_out.
   AT FIRST.        WRITE: / '会社別 一覧'.        ENDAT.
   AT NEW bukrs.    WRITE: / '■ 会社:', ls_out-bukrs. ENDAT.
@@ -73,7 +73,7 @@ LOOP AT lt_out INTO ls_out.
 
   AT END OF bukrs. WRITE: / '  小計 …'.          ENDAT.
   AT LAST.         WRITE: / '== 総合計 ==' .       ENDAT.
-ENDLOOP.</code>`} />
+ENDLOOP.`} />
         <Dialog speaker="a">
 LOOP を回しながら「最初／グループ頭／グループ末／最後」にフックを掛けるんですね。構造がきれい。
         </Dialog>
@@ -108,7 +108,7 @@ LOOP を回しながら「最初／グループ頭／グループ末／最後」
       <>
         <h2>フラグ ＝ 状態を覚えておく旗</h2>
         <p>フラグは「ある状態が起きたか」を覚えておく小さな箱（多くは          <code>'X'</code>か空）。例：「1件でもエラーがあったか」を覚えておき、最後にまとめて判断します。</p>
-        <CodeBlock code={`<code>DATA lv_error TYPE flag.        " 旗（'X' で立てる）
+        <CodeBlock code={`DATA lv_error TYPE flag.        " 旗（'X' で立てる）
 
 LOOP AT lt_in INTO ls_in.
   IF ls_in-amount < 0.
@@ -118,7 +118,7 @@ ENDLOOP.
 
 IF lv_error = 'X'.
   MESSAGE 'エラーが含まれています' TYPE 'I'.
-ENDIF.</code>`} />
+ENDIF.`} />
         <Dialog speaker="b">
 「あとで思い出すための付箋」みたいなものですね。立てておいて、最後に見る。
         </Dialog>

@@ -64,13 +64,13 @@ const slides = [
     content: (
       <>
         <h2>悪い例：ループの中で毎回DBへ</h2>
-        <CodeBlock code={`<code>" ❌ 明細1件ごとにDBへ取りに行く（往復が件数分）
+        <CodeBlock code={`" ❌ 明細1件ごとにDBへ取りに行く（往復が件数分）
 LOOP AT lt_bseg INTO ls_bseg.
   SELECT SINGLE butxt FROM t001
     INTO lv_name
     WHERE bukrs = ls_bseg-bukrs.
   WRITE: / ls_bseg-belnr, lv_name.
-ENDLOOP.</code>`} />
+ENDLOOP.`} />
         <Dialog speaker="b">
 1件ごとに倉庫まで歩いて取りに行ってる…たしかに大変そう。
         </Dialog>
@@ -83,7 +83,7 @@ ENDLOOP.</code>`} />
     content: (
       <>
         <h2>良い例：先にまとめて取り、メモリで突き合わせ</h2>
-        <CodeBlock code={`<code>" ✅ 必要な会社名を一度だけまとめて取得
+        <CodeBlock code={`" ✅ 必要な会社名を一度だけまとめて取得
 SELECT bukrs butxt FROM t001
   INTO TABLE lt_t001
   FOR ALL ENTRIES IN lt_bseg
@@ -93,7 +93,7 @@ LOOP AT lt_bseg INTO ls_bseg.
   READ TABLE lt_t001 INTO ls_t001
     WITH KEY bukrs = ls_bseg-bukrs.   " メモリ内で照合（往復なし）
   WRITE: / ls_bseg-belnr, ls_t001-butxt.
-ENDLOOP.</code>`} />
+ENDLOOP.`} />
         <Dialog speaker="a">
 先に倉庫から必要分を台車でまとめて運び、あとは机の上で照合。往復が激減しますね。
         </Dialog>

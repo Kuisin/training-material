@@ -49,9 +49,9 @@ const slides = [
       <>
         <h2>用途ごとに「棚」を分ける</h2>
         <p>取得用と出力用で内部テーブルを分けると、頭が整理されます。</p>
-        <CodeBlock code={`<code>DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
+        <CodeBlock code={`DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
 DATA lt_bseg TYPE TABLE OF bseg.   " 明細取得用
-DATA lt_out  TYPE TABLE OF ty_out. " 出力用（まとめた形）</code>`} />
+DATA lt_out  TYPE TABLE OF ty_out. " 出力用（まとめた形）`} />
         <Dialog speaker="a">
 入力（生データ）と出力（整形後）の棚を分けるんですね。役割が混ざらなくて良い設計です。
         </Dialog>
@@ -65,8 +65,8 @@ DATA lt_out  TYPE TABLE OF ty_out. " 出力用（まとめた形）</code>`} />
       <>
         <h2>値を移す：MOVE と MOVE-CORRESPONDING</h2>
         <ul>          <li>            <code>MOVE a TO b</code>（または            <code>b = a</code>）：1つの値を移す</li>          <li>            <code>MOVE-CORRESPONDING</code>：            <strong>同じ名前の項目</strong>をまとめて移す（とても便利）</li></ul>
-        <CodeBlock code={`<code>MOVE-CORRESPONDING ls_bkpf TO ls_out.  " 同名項目を一気にコピー
-ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す</code>`} />
+        <CodeBlock code={`MOVE-CORRESPONDING ls_bkpf TO ls_out.  " 同名項目を一気にコピー
+ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す`} />
         <Dialog speaker="teacher">
 <code>MOVE-CORRESPONDING</code>
 は「名前が一致する欄だけ自動で詰め替える」便利屋さん。手作業のコピーを減らせます。

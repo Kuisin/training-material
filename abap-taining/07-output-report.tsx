@@ -61,13 +61,13 @@ const slides = [
     content: (
       <>
         <h2>見出し → 区切り → 明細</h2>
-        <CodeBlock code={`<code>WRITE: / '会計伝票一覧'.
+        <CodeBlock code={`WRITE: / '会計伝票一覧'.
 ULINE.
 WRITE: / '伝票番号', 20 '日付', 40 '金額'.
 ULINE.
 LOOP AT lt_out INTO ls_out.
   WRITE: / ls_out-belnr, 20 ls_out-budat, 40 ls_out-amount.
-ENDLOOP.</code>`} />
+ENDLOOP.`} />
         <Dialog speaker="teacher">
 数字（20, 40）は「何桁目から書くか」という位置指定。列をそろえると一気に表らしくなります。
         </Dialog>

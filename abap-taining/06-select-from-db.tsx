@@ -63,11 +63,11 @@ const slides = [
       <>
         <h2>条件をつけて、内部テーブルへ受け取る</h2>
         <p>選択画面で受け取った条件を          <code>WHERE</code>に渡し、結果を内部テーブルに入れます。</p>
-        <CodeBlock code={`<code>SELECT belnr budat bukrs
+        <CodeBlock code={`SELECT belnr budat bukrs
   FROM bkpf
   INTO TABLE lt_bkpf
   WHERE bukrs IN s_bukrs
-    AND budat IN s_budat.</code>`} />
+    AND budat IN s_budat.`} />
         <Dialog speaker="teacher">
 <code>INTO TABLE</code>
 は「複数行をまとめて棚（内部テーブル）に入れる」という意味。1件だけなら
@@ -84,13 +84,13 @@ const slides = [
       <>
         <h2>取得できたかを SY-SUBRC で判定</h2>
         <p>SELECT の直後、システムは          <code>SY-SUBRC</code>という変数に結果を入れます。          <strong>0なら成功（取れた）</strong>、0以外なら「該当なし」です。これを見て処理を分けます。</p>
-        <CodeBlock code={`<code>SELECT ... INTO TABLE lt_bkpf WHERE ...
+        <CodeBlock code={`SELECT ... INTO TABLE lt_bkpf WHERE ...
 
 IF sy-subrc = 0.
   " 取れた → 続けて処理
 ELSE.
   MESSAGE '該当する伝票がありません' TYPE 'I'.
-ENDIF.</code>`} />
+ENDIF.`} />
         <Dialog speaker="stumble">
 取れなかったのに、そのまま後続処理に進んで空っぽの結果を出してしまう。→ 必ず
           <code>SY-SUBRC</code>
