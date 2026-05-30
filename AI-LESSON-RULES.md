@@ -8,10 +8,10 @@
 ## 1. 絶対ルール（厳守）
 
 1. **1レッスン = 1つの `.tsx` ファイル**。必ず `template/lesson-template.tsx` を**コピー**して作る。
-2. **各レッスンはスライドショー。** `renderLesson(chrome, slides)` でマウントする。ナビ・進捗・ジャンプメニューは共有 `Deck` が描画する。レッスン側では `slides` 配列だけを編集する。
+2. **各レッスンは default export の React コンポーネント**（Next.js の page と同様）。`<Lesson>` で `chrome` と `slides` を渡し、末尾で `mountLesson(YourLesson)` を呼ぶ。ナビ・進捗・ジャンプメニューは共有 `Deck` が描画する。
 3. **1スライド = `slides` 配列の1要素。** `title`（ジャンプメニュー用）と `content`（JSX）と `plainText`（Copilot コピー用）を必ず設定する。
-4. **編集してはいけない部分:** `src/render-lesson.tsx`、`src/components/deck.tsx` など共有エンジン。レッスン `.tsx` では `chrome` と `slides` だけを書く。
-5. **見た目は共有 TSX コンポーネント（Tailwind）から来る。** 独自 CSS は書かない。
+4. **編集してはいけない部分:** `src/mount-lesson.tsx`、`src/components/deck.tsx`、`src/components/lesson.tsx` など共有エンジン。レッスン `.tsx` では `Lesson` の props（`chrome` / `slides`）だけを書く。
+5. **import は `src/lesson.tsx` から統一。** `Callout` なども同ファイルから import する（個別パス import は使わない）。見た目は共有コンポーネント（Tailwind）のみ。独自 CSS は書かない。
 6. **各レッスンに必ず含めるもの:** 概要スライド、本文スライド、**Mermaid 図を1つ以上**、**確認テストのスライドを1つ以上**。
 7. **ビルド前提。** 開発は `pnpm dev`、公開は `pnpm build`。
 
@@ -27,7 +27,9 @@ traininig-material/
 ├─ template/
 │  └─ lesson-template.tsx         # 全レッスンはこれをコピー
 ├─ src/
-│  ├─ render-lesson.tsx           # レッスン起動
+│  ├─ lesson.tsx                  # レッスン用の統一 import（Lesson, Callout, mountLesson, …）
+│  ├─ mount-lesson.tsx            # Vite MPA エントリ（#root へマウント）
+│  ├─ components/lesson.tsx       # レッスン共通ラッパー（Deck + title）
 │  └─ components/                 # Callout, Quiz, CodeBlock, …
 └─ <track>/                       # 例: abap-taining/
    ├─ 00-introduction.tsx         # レッスン本文（編集するのはこれのみ）
@@ -61,12 +63,34 @@ traininig-material/
 ## 5. 使える TSX コンポーネント
 
 ```tsx
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
+
+export default function MyLesson() {
+  return (
+    <Lesson
+      chrome={{
+        title: "章タイトル",
+        prevHref: "00-introduction.html",
+        nextHref: "02-business-basics.html",
+        indexHref: "../index.html",
+      }}
+      slides={[
+        { title: "概要", plainText: "…", content: <>…</> },
+      ]}
+    />
+  );
+}
+
+mountLesson(MyLesson);
 ```
 
 **コールアウト（補足・キーワード一覧など）:** `<Callout variant="tip|warning|note">…</Callout>`
@@ -139,6 +163,8 @@ import { LessonMeta } from "../src/components/lesson-meta";
 - [ ] `chrome` の `title` / `prevHref` / `nextHref` が正しい
 - [ ] 概要スライドあり（`LessonMeta` + 目標リスト）
 - [ ] 各スライドに `title`、`content`、`plainText`
+- [ ] `export default function …()` + `mountLesson(…)` の形になっている
+- [ ] import は `../src/lesson` から統一している
 - [ ] Mermaid が1つ以上、確認テストが1つ以上
 - [ ] `index-page.tsx` にレッスンリンクを追加した
 - [ ] `pnpm typecheck` と `pnpm build` が通る

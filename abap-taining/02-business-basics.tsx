@@ -1,18 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function BusinessBasicsLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "仕訳日記帳と会計伝票",
   prevHref: "01-overview.html",
   nextHref: "03-abap-minimum-unit.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "仕訳日記帳と会計伝票\n会計の2つの基本「仕訳日記帳＝動きの一覧」「会計伝票＝1件の正式記録」を、家計簿のたとえで理解します。\n⏱ 20分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n仕訳日記帳と会計伝票は何が違うのか（一覧 vs 1件）\n「ヘッダ（見出し）」と「明細（中身）」という二段構造\n外部ファイルを取り込んで登録する、という業務の流れ",
@@ -167,6 +173,9 @@ const slides = [
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(BusinessBasicsLesson);

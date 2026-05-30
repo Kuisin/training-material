@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function GoodProgrammingLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "適切なプログラミング",
   prevHref: "12-real-world.html",
   nextHref: "",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 25分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n性能（速さ）と保守性（直しやすさ）を両立する書き方\nSELECT や LOOP の書き方で、なぜ速度に差が出るのか\n悪い例・良い例の対比と、引き継げるコードの条件",
@@ -193,6 +198,9 @@ LOOP内SELECTのようなアンチパターンを避け、先にまとめて取�
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(GoodProgrammingLesson);

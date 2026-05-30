@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function ModularizationLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "プログラムを分かりやすくする",
   prevHref: "09-control-flow.html",
   nextHref: "11-document-posting.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "プログラムを分かりやすくする\n処理をサブルーチンに分けると、なぜ分かりやすくなるのか。引数とスコープを学びます。\n⏱ 25分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n処理を「部品（サブルーチン）」に分ける理由\n部品へ値を渡す引数（USING / CHANGING）\n変数のスコープ（グローバル＝全体／ローカル＝その部品の中だけ）",
@@ -181,6 +186,9 @@ ENDFORM.`} />
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(ModularizationLesson);

@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function ControlFlowLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "制御の考え方",
   prevHref: "08-combine-data.html",
   nextHref: "10-modularization.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "制御の考え方\n同じ見出しを繰り返さない「サプレス」、キーの変わり目で処理を分ける制御を学びます。\n⏱ 30分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\nサプレス（＝同じ表示を繰り返さないこと）の考え方\n並びの「変わり目」で処理する制御（AT FIRST / AT LAST / AT NEW / AT END OF）\nフラグ（旗）を使った状態の管理と、多重ネストを避ける意識",
@@ -223,6 +228,9 @@ ENDIF.`} />
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(ControlFlowLesson);

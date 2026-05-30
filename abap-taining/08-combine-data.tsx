@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function CombineDataLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "複数データをまとめる",
   prevHref: "07-output-report.html",
   nextHref: "09-control-flow.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "複数データをまとめる\nヘッダと明細を合わせて出力する。後で使いやすい形にデータを整える方法を学びます。\n⏱ 25分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n複数の内部テーブル（ヘッダ用・明細用）を使い分ける\nデータを移す・対応づける命令（MOVE / MOVE-CORRESPONDING）\n蓄える・消す命令（APPEND / CLEAR / REFRESH）",
@@ -187,6 +192,9 @@ MOVE-CORRESPONDINGで共通項目をまとめて移し、差分項目を個別�
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(CombineDataLesson);

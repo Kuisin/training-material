@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function AbapMinimumUnitLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "はじめてのレポートプログラム",
   prevHref: "02-business-basics.html",
   nextHref: "04-selection-screen.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "はじめてのレポートプログラム\nABAPの最小単位「レポートプログラム」を作り、変数・定数・コメントの意味を知ります。\n⏱ 20分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\nレポートプログラムとは何か（作る→実行する→結果を見る）\n変数と定数の違い、それぞれ「何のために」あるのか\nコメントを書く理由（未来の自分と仲間のため）",
@@ -191,6 +196,9 @@ lv_total = lv_price + lv_tax.   " ここで合算`} />
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(AbapMinimumUnitLesson);

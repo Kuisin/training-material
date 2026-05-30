@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function SelectFromDbLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "データベースから取得する",
   prevHref: "05-internal-tables.html",
   nextHref: "07-output-report.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "データベースから取得する\nSELECT が何をしているのか。取れたか・取れなかったかをどう判定するのかを学びます。\n⏱ 25分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\nSELECT ＝ データベースという倉庫から条件に合うデータを取り出すこと\n会計でよく使う表（BKPF / BSEG / T001 / T003T）が何の情報か\n取得に成功したか（SY-SUBRC）を見て処理を分ける考え方",
@@ -199,6 +204,9 @@ BKPFとBSEGの役割を切り分けたうえで、WHERE句で絞ってINTO TABLE
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(SelectFromDbLesson);

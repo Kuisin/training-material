@@ -1,18 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function RealWorldLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "実務っぽい観点",
   prevHref: "11-document-posting.html",
   nextHref: "13-good-programming.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "実務っぽい観点\n追加要望が来たとき、どこを見て・どう直し・どう確かめるか。実務の進め方を学びます。\n⏱ 20分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n仕様変更が来たときに、最初に見るべきポイント\n「影響分析 → 修正 → 回帰テスト」という循環\nコメント・命名・履歴・単体テストが、なぜ実務で大事か",
@@ -149,6 +155,9 @@ const slides = [
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(RealWorldLesson);

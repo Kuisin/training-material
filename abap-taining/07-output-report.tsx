@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function OutputReportLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "出力をつくる",
   prevHref: "06-select-from-db.html",
   nextHref: "08-combine-data.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "出力をつくる\n帳票＝整えて見せること。データを取るだけでは不十分、という話を学びます。\n⏱ 20分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n帳票（レポート出力）は「見やすく整える」工程だということ\n出力を整える命令（WRITE / ULINE / SKIP / NEW-LINE / NEW-PAGE）\n「見やすさ」はユーザーにとっての価値だ、という視点",
@@ -164,6 +169,9 @@ ENDLOOP.`} />
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(OutputReportLesson);

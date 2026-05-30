@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function IntroductionLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "なぜABAPを学ぶのか",
   prevHref: "",
   nextHref: "01-overview.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "なぜABAPを学ぶのか\n「業務のお願いごと」を「システムの動き」に翻訳する仕事 — それがABAP開発です。\n⏱ 15分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\nSAPという完成品を入れても、なぜ「追加の開発」が必要になるのか\nABAPは「業務の言葉」を「コンピュータの言葉」に翻訳する仕事だ、という見方\nプログラミング未経験でも大丈夫、という気持ちの土台づくり",
@@ -188,6 +193,9 @@ SAPは世界中の会社で使えるよう、広く作られています。で�
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(IntroductionLesson);

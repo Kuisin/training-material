@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function OverviewLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "研修全体マップ",
   prevHref: "00-introduction.html",
   nextHref: "02-business-basics.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "研修全体マップ\nこれから何を作れるようになるのか。ゴールを先に見て、地図を持って歩き出しましょう。\n⏱ 15分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n研修全体の流れ（仕訳日記帳の演習 → 会計伝票登録 → 適切なプログラミング）\nどのプログラムにも共通する「入力→取得→加工→出力」のパイプライン\n「照会（見るだけ）」と「登録（書き込む）」の違いの予告",
@@ -153,6 +158,9 @@ const slides = [
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(OverviewLesson);

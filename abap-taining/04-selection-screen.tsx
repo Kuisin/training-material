@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function SelectionScreenLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "入力を受け取る",
   prevHref: "03-abap-minimum-unit.html",
   nextHref: "05-internal-tables.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "入力を受け取る\n選択画面＝検索フォーム。利用者からの入力を受け取り、後の処理の「条件」にする方法を学びます。\n⏱ 20分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n選択画面とは何か（プログラムの入口にある検索フォーム）\nPARAMETERS（単一指定）と SELECT-OPTIONS（範囲指定）の違い\n入力した値が、後続の取得処理の「絞り込み条件」になる流れ",
@@ -184,6 +189,9 @@ const slides = [
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(SelectionScreenLesson);

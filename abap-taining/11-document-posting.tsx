@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function DocumentPostingLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "会計伝票登録へ進む",
   prevHref: "10-modularization.html",
   nextHref: "12-real-world.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "会計伝票登録へ進む\n「見る」から「書き込む」へ。登録の責任の重さと、安全に登録する仕組みを学びます。\n⏱ 30分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n照会（見る）と登録（書き込む）の責任の違い\n外部ファイル → 検証 → 登録 → 履歴 → 結果、という登録フロー\n登録を支える部品：アドオンテーブル・汎用モジュール・BAPI・ロックオブジェクト",
@@ -173,6 +178,9 @@ APIを通すことで、内部の整合性ルールを破らずに済むんで�
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(DocumentPostingLesson);

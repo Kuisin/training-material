@@ -1,19 +1,24 @@
-import { renderLesson } from "../src/render-lesson";
-import { Callout } from "../src/components/callout";
-import { Dialog } from "../src/components/dialog";
-import { CodeBlock } from "../src/components/code-block";
-import { Quiz } from "../src/components/quiz";
-import { MermaidDiagram } from "../src/components/mermaid-diagram";
-import { LessonMeta } from "../src/components/lesson-meta";
+import {
+  Lesson,
+  Callout,
+  Dialog,
+  CodeBlock,
+  Quiz,
+  MermaidDiagram,
+  LessonMeta,
+  mountLesson,
+} from "../src/lesson";
 
-const chrome = {
+export default function InternalTablesLesson() {
+  return (
+    <Lesson
+      chrome={{
   title: "データを扱う基本",
   prevHref: "04-selection-screen.html",
   nextHref: "06-select-from-db.html",
   indexHref: "../index.html",
-};
-
-const slides = [
+}}
+      slides={[
   {
     title: "概要",
     plainText: "データを扱う基本\n内部テーブル＝行の集まり、作業領域＝いま触っている1行。プログラムの中でのデータの持ち方を学びます。\n⏱ 25分📶 初学者🏷 ABAP研修\nこの章で学ぶこと\n内部テーブル（複数行）と作業領域（1行）の関係\n並べ替え・1件ずつ処理・1件取り出し（SORT / LOOP / READ TABLE）\n「内部テーブルはDBそのものではない」という大事な区別",
@@ -198,6 +203,9 @@ Excelの表に似ていても、内部テーブルは実行中だけの一時デ
       </>
     ),
   }
-];
+]}
+    />
+  );
+}
 
-renderLesson(chrome, slides);
+mountLesson(InternalTablesLesson);
