@@ -5,7 +5,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({ ratio }: ProgressBarProps) {
   return (
-    <div className="fixed inset-x-0 top-0 z-40 h-1 bg-transparent">
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-40 h-1 bg-transparent">
       <div
         className="h-full bg-brand transition-[width] duration-300 ease-out"
         style={{ width: `${Math.round(ratio * 100)}%` }}

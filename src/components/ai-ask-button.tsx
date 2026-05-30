@@ -1,24 +1,15 @@
 import { useState } from "react";
 import { copyText } from "../lib/clipboard";
-import type { SlideData } from "../lib/types";
+import type { SlideDefinition } from "../lib/types";
 
 interface AiAskButtonProps {
   title: string;
-  slides: SlideData[];
+  slides: SlideDefinition[];
 }
 
-function slidesToPlainText(slides: SlideData[]): string {
-  const parser = new DOMParser();
+function slidesToPlainText(slides: SlideDefinition[]): string {
   return slides
-    .map((s) => {
-      const doc = parser.parseFromString(s.html, "text/html");
-      const text = (doc.body.textContent ?? "")
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean)
-        .join("\n");
-      return `## ${s.title}\n${text}`;
-    })
+    .map((s) => `## ${s.title}\n${s.plainText?.trim() || s.title}`)
     .join("\n\n");
 }
 

@@ -2,6 +2,7 @@
   "name": "training-material",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.20.0",
   "type": "module",
   "description": "研修教材（Vite + 共有コンポーネントのスライド教材）",
   "scripts": {
@@ -16,13 +17,12 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "node-html-parser": "^7.1.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.14"
   },
   "dependencies": {
-    "@picocss/pico": "^2.0.6",
-    "html-react-parser": "^6.1.2",
     "mermaid": "^11.4.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

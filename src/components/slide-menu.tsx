@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { cn } from "../lib/cn";
-import type { SlideData } from "../lib/types";
+import type { SlideDefinition } from "../lib/types";
 
 interface SlideMenuProps {
   open: boolean;
-  slides: SlideData[];
+  slides: SlideDefinition[];
   current: number;
   onSelect: (index: number) => void;
   onClose: () => void;
@@ -29,18 +29,21 @@ export function SlideMenu({ open, slides, current, onSelect, onClose }: SlideMen
       <div
         className={cn(
           "fixed inset-0 z-40 bg-black/50 transition-opacity",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={onClose}
-        aria-hidden
+        aria-hidden={!open}
       />
       <nav
         ref={panelRef}
         aria-label="スライド一覧"
         aria-hidden={!open}
+        inert={!open ? true : undefined}
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-80 max-w-[82vw] flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900",
-          open ? "translate-x-0" : "-translate-x-full"
+          open
+            ? "pointer-events-auto translate-x-0"
+            : "pointer-events-none -translate-x-full"
         )}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">

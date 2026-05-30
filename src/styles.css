@@ -23,10 +23,6 @@
     @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
     font-family: var(--font-sans);
   }
-  /* React のマウント前にチラつきを防ぐ：素の #deck を隠す */
-  body:not(.ready) #deck {
-    visibility: hidden;
-  }
 }
 
 /* スライド切り替え時のフェードイン */

@@ -1,16 +1,20 @@
-export interface SlideData {
-  /** ジャンプメニューに出すラベル（data-title 由来） */
+import type { ReactNode } from "react";
+
+export interface SlideDefinition {
+  /** ジャンプメニューに出すラベル */
   title: string;
-  /** スライド本文の生 HTML（パーサーが TSX コンポーネントへ変換する） */
-  html: string;
+  /** スライド本文（TSX） */
+  content: ReactNode;
+  /** Copilot コピー用のプレーンテキスト（省略時はタイトルのみ） */
+  plainText?: string;
 }
 
 export interface LessonChrome {
   /** レッスンタイトル（上部バー・<title> に使用） */
   title: string;
-  /** 次の章のファイル名。最終章は空文字。 */
+  /** 次の章のパス（例 "01-overview.html"）。最終章は空文字。 */
   nextHref: string;
-  /** 前の章のファイル名。最初の章は空文字。 */
+  /** 前の章のパス（例 "00-introduction.html"）。最初の章は空文字。 */
   prevHref: string;
   /** レッスン一覧へのリンク */
   indexHref: string;

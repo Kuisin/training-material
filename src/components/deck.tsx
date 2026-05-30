@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { LessonChrome, SlideData } from "../lib/types";
+import type { LessonChrome, SlideDefinition } from "../lib/types";
 import { ProgressBar } from "./progress-bar";
 import { TopBar } from "./top-bar";
 import { Controls } from "./controls";
@@ -9,7 +9,7 @@ import { Slide } from "./slide";
 
 interface DeckProps {
   chrome: LessonChrome;
-  slides: SlideData[];
+  slides: SlideDefinition[];
 }
 
 function initialIndex(total: number): number {

@@ -1,27 +1,19 @@
 # AIレッスン生成ルール
 
 **対象読者:** 研修教材を生成するAI。レッスンを作成するたびに、**毎回**このルールに従うこと。
-**プラットフォーム・ビルド手順・Markdownパイプラインは一切ない。** 各レッスンは**1つの自己完結した
-`.html`ファイル**で、ブラウザで直接開くと**スライドショー**として再生される。一貫性はこのルールと
-テンプレートによって担保される — コードではない。
+各レッスンは **1つの `.tsx` ファイル**（React + Tailwind）。Vite がビルドし、ブラウザでは `.html` として配信される。
 
 ---
 
 ## 1. 絶対ルール（厳守）
 
-1. **1レッスン = 1つの`.html`ファイル**。必ず`template/lesson-template.html`を**コピー**して作る。
-   共有ランタイム・フレームワーク・コンパイルは使わない。
-2. **各レッスンはスライドショー。** 内容をスライドに分割する。ナビゲーション（次へ／前へ、キーボード、
-   進捗バー）と**ジャンプメニュー**はテンプレートが提供する。これらは作り直さず、スライドを追加するだけ。
-3. **1スライド = 1つの`<section class="slide" data-title="…">`。** 1スライド1トピック。`data-title`は
-   ジャンプメニューに表示されるラベルなので、必ず設定する。
-4. **編集してはいけない部分:** `<head>`、`<style>`ブロック、上部バー、下部コントロール、`<script>`
-   エンジン。置き換えてよいのは`{{PLACEHOLDERS}}`と`.slide`セクションの追加・削除だけ。
-5. **見た目はUIライブラリ＋固定スタイルから来る。** 独自CSSは書かない。新しい色・フォント・レイアウト禁止。
-6. **各レッスンに必ず含めるもの:** タイトル／概要スライド、本文スライド、**図を1つ以上**、最後に
-   **確認テストのスライドを1つ以上**。
-7. **自己完結。** 許可される外部参照は、テンプレートに既にあるCDNリンク（UIライブラリ＋Mermaid）のみ。
-   それ以外の依存やローカルのスクリプト／スタイルファイルは使わない。
+1. **1レッスン = 1つの `.tsx` ファイル**。必ず `template/lesson-template.tsx` を**コピー**して作る。
+2. **各レッスンはスライドショー。** `renderLesson(chrome, slides)` でマウントする。ナビ・進捗・ジャンプメニューは共有 `Deck` が描画する。レッスン側では `slides` 配列だけを編集する。
+3. **1スライド = `slides` 配列の1要素。** `title`（ジャンプメニュー用）と `content`（JSX）と `plainText`（Copilot コピー用）を必ず設定する。
+4. **編集してはいけない部分:** `src/render-lesson.tsx`、`src/components/deck.tsx` など共有エンジン。レッスン `.tsx` では `chrome` と `slides` だけを書く。
+5. **見た目は共有 TSX コンポーネント（Tailwind）から来る。** 独自 CSS は書かない。
+6. **各レッスンに必ず含めるもの:** 概要スライド、本文スライド、**Mermaid 図を1つ以上**、**確認テストのスライドを1つ以上**。
+7. **ビルド前提。** 開発は `pnpm dev`、公開は `pnpm build`。
 
 ---
 
@@ -29,116 +21,113 @@
 
 ```
 traininig-material/
-├─ AI-LESSON-RULES.md              # このファイル
+├─ AI-LESSON-RULES.md
+├─ index.html                     # 一覧ページの Vite エントリ（ルート / 用）
+├─ index.tsx                      # レッスン一覧（React）
 ├─ template/
-│  ├─ lesson-template.html         # 全レッスンはこれをコピー
-│  └─ index-template.html          # 初回のみ直下に index.html としてコピー
-├─ index.html                      # 全レッスンのメニュー（§7参照）
-└─ <track>/                        # コースごとに1フォルダ（例: abap/）
-   ├─ 01-introduction.html
-   ├─ 02-data-types.html
-   └─ assets/                      # 実際の画像・スクショが必要な場合のみ
+│  └─ lesson-template.tsx         # 全レッスンはこれをコピー
+├─ src/
+│  ├─ render-lesson.tsx           # レッスン起動
+│  └─ components/                 # Callout, Quiz, CodeBlock, …
+└─ <track>/                       # 例: abap-taining/
+   ├─ 00-introduction.tsx         # レッスン本文（編集するのはこれのみ）
+   └─ assets/                     # 画像が必要な場合のみ
 ```
 
-- ファイル名: `NN-kebab-case-title.html` — `NN`（01, 02, …）が表示順を決める。
-- フォルダ = トラック／コース（例: `abap/`、`sap-basis/`）。なければ作成する。
-- 1スライド1トピック、1ファイル1テーマ。
+- ファイル名: `NN-kebab-case-title.tsx`
+- `chrome.nextHref` / `chrome.prevHref` は隣の章へのパス（例: `"01-overview.html"`）。Vite ビルド後も `.html` URL のまま。
+- `chrome.indexHref` は通常 `"../index.html"`
 
 ---
 
 ## 3. スライド構成（この順番で）
 
-1. **スライド1 — 概要**（必ず最初）: タイトル、1行サマリー、メタ情報（所要時間／レベル／トラック）、
-   「この章で学ぶこと」（目標2〜4個）。
-2. **本文スライド** — 1スライド1概念。明確な`<h2>`を付ける。短い文、コードブロック、コールアウト、
-   図を活用する。**合計5〜12スライド**を目安に — 内容が濃ければ2枚に分ける。
-3. **図** — 本文スライドの少なくとも1枚にMermaid図を入れる（§5）。
-4. **確認テストのスライド** — 最後のスライドにテストを1〜3問（§6）。
+1. **スライド1 — 概要:** タイトル、1行サマリー、`LessonMeta`、目標 2〜4 個。
+2. **本文スライド** — 1スライド1概念。`h2`、短文、`Callout`、`CodeBlock`、図。
+3. **図** — 少なくとも1枚に `MermaidDiagram`（§5）。
+4. **確認テスト** — 最後に `Quiz` を 1〜3 問（§6）。
 
-各スライドはおおよそ画面1枚に収める — スクロールが多くなるなら分割する。
-文体: 簡潔・例中心・初心者にやさしく（レベル指定がない限り）。
+目安: **5〜12 スライド**。文体は簡潔・例中心・初心者向け。
 
 ---
 
-## 4. スライドショーの仕組み（テンプレートが提供。任せるだけ）
+## 4. スライドショーの仕組み（共有エンジンが提供）
 
-- **ナビゲーション:** 次へ／前へボタン、`←/→`、`PageUp/PageDown`、`Home/End`キー。
-- **ジャンプメニュー:**「☰ メニュー」ボタンで、各スライドの`data-title`から自動生成された一覧を開く。
-  項目をクリックするとそのスライドへジャンプ（=「スライド間を移動するメニュー」）。
-- **進捗バー＋カウンター**（「3 / 8」）は自動更新。
-- **ディープリンク:** ファイルを`#s3`で開くと3枚目のスライドから開始（特定スライドへのリンクに便利）。
-- **「レッスン一覧」**ボタン（右上）で最上位の`index.html`に戻る。
-
-これらの配線は不要 — `data-title`付きの`.slide`セクションを追加するだけ。
+- 次へ／前へ、キーボード、`#s3` ディープリンク、進捗バー、ジャンプメニュー、Copilot ボタンはすべて `Deck` が担当。
+- レッスン側は `slides` を並べるだけ。
 
 ---
 
-## 5. コンポーネントと図 — 以下のパターンをそのまま使う
+## 5. 使える TSX コンポーネント
 
-**コールアウト**（スライド内）: `tip | warning | note`
-```html
-<div class="callout tip">キー付きアクセスには <code>READ TABLE ... WITH KEY</code> を使う。</div>
+```tsx
+import { Callout } from "../src/components/callout";
+import { CodeBlock } from "../src/components/code-block";
+import { Quiz } from "../src/components/quiz";
+import { MermaidDiagram } from "../src/components/mermaid-diagram";
+import { LessonMeta } from "../src/components/lesson-meta";
 ```
 
-**コードブロック:**
-```html
-<pre><code>DATA lt_flights TYPE TABLE OF sflight.
-SELECT * FROM sflight INTO TABLE lt_flights.</code></pre>
+**コールアウト:** `<Callout variant="tip|warning|note">…</Callout>`
+
+**コード:**
+```tsx
+<CodeBlock code={`REPORT z_hello.\nWRITE 'こんにちは'.`} />
 ```
 
-**図（Mermaid）** — 専用スライドにするか、文章と並べる:
-```html
-<pre class="mermaid">
-flowchart LR
-  A[ABAPプログラム] --> B{Open SQL}
-  B --> C[(データベース)]
-</pre>
+**図（Mermaid）:**
+```tsx
+<MermaidDiagram chart={`flowchart LR\n  A --> B`} />
 ```
-種類を選ぶ: `flowchart`（処理の流れ）、`sequenceDiagram`（やり取り）、`erDiagram`（データモデル）、
-`mindmap`（概念整理）。図は小さく保つ。迷ったら https://mermaid.live で下書きする。
 
-**新しいコンポーネントのスタイルを作らないこと** — コールアウト、コードブロック、図、確認テストが全て。
+**メタ（概要スライド）:**
+```tsx
+<LessonMeta items={[
+  { icon: "⏱", text: "15分" },
+  { icon: "📶", text: "初学者" },
+  { icon: "🏷", text: "ABAP研修" },
+]} />
+```
+
+新しいコンポーネントのスタイルは作らないこと。
 
 ---
 
-## 6. 確認テストのルール
+## 6. 確認テスト
 
-テストは最後のスライドに置く。`data-answer`は正解ボタンの**0始まりインデックス**。`data-explanation`は
-必ず入れる。`<p class="feedback"></p>`は存在させ、空のままにする。
-
-```html
-<div class="quiz" data-answer="1"
-     data-explanation="SELECT * ... INTO TABLE は内部テーブル全体を満たします。">
-  <p><strong>内部テーブルに全行を読み込むのはどれ？</strong></p>
-  <button>SELECT SINGLE</button>
-  <button>SELECT * INTO TABLE</button>
-  <button>READ TABLE</button>
-  <p class="feedback"></p>
-</div>
+```tsx
+<Quiz
+  answer={1}
+  explanation="解説文"
+  question={<strong>問題文</strong>}
+  options={["選択肢A", "選択肢B", "選択肢C"]}
+/>
 ```
-ルール: 1レッスン1〜3問、1問1概念、選択肢2〜4個、解説は必ず付ける。
+
+- `answer` は 0 始まりインデックス
+- `explanation` は必須
+- 1レッスン 1〜3 問
 
 ---
 
 ## 7. インデックスへの登録
 
-`index.html`は最上位のレッスンメニュー（初回に`template/index-template.html`からコピー）。
-レッスン作成後、該当トラックの下にファイル番号順で追加する:
+`src/pages/index-page.tsx` の `ABAP_LESSONS`（または該当トラック配列）に追加:
 
-```html
-<li><a href="abap/02-data-types.html">2. データ型</a> <small>· 初級 · 20分</small></li>
+```tsx
+{ num: "2", href: "abap-taining/02-business-basics.html", title: "仕訳日記帳と会計伝票", meta: "初学者 · 20分" },
 ```
+
+`href` はビルド後の `.html` パス（Vite が `.tsx` から生成）。
 
 ---
 
-## 8. 完成前チェックリスト（AIが自己検証）
+## 8. 完成前チェックリスト
 
-- [ ] ファイルは`<track>/NN-kebab-title.html`で、`template/lesson-template.html`からコピーした。
-- [ ] `<head>`、`<style>`、上部バー、コントロール、`<script>`は**変更していない**。
-- [ ] スライド1は概要（タイトル、サマリー、メタ、目標2〜4個）。
-- [ ] 各スライドは`data-title`付きの`<section class="slide" data-title="…">`。
-- [ ] 5〜12スライド、1スライド1概念。
-- [ ] **Mermaid図が1つ以上**ある。
-- [ ] **確認テストのスライドが1つ以上**あり、`data-answer`のインデックスと解説が正しい。
-- [ ] `index.html`に正しい順番でレッスンを追加した。
-- [ ] 単体で開ける。次へ／前へ、ジャンプメニュー、確認テストがすべて動作する。
+- [ ] `<track>/NN-kebab-title.tsx` で、`template/lesson-template.tsx` からコピーした
+- [ ] `chrome` の `title` / `prevHref` / `nextHref` が正しい
+- [ ] 概要スライドあり（`LessonMeta` + 目標リスト）
+- [ ] 各スライドに `title`、`content`、`plainText`
+- [ ] Mermaid が1つ以上、確認テストが1つ以上
+- [ ] `index-page.tsx` にレッスンリンクを追加した
+- [ ] `pnpm typecheck` と `pnpm build` が通る
