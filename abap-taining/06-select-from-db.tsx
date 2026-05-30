@@ -153,6 +153,24 @@ Bちゃん：「取れたか確認してから次へ」。お弁当を買えた�
     ),
   },
   {
+    title: "対話で整理",
+    plainText: "対話で整理\n先生：この章では、SELECTを「倉庫への問い合わせ」として正しく扱うことが大切です。必要な条件で取得し、結果をSY-SUBRCで確認してから次の処理へ進むのが基本の型になります。\nAくん：BKPFとBSEGの役割を切り分けたうえで、WHERE句で絞ってINTO TABLEへ受ける流れですね。取得件数が0の可能性を前提に分岐を置くと、後続処理の安全性が上がる。\nBちゃん：取れたか確認せず先へ進むのが一番こわいと分かりました。メッセージ表示まで含めて「利用者に状態を伝える」設計にすることを意識します。",
+    content: (
+      <>
+        <h2>対話で整理</h2>
+        <Callout variant="note">
+先生：この章では、SELECTを「倉庫への問い合わせ」として正しく扱うことが大切です。必要な条件で取得し、結果をSY-SUBRCで確認してから次の処理へ進むのが基本の型になります。
+        </Callout>
+        <Callout variant="tip">
+Aくん：BKPFとBSEGの役割を切り分けたうえで、WHERE句で絞ってINTO TABLEへ受ける流れですね。取得件数が0の可能性を前提に分岐を置くと、後続処理の安全性が上がる。
+        </Callout>
+        <Callout variant="warning">
+Bちゃん：取れたか確認せず先へ進むのが一番こわいと分かりました。メッセージ表示まで含めて「利用者に状態を伝える」設計にすることを意識します。
+        </Callout>
+      </>
+    ),
+  },
+  {
     title: "確認テスト",
     plainText: "理解度チェック\n会計伝票の「明細」にあたる表はどれ？\nBKPF\nBSEG\nT001\nSELECT でデータが取れたかは、何を見て判断する？\nSY-SUBRC が 0 かどうか\nWRITE の出力結果\nPARAMETERS の値\n今日のひとこと：「取って終わり」ではなく「取れたか確認」まで。これができると一気にプロっぽくなります。",
     content: (
@@ -160,15 +178,21 @@ Bちゃん：「取れたか確認してから次へ」。お弁当を買えた�
         <h2>理解度チェック</h2>
         <Quiz
           answer={1}
-          explanation={"BKPFは伝票ヘッダ（見出し）、BSEGは明細（中身の行）。第2章のヘッダ/明細がそのまま表になっています。"}
+          explanation={"BKPFは伝票ヘッダ（見出し）、BSEGは明細（中身の行）。第2章のヘッダ/明細がそのまま表になっています。用途に応じて参照先を分けることで、取得項目を最小化しクエリの意図も明確になります。"}
           question={<>            <strong>会計伝票の「明細」にあたる表はどれ？</strong></>}
           options={["BKPF", "BSEG", "T001"]}
         />
         <Quiz
           answer={0}
-          explanation={"SELECT直後の SY-SUBRC が 0 なら取得成功。0以外は該当なし。必ず確認してから分岐します。"}
+          explanation={"SELECT直後の SY-SUBRC が 0 なら取得成功。0以外は該当なし。必ず確認してから分岐します。確認せず処理を続けると、空データのまま帳票出力や後続ロジックへ進み、原因調査が難しくなります。"}
           question={<>            <strong>SELECT でデータが取れたかは、何を見て判断する？</strong></>}
           options={["SY-SUBRC が 0 かどうか", "WRITE の出力結果", "PARAMETERS の値"]}
+        />
+        <Quiz
+          answer={2}
+          explanation={"SELECT ... INTO TABLE は複数件を一括で内部テーブルへ受けるための基本形で、後続のLOOP処理と相性が良い構造です。1件だけを前提にするときはSELECT SINGLEを使い、要件に合わせて使い分けます。"}
+          question={<>            <strong>条件に合う複数伝票をまとめて取得したいときの基本構文は？</strong></>}
+          options={["SELECT SINGLE ... INTO ...", "READ TABLE ... WITH KEY ...", "SELECT ... INTO TABLE ... WHERE ..."]}
         />
         <Callout variant="note">
 今日のひとこと：「取って終わり」ではなく「取れたか確認」まで。これができると一気にプロっぽくなります。
