@@ -6,6 +6,7 @@ export { Dialog } from "./components/dialog";
 export { CharacterIntro } from "./components/character-intro";
 export { CodeBlock } from "./components/code-block";
 export { Quiz } from "./components/quiz";
+export { Reveal } from "./components/reveal";
 export { MermaidDiagram } from "./components/mermaid-diagram";
 export { Figure } from "./components/figure";
 export { LessonMeta } from "./components/lesson-meta";

@@ -5,6 +5,7 @@ import {
   Dialog,
   CodeBlock,
   Quiz,
+  Reveal,
   MermaidDiagram,
   Figure,
   LessonMeta,
@@ -193,15 +194,17 @@ export default function SelectionScreenLesson() {
             <>
               <h2>確認質問＆ミニ演習</h2>
               <p><strong>先生の問い：</strong>「特定の1社の、ある1ヶ月分の伝票を見たい」。会社コードと日付、それぞれどちらの入力欄が向いている？</p>
-              <Dialog speaker="a">
-                会社コードは1社だから <code>PARAMETERS</code>、日付は期間だから <code>SELECT-OPTIONS</code> です。
-              </Dialog>
-              <Dialog speaker="b">
-                「1社」と「1ヶ月」で言葉が違うから、欄も違う、と考えると選びやすいですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通り！「1つに決まるもの＝PARAMETERS／幅があるもの＝SELECT-OPTIONS」で考えれば大丈夫。迷っても、この問いに戻れば選べます。
-              </Dialog>
+              <Reveal>
+                <Dialog speaker="a">
+                  会社コードは1社だから <code>PARAMETERS</code>、日付は期間だから <code>SELECT-OPTIONS</code> です。
+                </Dialog>
+                <Dialog speaker="b">
+                  「1社」と「1月」で言葉が違うから、欄も違う、と考えると選びやすいですね。
+                </Dialog>
+                <Dialog speaker="teacher">
+                  その通り！「1つに決まるもの＝PARAMETERS／幅があるもの＝SELECT-OPTIONS」で考えれば大丈夫。迷っても、この問いに戻れば選べます。
+                </Dialog>
+              </Reveal>
             </>
           ),
         },
