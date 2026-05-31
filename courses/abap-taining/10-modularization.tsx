@@ -137,6 +137,9 @@ ENDFORM.`}
               <Dialog speaker="a">
                 入口だけ（USING）か、入口かつ出口（CHANGING）か、という矢印の向きの違いですね。
               </Dialog>
+              <Callout variant="note">
+                補足：この例は <code>p_price</code> / <code>p_tax</code> が <code>TYPE i</code>（整数）なので、ABAPの整数除算は切り捨てではなく<strong>四捨五入</strong>されます（例：<code>105 / 10</code> → <code>11</code>）。金額・税率を正確に扱うときは <code>TYPE p DECIMALS 2</code> を使うのが安全です。
+              </Callout>
             </>
           ),
         },

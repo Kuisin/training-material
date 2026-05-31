@@ -158,6 +158,11 @@ ENDLOOP.`}
               <Dialog speaker="a">
                 先に倉庫から必要分を台車でまとめて運び、あとは机の上で照合。往復が激減しますね。
               </Dialog>
+              <Callout variant="warning">
+                <code>FOR ALL ENTRIES</code> の注意：駆動テーブル（<code>lt_bseg</code>）が
+                <strong>空のときは <code>WHERE</code> が無視され全件取得</strong>になります。使う前に{" "}
+                <code>IF lt_bseg IS NOT INITIAL.</code> で空チェックを（重複行は自動で除かれます）。
+              </Callout>
               <Callout variant="tip">
                 この章のABAPキーワード：<code>FOR ALL ENTRIES</code> / <code>READ TABLE</code> / 必要な列だけ <code>SELECT</code> / 性能・保守性。
               </Callout>
