@@ -189,10 +189,10 @@ export default function CombineDataLesson() {
               </Dialog>
               <Callout variant="tip">
                 この章の核心：<strong>組み立て → APPEND → CLEAR</strong> のリズム。
-                たとえで言えば「1皿盛る → 配膳台に載せる → 使った皿を洗う」を繰り返すだけです。
+                たとえで言えば「通帳コピーのフォルダから1枚取る → 家計簿へ1行追加 → 机を空にする」を繰り返すだけです。
               </Callout>
               <Dialog speaker="b">
-                3つだけなら、深呼吸して挑戦します。レシートを1行ずつきれいに並べる作業、ですね。
+                3つだけなら、深呼吸して挑戦します。通帳コピーを見ながら、家計簿に1行ずつ書いていく作業、ですね。
               </Dialog>
             </>
           ),
@@ -746,7 +746,7 @@ export default function CombineDataLesson() {
         {
           title: "複数テーブルの使い分け",
           plainText:
-            "用途ごとに「棚」を分ける\n【解説】取得用と出力用を分ける／DBは最初に一度／フォルダ（読む）と家計簿（書く）\n【例】lt_bkpf・lt_bseg・lt_out と ls_bkpf・ls_bseg・ls_out／ty_out＝列設計\nBちゃん：lt_が3つも？→ヘッダ用・明細用・家計簿用。\nBちゃん：DBに何度も行かなくていいのも目的？→SELECTは最初、あとはフォルダから1枚ずつ。\nBちゃん：ty_out と lt_out の違いは？→列設計 vs 一枚の表。\n先生：読む用（フォルダ）と作る用（家計簿）は必ず分離。",
+            "用途ごとに「棚」を分ける\n【解説】取得用と出力用を分ける／DBは最初に一度／Calloutでたとえ\n【例】lt_bkpf・lt_bseg・lt_out と ls_bkpf・ls_bseg・ls_out／ty_out＝型\nBちゃん：lt_が3つも？→取得用2＋出力用1。\nBちゃん：ty_out と lt_out の違いは？→型 vs 内部テーブル。\n先生：取得用は触らない、出力用へAPPEND。",
           content: (
             <>
               <h2>用途ごとに「棚」を分ける</h2>
@@ -783,16 +783,16 @@ export default function CombineDataLesson() {
                 加工中に DB アクセスが増えない点も、性能面で大きいです。
               </Dialog>
               <Dialog speaker="b">
-                わざわざ分ける必要ありますか？ 通帳コピーのフォルダを直接書き換えちゃダメなんですか？
+                わざわざ分ける必要ありますか？ 取得用テーブルを直接書き換えちゃダメなんですか？
               </Dialog>
               <Dialog speaker="teacher">
-                ダメではないのですが、<strong>危ない</strong>です。フォルダの中身を書き換えると「DB から取った当時の値」が失われ、
+                ダメではないのですが、<strong>危ない</strong>です。取得用を書き換えると「DB から取った当時の値」が失われ、
                 不具合のときに「元は何だったか」を追えなくなります。
-                取り込んだ明細（原本）と、自分で作る家計簿は分けておくほうが安全です。
+                原本（取得用）と整形結果（出力用）は分けておくほうが安全です。
               </Dialog>
               <Dialog speaker="stumble">
                 取得用データを直接書き換えると、元データが汚れて原因調査が難しくなります。
-                「<strong>読む用（フォルダ）</strong>」と「<strong>作る用（家計簿）</strong>」は必ず分けましょう。
+                「<strong>読む用（取得用）</strong>」と「<strong>作る用（出力用）</strong>」は必ず分けましょう。
               </Dialog>
 
               <h3>この章で使う変数</h3>
@@ -834,42 +834,40 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
                 なんでこんなにあるんですか？
               </Dialog>
               <Dialog speaker="teacher">
-                フォルダが2つ（ヘッダ用・明細用）＋家計簿が1つ、です。
-                <code>lt_bkpf</code> / <code>lt_bseg</code> は通帳コピーのフォルダ、
-                <code>lt_out</code> は家計簿——取得用2＋出力用1、と数えてください。
+                取得用が2つ（ヘッダ・明細）＋出力用が1つ、です。
+                <code>lt_bkpf</code> / <code>lt_bseg</code> は取得用、<code>lt_out</code> は出力用——
+                合計3つの内部テーブル、と数えてください。
               </Dialog>
               <Dialog speaker="b">
-                <code>lt_</code> と <code>ls_</code> の違い、まだ混乱します…。フォルダと机、でしたっけ？
+                <code>lt_</code> と <code>ls_</code> の違い、まだ混乱します…。第5章の復習、ですよね？
               </Dialog>
               <Dialog speaker="teacher">
-                第5章の復習です。通帳コピー側では <code>lt_</code>＝<strong>フォルダ</strong>、
-                <code>ls_bkpf</code> / <code>ls_bseg</code>＝<strong>1枚の机</strong>。
-                <code>LOOP</code> や <code>READ TABLE</code> でフォルダから1枚取り出し、
-                その内容をもとに <code>ls_out</code> で家計簿の1行を組み立て、
-                <code>APPEND</code> で <code>lt_out</code> へ追加します。
+                第5章の復習です。<code>lt_</code>＝<strong>内部テーブル（複数行）</strong>、
+                <code>ls_</code>＝<strong>作業領域（1行・構造）</strong>。
+                <code>LOOP</code> や <code>READ TABLE</code> で取得用から1行取り出し、
+                <code>ls_out</code> で出力行を組み立て、<code>APPEND</code> で <code>lt_out</code> へ追加します。
               </Dialog>
               <Dialog speaker="b">
-                <code>ty_out</code> と <code>lt_out</code> の違いは？ どっちも「家計簿」っぽい…。
+                <code>ty_out</code> と <code>lt_out</code> の違いは？ 名前が似てて混乱します…。
               </Dialog>
               <Dialog speaker="teacher">
-                <code>ty_out</code> は家計簿の<strong>列設計</strong>（載せたい項目を決めた型）。
-                <code>lt_out</code> は、その設計どおりの<strong>一枚の表</strong>本体です。
-                設計図と、書き込む表——第5章の「型と実物」と同じ関係です。
+                <code>ty_out</code> は出力行の<strong>型</strong>（<code>TYPES</code> で定義）。
+                <code>lt_out</code> は、その型の行を載せる<strong>内部テーブル</strong>本体です。
+                型と実物——第5章の「設計図と実物」と同じ関係です。
               </Dialog>
               <Dialog speaker="a">
                 <code>ty_out</code> は BKPF/BSEG そのものではなく「一覧に載せたい項目だけ」を並べた設計、
                 と理解するとコードが読みやすくなります。
               </Dialog>
               <Dialog speaker="b">
-                整理できました。DB は最初に一度 → フォルダから1枚ずつ机へ → 家計簿に1行ずつ追加。
-                フォルダは「枚」、家計簿は「行を追加」、ですね。
+                整理できました。DB は最初に一度 → 取得用から1行ずつ読む → 出力用へ <code>APPEND</code>。
               </Dialog>
               <Dialog speaker="teacher">
                 完璧です。分ける理由は3つ：<br />
                 　① 頭の整理<br />
                 　② 元データの保全<br />
                 　③ DB 読み取りの最小化<br />
-                すべてこの流れにつながります。次は、机の上で1行を組み立てる命令（<code>MOVE</code> など）に入ります。
+                すべてこの流れにつながります。次は、<code>ls_out</code> で1行を組み立てる命令（<code>MOVE</code> など）に入ります。
               </Dialog>
             </>
           ),
@@ -883,7 +881,7 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
               <h2>値を移す：<code>MOVE</code> と <code>MOVE-CORRESPONDING</code></h2>
 
               <p>
-                家計簿の1行を組み立てるとき、「ヘッダから日付をコピー」「明細から金額をコピー」と
+                出力行（<code>ls_out</code>）を組み立てるとき、「ヘッダから日付をコピー」「明細から金額をコピー」と
                 <strong>項目ごとに値を移します</strong>。
               </p>
               <ul>
@@ -934,22 +932,23 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
         {
           title: "蓄える・消す",
           plainText:
-            "蓄える・消す：APPEND / CLEAR / REFRESH\nAPPEND ls_out TO lt_out：作った1行を家計簿（一枚の表）に追加\nCLEAR ls_out：作業領域（1行）を空にする\nREFRESH lt_out：家計簿（表全体）を空にする\nBちゃん：CLEAR と REFRESH、どっちが何を消すのか混同しそう…\n先生：CLEAR＝机1枚、REFRESH＝家計簿全体。今回のループでは CLEAR が主役。\nつまずき：APPEND したあと CLEAR し忘れると前の行の値が次に残る。\nBちゃん：使った皿を洗ってから次の料理、ですね。\n先生：完璧なたとえ。組み立て→追加→クリアを口ぐせに。",
+            "蓄える・消す：APPEND / CLEAR / REFRESH\nAPPEND ls_out TO lt_out：作った1行を出力テーブルに追加\nCLEAR ls_out：作業領域（1行）を空にする\nREFRESH lt_out：出力テーブル全体を空にする\nBちゃん：CLEAR と REFRESH、どっちが何を消すのか混同しそう…\n先生：CLEAR＝ls_out、REFRESH＝lt_out全体。今回のループでは CLEAR が主役。\nつまずき：APPEND したあと CLEAR し忘れると前の行の値が次に残る。\nBちゃん：家計簿へ1行追加したら、机を空にして次の行——CLEAR、ですね。\n先生：その通り。組み立て→追加→クリアを口ぐせに。",
           content: (
             <>
               <h2>蓄える・消す：<code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code></h2>
 
               <h3>解説</h3>
               <p>
-                家計簿の1行ができたら<strong>表へ追加</strong>し、机（<code>ls_out</code>）を<strong>空にして</strong>次の行へ。
+                出力行（<code>ls_out</code>）ができたら <code>lt_out</code> へ<strong>追加</strong>し、
+                <code>ls_out</code> を<strong>空にして</strong>次の行へ。
                 この「追加 → クリア」を繰り返すのが、この章の核心リズムです。
               </p>
               <Dialog speaker="b">
                 <code>CLEAR</code> と <code>REFRESH</code>、どっちが何を消すのか、いつも混同しそうです…。
               </Dialog>
               <Dialog speaker="teacher">
-                覚え方はシンプルです。<code>CLEAR</code>＝<strong>机1枚</strong>を拭く。
-                <code>REFRESH</code>＝<strong>家計簿全体</strong>を空にする。
+                覚え方はシンプルです。<code>CLEAR</code>＝<strong>作業領域</strong>（<code>ls_out</code>）を空にする。
+                <code>REFRESH</code>＝<strong>出力テーブル全体</strong>（<code>lt_out</code>）を空にする。
                 今回の「1行ずつ組み立てる」ループでは、毎回使うのは <code>CLEAR</code> です。
               </Dialog>
               <Dialog speaker="stumble">
@@ -957,18 +956,18 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
                 原因が分かりにくいバグの代表例です。→ 「1行作る → 追加 → クリア」をワンセットに。
               </Dialog>
               <Dialog speaker="b">
-                使った机（<code>ls_out</code>）を拭いてから次の行——
-                <code>REFRESH</code> は家計簿ごと全部消す、最初からやり直すとき用、ですね。
+                家計簿へ1行追加したら、机（<code>ls_out</code>）を空にして次の行——
+                <code>REFRESH lt_out</code> は家計簿ごと全部消す、最初からやり直すとき用、ですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その理解で十分です。「組み立て → 追加 → クリア」を口ぐせにすれば、混ざる事故はほぼ防げます。
+                その通りです。「組み立て → 追加 → クリア」を口ぐせにすれば、混ざる事故はほぼ防げます。
               </Dialog>
 
               <h3>例：命令と変数</h3>
               <ul>
-                <li><code>APPEND ls_out TO lt_out</code> … 作った1行を家計簿（<strong>一枚の表</strong>）に追加</li>
-                <li><code>CLEAR ls_out</code> … 作業領域（<strong>机の1行</strong>）を空にする</li>
-                <li><code>REFRESH lt_out</code> … 家計簿（<strong>表全体</strong>）を空にする</li>
+                <li><code>APPEND ls_out TO lt_out</code> … 作った1行を<strong>出力テーブル</strong>（<code>lt_out</code>）に追加</li>
+                <li><code>CLEAR ls_out</code> … <strong>作業領域</strong>（1行）を空にする</li>
+                <li><code>REFRESH lt_out</code> … <strong>出力テーブル全体</strong>を空にする</li>
               </ul>
             </>
           ),
@@ -976,7 +975,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
         {
           title: "LOOPの中で組み立てる",
           plainText:
-            "実際の流れ：LOOPの中で1行ずつ\nLOOP AT lt_bseg INTO ls_bseg. READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ... MOVE-CORRESPONDING ls_bkpf TO ls_out. ls_out-amount = ls_bseg-dmbtr. APPEND ls_out TO lt_out. CLEAR ls_out. ENDLOOP.\nBちゃん：明細フォルダから1枚ずつめくりながら、対応するヘッダを探して盛り付ける？\n先生：その通り。明細1枚につき、家計簿へ1行追加。これがこの章の実務パターン。\nBちゃん：中身は長いけど、やってることは「組み立て→追加→クリア」の繰り返しだけ？\n先生：まさに。コードが長く見えても中身は同じリズム。",
+            "実際の流れ：LOOPの中で1行ずつ\nLOOP AT lt_bseg INTO ls_bseg. READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ... MOVE-CORRESPONDING ls_bkpf TO ls_out. ls_out-amount = ls_bseg-dmbtr. APPEND ls_out TO lt_out. CLEAR ls_out. ENDLOOP.\nBちゃん：明細1行ずつ、対応ヘッダを探して出力1行を作る？\n先生：その通り。明細1行につき出力1行。これがこの章の実務パターン。\nBちゃん：中身は長いけど、やってることは「組み立て→追加→クリア」の繰り返しだけ？\n先生：まさに。コードが長く見えても中身は同じリズム。",
           content: (
             <>
               <h2>実際の流れ：<code>LOOP</code> の中で1行ずつ</h2>
@@ -984,16 +983,16 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               <h3>解説</h3>
               <p>
                 ここまでの命令が、<code>LOOP</code> の中で<strong>1行ずつ繰り返されます</strong>。
-                明細フォルダから1枚ずつ取り出し、対応するヘッダを探し、家計簿へ1行追加——
-                このリズムが、この章の実務パターンです。
+                明細を1行ずつ取り出し、対応するヘッダを <code>READ TABLE</code> で探し、
+                出力行を組み立てて <code>lt_out</code> へ <code>APPEND</code>——このリズムが実務パターンです。
               </p>
               <Dialog speaker="b">
-                明細を1枚ずつめくりながら、対応するヘッダを探して盛り付ける——
+                明細を1行ずつめくりながら、対応するヘッダを探す——
                 トランプをめくりながら、ペアのカードを探す感じ？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。明細1枚につき、家計簿へ1行追加。
-                ヘッダは <code>READ TABLE</code> で「この明細の親」を1枚だけ取り出します。
+                その通りです。明細1行につき、出力も1行。
+                ヘッダは <code>READ TABLE</code> で「この明細の親」を1行だけ取り出します。
               </Dialog>
               <Dialog speaker="b">
                 コードは長く見えますけど、やってることは「組み立て → 追加 → クリア」の繰り返しだけ、ですね？
@@ -1006,9 +1005,9 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               <h3>例：LOOP のコード</h3>
               <CodeBlock
                 language="ABAP"
-                code={`LOOP AT lt_bseg INTO ls_bseg.          " 明細フォルダから1枚ずつ机へ
+                code={`LOOP AT lt_bseg INTO ls_bseg.          " 明細を1行ずつ作業領域へ
 
-  READ TABLE lt_bkpf INTO ls_bkpf         " 対応するヘッダを1枚取得
+  READ TABLE lt_bkpf INTO ls_bkpf         " 対応するヘッダを1行取得
     WITH KEY bukrs = ls_bseg-bukrs
              belnr = ls_bseg-belnr
              gjahr = ls_bseg-gjahr.
@@ -1017,23 +1016,23 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
   MOVE-CORRESPONDING ls_bkpf TO ls_out.   " ヘッダの同名項目をコピー
   ls_out-amount = ls_bseg-dmbtr.          " 金額は手動で移す
 
-  APPEND ls_out TO lt_out.                " できた1行を家計簿へ追加
-  CLEAR ls_out.                           " 机を空にして次の行へ
+  APPEND ls_out TO lt_out.                " 出力テーブルへ追加
+  CLEAR ls_out.                           " 作業領域を空にして次の行へ
 
 ENDLOOP.`}
               />
               <ul>
                 <li>
-                  <code>LOOP AT lt_bseg INTO ls_bseg.</code> … 明細フォルダから1枚ずつ机へ
+                  <code>LOOP AT lt_bseg INTO ls_bseg.</code> … 明細取得用から1行ずつ <code>ls_bseg</code> へ
                 </li>
                 <li>
-                  <code>READ TABLE ... WITH KEY ...</code> … いまの明細に対応するヘッダを1枚だけ取得
+                  <code>READ TABLE ... WITH KEY ...</code> … いまの明細に対応するヘッダを1行だけ取得
                 </li>
                 <li>
-                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 … 机の上で1行を組み立て
+                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 … <code>ls_out</code> で1行を組み立て
                 </li>
                 <li>
-                  <code>APPEND</code> → <code>CLEAR</code> … 家計簿へ1行追加して、机を片付け
+                  <code>APPEND</code> → <code>CLEAR</code> … <code>lt_out</code> へ追加して、<code>ls_out</code> を片付け
                 </li>
               </ul>
             </>
@@ -1042,7 +1041,7 @@ ENDLOOP.`}
         {
           title: "図解：取得→対応付け→蓄積",
           plainText:
-            "図で見る：まとめる流れ\nflowchart：ヘッダ取得＋明細取得 → 1行を組み立て → APPENDで蓄積 → CLEARして次の行へ → 繰り返し\nBちゃん：材料を取る→1皿盛る→追加→皿を洗う、を繰り返すだけ？\n先生：その通り。このリズムがこの章の核心。\nBちゃん：図とコード、両方見ると頭の中でつながりました。",
+            "図で見る：まとめる流れ\nflowchart：ヘッダ取得＋明細取得 → 1行を組み立て → APPENDで蓄積 → CLEARして次の行へ → 繰り返し\nBちゃん：フォルダから1枚→家計簿の1行を組み立て→追加→机を空に、を繰り返すだけ？\n先生：その通り。通帳コピーと家計簿のたとえで、このリズムが核心。\nBちゃん：図とコード、両方見ると頭の中でつながりました。",
           content: (
             <>
               <h2>図で見る：まとめる流れ</h2>
@@ -1061,7 +1060,8 @@ ENDLOOP.`}
                 kind="diagram"
               />
               <Dialog speaker="b">
-                材料を取る → 1皿盛る → 追加 → 皿を洗う、を繰り返すだけ？
+                通帳コピーのフォルダから1枚取る → 家計簿の1行を組み立てる → 家計簿へ追加 → 机を空にする——
+                これを繰り返すだけ？
               </Dialog>
               <Dialog speaker="teacher">
                 その通り。このリズムがこの章の核心です。前のスライドのコードも、
@@ -1080,13 +1080,13 @@ ENDLOOP.`}
         {
           title: "ミニ演習",
           plainText:
-            "確認質問＆ミニ演習\n先生の問い：1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？\nBちゃん：えっと…追加したら次の材料を載せる前に、使った皿を洗う…つまり CLEAR？\n先生：正解！組み立て→APPEND→CLEAR を口ぐせにすれば混ざる事故はほぼ防げます。\nBちゃん：最初は APPEND だけで終わっちゃいそうでした。クリア、忘れやすい。",
+            "確認質問＆ミニ演習\n先生の問い：1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？\nBちゃん：家計簿へ1行追加したら、次の行を書く前に机を空に…つまり CLEAR？\n先生：正解！組み立て→APPEND→CLEAR を口ぐせにすれば混ざる事故はほぼ防げます。\nBちゃん：最初は APPEND だけで終わっちゃいそうでした。クリア、忘れやすい。",
           content: (
             <>
               <h2>確認質問＆ミニ演習</h2>
               <p><strong>先生の問い：</strong>「1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？」</p>
               <Dialog speaker="b">
-                えっと…追加したら、次の材料を載せる前に、使った皿を洗う…つまり <code>CLEAR</code>、ですか？
+                えっと…家計簿へ1行追加したら、次の行を書く前に机を空にする…つまり <code>CLEAR</code>、ですか？
               </Dialog>
               <Reveal>
                 <Dialog speaker="teacher">
@@ -1103,28 +1103,29 @@ ENDLOOP.`}
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\nBちゃん：DBは最初に一度、フォルダから1枚ずつ机へ、家計簿へ1行ずつ追加する流れは掴めました。\n先生：同名は MOVE-CORRESPONDING、違う名前は手動。取得用は触らない。\nAくん：取得用に載せておけば加工中のDBアクセスが増えず、仕様変更にも強い。\nBちゃん：命令名はまだ覚えきれないけど、たとえがあれば読めそう。",
+            "対話で整理\nBちゃん：DBは最初に一度、取得用から読んで出力用へAPPENDする流れは掴めました。\n先生：同名は MOVE-CORRESPONDING、違う名前は手動。取得用は触らない。\nAくん：取得用に載せておけば加工中のDBアクセスが増えず、仕様変更にも強い。\nBちゃん：組み立て→追加→クリア、のリズムが道しるべになりそう。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="b">
                 最初は「ヘッダと明細を合体」と聞いて途方に暮れましたけど、
-                DB は<strong>最初に一度</strong>取って、通帳コピーのフォルダから1枚ずつ机へ、
-                家計簿（一枚の表）へ1行ずつ「組み立て → 追加 → 片付け」——この流れなら、もう一度やれそうです。
+                DB は<strong>最初に一度</strong>取って、取得用から1行ずつ読み、
+                出力用へ「組み立て → 追加 → 片付け」——この流れなら、もう一度やれそうです。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。細かい点は3つだけ。
-                ① 同名項目は <code>MOVE-CORRESPONDING</code>、違う名前は手動で移す。
-                ② 取得用テーブルは触らない。③ <code>APPEND</code> のあとは必ず <code>CLEAR</code>。
+                その通りです。細かい点は3つだけ。<br />
+                ① 同名項目は <code>MOVE-CORRESPONDING</code>、違う名前は手動で移す。<br />
+                ② 取得用テーブルは触らない。<br />
+                ③ <code>APPEND</code> のあとは必ず <code>CLEAR</code>。
               </Dialog>
               <Dialog speaker="a">
                 取得用に載せておけば、加工中は DB へ何度も行かなくて済みます。
-                出力用を別にしておけば、整形ロジックを変えても通帳コピーのフォルダはそのまま——
+                出力用を別にしておけば、整形ロジックを変えても取得用はそのまま——
                 性能と保守性、両方の理由でこの分け方が定番です。
               </Dialog>
               <Dialog speaker="b">
-                命令名はまだ全部覚えきれませんけど、「フォルダから1枚」「家計簿へ1行追加」「机を空にする（CLEAR）」
-                みたいなたとえがあれば、コードを読むときの道しるべになりそうです。
+                命令名はまだ全部覚えきれませんけど、「組み立て → 追加 → クリア」のリズムが
+                コードを読むときの道しるべになりそうです。
               </Dialog>
             </>
           ),
@@ -1144,13 +1145,13 @@ ENDLOOP.`}
               />
               <Quiz
                 answer={2}
-                explanation="CLEAR は作業領域（1行・机）を空にします。APPEND の後にこれを忘れると前の値が残ります。Bちゃんのたとえで言えば「使った皿を洗う」作業です。REFRESH は棚全体を空にするので、今回のループでは使いません。"
+                explanation="CLEAR は作業領域（<code>ls_out</code>）を空にします。APPEND の後にこれを忘れると前の値が残ります。通帳コピーと家計簿のたとえで言えば、家計簿へ1行追加したあと「机を空にする」作業です。REFRESH は家計簿全体を空にするので、今回のループでは使いません。"
                 question={<strong>1行をAPPENDした後、次の行の前に作業領域を空にする命令は？</strong>}
                 options={["MOVE", "ULINE", "CLEAR"]}
               />
               <Quiz
                 answer={0}
-                explanation="取得用と出力用を分けると、元データを残したまま整形でき、役割が分離されます。あわせて SELECT は最初にまとめて実行し、加工中はメモリ上の内部テーブルを読むだけにできるので、DB への読み取り回数も減らせます。Bちゃんのたとえで言えば「通帳コピーのフォルダ（lt_bkpf / lt_bseg）」と「家計簿・一枚の表（lt_out）に一行ずつ追加する」イメージです。"
+                explanation="取得用と出力用を分けると、元データを残したまま整形でき、役割が分離されます。あわせて SELECT は最初にまとめて実行し、加工中はメモリ上の内部テーブルを読むだけにできるので、DB への読み取り回数も減らせます。"
                 question={<strong>内部テーブルを「取得用」と「出力用」に分ける主な利点は？</strong>}
                 options={[
                   "役割が分離され、整形処理を安全に管理できる",
@@ -1160,7 +1161,7 @@ ENDLOOP.`}
               />
               <Dialog speaker="b">
                 「組み立て → 追加 → クリア」。このリズムが身につけば、
-                難しい章も、たとえを頼りに乗り越えられそうです。次の章も頑張ります！
+                難しい章も、通帳コピーと家計簿のたとえを頼りに乗り越えられそうです。次の章も頑張ります！
               </Dialog>
             </>
           ),
