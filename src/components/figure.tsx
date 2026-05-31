@@ -24,17 +24,20 @@ function resolveFigureSrc(relativeSrc: string): string {
     return relativeSrc;
   }
 
-  const base = import.meta.env.BASE_URL;
-  const pathname = window.location.pathname;
-  const pathWithoutBase =
-    base !== "/" && pathname.startsWith(base)
-      ? pathname.slice(base.length)
-      : pathname;
-  const slugMatch = pathWithoutBase.match(/^\/([^/]+)\//);
-  const slug = slugMatch?.[1];
-
-  if (slug && relativeSrc.startsWith("image/")) {
-    return courseFigureHref(slug, relativeSrc);
+  if (relativeSrc.startsWith("image/")) {
+    const base = import.meta.env.BASE_URL;
+    const pathname = window.location.pathname;
+    let pathWithoutBase =
+      base !== "/" && pathname.startsWith(base)
+        ? pathname.slice(base.length)
+        : pathname;
+    if (!pathWithoutBase.startsWith("/")) {
+      pathWithoutBase = `/${pathWithoutBase}`;
+    }
+    const slug = pathWithoutBase.match(/^\/([^/]+)\//)?.[1];
+    if (slug) {
+      return courseFigureHref(slug, relativeSrc);
+    }
   }
 
   if (relativeSrc.startsWith("/")) {
@@ -68,10 +71,10 @@ export function Figure({ src, alt, caption, kind = "diagram" }: FigureProps) {
           </span>
         </div>
       ) : (
-        <div className="relative mx-auto max-w-3xl">
+        <div className="relative mx-auto min-h-48 max-w-3xl">
           {!loaded && (
             <div
-              className="flex min-h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/40"
+              className="absolute inset-0 flex items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/40"
               aria-hidden
             >
               <span className="text-sm text-slate-500 dark:text-slate-400">画像を読み込み中…</span>
@@ -80,13 +83,12 @@ export function Figure({ src, alt, caption, kind = "diagram" }: FigureProps) {
           <img
             src={resolvedSrc}
             alt={alt}
-            loading="lazy"
             decoding="async"
             onLoad={() => setLoaded(true)}
             onError={() => setFailed(true)}
             className={cn(
-              "mx-auto max-h-[60vh] w-full rounded-xl border border-slate-200 bg-white object-contain shadow-sm dark:border-slate-700 dark:bg-slate-800/40",
-              !loaded && "hidden"
+              "mx-auto max-h-[60vh] w-full rounded-xl border border-slate-200 bg-white object-contain shadow-sm transition-opacity duration-200 dark:border-slate-700 dark:bg-slate-800/40",
+              loaded ? "opacity-100" : "opacity-0"
             )}
           />
         </div>
