@@ -5,10 +5,16 @@ import { cn } from "../lib/cn";
 interface CharacterSpeakerStyle {
   avatar: string;
   bubble: string;
-  tail: string;
+  tailFill: string;
+  tailStroke: string;
   avatarChar: string;
   label: string;
 }
+
+/** Tail depth (px); matches bubble `border` (1px) overlap via BUBBLE_BORDER. */
+const TAIL_WIDTH = 8;
+const TAIL_HEIGHT = 12;
+const BUBBLE_BORDER = 1;
 
 interface BadgeSpeakerStyle {
   container: string;
@@ -24,7 +30,8 @@ const CHARACTER_STYLES: Record<CharacterSpeaker, CharacterSpeakerStyle> = {
     avatar: "bg-sky-600 text-white dark:bg-sky-500",
     bubble:
       "border border-sky-500/40 bg-sky-50 text-sky-950 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-100",
-    tail: "border-r-sky-50 dark:border-r-sky-500/10",
+    tailFill: "fill-sky-50 dark:fill-sky-500/10",
+    tailStroke: "stroke-sky-500/40 dark:stroke-sky-500/30",
     avatarChar: "先",
     label: "先生",
   },
@@ -32,7 +39,8 @@ const CHARACTER_STYLES: Record<CharacterSpeaker, CharacterSpeakerStyle> = {
     avatar: "bg-emerald-600 text-white dark:bg-emerald-500",
     bubble:
       "border border-emerald-500/40 bg-emerald-50 text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100",
-    tail: "border-r-emerald-50 dark:border-r-emerald-500/10",
+    tailFill: "fill-emerald-50 dark:fill-emerald-500/10",
+    tailStroke: "stroke-emerald-500/40 dark:stroke-emerald-500/30",
     avatarChar: "理",
     label: "Aくん",
   },
@@ -40,7 +48,8 @@ const CHARACTER_STYLES: Record<CharacterSpeaker, CharacterSpeakerStyle> = {
     avatar: "bg-amber-600 text-white dark:bg-amber-500",
     bubble:
       "border border-amber-500/40 bg-amber-50 text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100",
-    tail: "border-r-amber-50 dark:border-r-amber-500/10",
+    tailFill: "fill-amber-50 dark:fill-amber-500/10",
+    tailStroke: "stroke-amber-500/40 dark:stroke-amber-500/30",
     avatarChar: "文",
     label: "Bちゃん",
   },
@@ -75,6 +84,47 @@ function isCharacterSpeaker(
   return CHARACTER_SPEAKERS.includes(speaker as CharacterSpeaker);
 }
 
+function BubbleTail({
+  fill,
+  stroke,
+  side,
+}: {
+  fill: string;
+  stroke: string;
+  side: "left" | "right";
+}) {
+  const mid = TAIL_HEIGHT / 2;
+  const inset = -(TAIL_WIDTH - BUBBLE_BORDER);
+  const isLeft = side === "left";
+
+  const polygonPoints = isLeft
+    ? `0,${mid} ${TAIL_WIDTH},0 ${TAIL_WIDTH},${TAIL_HEIGHT}`
+    : `${TAIL_WIDTH},${mid} 0,0 0,${TAIL_HEIGHT}`;
+  const strokePath = isLeft
+    ? `M0,${mid} L${TAIL_WIDTH},0 M0,${mid} L${TAIL_WIDTH},${TAIL_HEIGHT}`
+    : `M${TAIL_WIDTH},${mid} L0,0 M${TAIL_WIDTH},${mid} L0,${TAIL_HEIGHT}`;
+
+  return (
+    <svg
+      aria-hidden
+      width={TAIL_WIDTH}
+      height={TAIL_HEIGHT}
+      viewBox={`0 0 ${TAIL_WIDTH} ${TAIL_HEIGHT}`}
+      className="absolute top-4 z-1 shrink-0"
+      style={isLeft ? { left: inset } : { right: inset }}
+    >
+      <polygon points={polygonPoints} className={fill} />
+      <path
+        d={strokePath}
+        className={stroke}
+        fill="none"
+        strokeWidth={BUBBLE_BORDER}
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
 function CharacterDialog({
   speaker,
   children,
@@ -83,9 +133,17 @@ function CharacterDialog({
   children: ReactNode;
 }) {
   const style = CHARACTER_STYLES[speaker];
+  const isTeacher = speaker === "teacher";
+  const tailSide = isTeacher ? "left" : "right";
 
   return (
-    <div role="note" className="not-prose my-4 flex items-start gap-3">
+    <div
+      role="note"
+      className={cn(
+        "not-prose my-4 flex items-start gap-3",
+        !isTeacher && "flex-row-reverse"
+      )}
+    >
       <div className="flex w-10 shrink-0 flex-col items-center gap-1">
         <span
           aria-hidden
@@ -106,12 +164,10 @@ function CharacterDialog({
         )}
       >
         {children}
-        <span
-          aria-hidden
-          className={cn(
-            "absolute top-4 -left-2 h-0 w-0 border-y-[6px] border-r-8 border-y-transparent",
-            style.tail
-          )}
+        <BubbleTail
+          fill={style.tailFill}
+          stroke={style.tailStroke}
+          side={tailSide}
         />
       </div>
     </div>
