@@ -9,13 +9,145 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
+  HorizontalLine,
+  horizontalLineClasses,
+  horizontalLineBorderColor,
   mountLesson,
 } from "../../src/lesson";
+import type { ReactNode } from "react";
+import { cn } from "../../src/lib/cn";
 
 export const lessonMeta = {
   title: "複数データをまとめる",
   meta: "初学者 · 25分",
 };
+
+/** 正規化スライド用のサンプルデータ（架空の伝票） */
+const DENORM_SAMPLE_ROWS = [
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所", item: "ノート PC", amount: "158,000" },
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所", item: "マウス", amount: "2,480" },
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所", item: "キーボード", amount: "8,900" },
+  { belnr: "100002", budat: "2025-04-03", bukrs: "2000", name: "名古屋商事", item: "コピー用紙", amount: "4,200" },
+  { belnr: "100002", budat: "2025-04-03", bukrs: "2000", name: "名古屋商事", item: "インク", amount: "6,750" },
+] as const;
+
+const NORM_HEADER_ROWS = [
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所" },
+  { belnr: "100002", budat: "2025-04-03", bukrs: "2000", name: "名古屋商事" },
+] as const;
+
+const NORM_DETAIL_ROWS = [
+  { belnr: "100001", buzei: "1", item: "ノート PC", amount: "158,000" },
+  { belnr: "100001", buzei: "2", item: "マウス", amount: "2,480" },
+  { belnr: "100001", buzei: "3", item: "キーボード", amount: "8,900" },
+  { belnr: "100002", buzei: "1", item: "コピー用紙", amount: "4,200" },
+  { belnr: "100002", buzei: "2", item: "インク", amount: "6,750" },
+] as const;
+
+/** 1NF 前：1行に繰り返しグループ（スラッシュ区切り） */
+const PRE_1NF_ROWS = [
+  {
+    belnr: "100001",
+    budat: "2025-04-01",
+    bukrs: "1000",
+    name: "大阪製作所",
+    items: "ノート PC / マウス / キーボード",
+    amounts: "158,000 / 2,480 / 8,900",
+  },
+  {
+    belnr: "100002",
+    budat: "2025-04-03",
+    bukrs: "2000",
+    name: "名古屋商事",
+    items: "コピー用紙 / インク",
+    amounts: "4,200 / 6,750",
+  },
+] as const;
+
+/** 3NF 後：ヘッダから会社名をマスタ（T001）へ移した形 */
+const NORM3_HEADER_ROWS = [
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000" },
+  { belnr: "100002", budat: "2025-04-03", bukrs: "2000" },
+] as const;
+
+const T001_MASTER_ROWS = [
+  { bukrs: "1000", name: "大阪製作所" },
+  { bukrs: "2000", name: "名古屋商事" },
+] as const;
+
+/** 3NF 前：ヘッダに会社名を載せると、伝票が増えるほど同じ名称が繰り返される */
+const NF3_HEADER_REPEAT_ROWS = [
+  { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所" },
+  { belnr: "100003", budat: "2025-04-05", bukrs: "1000", name: "大阪製作所" },
+  { belnr: "100004", budat: "2025-04-07", bukrs: "1000", name: "大阪製作所" },
+  { belnr: "100002", budat: "2025-04-03", bukrs: "2000", name: "名古屋商事" },
+  { belnr: "100005", budat: "2025-04-10", bukrs: "2000", name: "名古屋商事" },
+] as const;
+
+function SampleTable({
+  caption,
+  variant = "default",
+  children,
+}: {
+  caption: string;
+  variant?: "warn" | "ok" | "default";
+  children: ReactNode;
+}) {
+  const captionClass =
+    variant === "warn"
+      ? "text-amber-800 dark:text-amber-200"
+      : variant === "ok"
+        ? "text-emerald-800 dark:text-emerald-200"
+        : "text-slate-600 dark:text-slate-300";
+
+  return (
+    <figure className="not-prose my-4">
+      <figcaption className={`mb-2 text-sm font-medium ${captionClass}`}>{caption}</figcaption>
+      <div
+        className={cn(
+          "overflow-x-auto rounded-lg border shadow-sm",
+          horizontalLineBorderColor
+        )}
+      >
+        <table className="w-full min-w-lg border-collapse text-left text-sm">{children}</table>
+      </div>
+    </figure>
+  );
+}
+
+function Th({ children }: { children: ReactNode }) {
+  return (
+    <th
+      className={cn(
+        horizontalLineClasses("strong"),
+        "bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+      )}
+    >
+      {children}
+    </th>
+  );
+}
+
+function Td({
+  children,
+  highlight = false,
+}: {
+  children: ReactNode;
+  highlight?: boolean;
+}) {
+  return (
+    <td
+      className={cn(
+        horizontalLineClasses("normal"),
+        "px-3 py-2",
+        highlight && "bg-amber-100/80 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100"
+      )}
+    >
+      {children}
+    </td>
+  );
+}
 
 export default function CombineDataLesson() {
   return (
@@ -68,7 +200,7 @@ export default function CombineDataLesson() {
         {
           title: "領収書整理のたとえ",
           plainText:
-            "バラバラの情報を、1枚の表にまとめる\nお店の情報（ヘッダ）と買った品物（明細）が別々にあると見づらい。突き合わせて1つの見やすい一覧にするのが今回のテーマ。\nBちゃん：なんで最初から1枚の表になってないんですか？\n先生：DBでは役割ごとに分けて保存する。見やすくするのはプログラムの仕事。\nBちゃん：レシートの「日付・店名」と「商品名・金額」を1行に並べる感じ？\n先生：まさにそれ。バラバラのままだと使いにくいので、後で使える形に整えます。",
+            "バラバラの情報を、1枚の表にまとめる\nBちゃん：なんで最初から1枚の表じゃない？合体、面倒…\n先生：まずバラバラの状態を図で確認。\n図：ヘッダと明細を突き合わせ1行ずつの一覧に。\n先生：DBは役割ごとに分けて保存。整えるのはプログラムの仕事。\nBちゃん：レシートの日付・店名と商品・金額を1行に？\n先生：その通り。次のスライドで正規化として理由を整理。",
           content: (
             <>
               <h2>バラバラの情報を、1枚の表にまとめる</h2>
@@ -76,15 +208,18 @@ export default function CombineDataLesson() {
                 「お店の情報（ヘッダ）」と「買った品物（明細）」が別々にあると見づらいですよね。
                 これらを突き合わせて、<strong>1行ずつ意味が分かる一覧</strong>にするのが今回のテーマです。
               </p>
+              <Dialog speaker="b">
+                なんで最初から1枚の表になっていないんですか？わざわざ合体させるの、面倒に感じます…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                いい質問です。まず「バラバラの状態」がどう見えるか、図で確認しましょう。
+              </Dialog>
               <Figure
                 src="image/08-receipt-organize.png"
                 alt="左：お店情報のカード（ヘッダ）と品物リストのカード（明細）がバラバラに散らばっている。右：それらを突き合わせて1行ずつにまとめた整然とした一覧表。"
                 caption="ヘッダ（お店）と明細（品物）を突き合わせ、1行で意味が分かる一覧に整える"
                 kind="concept"
               />
-              <Dialog speaker="b">
-                なんで最初から1枚の表になっていないんですか？わざわざ合体させるの、面倒に感じます…。
-              </Dialog>
               <Dialog speaker="teacher">
                 データベースでは「見出し用」と「中身用」に<strong>役割ごとに分けて保存</strong>します。
                 会計では伝票ヘッダ（BKPF）と明細（BSEG）が別テーブルです。
@@ -96,6 +231,514 @@ export default function CombineDataLesson() {
               <Dialog speaker="teacher">
                 まさにそれです。1つの伝票に明細が3行あれば、出力は<strong>3行</strong>になります。
                 ヘッダの情報（日付・会社など）は各行に繰り返し載せて、バラバラのまま使えない状態から解放します。
+              </Dialog>
+              <Dialog speaker="b">
+                分けて保存する理由…次のスライドで<strong>正規化</strong>として整理するんですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。理由が分かると、今回の「合体」の意味もはっきりします。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "正規化：なぜ分けて保存するか",
+          plainText:
+            "正規化：なぜ分けて保存するか\nBちゃん：正規化って何？\n先生：同じ情報の重複を減らすため、役割ごとに表を分けること。\n表：正規化前は日付・会社が3行重複（黄色）。正規化後はヘッダ2行＋明細5行。\nCallout：正規化＝保存時は分ける／今章＝表示用に合体。\nAくん：別途正規化を勉強中。ヘッダと明細に分けるのは第何正規形？\n先生：ざっくり第二正規形（2NF）。伝票番号だけで決まる情報をヘッダ表へ。\nBちゃん：数字は難しいけど「伝票番号だけで決まるものはヘッダへ」で覚えます。",
+          content: (
+            <>
+              <h2>正規化：なぜ分けて保存するか</h2>
+              <Dialog speaker="b">
+                前のスライドの続きですけど…<strong>正規化（せいきか）</strong>って、具体的に何ですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                ひと言で言うと、<strong>同じ情報の重複を減らす</strong>ために、
+                役割ごとに表を分けて保存することです。まず「分けないとどうなるか」から見てみましょう。
+              </Dialog>
+
+              <h3>1枚の大きな表だと…</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                架空の伝票データです。同じ伝票番号なのに、日付・会社が<strong>行ごとに繰り返し</strong>書かれています（黄色＝重複）。
+              </p>
+              <SampleTable caption="❌ 正規化前：すべて1枚の表に書く" variant="warn">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                    <Th>商品</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DENORM_SAMPLE_ROWS.map((row, i) => {
+                    const isRepeat = i > 0 && row.belnr === DENORM_SAMPLE_ROWS[i - 1].belnr;
+                    return (
+                      <tr key={`${row.belnr}-${row.item}`}>
+                        <Td highlight={isRepeat}>{row.belnr}</Td>
+                        <Td highlight={isRepeat}>{row.budat}</Td>
+                        <Td highlight={isRepeat}>{row.bukrs}</Td>
+                        <Td highlight={isRepeat}>{row.name}</Td>
+                        <Td>{row.item}</Td>
+                        <Td>{row.amount}</Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="b">
+                黄色のところ、同じ内容が何度もコピーされてますね…。
+                伝票 <code>100001</code> だけで日付が3回も！
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。伝票1件に明細3行あると、日付・会社も<strong>3回同じ内容</strong>が並びます。
+                会社名を直すときも、同じ伝票の行を<strong>全部</strong>更新しないといけません。
+              </Dialog>
+
+              <h3>正規化すると…</h3>
+              <Dialog speaker="b">
+                じゃあ、どうすればいいんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                同じデータを<strong>ヘッダ表</strong>と<strong>明細表</strong>に分けます。
+                日付・会社は伝票ごとに1回だけ。商品・金額は明細側だけ——こうするのが正規化です。
+              </Dialog>
+              <SampleTable caption="✅ 正規化後：ヘッダ表（BKPF イメージ）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_HEADER_ROWS.map((row) => (
+                    <tr key={row.belnr}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.budat}</Td>
+                      <Td>{row.bukrs}</Td>
+                      <Td>{row.name}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="b">
+                ヘッダ表、<strong>2行だけ</strong>！日付も会社名も1回ずつですね。
+              </Dialog>
+              <SampleTable caption="✅ 正規化後：明細表（BSEG イメージ）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>行</Th>
+                    <Th>商品</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_DETAIL_ROWS.map((row) => (
+                    <tr key={`${row.belnr}-${row.buzei}`}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.buzei}</Td>
+                      <Td>{row.item}</Td>
+                      <Td>{row.amount}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                明細側には商品・金額だけ。会社名を直すときも、ヘッダ表の<strong>1か所</strong>を直せばOKです。
+              </Dialog>
+
+              <Callout variant="tip">
+                <strong>正規化</strong>＝保存するときは分ける（重複を減らす）。
+                <strong>今回の章</strong>＝帳票・一覧用に、プログラムで<strong>一時的に合体</strong>する。
+                保存の設計と、表示用の加工は別の話です。
+              </Callout>
+              <Dialog speaker="a">
+                実は今、別途正規化の勉強をしているんですが…
+                さっきの「ヘッダ表と明細表に分ける」は、<strong>第何正規形</strong>に当たりますか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                ざっくり言うと<strong>第二正規形（2NF）</strong>です。
+                明細の行キー（伝票番号＋行）の<strong>一部だけ</strong>——伝票番号——で決まる情報（日付・会社）は、
+                別のヘッダ表へ移します。「部分関数従属を解消する」という整理です。
+              </Dialog>
+              <Dialog speaker="b">
+                第1？第2？…数字はまだピンときませんけど、
+                「<strong>伝票番号だけで決まるものはヘッダへ</strong>」——これなら覚えられそうです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解で十分です。DBは<strong>正規化して保存</strong>し、帳票ではプログラムで<strong>合体</strong>する——
+                今回学ぶのは後半です。第1〜第3正規形の定義は、<strong>次の参考スライド</strong>にまとめてあります。
+              </Dialog>
+              <Dialog speaker="b">
+                だから「面倒に感じる結合（合体）」は、保存をきれいにした<strong>あと</strong>の作業なんですね。
+                理由が分かると、少しだけやる気が出てきました。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "参考：第1〜第3正規形",
+          plainText:
+            "参考：第1〜第3正規形\nInfoPanel：本コース必須ではない。理解を深めたい人向けの補足。時間がなければスキップ可。\n3NF：会社名はbukrsだけで決まるのにヘッダにコピー→更新漏れ・表記ゆれ。T001に1行だけ。\n先生：社名変更は3NF前はヘッダ全行、3NF後はT001の1行。\nAくん：会社名は伝票の属性ではなく会社コードの属性。",
+          content: (
+            <>
+              <h2>参考：第1〜第3正規形</h2>
+              <InfoPanel
+                title="このスライドについて"
+                variant="reference"
+                lead={
+                  <>
+                    <strong>本コースの必須内容ではありません。</strong>
+                    前のスライドで触れた「なぜヘッダと明細が分かれているか」を、
+                    理解を深めたい人向けに補足しています。
+                  </>
+                }
+              >
+                <ul>
+                  <li>第1〜第3正規形の機械的な整理（参考）</li>
+                  <li>
+                    研修で<strong>必須</strong>なのは、次スライド以降の「合体」（
+                    <code>MOVE</code> / <code>APPEND</code> など）です
+                  </li>
+                  <li>時間がなければ、このスライドは<strong>スキップして大丈夫</strong>です</li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                前のスライドで触れた第1〜第3正規形を、<strong>同じ架空伝票データ</strong>（
+                <code>100001</code> / <code>100002</code>）で順番に整理します。
+                各段階は Before → After の表で見て、<strong>0NF → 1NF → 2NF → 3NF</strong> と
+                機械的に進めていきましょう。
+              </Dialog>
+              <Dialog speaker="a">
+                同じデータが段階ごとに「表の数」と「列の持ち方」が変わっていく、という整理ですね。
+                前のスライドの BKPF / BSEG の話が、ここで番号付きのルールとしてつながります。
+              </Dialog>
+
+              <h3>第1正規形（1NF）</h3>
+              <Dialog speaker="teacher">
+                第1正規形の条件は<strong>繰り返しグループがない</strong>こと——1セルに1値です。
+                操作は単純で、1セルに並べた複数値を<strong>行に展開</strong>します。
+              </Dialog>
+              <SampleTable caption="❌ 正規化前（0NF）：1行に繰り返しグループ" variant="warn">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                    <Th>商品（繰り返し）</Th>
+                    <Th>金額（繰り返し）</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PRE_1NF_ROWS.map((row) => (
+                    <tr key={row.belnr}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.budat}</Td>
+                      <Td>{row.bukrs}</Td>
+                      <Td>{row.name}</Td>
+                      <Td highlight>{row.items}</Td>
+                      <Td highlight>{row.amounts}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                黄色の列は<strong>繰り返しグループ</strong>です。1つのセルに複数の商品・金額が
+                スラッシュ区切りで詰め込まれており、1NF を満たしていません。
+              </Dialog>
+              <SampleTable caption="✅ 1NF 後：1商品＝1行に展開（まだ1枚の表）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>行</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                    <Th>商品</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_DETAIL_ROWS.map((row) => {
+                    const header = NORM_HEADER_ROWS.find((h) => h.belnr === row.belnr)!;
+                    return (
+                      <tr key={`${row.belnr}-${row.buzei}`}>
+                        <Td>{row.belnr}</Td>
+                        <Td>{row.buzei}</Td>
+                        <Td>{header.budat}</Td>
+                        <Td>{header.bukrs}</Td>
+                        <Td>{header.name}</Td>
+                        <Td>{row.item}</Td>
+                        <Td>{row.amount}</Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                展開後は1商品＝1行になり、1NF を満たします。ただし日付・会社は行ごとに
+                <strong>まだ重複</strong>しています——次の第2正規形で解消します。
+              </Dialog>
+              <Dialog speaker="a">
+                1NF の判定はシンプルで、「1セルに複数値が入っていたら行にばらす」。
+                表の行数は増えますが、列の意味は1つに固定されます。重複列はまだ残る——
+                それは 2NF の問題、と切り分けられます。
+              </Dialog>
+
+              <HorizontalLine spacing="lg" />
+
+              <h3>第2正規形（2NF）</h3>
+              <Dialog speaker="teacher">
+                第2正規形は、1NF に加えて<strong>部分関数従属がない</strong>状態です。
+                複合キー（伝票番号＋行）の<strong>一部だけ</strong>で決まる項目は、別表へ移します。
+              </Dialog>
+              <SampleTable caption="❌ 2NF 前：日付・会社が行ごとに重複（1NF の1枚表）" variant="warn">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>行</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                    <Th>商品</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_DETAIL_ROWS.map((row, i) => {
+                    const header = NORM_HEADER_ROWS.find((h) => h.belnr === row.belnr)!;
+                    const prev = i > 0 ? NORM_DETAIL_ROWS[i - 1] : null;
+                    const isRepeat = prev?.belnr === row.belnr;
+                    return (
+                      <tr key={`nf2-before-${row.belnr}-${row.buzei}`}>
+                        <Td highlight={isRepeat}>{row.belnr}</Td>
+                        <Td>{row.buzei}</Td>
+                        <Td highlight={isRepeat}>{header.budat}</Td>
+                        <Td highlight={isRepeat}>{header.bukrs}</Td>
+                        <Td highlight={isRepeat}>{header.name}</Td>
+                        <Td>{row.item}</Td>
+                        <Td>{row.amount}</Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                主キーは「伝票番号＋行」なのに、日付・会社は<strong>伝票番号だけ</strong>で決まります。
+                これが<strong>部分関数従属</strong>です。黄色の重複がそのサインです。
+              </Dialog>
+              <SampleTable caption="✅ 2NF 後：ヘッダ表 BKPF（伝票番号だけで決まる情報）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_HEADER_ROWS.map((row) => (
+                    <tr key={`nf2-h-${row.belnr}`}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.budat}</Td>
+                      <Td>{row.bukrs}</Td>
+                      <Td>{row.name}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <SampleTable caption="✅ 2NF 後：明細表 BSEG（行ごとの情報のみ）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>行</Th>
+                    <Th>商品</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_DETAIL_ROWS.map((row) => (
+                    <tr key={`nf2-d-${row.belnr}-${row.buzei}`}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.buzei}</Td>
+                      <Td>{row.item}</Td>
+                      <Td>{row.amount}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                伝票番号だけで決まる情報（日付・会社）を<strong>BKPF（ヘッダ）</strong>へ、
+                行ごとの情報（商品・金額）を<strong>BSEG（明細）</strong>へ分けました。
+                前のスライドで見た分割は、主にこの第2正規形の例です。
+              </Dialog>
+              <Dialog speaker="a">
+                2NF は「主キー＝伝票番号＋行」なのに、日付などが<strong>伝票番号だけ</strong>で決まる列を
+                別表へ逃がす操作、と理解しました。黄色の重複は、その列が明細キーに属していないサインです。
+              </Dialog>
+
+              <HorizontalLine spacing="lg" />
+
+              <h3>第3正規形（3NF）</h3>
+              <Dialog speaker="teacher">
+                第3正規形は、2NF に加えて<strong>推移的関数従属がない</strong>状態です。
+                「A → B → C」と間接的に決まる項目（C）を、B を主キーとする別表——
+                マスタ——へ移します。
+              </Dialog>
+              <Dialog speaker="teacher">
+                ここで重要なのは<strong>「なぜ分けるのか」</strong>です。2NF 後のヘッダに
+                会社コード（<code>bukrs</code>）と会社名の<strong>両方</strong>を載せ続けると、
+                伝票が増えるほど次の問題が起きやすくなります。
+              </Dialog>
+              <SampleTable caption="❌ 3NF 前：ヘッダに会社名を載せ続けると…" variant="warn">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NF3_HEADER_REPEAT_ROWS.map((row) => (
+                      <tr key={`nf3-repeat-${row.belnr}`}>
+                        <Td>{row.belnr}</Td>
+                        <Td>{row.budat}</Td>
+                        <Td>{row.bukrs}</Td>
+                        <Td highlight>{row.name}</Td>
+                      </tr>
+                    ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                会社名（黄色）は、伝票番号ではなく<strong>会社コードだけ</strong>で決まります。
+                それなのにヘッダごとにコピーされるため、①<strong>同じ名称の無駄な繰り返し</strong>、
+                ②<strong>社名変更のたびに該当伝票を全部更新</strong>、
+                ③<strong>表記ゆれ（「大阪製作所」と「大阪製作所　」など）の混在</strong>——
+                の3つが起きやすくなります。
+              </Dialog>
+              <Dialog speaker="teacher">
+                例えば <code>1000</code> の会社名を「大阪製作所株式会社」に直すとき、
+                3NF 前ならヘッダ<strong>3行すべて</strong>を書き換えます。
+                3NF 後なら T001 の<strong>1行だけ</strong>直せば、以降の参照はすべて新しい名称になります。
+              </Dialog>
+              <SampleTable caption="❌ 3NF 前：1行のヘッダ構造（問題の整理）" variant="warn">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM_HEADER_ROWS.map((row) => (
+                    <tr key={`nf3-before-${row.belnr}`}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.budat}</Td>
+                      <Td>{row.bukrs}</Td>
+                      <Td highlight>{row.name}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                構造としては「伝票番号 → 会社コード → 会社名」という<strong>推移的関数従属</strong>です。
+                会社名は伝票の主キーから直接は決まらず、<code>bukrs</code> を経由して決まります。
+                だから会社名はヘッダではなく、<code>bukrs</code> を主キーとする<strong>別表</strong>へ移します。
+              </Dialog>
+              <SampleTable caption="✅ 3NF 後：ヘッダはコードのみ" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>伝票番号</Th>
+                    <Th>日付</Th>
+                    <Th>会社</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NORM3_HEADER_ROWS.map((row) => (
+                    <tr key={`nf3-h-${row.belnr}`}>
+                      <Td>{row.belnr}</Td>
+                      <Td>{row.budat}</Td>
+                      <Td>{row.bukrs}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <SampleTable caption="✅ 3NF 後：会社マスタ T001（会社名はここで管理）" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>会社</Th>
+                    <Th>会社名</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {T001_MASTER_ROWS.map((row) => (
+                    <tr key={row.bukrs}>
+                      <Td>{row.bukrs}</Td>
+                      <Td>{row.name}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                会社名を <strong>T001（マスタ）</strong> へ移し、ヘッダは会社コードだけを持ちます。
+                明細表（BSEG）は 2NF 後と同じ形です。名前が必要なときは <code>bukrs</code> で T001 を参照します。
+              </Dialog>
+              <Dialog speaker="a">
+                3NF で分ける理由は、「会社名は伝票の属性ではなく、会社コードの属性」だからですね。
+                ヘッダに名称を残すと更新箇所が伝票数に比例して増えます。
+                T001 に1か所だけ持てば、名称変更・表記統一・重複削減をまとめて扱えます。
+              </Dialog>
+
+              <HorizontalLine spacing="lg" />
+
+              <h3>一覧（覚え方）</h3>
+              <SampleTable caption="第1〜第3正規形 早見表" variant="default">
+                <thead>
+                  <tr>
+                    <Th>正規形</Th>
+                    <Th>満たす条件</Th>
+                    <Th>機械的操作（一言）</Th>
+                    <Th>会計（SAP）での例</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <Td><strong>1NF</strong></Td>
+                    <Td>繰り返しグループなし</Td>
+                    <Td>繰り返しを<strong>行に展開</strong></Td>
+                    <Td>品目を BSEG の行として持つ</Td>
+                  </tr>
+                  <tr>
+                    <Td><strong>2NF</strong></Td>
+                    <Td>1NF ＋ 部分関数従属なし</Td>
+                    <Td>キーの一部だけで決まる項目を<strong>別表へ</strong></Td>
+                    <Td>日付・会社を BKPF へ</Td>
+                  </tr>
+                  <tr>
+                    <Td><strong>3NF</strong></Td>
+                    <Td>2NF ＋ 推移的関数従属なし</Td>
+                    <Td>間接的に決まる項目を<strong>マスタへ</strong></Td>
+                    <Td>会社名を T001 へ</Td>
+                  </tr>
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                まとめると、同じ伝票データが <strong>0NF → 1NF → 2NF → 3NF</strong> と段階的に
+                分かれていきます。SAP では BKPF / BSEG 分割が <strong>2NF</strong>、
+                T001 参照が <strong>3NF</strong> に相当します。
+                本研修で学ぶ「合体」は、この正規化を<strong>帳票用に一時的に戻す</strong>作業です。
+              </Dialog>
+              <Dialog speaker="a">
+                保存時は「分ける」、帳票では「戻す」——方向が逆なだけで、どちらも同じキー（
+                <code>belnr</code> など）でつながります。次のスライド以降の MOVE / APPEND は、
+                この 3NF まで分けた表を<strong>読みやすい1行</strong>に再構成する処理、と捉えれば混乱しにくいです。
               </Dialog>
             </>
           ),

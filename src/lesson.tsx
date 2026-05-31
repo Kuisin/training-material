@@ -10,6 +10,7 @@ export { Reveal } from "./components/reveal";
 export { MermaidDiagram } from "./components/mermaid-diagram";
 export { Figure } from "./components/figure";
 export { LessonMeta } from "./components/lesson-meta";
+export { HorizontalLine, horizontalLineClasses, horizontalLineBorderColor } from "./components/horizontal-line";
 export { mountLesson } from "./mount-lesson";
-export { lessonChrome } from "./lib/lesson-chrome";
+export { lessonChrome } from "./lib/lesson-chrome.ts";
 export type { LessonChrome, SlideDefinition } from "./lib/types";
