@@ -12,7 +12,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "出力をつくる",
+  title: "帳票出力 — WRITE・改行・見やすいレポートの整え方",
   meta: "初学者 · 20分",
 };
 

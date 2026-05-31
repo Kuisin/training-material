@@ -13,7 +13,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "はじめてのレポートプログラム",
+  title: "最初のABAP — レポートプログラム・変数・定数・コメント",
   meta: "初学者 · 20分",
 };
 

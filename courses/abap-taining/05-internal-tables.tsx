@@ -14,7 +14,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "データを扱う基本",
+  title: "内部テーブル — 複数行の保持・LOOP・READ TABLE・並べ替え",
   meta: "初学者 · 25分",
 };
 

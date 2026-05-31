@@ -19,7 +19,7 @@ import type { ReactNode } from "react";
 import { cn } from "../../src/lib/cn";
 
 export const lessonMeta = {
-  title: "複数データをまとめる",
+  title: "データ結合 — ヘッダと明細をMOVEで一覧に組み立てる",
   meta: "初学者 · 25分",
 };
 

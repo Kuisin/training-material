@@ -11,7 +11,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "データベースから取得する",
+  title: "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）",
   meta: "初学者 · 25分",
 };
 

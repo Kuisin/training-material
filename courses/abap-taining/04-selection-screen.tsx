@@ -13,7 +13,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "入力を受け取る",
+  title: "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力",
   meta: "初学者 · 20分",
 };
 

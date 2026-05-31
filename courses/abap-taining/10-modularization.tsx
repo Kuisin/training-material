@@ -13,7 +13,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "プログラムを分かりやすくする",
+  title: "モジュール化 — FORM/PERFORM・引数（USING/CHANGING）・スコープ",
   meta: "初学者 · 25分",
 };
 

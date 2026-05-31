@@ -1,16 +1,19 @@
 import {
   Lesson,
   lessonChrome,
+  Callout,
   Dialog,
+  CodeBlock,
   Quiz,
   MermaidDiagram,
   Figure,
+  InfoPanel,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "実務っぽい観点",
+  title: "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣",
   meta: "初学者 · 20分",
 };
 
@@ -71,7 +74,7 @@ export default function RealWorldLesson() {
         {
           title: "最初に見る3点",
           plainText:
-            "仕様変更で、最初に見る3つ\n入力：受け取る条件（選択画面）は変わる？\n取得：どのテーブルから取っている？条件は？\n出力：何を、どんな形で出している？\nAくん：第1章のパイプライン（入力→取得→加工→出力）がそのまま調査の地図になるんですね。\n先生：その通り。毎回ゼロから読むのではなく、地図に沿って見る場所を決めると速いです。",
+            "仕様変更で、最初に見る3つ\n入力：受け取る条件（選択画面）は変わる？\n取得：どのテーブルから取っている？条件は？\n出力：何を、どんな形で出している？\nAくん：第1章のパイプライン（入力→取得→加工→出力）がそのまま調査の地図になるんですね。\n先生：その通り。毎回ゼロから読むのではなく、地図に沿って見る場所を決めると速いです。\nコード例：PARAMETERS/SELECT-OPTIONS→SELECT WHERE→WRITE/ALVの3か所を順に確認。入力だけ直してSELECT忘れはよくあるミス。",
           content: (
             <>
               <h2>仕様変更で、最初に見る3つ</h2>
@@ -91,6 +94,58 @@ export default function RealWorldLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。毎回ゼロから全部読むのではなく、地図に沿って「見る場所」を決めると、調査が速く・漏れなくなります。
+              </Dialog>
+              <h3>コードで見る：パイプラインに沿った調査</h3>
+              <p>
+                例：「会社コードの入力欄を追加してほしい」という要望が来たとき、
+                次の3か所を<strong>順番に</strong>当たります。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" --- ① 入力：選択画面 ---
+" ★ ここに p_bukrs を追加する必要があるか？
+PARAMETERS p_gjahr TYPE bkpf-gjahr.
+SELECT-OPTIONS s_budat FOR bkpf-budat.
+
+" --- ② 取得：DB からの SELECT ---
+" ★ 新しい入力を WHERE に足す必要があるか？
+SELECT belnr bukrs budat
+  FROM bkpf
+  INTO TABLE lt_bkpf
+  WHERE gjahr = p_gjahr
+    AND budat IN s_budat.
+
+" --- ③ 出力：ALV / WRITE ---
+" ★ 画面に bukrs 列を出す必要があるか？
+LOOP AT lt_bkpf INTO ls_bkpf.
+  WRITE: / ls_bkpf-belnr, ls_bkpf-bukrs, ls_bkpf-budat.
+ENDLOOP.`}
+              />
+              <InfoPanel
+                title="調査の順番（具体例）"
+                variant="reference"
+                lead="要望「会社コードで絞れるようにして」→ 次の3点をメモしながら読む。"
+              >
+                <ul>
+                  <li>
+                    <strong>① 入力</strong> … <code>PARAMETERS p_bukrs</code> を追加するか？
+                    選択画面の定義（<code>PARAMETERS</code> / <code>SELECT-OPTIONS</code>）を確認
+                  </li>
+                  <li>
+                    <strong>② 取得</strong> … <code>WHERE bukrs = p_bukrs</code> を足すか？
+                    <code>SELECT</code> の条件句を確認（ここを忘れると入力しても効かない）
+                  </li>
+                  <li>
+                    <strong>③ 出力</strong> … <code>WRITE</code> や ALV の列定義に <code>bukrs</code> を足すか？
+                    利用者が結果を確認できるか確認
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="b">
+                入力だけ直して <code>SELECT</code> を忘れると、「欄はあるのに絞れない」状態になりますね…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通り。パイプラインの3か所を<strong>セットで</strong>チェックするのが、影響分析の基本です。
               </Dialog>
             </>
           ),
@@ -119,7 +174,7 @@ export default function RealWorldLesson() {
         {
           title: "実務を支える習慣",
           plainText:
-            "地味だけど効く4つの習慣\nコメント：なぜそうしたかを残す（次に直す人のため）\n命名：名前で役割が分かる（lv_total など意味のある名前）\n変更履歴：いつ・誰が・なぜ変えたかを残す\n単体テスト：部品ごとに期待通りか確かめる\nつまずき：動いたから完成と思いがち。実務では次の人が安全に直せることまで含めて完成。",
+            "地味だけど効く4つの習慣\nコメント：なぜそうしたかを残す（次に直す人のため）\n命名：名前で役割が分かる（lv_total など意味のある名前）\n変更履歴：いつ・誰が・なぜ変えたかを残す\n単体テスト：部品ごとに期待通りか確かめる\nつまずき：動いたから完成と思いがち。実務では次の人が安全に直せることまで含めて完成。\nコード：x/y vs lv_subtotal/lv_taxの対比。コメントはなぜ、履歴は日付・担当・要件番号、テストは期待値を先に決める。",
           content: (
             <>
               <h2>地味だけど効く4つの習慣</h2>
@@ -131,6 +186,48 @@ export default function RealWorldLesson() {
               </ul>
               <Dialog speaker="stumble">
                 「動いたから完成」と思いがち。実務では“次の人が安全に直せること”まで含めて完成です。
+              </Dialog>
+              <h3>コードで見る：コメントと命名</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" ❌ 半年後に読めない
+DATA x TYPE i.
+DATA y TYPE i.
+x = x + 100.   " 加算
+y = x / 10.
+
+" ✅ 意図が伝わる
+DATA lv_subtotal TYPE p DECIMALS 2.   " 税抜き小計
+DATA lv_tax      TYPE p DECIMALS 2.   " 消費税（10%）
+lv_subtotal = lv_subtotal + lv_shipping.
+lv_tax = lv_subtotal / 10.`}
+              />
+              <InfoPanel
+                title="4つの習慣をコードで見る"
+                variant="breakdown"
+                lead="地味ですが、次に直す人（未来の自分を含む）への配慮です。"
+              >
+                <ul>
+                  <li>
+                    <strong>コメント</strong> … 「何をしているか」より<strong>なぜそうしたか</strong>を残す。
+                    例：<code>" 会計年度は4月始まりのため +3 ヶ月</code>
+                  </li>
+                  <li>
+                    <strong>命名</strong> … <code>x</code> / <code>y</code> より <code>lv_subtotal</code> / <code>lv_tax</code>。
+                    プレフィックス（<code>lv_</code>＝ローカル変数）もチームの約束に合わせる
+                  </li>
+                  <li>
+                    <strong>変更履歴</strong> … プログラム先頭や修正箇所に
+                    <code>" 2025/05/31 KS 会社コード絞り込み追加（要件#1234）</code> のように残す
+                  </li>
+                  <li>
+                    <strong>単体テスト</strong> … 検証用の <code>FORM</code> やテストプログラムで、
+                    「入力1000 → 税100」など<strong>期待値</strong>を先に決めて確かめる
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                命名とコメントは、影響分析のとき「この変数は何のためか」をすぐ思い出す助けになりますね。
               </Dialog>
             </>
           ),
@@ -155,18 +252,82 @@ export default function RealWorldLesson() {
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：実務で最も頻出する既存プログラムの安全な改修の進め方を固める章。仕様差分を把握し影響分析してから修正し、最後に回帰テストで既存機能の破壊がないか確認する。\nAくん：入力・取得・出力のパイプラインを調査のフレームに使うと改修ポイントを漏れなく追える。コメントや命名、変更履歴があると影響分析の精度も上がる。\nBちゃん：動いたら終わりではなく次に直す人が困らない状態まで作るのが仕事。地味な習慣でもチーム全体の安心に直結する。",
+            "対話で整理\n先生：新規開発より既存改修が圧倒的に多い章。芯は「図面を読んでから触る」。\nBちゃん：コードが怖い→地図があれば迷子にならない。入力・取得・出力の3点セット。\nAくん：入力だけ直してSELECT忘れは欄はあるのに絞れない。3か所セットでチェック。\n先生：仕様差分→影響分析→修正→回帰テストの循環。直した所だけでなく周りも見る。\nつまずき：全部書き直す・テスト省略は実務の近道に見えて後から地獄。\nBちゃん：動いたら終わりじゃない。未来の自分へのやさしさ＝コメント・命名・履歴・テスト。\nAくん：品質＝今動く＋これからも安全に変えられる。\n先生：丁寧な仕事は未来の自分とチームへの贈り物。地味な習慣こそ一番効く。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="teacher">
-                この章は、実務で最も頻出する「既存プログラムの安全な改修」の進め方を固める章です。仕様差分を把握し、影響分析してから修正し、最後に回帰テストで既存機能の破壊がないか確認します。
-              </Dialog>
-              <Dialog speaker="a">
-                入力・取得・出力のパイプラインを調査のフレームに使うと、改修ポイントを漏れなく追えますね。さらにコメントや命名、変更履歴があると、影響分析の精度も上がる。
+                ここまで「新しいプログラムを書く」より、
+                <strong>「既にあるものを、安全に直す」</strong>話が中心でした。
+                実務ではこちらの方が圧倒的に多い——だから、この章の内容は
+                <strong>明日からそのまま使える</strong>と思ってください。
               </Dialog>
               <Dialog speaker="b">
-                動いたら終わりではなく、次に直す人が困らない状態まで作るのが仕事だと分かりました。地味な習慣でも、チーム全体の安心に直結するんですね。
+                正直、既存コードを触るのがいちばん怖かったです…。
+                でも「増改築の前に図面を読む」で、
+                <strong>いきなり壊す必要はない</strong>んですよね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その感覚、とても大事です。怖さを消すのは「才能」ではなく
+                <strong>調査の地図</strong>です。
+                第1章のパイプライン——<strong>入力 → 取得 → 出力</strong>——
+                に沿って見る場所を決めれば、迷子になりにくくなります。
+              </Dialog>
+              <Dialog speaker="a">
+                具体例で言うと、「会社コードで絞れるようにして」が来たら、
+                <code>PARAMETERS</code>（入力）→ <code>SELECT WHERE</code>（取得）→
+                <code>WRITE</code> / ALV（出力）の<strong>3か所をセット</strong>で確認する。
+                入力だけ直して <code>SELECT</code> を忘れると、
+                「欄はあるのに絞れない」——これ、よくある事故ですね。
+              </Dialog>
+              <Dialog speaker="b">
+                あ、それ完全にやりそう…。1か所直したら満足しちゃダメで、
+                <strong>パイプライン全体</strong>を見る、ですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通り。修正の流れも型があります——
+                <strong>仕様差分を理解 → 影響分析 → 修正 → 回帰テスト</strong>。
+                テストで問題が出たら、また影響分析に戻る。
+                「直した所だけ動けば OK」ではなく、
+                <strong>直す前と同じ動きが壊れていないか</strong>まで見るのがプロです。
+              </Dialog>
+              <Dialog speaker="stumble">
+                「とにかく全部書き直す」「テストは後でいい」——
+                一見ラクに見えて、後から<strong>倍の時間</strong>を使う典型パターンです。
+                実務の近道は、地図を読んでから少しずつ直す方です。
+              </Dialog>
+              <Dialog speaker="a">
+                あと、地味だけど効く4つの習慣——
+                コメント（<strong>なぜ</strong>）、命名（<code>lv_subtotal</code> など役割が分かる名前）、
+                変更履歴（日付・担当・要件番号）、単体テスト（期待値を先に決める）——
+                これは「今の自分」より<strong>次に直す人</strong>（未来の自分を含む）への配慮ですね。
+              </Dialog>
+              <Dialog speaker="b">
+                「動いたら終わり」じゃなくて、
+                <strong>次に直す人が困らない状態</strong>まで作るのが仕事、と分かりました。
+                丁寧に書いておくのは、未来の自分へのやさしさなんですね…。
+                地味な習慣が、チーム全体の安心につながる——それ、すごく大事だと思います。
+              </Dialog>
+              <Dialog speaker="a">
+                品質は「今動くか」だけじゃなく、
+                <strong>「これからも安全に変えられるか」</strong>で測る——
+                この章でいちばん心に残った言葉です。
+              </Dialog>
+              <Dialog speaker="teacher">
+                よくまとまりました。ABAP を学ぶ旅も、いよいよ「書く」から
+                「<strong>長く使われるものを、長く使える形で直す</strong>」段階に入ります。
+                覚えておいてほしいのは、この3つだけです——
+              </Dialog>
+              <Callout variant="tip">
+                <strong>① 触る前に地図を読む</strong>（入力 → 取得 → 出力）<br />
+                <strong>② 直したら回帰テスト</strong>（周りも含めて確認）<br />
+                <strong>③ 地味な習慣を続ける</strong>（コメント・命名・履歴・テスト）<br />
+                丁寧な仕事は、未来の自分とチームへの贈り物です。
+              </Callout>
+              <Dialog speaker="teacher">
+                次の章では「速さ」と「直しやすさ」のバランス——
+                10年後も使える書き方——に踏み込みます。
+                ここまでの地図と習慣があれば、きっと乗り越えられます。自信を持って進みましょう。
               </Dialog>
             </>
           ),

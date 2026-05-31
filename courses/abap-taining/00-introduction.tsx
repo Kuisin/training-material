@@ -12,7 +12,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "なぜABAPを学ぶのか",
+  title: "ABAP開発の役割 — 業務の要望をシステムの動きに翻訳する",
   meta: "初学者 · 15分",
 };
 

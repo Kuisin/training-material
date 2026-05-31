@@ -10,7 +10,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "仕訳日記帳と会計伝票",
+  title: "会計の基本 — 仕訳日記帳・伝票・ヘッダと明細",
   meta: "初学者 · 20分",
 };
 

@@ -17,7 +17,7 @@ import type { ReactNode } from "react";
 import { cn } from "../../src/lib/cn";
 
 export const lessonMeta = {
-  title: "制御の考え方",
+  title: "レポート制御 — サプレス・AT NEW/END OF・フラグ",
   meta: "初学者 · 30分",
 };
 

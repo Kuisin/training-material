@@ -11,7 +11,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "研修全体マップ",
+  title: "コース全体像 — 入力→取得→加工→出力と照会と登録",
   meta: "初学者 · 15分",
 };
 
