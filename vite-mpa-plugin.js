@@ -76,6 +76,45 @@ function readLessonEntries(root) {
   return entries;
 }
 
+const IMAGE_EXT_TYPES = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+};
+
+/** courses/<slug>/image/ 配下の画像を再帰収集する（出力先 <slug>/image/... と実体パスの対応） */
+function readCourseImages(root) {
+  const coursesDir = path.join(root, 'courses');
+  /** @type {{ outFile: string, absPath: string }[]} */
+  const images = [];
+  if (!fs.existsSync(coursesDir)) return images;
+
+  for (const slug of fs.readdirSync(coursesDir).sort()) {
+    const imageDir = path.join(coursesDir, slug, 'image');
+    if (!fs.existsSync(imageDir) || !fs.statSync(imageDir).isDirectory()) continue;
+
+    const walk = (dir) => {
+      for (const name of fs.readdirSync(dir)) {
+        const abs = path.join(dir, name);
+        if (fs.statSync(abs).isDirectory()) {
+          walk(abs);
+          continue;
+        }
+        if (!(path.extname(abs).toLowerCase() in IMAGE_EXT_TYPES)) continue;
+        const rel = path.relative(imageDir, abs).replace(/\\/g, '/');
+        images.push({ outFile: `${slug}/image/${rel}`, absPath: abs });
+      }
+    };
+    walk(imageDir);
+  }
+
+  return images;
+}
+
 /**
  * courses/<slug>/*.tsx 用の HTML をビルド時に生成し、dev では仮想ルートで配信する。
  * ルート index はプロジェクト直下の index.html を使う（Vite 標準）。
@@ -106,6 +145,29 @@ export function tsxMpaPlugin({ root }) {
       base = config.base;
     },
     configureServer(server) {
+      // 画像配信: /<slug>/image/<file> を courses/<slug>/image/<file> から返す
+      server.middlewares.use((req, res, next) => {
+        const pathname = req.url?.split('?')[0] ?? '';
+        const basePrefix = base.endsWith('/') ? base.slice(0, -1) : base;
+        const rel =
+          basePrefix && pathname.startsWith(basePrefix)
+            ? pathname.slice(basePrefix.length)
+            : pathname;
+        const match = rel.match(/^\/([^/]+)\/image\/(.+)$/);
+        if (!match) return next();
+
+        const ext = path.extname(match[2]).toLowerCase();
+        const type = IMAGE_EXT_TYPES[ext];
+        if (!type) return next();
+
+        const filePath = path.join(root, 'courses', match[1], 'image', match[2]);
+        if (!fs.existsSync(filePath)) return next(); // 未作成なら 404 → Figure がプレースホルダ表示
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', type);
+        fs.createReadStream(filePath).pipe(res);
+      });
+
       // Vite の index フォールバックより先に実行する（後ろだと一覧 index.html が返る）
       server.middlewares.use(async (req, res, next) => {
         const pathname = req.url?.split('?')[0]?.replace(/\/$/, '') ?? '';
@@ -154,6 +216,15 @@ export function tsxMpaPlugin({ root }) {
           type: 'asset',
           fileName: page.htmlOut,
           source: htmlShell(scriptHref, cssHrefs),
+        });
+      }
+
+      // courses/<slug>/image/ の画像を dist/<slug>/image/ へコピーする
+      for (const image of readCourseImages(root)) {
+        this.emitFile({
+          type: 'asset',
+          fileName: image.outFile,
+          source: fs.readFileSync(image.absPath),
         });
       }
     },

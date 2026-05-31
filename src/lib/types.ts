@@ -38,5 +38,8 @@ export interface Course {
 
 export type CalloutVariant = "tip" | "warning" | "note";
 
+/** InfoPanel の見た目区分（コード解説 vs 参照一覧） */
+export type InfoPanelVariant = "breakdown" | "reference";
+
 /** 対話型レッスンの登場人物・つまずき・締めの一言 */
 export type DialogSpeaker = "teacher" | "a" | "b" | "stumble" | "closing";
