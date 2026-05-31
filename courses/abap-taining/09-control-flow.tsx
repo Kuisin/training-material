@@ -8,13 +8,123 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
+  horizontalLineClasses,
+  horizontalLineBorderColor,
   mountLesson,
 } from "../../src/lesson";
+import type { ReactNode } from "react";
+import { cn } from "../../src/lib/cn";
 
 export const lessonMeta = {
   title: "制御の考え方",
   meta: "初学者 · 30分",
 };
+
+const SUPPRESS_SAMPLE_ROWS = [
+  { prefecture: "東京都", name: "田中" },
+  { prefecture: "東京都", name: "佐藤" },
+  { prefecture: "東京都", name: "鈴木" },
+  { prefecture: "大阪府", name: "山田" },
+  { prefecture: "大阪府", name: "伊藤" },
+] as const;
+
+/** SORT 前後の対比：同じ5行、並び順だけ違う */
+const SORT_UNSORTED_ROWS = [
+  { bukrs: "1000", belnr: "100001", amount: "158,000" },
+  { bukrs: "2000", belnr: "100002", amount: "6,750" },
+  { bukrs: "1000", belnr: "100003", amount: "8,900" },
+  { bukrs: "2000", belnr: "100004", amount: "4,200" },
+  { bukrs: "1000", belnr: "100005", amount: "2,480" },
+] as const;
+
+const SORT_SORTED_ROWS = [
+  { bukrs: "1000", belnr: "100001", amount: "158,000", control: "AT NEW" },
+  { bukrs: "1000", belnr: "100003", amount: "8,900", control: "" },
+  { bukrs: "1000", belnr: "100005", amount: "2,480", control: "AT END OF" },
+  { bukrs: "2000", belnr: "100002", amount: "6,750", control: "AT NEW" },
+  { bukrs: "2000", belnr: "100004", amount: "4,200", control: "AT END OF" },
+] as const;
+
+function isSplitGroupRow(rows: readonly { bukrs: string }[], index: number): boolean {
+  const bukrs = rows[index].bukrs;
+  const seenBefore = rows.slice(0, index).some((row) => row.bukrs === bukrs);
+  if (seenBefore && (index === 0 || rows[index - 1].bukrs !== bukrs)) {
+    return true;
+  }
+  const appearsLater = rows.slice(index + 1).some((row) => row.bukrs === bukrs);
+  if (appearsLater && (index === rows.length - 1 || rows[index + 1].bukrs !== bukrs)) {
+    return true;
+  }
+  return false;
+}
+
+function SampleTable({
+  caption,
+  variant = "default",
+  children,
+}: {
+  caption: string;
+  variant?: "warn" | "ok" | "default";
+  children: ReactNode;
+}) {
+  const captionClass =
+    variant === "warn"
+      ? "text-amber-800 dark:text-amber-200"
+      : variant === "ok"
+        ? "text-emerald-800 dark:text-emerald-200"
+        : "text-slate-600 dark:text-slate-300";
+
+  return (
+    <figure className="not-prose my-4">
+      <figcaption className={`mb-2 text-sm font-medium ${captionClass}`}>{caption}</figcaption>
+      <div
+        className={cn(
+          "overflow-x-auto rounded-lg border shadow-sm",
+          horizontalLineBorderColor
+        )}
+      >
+        <table className="w-full min-w-0 border-collapse text-left text-sm">{children}</table>
+      </div>
+    </figure>
+  );
+}
+
+function Th({ children }: { children: ReactNode }) {
+  return (
+    <th
+      className={cn(
+        horizontalLineClasses("strong"),
+        "bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+      )}
+    >
+      {children}
+    </th>
+  );
+}
+
+function Td({
+  children,
+  highlight = false,
+  muted = false,
+}: {
+  children: ReactNode;
+  highlight?: boolean;
+  muted?: boolean;
+}) {
+  return (
+    <td
+      className={cn(
+        horizontalLineClasses("normal"),
+        "px-3 py-2",
+        highlight && "bg-amber-100/80 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100",
+        muted && "text-slate-400 dark:text-slate-500"
+      )}
+    >
+      {children}
+    </td>
+  );
+}
 
 export default function ControlFlowLesson() {
   return (
@@ -58,12 +168,52 @@ export default function ControlFlowLesson() {
             <>
               <h2>同じ見出しを何度も書かない</h2>
               <p>名簿で「東京都 田中」「東京都 佐藤」「東京都 鈴木」と毎行「東京都」を書くより、最初の1回だけ「東京都」と出して、あとは省くほうが見やすいですよね。これが<strong>サプレス＝同じ表示を繰り返さないこと</strong>です。</p>
-              <Figure
+              {/* <Figure
                 src="image/09-suppress.png"
                 alt="左：各行に『東京都』が繰り返し書かれた冗長なリスト。右：先頭の1回だけ『東京都』を表示し、以降は省いて名前だけ並ぶ見やすいリスト。before/afterの対比。"
                 caption="サプレス：繰り返す見出し（東京都）を先頭1回だけにして見やすくする"
                 kind="concept"
-              />
+              /> */}
+              <div className="not-prose my-4 grid grid-cols-2 gap-4 [&>figure]:my-0">
+                <SampleTable caption="❌ サプレス前：都道府県が毎行繰り返される" variant="warn">
+                  <thead>
+                    <tr>
+                      <Th>都道府県</Th>
+                      <Th>氏名</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SUPPRESS_SAMPLE_ROWS.map((row, i) => {
+                      const isRepeat = i > 0 && row.prefecture === SUPPRESS_SAMPLE_ROWS[i - 1].prefecture;
+                      return (
+                        <tr key={row.name}>
+                          <Td highlight={isRepeat}>{row.prefecture}</Td>
+                          <Td>{row.name}</Td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </SampleTable>
+                <SampleTable caption="✅ サプレス後：変わった行だけ都道府県を表示" variant="ok">
+                  <thead>
+                    <tr>
+                      <Th>都道府県</Th>
+                      <Th>氏名</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SUPPRESS_SAMPLE_ROWS.map((row, i) => {
+                      const isRepeat = i > 0 && row.prefecture === SUPPRESS_SAMPLE_ROWS[i - 1].prefecture;
+                      return (
+                        <tr key={row.name}>
+                          <Td muted={isRepeat}>{isRepeat ? "—" : row.prefecture}</Td>
+                          <Td>{row.name}</Td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </SampleTable>
+              </div>
               <Dialog speaker="teacher">
                 用語は難しそうでも、中身は「重複する見出しを省いて見やすくする」だけ。日常でも自然にやっていることです。
               </Dialog>
@@ -93,6 +243,52 @@ export default function ControlFlowLesson() {
                 <li><code>AT END OF 項目</code>：その項目が変わる直前の行（小計など）</li>
                 <li><code>AT LAST</code>：いちばん最後に1回（総合計など）</li>
               </ul>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                会社コード（<code>bukrs</code>）で<strong>並べ替えていない</strong>と、同じ会社の行が離れ、
+                <code>AT NEW</code> / <code>AT END OF</code> のタイミングがずれます（黄色＝グループが分割されている行）。
+              </p>
+              <div className="not-prose my-4 grid grid-cols-2 gap-4 [&>figure]:my-0">
+                <SampleTable caption="❌ SORT 前：会社が飛び飛びで小計が狂う" variant="warn">
+                  <thead>
+                    <tr>
+                      <Th>会社</Th>
+                      <Th>伝票</Th>
+                      <Th>金額</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SORT_UNSORTED_ROWS.map((row, i) => (
+                      <tr key={row.belnr}>
+                        <Td highlight={isSplitGroupRow(SORT_UNSORTED_ROWS, i)}>{row.bukrs}</Td>
+                        <Td highlight={isSplitGroupRow(SORT_UNSORTED_ROWS, i)}>{row.belnr}</Td>
+                        <Td highlight={isSplitGroupRow(SORT_UNSORTED_ROWS, i)}>{row.amount}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </SampleTable>
+                <SampleTable caption="✅ SORT 後：会社ごとにまとまり変わり目が正しい" variant="ok">
+                  <thead>
+                    <tr>
+                      <Th>会社</Th>
+                      <Th>伝票</Th>
+                      <Th>金額</Th>
+                      <Th>変わり目</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SORT_SORTED_ROWS.map((row) => (
+                      <tr key={row.belnr}>
+                        <Td>{row.bukrs}</Td>
+                        <Td>{row.belnr}</Td>
+                        <Td>{row.amount}</Td>
+                        <Td muted={!row.control}>
+                          {row.control ? <code>{row.control}</code> : "—"}
+                        </Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </SampleTable>
+              </div>
               <Dialog speaker="stumble">
                 これらは<strong>事前に SORT してある</strong>ことが前提。並んでいないと「変わり目」が正しく取れません。
               </Dialog>
@@ -131,19 +327,19 @@ ENDLOOP.`}
                   <code>SORT lt_out BY bukrs.</code> … 会社コード順に並べ替え（<code>AT NEW</code> / <code>AT END OF</code> の前提）
                 </li>
                 <li>
-                  <code>AT FIRST.</code> … 全データの最初の行で1回だけ発火 → 全体見出し
+                  <code>AT FIRST.</code> … 全データの最初の行だけで処理する → 全体見出し
                 </li>
                 <li>
-                  <code>AT NEW bukrs.</code> … 会社コードが変わった行で発火 → グループ見出し
+                  <code>AT NEW bukrs.</code> … 会社コードが変わった行だけで処理する → グループ見出し
                 </li>
                 <li>
                   <code>WRITE: / ls_out-belnr, ls_out-amount.</code> … 毎行の明細出力（いつも通り）
                 </li>
                 <li>
-                  <code>AT END OF bukrs.</code> … その会社の最終行で発火 → 小計
+                  <code>AT END OF bukrs.</code> … その会社の最後の行だけで処理する → 小計
                 </li>
                 <li>
-                  <code>AT LAST.</code> … 全データの最終行で1回だけ発火 → 総合計
+                  <code>AT LAST.</code> … 全データの最後の行だけで処理する → 総合計
                 </li>
               </ul>
               <Dialog speaker="a">
@@ -162,6 +358,12 @@ ENDLOOP.`}
           content: (
             <>
               <h2>図で見る：キーが変わると分岐する</h2>
+              <Figure
+                src="image/09-control-break.png"
+                alt="会社コードでSORT済みの行リスト。会社が切り替わる境界線で『AT NEW＝グループ見出し』が上に、『AT END OF＝小計』が下で処理される位置を矢印で示す。先頭にAT FIRST、末尾にAT LAST。"
+                caption="SORT済みデータのグループ境界で AT NEW / AT END OF が処理される"
+                kind="diagram"
+              />
               <MermaidDiagram
                 chart={`flowchart TD
   S[次の行を読む] --> F{最初の行?}
@@ -176,19 +378,13 @@ ENDLOOP.`}
   E -->|いいえ| S
   H3 --> S`}
               />
-              <Figure
-                src="image/09-control-break.png"
-                alt="会社コードでSORT済みの行リスト。会社が切り替わる境界線で『AT NEW＝グループ見出し』が上に、『AT END OF＝小計』が下に発火する位置を矢印で示す。先頭にAT FIRST、末尾にAT LAST。"
-                caption="SORT済みデータのグループ境界で AT NEW / AT END OF が発火する"
-                kind="diagram"
-              />
             </>
           ),
         },
         {
           title: "フラグ（旗）",
           plainText:
-            "フラグ ＝ 状態を覚えておく旗\nフラグは「ある状態が起きたか」を覚えておく小さな箱（多くは 'X' か空）。例：1件でもエラーがあったかを覚えておき最後にまとめて判断。\nDATA lv_error TYPE flag.\nLOOP AT lt_in INTO ls_in. IF ls_in-amount < 0. lv_error = 'X'. ENDIF. ENDLOOP.\nIF lv_error = 'X'. MESSAGE 'エラーが含まれています' TYPE 'I'. ENDIF.\nBちゃん：あとで思い出すための付箋みたいなものですね。立てておいて最後に見る。",
+            "フラグ ＝ 状態を覚えておく旗\nフラグは「ある状態が起きたか」を覚えておく小さな箱（多くは 'X' か空）。例：1件でもエラーがあったかを覚えておき最後にまとめて判断。\nDATA lv_error TYPE flag.\nLOOP AT lt_in INTO ls_in. IF ls_in-amount < 0. lv_error = 'X'. ENDIF. ENDLOOP.\nIF lv_error = 'X'. MESSAGE 'エラーが含まれています' TYPE 'I'. ENDIF.\nInfoPanel：フラグは1回以上起きたかだけ分かる。件数・該当行など詳細が必要ならカウンタや別テーブルを検討。\nBちゃん：あとで思い出すための付箋みたいなものですね。立てておいて最後に見る。",
           content: (
             <>
               <h2>フラグ ＝ 状態を覚えておく旗</h2>
@@ -231,6 +427,34 @@ ENDIF.`}
               <Dialog speaker="teacher">
                 その理解で完璧です。旗は「起きた事実」を後ろまで運ぶ仕組み。ループを抜けた後の判断に使います。
               </Dialog>
+              <InfoPanel
+                title="フラグで分かること・分からないこと"
+                variant="reference"
+                lead="フラグは「1回以上起きたかどうか」だけを覚えられます。それで足りない場面もあります。"
+              >
+                <ul>
+                  <li>
+                    <strong>分かること</strong> … エラーが1件でもあったか（はい／いいえ）
+                  </li>
+                  <li>
+                    <strong>分からないこと</strong> … 何件エラーがあったか、どの行か、どんな種類か
+                  </li>
+                </ul>
+                <p className="mb-2 mt-4 font-semibold">より詳しく知りたいとき</p>
+                <ul>
+                  <li>
+                    <strong>件数が欲しい</strong> … カウンタ変数（例：<code>lv_error_cnt</code>）を用意し、該当するたびに{" "}
+                    <code>lv_error_cnt = lv_error_cnt + 1.</code> する
+                  </li>
+                  <li>
+                    <strong>該当行を残したい</strong> … エラー行だけ別の内部テーブルに{" "}
+                    <code>APPEND</code> しておく
+                  </li>
+                  <li>
+                    <strong>その場で行番号を知らせたい</strong> … ループの中でメッセージを出す（旗だけに頼らない）
+                  </li>
+                </ul>
+              </InfoPanel>
             </>
           ),
         },

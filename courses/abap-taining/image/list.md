@@ -363,6 +363,7 @@ Clean flat vector, blue/green accents, minimal text. 16:9.
 | --- | --- | --- | --- |
 | `10-chapters.png` | concept | 手順書のたとえ | 見出しなしの長い手順書 vs 章立てされた手順書 |
 | `10-usingvs-changing.png` | diagram | FORMとPERFORM | USING＝一方向／CHANGING＝往復の引数の向き |
+| `10-gui-modules.png` | concept | GUI・イベント・DL | メインから画面表示／イベント／DLの3サブルーチンへ分岐 |
 
 **`10-chapters.png`**（concept）
 ```
@@ -379,6 +380,17 @@ Minimal flat diagram, white background. A subroutine drawn as a box. TOP: a sing
 one-way arrow into the box labelled "USING (pass in only)". BOTTOM: a two-way
 arrow into and back out of the box labelled "CHANGING (pass in and get result
 back)". Clean flat vector, blue/grey palette, minimal text. 16:9.
+```
+
+**`10-gui-modules.png`**（concept）
+```
+Flat vector illustration, light background, beginner-friendly training material.
+LEFT: a simplified application window with a few fields and two buttons (execute,
+download). CENTER: a "Main program" block. RIGHT: three separate rounded module
+boxes branching out with arrows labelled "PERFORM": (1) monitor icon "display
+screen", (2) click/hand icon "event handler", (3) download arrow "file download".
+Conveys "split GUI display, button events, and download into separate
+subroutines". Blue/grey/green/amber accents, clean, minimal English labels. 16:9.
 ```
 
 ---
