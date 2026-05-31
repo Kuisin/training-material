@@ -1,23 +1,22 @@
 import {
   Lesson,
-  Callout,
+  lessonChrome,
   Dialog,
-  CodeBlock,
   Quiz,
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "実務っぽい観点",
+  meta: "初学者 · 20分",
+};
 
 export default function RealWorldLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "実務っぽい観点",
-  prevHref: "11-document-posting.html",
-  nextHref: "13-good-programming.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "12-real-world", lessonMeta.title)}
       slides={[
   {
     title: "概要",

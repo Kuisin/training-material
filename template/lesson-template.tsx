@@ -2,10 +2,10 @@
  * レッスンテンプレート（TSX版）
  *
  * 使い方:
- * 1. このファイルを <track>/NN-kebab-title.tsx にコピー
- * 2. `Lesson` の chrome（title / prevHref / nextHref）を設定
- * 3. slides 配列にスライドを追加（title + content + plainText）
- * 4. src/pages/index-page.tsx のレッスン一覧にリンクを追加
+ * 1. courses/<slug>/NN-kebab-title.tsx にコピー
+ * 2. courses/<slug>/course.json にレッスンを追加
+ * 3. `Lesson` の chrome（title / prevHref / nextHref）を設定
+ * 4. slides 配列にスライドを追加（title + content + plainText）
  */
 import {
   Lesson,
@@ -16,7 +16,7 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
 
 export default function ExampleLesson() {
   return (
@@ -25,7 +25,7 @@ export default function ExampleLesson() {
         title: "{{LESSON_TITLE}}",
         prevHref: "{{PREV_HREF}}",
         nextHref: "{{NEXT_HREF}}",
-        indexHref: "../index.html",
+        indexHref: "../../index.html",
       }}
       slides={[
         {

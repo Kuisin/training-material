@@ -1,23 +1,23 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
-  CodeBlock,
   Quiz,
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "会計伝票登録へ進む",
+  meta: "初学者 · 30分",
+};
 
 export default function DocumentPostingLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "会計伝票登録へ進む",
-  prevHref: "10-modularization.html",
-  nextHref: "12-real-world.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "11-document-posting", lessonMeta.title)}
       slides={[
   {
     title: "概要",

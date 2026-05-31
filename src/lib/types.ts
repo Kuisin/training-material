@@ -16,8 +16,24 @@ export interface LessonChrome {
   nextHref: string;
   /** 前の章のパス（例 "00-introduction.html"）。最初の章は空文字。 */
   prevHref: string;
-  /** レッスン一覧へのリンク */
+  /** レッスン一覧（トップ）へのリンク */
   indexHref: string;
+}
+
+export interface CourseLesson {
+  num: string;
+  file: string;
+  title: string;
+  meta: string;
+}
+
+export interface Course {
+  slug: string;
+  title: string;
+  description: string;
+  /** false のときコース一覧で非活性表示（省略時は true） */
+  active: boolean;
+  lessons: CourseLesson[];
 }
 
 export type CalloutVariant = "tip" | "warning" | "note";

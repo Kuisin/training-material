@@ -1,23 +1,22 @@
 import {
   Lesson,
-  Callout,
+  lessonChrome,
   Dialog,
-  CodeBlock,
   Quiz,
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "仕訳日記帳と会計伝票",
+  meta: "初学者 · 20分",
+};
 
 export default function BusinessBasicsLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "仕訳日記帳と会計伝票",
-  prevHref: "01-overview.html",
-  nextHref: "03-abap-minimum-unit.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "02-business-basics", lessonMeta.title)}
       slides={[
   {
     title: "概要",

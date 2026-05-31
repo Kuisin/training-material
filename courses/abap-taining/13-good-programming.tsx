@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "適切なプログラミング",
+  meta: "初学者 · 25分",
+};
 
 export default function GoodProgrammingLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "適切なプログラミング",
-  prevHref: "12-real-world.html",
-  nextHref: "",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "13-good-programming", lessonMeta.title)}
       slides={[
   {
     title: "概要",

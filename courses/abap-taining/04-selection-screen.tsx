@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "入力を受け取る",
+  meta: "初学者 · 20分",
+};
 
 export default function SelectionScreenLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "入力を受け取る",
-  prevHref: "03-abap-minimum-unit.html",
-  nextHref: "05-internal-tables.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "04-selection-screen", lessonMeta.title)}
       slides={[
   {
     title: "概要",

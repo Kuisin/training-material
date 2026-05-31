@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "複数データをまとめる",
+  meta: "初学者 · 25分",
+};
 
 export default function CombineDataLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "複数データをまとめる",
-  prevHref: "07-output-report.html",
-  nextHref: "09-control-flow.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "08-combine-data", lessonMeta.title)}
       slides={[
   {
     title: "概要",

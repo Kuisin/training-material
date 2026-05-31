@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "出力をつくる",
+  meta: "初学者 · 20分",
+};
 
 export default function OutputReportLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "出力をつくる",
-  prevHref: "06-select-from-db.html",
-  nextHref: "08-combine-data.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "07-output-report", lessonMeta.title)}
       slides={[
   {
     title: "概要",

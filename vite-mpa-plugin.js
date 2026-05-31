@@ -45,24 +45,44 @@ function collectImportedCss(chunk, bundle, visited = new Set()) {
   return css;
 }
 
+/** courses/<slug>/course.json からレッスンエントリ一覧を構築する */
+function readLessonEntries(root) {
+  const coursesDir = path.join(root, 'courses');
+  /** @type {{ tsxPath: string, htmlOut: string }[]} */
+  const entries = [];
+
+  if (!fs.existsSync(coursesDir)) return entries;
+
+  for (const slug of fs.readdirSync(coursesDir).sort()) {
+    const courseDir = path.join(coursesDir, slug);
+    if (!fs.statSync(courseDir).isDirectory()) continue;
+
+    const metaPath = path.join(courseDir, 'course.json');
+    if (!fs.existsSync(metaPath)) continue;
+
+    const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+
+    for (const lesson of meta.lessons ?? []) {
+      const tsxPath = path.join(courseDir, `${lesson.file}.tsx`);
+      if (!fs.existsSync(tsxPath)) continue;
+
+      entries.push({
+        tsxPath,
+        htmlOut: `${slug}/${lesson.file}.html`,
+      });
+    }
+  }
+
+  return entries;
+}
+
 /**
- * レッスン .tsx 用の HTML をビルド時に生成し、dev では仮想ルートで配信する。
+ * courses/<slug>/*.tsx 用の HTML をビルド時に生成し、dev では仮想ルートで配信する。
  * ルート index はプロジェクト直下の index.html を使う（Vite 標準）。
  */
-export function tsxMpaPlugin({ root, lessonsDir }) {
+export function tsxMpaPlugin({ root }) {
   const indexHtml = path.resolve(root, 'index.html');
-
-  /** @type {{ tsxPath: string, htmlOut: string }[]} */
-  const lessons = [];
-
-  for (const f of fs.readdirSync(lessonsDir)) {
-    if (!f.endsWith('.tsx')) continue;
-    const base = f.replace('.tsx', '');
-    lessons.push({
-      tsxPath: path.resolve(lessonsDir, `${base}.tsx`),
-      htmlOut: `abap-taining/${base}.html`,
-    });
-  }
+  const lessons = readLessonEntries(root);
 
   const input = {
     index: indexHtml,

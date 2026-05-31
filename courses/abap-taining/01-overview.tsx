@@ -1,23 +1,23 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
-  CodeBlock,
   Quiz,
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "研修全体マップ",
+  meta: "初学者 · 15分",
+};
 
 export default function OverviewLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "研修全体マップ",
-  prevHref: "00-introduction.html",
-  nextHref: "02-business-basics.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "01-overview", lessonMeta.title)}
       slides={[
   {
     title: "概要",

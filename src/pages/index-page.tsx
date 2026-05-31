@@ -1,35 +1,63 @@
-interface LessonLink {
-  num: string;
-  /** トラック相対パス（例 abap-taining/00-introduction.html） */
-  href: string;
-  title: string;
-  meta: string;
-}
+import { useLayoutEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { ThemeToggle } from "../components/theme-toggle";
+import {
+  activeCourses,
+  courseIndexHref,
+  courses,
+  coursesIndexHref,
+  lessonHref,
+} from "../lib/courses";
+import { cn } from "../lib/cn";
+import type { Course, CourseLesson } from "../lib/types";
 
 const baseUrl = import.meta.env.BASE_URL;
 
-const ABAP_LESSONS: LessonLink[] = [
-  { num: "0", href: "abap-taining/00-introduction.html", title: "なぜABAPを学ぶのか", meta: "初学者 · 15分" },
-  { num: "1", href: "abap-taining/01-overview.html", title: "研修全体マップ", meta: "初学者 · 15分" },
-  { num: "2", href: "abap-taining/02-business-basics.html", title: "仕訳日記帳と会計伝票", meta: "初学者 · 20分" },
-  { num: "3", href: "abap-taining/03-abap-minimum-unit.html", title: "はじめてのレポートプログラム", meta: "初学者 · 20分" },
-  { num: "4", href: "abap-taining/04-selection-screen.html", title: "入力を受け取る", meta: "初学者 · 20分" },
-  { num: "5", href: "abap-taining/05-internal-tables.html", title: "データを扱う基本", meta: "初学者 · 25分" },
-  { num: "6", href: "abap-taining/06-select-from-db.html", title: "データベースから取得する", meta: "初学者 · 25分" },
-  { num: "7", href: "abap-taining/07-output-report.html", title: "出力をつくる", meta: "初学者 · 20分" },
-  { num: "8", href: "abap-taining/08-combine-data.html", title: "複数データをまとめる", meta: "初学者 · 25分" },
-  { num: "9", href: "abap-taining/09-control-flow.html", title: "制御の考え方", meta: "初学者 · 30分" },
-  { num: "10", href: "abap-taining/10-modularization.html", title: "プログラムを分かりやすくする", meta: "初学者 · 25分" },
-  { num: "11", href: "abap-taining/11-document-posting.html", title: "会計伝票登録へ進む", meta: "初学者 · 30分" },
-  { num: "12", href: "abap-taining/12-real-world.html", title: "実務っぽい観点", meta: "初学者 · 20分" },
-  { num: "13", href: "abap-taining/13-good-programming.html", title: "適切なプログラミング", meta: "初学者 · 25分" },
-];
+function PageShell({
+  title,
+  description,
+  children,
+  backHref,
+  backLabel = "コース一覧へ",
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+  backHref?: string;
+  backLabel?: string;
+}) {
+  return (
+    <main className="mx-auto w-full max-w-3xl px-5 py-12">
+      <header className="mb-10">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-3">
+            {backHref ? (
+              <a
+                href={backHref}
+                className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-brand dark:text-slate-400"
+              >
+                ← {backLabel}
+              </a>
+            ) : null}
+            <p className="inline-flex w-fit items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand">
+              研修教材
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-400">{description}</p>
+      </header>
+      {children}
+    </main>
+  );
+}
 
-function LessonRow({ lesson }: { lesson: LessonLink }) {
+function LessonRow({ course, lesson }: { course: Course; lesson: CourseLesson }) {
   return (
     <li className="border-b border-slate-100 last:border-0 dark:border-slate-800">
       <a
-        href={`${baseUrl}${lesson.href}`}
+        href={`${baseUrl}${lessonHref(course, lesson)}`}
         className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-brand/5"
       >
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
@@ -45,31 +73,133 @@ function LessonRow({ lesson }: { lesson: LessonLink }) {
   );
 }
 
-export function IndexPage() {
+function LessonList({ course }: { course: Course }) {
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 py-12">
-      <header className="mb-10">
-        <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand">
-          研修教材
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">研修レッスン一覧</h1>
-        <p className="mt-2 text-slate-600 dark:text-slate-400">
-          自分のペースで学べるレッスン集。トピックを選んで始めましょう。
-        </p>
-      </header>
-
-      <section className="mb-10">
-        <h2 className="mb-4 text-lg font-bold">ABAP研修（仕訳日記帳・会計伝票登録）</h2>
-        <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          {ABAP_LESSONS.map((lesson) => (
-            <LessonRow key={lesson.href} lesson={lesson} />
-          ))}
-        </ol>
-      </section>
-
-      <footer className="mt-12 border-t border-slate-200 pt-4 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
-        研修教材
-      </footer>
-    </main>
+    <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      {course.lessons.map((lesson) => (
+        <LessonRow key={lesson.file} course={course} lesson={lesson} />
+      ))}
+    </ol>
   );
+}
+
+function CourseCardBody({ course }: { course: Course }) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <h2
+          className={cn(
+            "text-lg font-bold",
+            course.active && "group-hover:text-brand"
+          )}
+        >
+          {course.title}
+        </h2>
+        {!course.active ? (
+          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            準備中
+          </span>
+        ) : null}
+      </div>
+      {course.description ? (
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+          {course.description}
+        </p>
+      ) : null}
+      <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+        {course.lessons.length} レッスン
+        {course.active ? (
+          <span className="ml-2 text-brand opacity-0 transition group-hover:opacity-100" aria-hidden>
+            →
+          </span>
+        ) : null}
+      </p>
+    </>
+  );
+}
+
+function CourseCard({ course }: { course: Course }) {
+  const className = cn(
+    "flex flex-col rounded-2xl border p-5 shadow-sm transition",
+    course.active
+      ? cn(
+          "group border-slate-200 bg-white hover:border-brand/40 hover:shadow-md",
+          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+          "dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand/40"
+        )
+      : "cursor-not-allowed border-slate-200/80 bg-slate-50 opacity-70 dark:border-slate-800 dark:bg-slate-900/50"
+  );
+
+  if (!course.active) {
+    return (
+      <article className={className} aria-disabled="true">
+        <CourseCardBody course={course} />
+      </article>
+    );
+  }
+
+  return (
+    <a href={courseIndexHref(course.slug)} className={cn("group", className)}>
+      <CourseCardBody course={course} />
+    </a>
+  );
+}
+
+function CoursePickerPage() {
+  return (
+    <PageShell title="コースを選ぶ" description="学びたいコースを選んでください。">
+      <div className="grid items-stretch gap-4 sm:grid-cols-2">
+        {courses.map((course) => (
+          <CourseCard key={course.slug} course={course} />
+        ))}
+      </div>
+    </PageShell>
+  );
+}
+
+function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boolean }) {
+  return (
+    <PageShell
+      title={course.title}
+      description={course.description || "レッスンを選んで学習を始めましょう。"}
+      backHref={showBack ? coursesIndexHref() : undefined}
+    >
+      <LessonList course={course} />
+    </PageShell>
+  );
+}
+
+function getActiveCourse(slug: string | null): Course | undefined {
+  if (!slug) return undefined;
+  const course = courses.find((item) => item.slug === slug);
+  if (!course?.active) return undefined;
+  return course;
+}
+
+export function IndexPage() {
+  const [courseSlug, setCourseSlug] = useState(
+    () => new URLSearchParams(window.location.search).get("course")
+  );
+
+  useLayoutEffect(() => {
+    if (activeCourses.length !== 1) return;
+    const slug = activeCourses[0]!.slug;
+    if (courseSlug !== slug) {
+      window.history.replaceState(null, "", courseIndexHref(slug));
+      setCourseSlug(slug);
+      return;
+    }
+    if (new URLSearchParams(window.location.search).get("course") !== slug) {
+      window.history.replaceState(null, "", courseIndexHref(slug));
+    }
+  }, [courseSlug]);
+
+  const selectedCourse = getActiveCourse(courseSlug);
+  const showCoursePicker = activeCourses.length > 1;
+
+  if (selectedCourse) {
+    return <CourseLessonsPage course={selectedCourse} showBack={showCoursePicker} />;
+  }
+
+  return <CoursePickerPage />;
 }

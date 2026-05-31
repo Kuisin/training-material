@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "はじめてのレポートプログラム",
+  meta: "初学者 · 20分",
+};
 
 export default function AbapMinimumUnitLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "はじめてのレポートプログラム",
-  prevHref: "02-business-basics.html",
-  nextHref: "04-selection-screen.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "03-abap-minimum-unit", lessonMeta.title)}
       slides={[
   {
     title: "概要",

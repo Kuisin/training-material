@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "制御の考え方",
+  meta: "初学者 · 30分",
+};
 
 export default function ControlFlowLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "制御の考え方",
-  prevHref: "08-combine-data.html",
-  nextHref: "10-modularization.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "09-control-flow", lessonMeta.title)}
       slides={[
   {
     title: "概要",

@@ -7,4 +7,5 @@ export { Quiz } from "./components/quiz";
 export { MermaidDiagram } from "./components/mermaid-diagram";
 export { LessonMeta } from "./components/lesson-meta";
 export { mountLesson } from "./mount-lesson";
+export { lessonChrome } from "./lib/lesson-chrome";
 export type { LessonChrome, SlideDefinition } from "./lib/types";

@@ -19,5 +19,5 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src", "abap-taining", "index.tsx"]
+  "include": ["src", "courses", "index.tsx"]
 }

@@ -1,0 +1,13 @@
+{
+  "title": "コースタイトル",
+  "active": true,
+  "description": "コースの説明文",
+  "lessons": [
+    {
+      "num": "0",
+      "file": "00-intro",
+      "title": "はじめに",
+      "meta": "初学者 · 10分"
+    }
+  ]
+}

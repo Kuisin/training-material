@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "データを扱う基本",
+  meta: "初学者 · 25分",
+};
 
 export default function InternalTablesLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "データを扱う基本",
-  prevHref: "04-selection-screen.html",
-  nextHref: "06-select-from-db.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "05-internal-tables", lessonMeta.title)}
       slides={[
   {
     title: "概要",

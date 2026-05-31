@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "プログラムを分かりやすくする",
+  meta: "初学者 · 25分",
+};
 
 export default function ModularizationLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "プログラムを分かりやすくする",
-  prevHref: "09-control-flow.html",
-  nextHref: "11-document-posting.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "10-modularization", lessonMeta.title)}
       slides={[
   {
     title: "概要",

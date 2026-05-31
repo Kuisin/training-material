@@ -1,5 +1,6 @@
 import {
   Lesson,
+  lessonChrome,
   Callout,
   Dialog,
   CodeBlock,
@@ -7,17 +8,17 @@ import {
   MermaidDiagram,
   LessonMeta,
   mountLesson,
-} from "../src/lesson";
+} from "../../src/lesson";
+
+export const lessonMeta = {
+  title: "データベースから取得する",
+  meta: "初学者 · 25分",
+};
 
 export default function SelectFromDbLesson() {
   return (
     <Lesson
-      chrome={{
-  title: "データベースから取得する",
-  prevHref: "05-internal-tables.html",
-  nextHref: "07-output-report.html",
-  indexHref: "../index.html",
-}}
+      chrome={lessonChrome("abap-taining", "06-select-from-db", lessonMeta.title)}
       slides={[
   {
     title: "概要",
