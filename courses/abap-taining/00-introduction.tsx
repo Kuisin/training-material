@@ -84,7 +84,7 @@ export default function IntroductionLesson() {
                 SAPは「すでに建っている立派な家」のようなものです。たいていの部屋（機能）は最初から揃っています。でも、住む人によって「ここに棚が欲しい」「この動線を変えたい」が出てきます。
               </p>
               <Figure
-                src="image/00-house-reform.png"
+                src="image/00-house-reform.webp"
                 alt="立派な完成済みの家（標準のSAP）に、住む人の要望で棚を追加したり動線を変えたりするリフォームの様子。標準＝家、追加開発＝リフォームの対比。"
                 caption="SAP＝完成した家／ABAP開発＝住む人に合わせたリフォーム"
                 kind="concept"
@@ -111,7 +111,7 @@ export default function IntroductionLesson() {
                 <strong>アドオン</strong>（追加開発）と呼びます。
               </p>
               <Figure
-                src="image/00-sap-gap.png"
+                src="image/00-sap-gap.webp"
                 alt="大きな円が標準SAPのカバー範囲。その外側のいくつかの小さな欠けた領域が自社固有の業務（すき間）。すき間にアドオン（追加開発）を当てはめて埋める図。"
                 caption="標準SAPで大部分をカバーし、残る“すき間”をアドオン（ABAP）で埋める"
                 kind="diagram"

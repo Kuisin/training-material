@@ -169,7 +169,7 @@ export default function ControlFlowLesson() {
               <h2>同じ見出しを何度も書かない</h2>
               <p>名簿で「東京都 田中」「東京都 佐藤」「東京都 鈴木」と毎行「東京都」を書くより、最初の1回だけ「東京都」と出して、あとは省くほうが見やすいですよね。これが<strong>サプレス＝同じ表示を繰り返さないこと</strong>です。</p>
               {/* <Figure
-                src="image/09-suppress.png"
+                src="image/09-suppress.webp"
                 alt="左：各行に『東京都』が繰り返し書かれた冗長なリスト。右：先頭の1回だけ『東京都』を表示し、以降は省いて名前だけ並ぶ見やすいリスト。before/afterの対比。"
                 caption="サプレス：繰り返す見出し（東京都）を先頭1回だけにして見やすくする"
                 kind="concept"
@@ -359,7 +359,7 @@ ENDLOOP.`}
             <>
               <h2>図で見る：キーが変わると分岐する</h2>
               <Figure
-                src="image/09-control-break.png"
+                src="image/09-control-break.webp"
                 alt="会社コードでSORT済みの行リスト。会社が切り替わる境界線で『AT NEW＝グループ見出し』が上に、『AT END OF＝小計』が下で処理される位置を矢印で示す。先頭にAT FIRST、末尾にAT LAST。"
                 caption="SORT済みデータのグループ境界で AT NEW / AT END OF が処理される"
                 kind="diagram"

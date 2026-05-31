@@ -57,7 +57,7 @@ export default function DocumentPostingLesson() {
               <h2>閲覧メモ と 正式な台帳</h2>
               <p>これまでは「台帳を見るだけ（照会）」でした。これからは「台帳に正式に書き込む（登録）」をします。書き込みは、間違えると正式記録が汚れるので、より慎重さが必要です。</p>
               <Figure
-                src="image/11-draft-vs-final.png"
+                src="image/11-draft-vs-final.webp"
                 alt="左：鉛筆で書いた下書きメモ（照会・気軽、消せる）。右：ペンで正式台帳に清書して印を押す様子（登録・消えない記録）。気軽さと責任の重さの対比。"
                 caption="照会＝下書き（消せる）／登録＝清書（消えない正式記録）。だから守りが要る"
                 kind="concept"
@@ -113,7 +113,7 @@ export default function DocumentPostingLesson() {
                 会社ごとに追加した処理（<strong>拡張</strong>＝独自のステップ）も通常は一緒に実行されます。
               </p>
               <Figure
-                src="image/11-bapi-gate.png"
+                src="image/11-bapi-gate.webp"
                 alt="左：複数の伝票テーブルに直接INSERTしようとして整合性が崩れ警告マークが出る危険な経路。右：BAPIという公式の窓口（ゲート）を通すと、チェックと関連テーブル更新が正しく行われ整合する安全な経路。×と○の対比。"
                 caption="直接INSERT＝整合性が壊れる危険／BAPI＝チェック付きの公式窓口を通る安全な道"
                 kind="diagram"

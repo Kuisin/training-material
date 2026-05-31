@@ -215,7 +215,7 @@ export default function CombineDataLesson() {
                 いい質問です。まず「バラバラの状態」がどう見えるか、図で確認しましょう。
               </Dialog>
               <Figure
-                src="image/08-receipt-organize.png"
+                src="image/08-receipt-organize.webp"
                 alt="左：お店情報のカード（ヘッダ）と品物リストのカード（明細）がバラバラに散らばっている。右：それらを突き合わせて1行ずつにまとめた整然とした一覧表。"
                 caption="ヘッダ（お店）と明細（品物）を突き合わせ、1行で意味が分かる一覧に整える"
                 kind="concept"
@@ -1054,7 +1054,7 @@ ENDLOOP.`}
   E --> C`}
               />
               <Figure
-                src="image/08-header-detail-join.png"
+                src="image/08-header-detail-join.webp"
                 alt="lt_bkpf（ヘッダ行）とlt_bseg（明細行）から、MOVE-CORRESPONDINGと個別代入で1行(ls_out)を組み立て、APPENDでlt_out（出力テーブル）に積み上げていく流れの図。"
                 caption="ヘッダ＋明細 → 1行を組み立て（MOVE-CORRESPONDING＋個別代入）→ APPENDで蓄積"
                 kind="diagram"

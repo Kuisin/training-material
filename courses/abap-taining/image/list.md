@@ -5,9 +5,10 @@
 
 ## 使い方・ルール
 
-- **置き場所**: `courses/abap-taining/image/<ファイル名>`
-- **参照**: スライド側は `<Figure src="image/<ファイル名>" … />`（編集不要、すでに埋め込み済み）
-- **推奨形式**: PNG（透過可）/ 横長 16:9〜4:3、長辺 1600px 程度。SVG も可。
+- **原画（保持用）**: `courses/abap-taining/image/originals/<ファイル名>.png` — リポジトリに残す。サイトには出さない。
+- **配信用**: `courses/abap-taining/image/<ファイル名>.webp` — `pnpm run optimize:images` で原画から生成。
+- **参照**: スライドは `<Figure src="image/<ファイル名>.webp" … />`（拡張子 `.webp`）
+- **推奨形式（原画）**: PNG（透過可）/ 横長 16:9〜4:3。SVG も可。
 - **文字**: 図中に日本語ラベルを入れる場合、画像生成AIは日本語が苦手なため、
   - 技術図（diagram）は **Figma / draw.io / PowerPoint 等で作成**するのを推奨。
   - 概念イラスト（concept）は生成AIで作り、必要なら後からラベルを上に重ねる。
@@ -19,14 +20,14 @@
 ## 共通キャラクター（全レッスン共通・実装済み）
 
 会話（`<Dialog>`）のアバターに使う3人の立ち絵です。
-**置き場所が他と違います**: `public/characters/`（コース内 `image/` ではない）。
+**原画**: `assets/characters/originals/*.png` → **`pnpm run optimize:images`** → `public/characters/*.webp`（配信）。
 未配置の間は丸アバター（先／理／文）にフォールバックします。
 
-| ファイル名 | 役割 | 配色 | 性格 |
-| --- | --- | --- | --- |
-| `public/characters/teacher.png` | 先生 | 青 | 落ち着いた・やさしい講師 |
-| `public/characters/student-a.png` | Aくん | 緑 | 理系・理屈で納得するタイプ |
-| `public/characters/student-b.png` | Bちゃん | 橙 | 文系・PCは苦手・比喩が刺さるタイプ |
+| 原画（originals） | 配信（public/characters） | 役割 | 配色 | 性格 |
+| --- | --- | --- | --- | --- |
+| `teacher.png` | `teacher.webp` | 先生 | 青 | 落ち着いた・やさしい講師 |
+| `student-a.png` | `student-a.webp` | Aくん | 緑 | 理系・理屈で納得するタイプ |
+| `student-b.png` | `student-b.webp` | Bちゃん | 橙 | 文系・PCは苦手・比喩が刺さるタイプ |
 
 - **形式**: 正方形・透過PNG・**円形トリミング前提のバストアップ**・512×512px 程度。
 - **重要（統一感）**: 3枚は**同じ絵柄・同じ画風・同じ画角・同じ光**で。下のプロンプトの先頭ブロックを3枚で共通にしてください。

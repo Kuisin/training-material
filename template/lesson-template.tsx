@@ -4,7 +4,7 @@
  * 使い方:
  * 1. courses/<slug>/NN-kebab-title.tsx にコピー
  * 2. courses/<slug>/course.json にレッスンを追加
- * 3. `Lesson` の chrome（title / prevHref / nextHref）を設定
+ * 3. `lessonChrome(courseSlug, lessonFile, title)` でナビを設定
  * 4. slides 配列にスライドを追加（title + content + plainText）
  */
 import {
@@ -15,18 +15,16 @@ import {
   Quiz,
   MermaidDiagram,
   LessonMeta,
+  lessonChrome,
   mountLesson,
 } from "../../src/lesson";
+
+const lessonMeta = { title: "{{LESSON_TITLE}}" };
 
 export default function ExampleLesson() {
   return (
     <Lesson
-      chrome={{
-        title: "{{LESSON_TITLE}}",
-        prevHref: "{{PREV_HREF}}",
-        nextHref: "{{NEXT_HREF}}",
-        indexHref: "../../index.html",
-      }}
+      chrome={lessonChrome("{{COURSE_SLUG}}", "{{LESSON_FILE}}", lessonMeta.title)}
       slides={[
         {
           title: "概要",

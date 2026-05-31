@@ -11,8 +11,6 @@ import {
 import { cn } from "../lib/cn";
 import type { Course, CourseLesson } from "../lib/types";
 
-const baseUrl = import.meta.env.BASE_URL;
-
 function PageShell({
   title,
   description,
@@ -57,7 +55,7 @@ function LessonRow({ course, lesson }: { course: Course; lesson: CourseLesson })
   return (
     <li className="border-b border-slate-100 last:border-0 dark:border-slate-800">
       <a
-        href={`${baseUrl}${lessonHref(course, lesson)}`}
+        href={lessonHref(course, lesson)}
         className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-brand/5"
       >
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">

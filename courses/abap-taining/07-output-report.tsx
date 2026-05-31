@@ -56,7 +56,7 @@ export default function OutputReportLesson() {
               <h2>同じ内容でも、整え方で伝わり方が変わる</h2>
               <p>改行も見出しもない、文字がびっしりの議事録は読む気が失せますよね。逆に、見出し・区切り線・適度な空きがあると、ぐっと読みやすくなります。帳票も同じです。</p>
               <Figure
-                src="image/07-messy-vs-clean.png"
+                src="image/07-messy-vs-clean.webp"
                 alt="左：文字や数字がびっしり詰まって見出しも区切りもない読みにくい一覧。右：同じ内容だが見出し・区切り線・空行・桁そろえで整理された読みやすい帳票。before/afterの対比。"
                 caption="同じデータでも、整えるだけで「読めるけどつらい」→「使える資料」に変わる"
                 kind="concept"
@@ -126,7 +126,7 @@ ENDLOOP.`}
                 </li>
               </ul>
               <Figure
-                src="image/07-aligned-columns.png"
+                src="image/07-aligned-columns.webp"
                 alt="WRITEの桁位置指定の図。見出し行と明細行で『伝票番号は1桁目、日付は20桁目、金額は40桁目』と縦に揃っている様子を、桁数の目盛りとともに示す。"
                 caption="桁位置（20・40）を見出しと明細でそろえると、列がきれいに整列する"
                 kind="diagram"

@@ -101,10 +101,18 @@ function readCourseImages(root) {
       for (const name of fs.readdirSync(dir)) {
         const abs = path.join(dir, name);
         if (fs.statSync(abs).isDirectory()) {
+          // PNG masters in originals/ are not deployed
+          if (name === 'originals') continue;
           walk(abs);
           continue;
         }
-        if (!(path.extname(abs).toLowerCase() in IMAGE_EXT_TYPES)) continue;
+        const ext = path.extname(abs).toLowerCase();
+        if (!(ext in IMAGE_EXT_TYPES)) continue;
+        // Prefer WebP over PNG when both exist at the same path
+        if (ext === '.png') {
+          const webp = abs.replace(/\.png$/i, '.webp');
+          if (fs.existsSync(webp)) continue;
+        }
         const rel = path.relative(imageDir, abs).replace(/\\/g, '/');
         images.push({ outFile: `${slug}/image/${rel}`, absPath: abs });
       }

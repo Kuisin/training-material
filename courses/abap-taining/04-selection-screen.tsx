@@ -57,7 +57,7 @@ export default function SelectionScreenLesson() {
               <h2>選択画面 ＝ 通販サイトの検索フォーム</h2>
               <p>通販サイトで「価格 1000円〜3000円」「ブランド: ○○」と入れて検索しますよね。あれと同じで、プログラムの最初に「どのデータが欲しいか」を入力してもらう画面が選択画面です。</p>
               <Figure
-                src="image/04-search-form.png"
+                src="image/04-search-form.webp"
                 alt="通販サイト風の検索フォームのイラスト。『会社コード』の単一入力欄、『日付 From〜To』の範囲入力欄、検索ボタン。プログラムの入口にある検索フォームのイメージ。"
                 caption="選択画面＝プログラムの入口にある検索フォーム（ほしいデータの注文票）"
                 kind="concept"
@@ -130,7 +130,7 @@ export default function SelectionScreenLesson() {
                 <code>PARAMETERS</code>＝1点を指す／<code>SELECT-OPTIONS</code>＝幅（From〜To）で指す。後続の <code>WHERE ... IN s_budat</code> にそのまま渡せる。
               </Callout>
               <Figure
-                src="image/04-param-vs-selopt.png"
+                src="image/04-param-vs-selopt.webp"
                 alt="左：単一の入力欄1つ（PARAMETERS、1点を指す）。右：From と To の2つの入力欄（SELECT-OPTIONS、範囲を指す）。点 vs 区間の対比を図示。"
                 caption="PARAMETERS＝1点を指す／SELECT-OPTIONS＝From〜Toで幅を指す"
                 kind="diagram"

@@ -71,7 +71,7 @@ export default function InternalTablesLesson() {
                 <strong>書き込みや確認は、机の上の1枚</strong>に対して行います。
               </p>
               <Figure
-                src="image/05-shelf-desk.png"
+                src="image/05-shelf-desk.webp"
                 alt="左に書類が整然と並んだ棚（内部テーブル＝複数行）、右に棚から抜き出した1枚を広げた机（作業領域＝1行）。棚から机へ1枚を移す矢印。"
                 caption="棚（内部テーブル）から、机（作業領域）へ1枚ずつ取り出して処理する"
                 kind="concept"
@@ -147,7 +147,7 @@ DATA lt_tab TYPE TABLE OF bkpf.`}
                 </li>
               </ul>
               <Figure
-                src="image/05-structure-vs-table.png"
+                src="image/05-structure-vs-table.webp"
                 alt="左：1個のカード（構造 ls_row、列が横一列）。右：同じ形のカードが縦に積み重なった表（内部テーブル lt_tab）。両者が同じ列構成であることを示す。"
                 caption="構造（1行）と内部テーブル（同じ形の行が複数）。形は同じ、件数が違う"
                 kind="diagram"
@@ -244,7 +244,7 @@ ENDLOOP.                         " 次の行へ。なくなれば終了`}
                 </li>
               </ul>
               <Figure
-                src="image/05-loop-flow.png"
+                src="image/05-loop-flow.webp"
                 alt="棚（内部テーブル）の各行に1,2,3…と番号。各行が順番に矢印で机（作業領域）へ移り、机の上で WRITE 処理される様子を3コマで示す。"
                 caption="LOOP：棚の行を上から順に机へ出し、1行ずつ処理して次へ進む"
                 kind="diagram"
@@ -534,7 +534,7 @@ REFRESH lt_bkpf.             " 棚（テーブル全体）を空にする`}
                 <strong>プログラムが動いている間だけ、メモリ上にある一時的な表</strong>で、実行が終われば消えます。
               </p>
               <Figure
-                src="image/05-table-vs-db.png"
+                src="image/05-table-vs-db.webp"
                 alt="左：頑丈な倉庫の棚（データベース＝永続）。右：作業中の机に広げた一時的な書類の束（内部テーブル＝一時）。机を片付けても倉庫の中身は変わらないことを矢印で示す。"
                 caption="DB＝永続の倉庫／内部テーブル＝一時の作業台。作業台を消してもDBは変わらない"
                 kind="concept"

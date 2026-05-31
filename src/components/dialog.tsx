@@ -6,6 +6,7 @@ import {
   type CharacterSpeaker,
   type CharacterSpeakerStyle,
 } from "../lib/character-speakers";
+import { characterAvatarHref } from "../lib/app-href";
 import { cn } from "../lib/cn";
 import { DIALOG_BODY, DialogBubbleTail } from "./dialog-bubble";
 
@@ -37,7 +38,7 @@ interface DialogProps {
 
 function CharacterAvatar({ style }: { style: CharacterSpeakerStyle }) {
   const [failed, setFailed] = useState(false);
-  const src = `${import.meta.env.BASE_URL}characters/${style.avatarFile}`;
+  const src = characterAvatarHref(style.avatarFile);
 
   return (
     <div className="flex w-14 shrink-0 flex-col items-center gap-1">

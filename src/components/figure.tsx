@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { appHref, courseFigureHref } from "../lib/app-href";
+import { cn } from "../lib/cn";
 
 interface FigureProps {
-  /** 画像パス（HTML から見た相対 URL、例: "image/05-shelf-desk.png"） */
+  /** 画像パス（相対 URL、例: "image/05-shelf-desk.webp"） */
   src: string;
   /** 代替テキスト（読み上げ・画像欠落時の説明） */
   alt: string;
@@ -16,12 +18,40 @@ const KIND_BADGE: Record<NonNullable<FigureProps["kind"]>, string> = {
   diagram: "🛠 構成図",
 };
 
+/** レッスン URL からコース slug を推定し、図の絶対 URL を返す */
+function resolveFigureSrc(relativeSrc: string): string {
+  if (/^(https?:|data:)/i.test(relativeSrc)) {
+    return relativeSrc;
+  }
+
+  const base = import.meta.env.BASE_URL;
+  const pathname = window.location.pathname;
+  const pathWithoutBase =
+    base !== "/" && pathname.startsWith(base)
+      ? pathname.slice(base.length)
+      : pathname;
+  const slugMatch = pathWithoutBase.match(/^\/([^/]+)\//);
+  const slug = slugMatch?.[1];
+
+  if (slug && relativeSrc.startsWith("image/")) {
+    return courseFigureHref(slug, relativeSrc);
+  }
+
+  if (relativeSrc.startsWith("/")) {
+    return appHref(relativeSrc.slice(1));
+  }
+
+  return relativeSrc;
+}
+
 /**
  * レッスン用の画像表示。画像がまだ無い場合は「準備中」のプレースホルダを表示し、
  * 用意するファイル名（src）と内容（alt）を示す。画像を courses/<slug>/image/ に置けば自動で差し替わる。
  */
 export function Figure({ src, alt, caption, kind = "diagram" }: FigureProps) {
+  const resolvedSrc = useMemo(() => resolveFigureSrc(src), [src]);
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <figure className="not-prose my-6">
@@ -38,13 +68,28 @@ export function Figure({ src, alt, caption, kind = "diagram" }: FigureProps) {
           </span>
         </div>
       ) : (
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onError={() => setFailed(true)}
-          className="mx-auto max-h-[60vh] w-full max-w-3xl rounded-xl border border-slate-200 bg-white object-contain shadow-sm dark:border-slate-700 dark:bg-slate-800/40"
-        />
+        <div className="relative mx-auto max-w-3xl">
+          {!loaded && (
+            <div
+              className="flex min-h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/40"
+              aria-hidden
+            >
+              <span className="text-sm text-slate-500 dark:text-slate-400">画像を読み込み中…</span>
+            </div>
+          )}
+          <img
+            src={resolvedSrc}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
+            className={cn(
+              "mx-auto max-h-[60vh] w-full rounded-xl border border-slate-200 bg-white object-contain shadow-sm dark:border-slate-700 dark:bg-slate-800/40",
+              !loaded && "hidden"
+            )}
+          />
+        </div>
       )}
       {caption && (
         <figcaption className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">

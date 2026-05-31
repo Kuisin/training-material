@@ -37,8 +37,7 @@ traininig-material/
 ```
 
 - ファイル名: `NN-kebab-case-title.tsx`
-- `chrome.nextHref` / `chrome.prevHref` は隣の章へのパス（例: `"01-overview.html"`）。Vite ビルド後も `.html` URL のまま。
-- `chrome.indexHref` は通常 `"../index.html"`
+- **ナビ URL は手書きしない。** `lessonChrome(courseSlug, lessonFile, title)` を使う（`src/lib/courses.ts` が GitHub Pages の `/repo/` とローカルの `/` の両方で正しい URL を組み立てる）。
 
 ---
 
@@ -71,18 +70,16 @@ import {
   Quiz,
   MermaidDiagram,
   LessonMeta,
+  lessonChrome,
   mountLesson,
 } from "../src/lesson";
+
+const lessonMeta = { title: "章タイトル" };
 
 export default function MyLesson() {
   return (
     <Lesson
-      chrome={{
-        title: "章タイトル",
-        prevHref: "00-introduction.html",
-        nextHref: "02-business-basics.html",
-        indexHref: "../index.html",
-      }}
+      chrome={lessonChrome("abap-taining", "01-overview", lessonMeta.title)}
       slides={[
         { title: "概要", plainText: "…", content: <>…</> },
       ]}

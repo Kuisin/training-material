@@ -57,7 +57,7 @@ export default function RealWorldLesson() {
               <h2>増改築には「図面」が要る</h2>
               <p>家を増築するとき、元の図面を見ずに壁を壊したら、水道管を切ってしまうかもしれません。プログラムの修正も同じで、まず「今どうなっているか」を把握してから手を入れます。</p>
               <Figure
-                src="image/12-renovation-blueprint.png"
+                src="image/12-renovation-blueprint.webp"
                 alt="家の増改築の場面。設計図（図面）を広げて確認してから壁に手を入れる職人。図面を見ずに壊すと水道管を切ってしまう危険、という対比を添える。"
                 caption="改修はまず「図面（現状）」を読む。見ずに壊すと思わぬ所を壊す"
                 kind="concept"
@@ -84,7 +84,7 @@ export default function RealWorldLesson() {
                 <li><strong>出力</strong>：何を、どんな形で出している？</li>
               </ol>
               <Figure
-                src="image/12-investigate-pipeline.png"
+                src="image/12-investigate-pipeline.webp"
                 alt="入力→取得→加工→出力のパイプライン図に虫めがねを重ね、仕様変更の調査時に各段（入力・取得・出力）のどこが変わるかを当てはめて見る『調査の地図』として描く。"
                 caption="入力→取得→加工→出力のパイプラインを「調査の地図」として使う"
                 kind="diagram"

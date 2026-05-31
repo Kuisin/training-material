@@ -140,7 +140,7 @@ WRITE 'こんにちは、ABAP'.`}
               <h2>変数 ＝ 中身を入れ替えられる箱</h2>
               <p><code>DATA</code> で「箱」を用意します。箱には名前を付け、あとから値を入れたり替えたりできます。</p>
               <Figure
-                src="image/03-variable-box.png"
+                src="image/03-variable-box.webp"
                 alt="『lv_name』というラベルを貼った箱（タッパー）。中身が『田中』から別の名前へ入れ替わる様子を矢印で示す。容器（名前）は同じで中身だけ変わることを表現。"
                 caption="変数＝ラベル（名前）を貼った箱。名前はそのまま、中身は入れ替えられる"
                 kind="concept"
@@ -186,7 +186,7 @@ WRITE lv_name.`}
                 <code>CONSTANTS</code> は、一度決めたら変えない値です。「消費税率」「会社コード」のように、途中で勝手に変わると困るものに使います。
               </p>
               <Figure
-                src="image/03-var-vs-const.png"
+                src="image/03-var-vs-const.webp"
                 alt="左：フタが開いて中身を入れ替えられる箱（変数 DATA）。右：フタに鍵がかかって中身を変えられない箱（定数 CONSTANTS）。役割の対比を並べて示す。"
                 caption="変数＝中身を入れ替えられる箱／定数＝鍵をかけた箱（変えない値）"
                 kind="diagram"

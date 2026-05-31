@@ -61,7 +61,7 @@ export default function SelectFromDbLesson() {
                 <code>SELECT</code> は倉庫番に<strong>「この条件の箱を持ってきて」</strong>と依頼する命令です。
               </p>
               <Figure
-                src="image/06-warehouse-pick.png"
+                src="image/06-warehouse-pick.webp"
                 alt="巨大な倉庫の棚から、倉庫番が『条件に合う箱だけ』を選んで台車に載せて運び出すイラスト。条件メモ（WHERE）を見ながら必要な箱だけピックする様子。"
                 caption="倉庫番に条件（WHERE）を伝え、必要な箱だけ取り出してもらう"
                 kind="concept"
@@ -84,7 +84,7 @@ export default function SelectFromDbLesson() {
               <h2>会計でよく出る表（ざっくり）</h2>
               <p>細かい列名は今は不要。「どんな情報の表か」だけ掴めば十分です。</p>
               <Figure
-                src="image/06-bkpf-bseg.png"
+                src="image/06-bkpf-bseg.webp"
                 alt="会計テーブルの関係図。BKPF（ヘッダ：1件1行）とBSEG（明細：同じ伝票で複数行）が会社コード＋伝票番号＋会計年度でつながる。横にT001（会社マスタ＝辞書）とT003T（伝票タイプ名称＝辞書）を補助テーブルとして配置。"
                 caption="BKPF（ヘッダ）と BSEG（明細）は伝票キー（会社コード＋伝票番号＋会計年度）でつながる。T001/T003T は“意味を引く辞書”"
                 kind="diagram"

@@ -7,10 +7,13 @@
   "description": "研修教材（Vite + 共有コンポーネントのスライド教材）",
   "scripts": {
     "dev": "vite",
+    "dev:pages": "BASE_PATH=/traininig-material/ vite",
     "build": "vite build",
+    "build:pages": "BASE_PATH=/traininig-material/ vite build",
     "preview": "vite preview",
     "preview:pages": "BASE_PATH=/traininig-material/ vite build && BASE_PATH=/traininig-material/ vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "optimize:images": "node scripts/optimize-images.mjs"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -19,6 +22,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "node-html-parser": "^7.1.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.14"

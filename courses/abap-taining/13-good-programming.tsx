@@ -78,7 +78,7 @@ export default function GoodProgrammingLesson() {
                 とくに「DBへ何度も取りに行く」書き方は、件数が増えるほど効いてきます。
               </p>
               <Figure
-                src="image/13-shortcut-traffic.png"
+                src="image/13-shortcut-traffic.webp"
                 alt="一見すると速そうな細い近道に車が殺到して大渋滞している様子と、広い本道がスムーズに流れている様子の対比。データ量が増えると近道が詰まる比喩。"
                 caption="その場の“近道”が、データ量が増えると渋滞の原因になる"
                 kind="concept"
@@ -305,7 +305,7 @@ ENDLOOP.`}
   end`}
               /> */}
               <Figure
-                src="image/13-roundtrip.png"
+                src="image/13-roundtrip.webp"
                 alt="左：LOOPの各回ごとにDB（倉庫）へ何度も往復する矢印が大量にある悪い例。右：最初に1回だけまとめてDBから取り、あとは内部テーブル（机）で照合する良い例。往復回数の多寡を矢印の数で対比。"
                 caption="悪い例＝件数分の往復／良い例＝1回でまとめて取り、あとはメモリ内で照合"
                 kind="diagram"

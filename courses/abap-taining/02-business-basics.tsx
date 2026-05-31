@@ -54,7 +54,7 @@ export default function BusinessBasicsLesson() {
               <h2>会計は「会社の家計簿」</h2>
               <p>会計と聞くと身構えますが、根っこは家計簿と同じです。「いつ・何に・いくら使った／もらった」を記録しているだけです。</p>
               <Figure
-                src="image/02-household-book.png"
+                src="image/02-household-book.webp"
                 alt="開いた家計簿のノートに『日付・項目・金額』の行が並ぶイラスト。横に会社の大きな台帳が並び、家計簿と同じ構造であることを示す対比。"
                 caption="会計＝会社の家計簿。記録する中身は「いつ・何に・いくら」"
                 kind="concept"
@@ -103,7 +103,7 @@ export default function BusinessBasicsLesson() {
               <h2>伝票は「見出し」と「中身」でできている</h2>
               <p>会計伝票1枚は、2段構造になっています。</p>
               <Figure
-                src="image/02-header-detail.png"
+                src="image/02-header-detail.webp"
                 alt="1枚の会計伝票の図。上段に『ヘッダ：日付・会社・伝票番号』の1ブロック、下段に『明細：勘定科目・金額』の行が複数並ぶ。1件にヘッダは1つ、明細は複数という関係を示す。"
                 caption="会計伝票＝ヘッダ（1件に1つの見出し）＋ 明細（複数行の中身）"
                 kind="diagram"

@@ -77,7 +77,7 @@ export default function OverviewLesson() {
               <h2>研修の大きな流れ</h2>
               <p>本研修は、おおきく3つのかたまりに分かれます。</p>
               <Figure
-                src="image/01-roadmap.png"
+                src="image/01-roadmap.webp"
                 alt="3区間の道のりマップ。第1区間『前半・演習1〜4：仕訳日記帳を見る/一覧』、第2区間『後半・演習5〜6：会計伝票を登録』、第3区間『仕上げ・演習7：適切なプログラミング』。左から右へ上り坂の道で表現。"
                 caption="研修の道のり：見る（照会）→ 書く（登録）→ 磨く（適切なプログラミング）"
                 kind="concept"
@@ -131,7 +131,7 @@ export default function OverviewLesson() {
                 前半は<strong>照会</strong>（データを見る・出すだけ）。後半は<strong>登録</strong>（データを実際に書き込む）。同じプログラムでも、登録は“正式な記録を残す”ので、より慎重さが必要です。
               </p>
               <Figure
-                src="image/01-inquiry-vs-posting.png"
+                src="image/01-inquiry-vs-posting.webp"
                 alt="左：虫めがねで台帳を眺める人（照会＝読むだけ、データは変わらない）。右：ペンで台帳に新しい行を書き込む人（登録＝書く、正式な記録が残る）。中央に対比の境界線。"
                 caption="照会＝読むだけ（やり直せる）／登録＝書き込む（記録が残る・慎重に）"
                 kind="diagram"

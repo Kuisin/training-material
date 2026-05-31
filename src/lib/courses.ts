@@ -1,4 +1,5 @@
 import type { Course, CourseLesson } from "./types";
+import { appHref, lessonPageHref } from "./app-href";
 
 interface CourseJson {
   title: string;
@@ -45,24 +46,17 @@ export const activeCourses = courses.filter((course) => course.active);
 
 /** トップのコース一覧ページ */
 export function coursesIndexHref(): string {
-  const base = import.meta.env.BASE_URL;
-  return `${base}index.html`;
+  return appHref("index.html");
 }
 
 /** トップのレッスン一覧ページ（コース選択後） */
 export function courseIndexHref(courseSlug: string): string {
-  const base = import.meta.env.BASE_URL;
-  return `${base}index.html?course=${encodeURIComponent(courseSlug)}`;
+  return `${coursesIndexHref()}?course=${encodeURIComponent(courseSlug)}`;
 }
 
-/** コース内レッスンの HTML パス（例 abap-taining/00-introduction.html） */
+/** コース内レッスンの URL（BASE_URL 込み） */
 export function lessonHref(course: Course, lesson: CourseLesson): string {
-  return `${course.slug}/${lesson.file}.html`;
-}
-
-/** prev/next リンク用のファイル名（例 01-overview.html） */
-export function lessonFileHref(lesson: CourseLesson): string {
-  return `${lesson.file}.html`;
+  return lessonPageHref(course.slug, lesson.file);
 }
 
 /** レッスン chrome 用: 前後のレッスン href を course.json から生成 */
@@ -79,7 +73,7 @@ export function lessonChromeLinks(
 } {
   const course = courses.find((c) => c.slug === courseSlug);
   if (!course) {
-    return { lessonNum: "", prevHref: "", nextHref: "", indexHref: "../../index.html" };
+    return { lessonNum: "", prevHref: "", nextHref: "", indexHref: coursesIndexHref() };
   }
 
   const index = course.lessons.findIndex((l) => l.file === lessonFile);
@@ -91,9 +85,9 @@ export function lessonChromeLinks(
 
   return {
     lessonNum: current?.num ?? String(Math.max(index, 0)),
-    prevHref: prev ? lessonFileHref(prev) : "",
-    nextHref: next ? lessonFileHref(next) : "",
-    indexHref: `../../index.html?course=${encodeURIComponent(courseSlug)}`,
+    prevHref: prev ? lessonPageHref(courseSlug, prev.file) : "",
+    nextHref: next ? lessonPageHref(courseSlug, next.file) : "",
+    indexHref: courseIndexHref(courseSlug),
     prevLesson: prev ? adjacent(prev) : undefined,
     nextLesson: next ? adjacent(next) : undefined,
   };
