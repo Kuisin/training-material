@@ -25,31 +25,35 @@ interface BadgeSpeakerStyle {
 const CHARACTER_SPEAKERS = ["teacher", "a", "b"] as const;
 type CharacterSpeaker = (typeof CHARACTER_SPEAKERS)[number];
 
+/**
+ * Solid hex (100% opacity), pre-blended to match former opacity utilities.
+ * Light border: *-500 at 40% on *-50. Dark fill/border: *-500 at 10%/30% on slate-950.
+ */
 const CHARACTER_STYLES: Record<CharacterSpeaker, CharacterSpeakerStyle> = {
   teacher: {
     avatar: "bg-sky-600 text-white dark:bg-sky-500",
     bubble:
-      "border border-sky-500/40 bg-sky-50 text-sky-950 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-100",
-    tailFill: "fill-sky-50 dark:fill-sky-500/10",
-    tailStroke: "stroke-sky-500/40 dark:stroke-sky-500/30",
+      "border border-[#96d7f6] bg-[#f0f9ff] text-sky-950 dark:border-[#054156] dark:bg-[#03242c] dark:text-sky-100",
+    tailFill: "fill-[#f0f9ff] dark:fill-[#03242c]",
+    tailStroke: "stroke-[#96d7f6] dark:stroke-[#054156]",
     avatarChar: "先",
     label: "先生",
   },
   a: {
     avatar: "bg-emerald-600 text-white dark:bg-emerald-500",
     bubble:
-      "border border-emerald-500/40 bg-emerald-50 text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100",
-    tailFill: "fill-emerald-50 dark:fill-emerald-500/10",
-    tailStroke: "stroke-emerald-500/40 dark:stroke-emerald-500/30",
+      "border border-[#94e1c6] bg-[#ecfdf5] text-emerald-950 dark:border-[#064737] dark:bg-[#032621] dark:text-emerald-100",
+    tailFill: "fill-[#ecfdf5] dark:fill-[#032621]",
+    tailStroke: "stroke-[#94e1c6] dark:stroke-[#064737]",
     avatarChar: "理",
     label: "Aくん",
   },
   b: {
     avatar: "bg-amber-600 text-white dark:bg-amber-500",
     bubble:
-      "border border-amber-500/40 bg-amber-50 text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100",
-    tailFill: "fill-amber-50 dark:fill-amber-500/10",
-    tailStroke: "stroke-amber-500/40 dark:stroke-amber-500/30",
+      "border border-[#fbd591] bg-[#fffbeb] text-amber-950 dark:border-[#4b3f1c] dark:bg-[#1a2415] dark:text-amber-100",
+    tailFill: "fill-[#fffbeb] dark:fill-[#1a2415]",
+    tailStroke: "stroke-[#fbd591] dark:stroke-[#4b3f1c]",
     avatarChar: "文",
     label: "Bちゃん",
   },
@@ -58,13 +62,13 @@ const CHARACTER_STYLES: Record<CharacterSpeaker, CharacterSpeakerStyle> = {
 const BADGE_STYLES: Record<"stumble" | "closing", BadgeSpeakerStyle> = {
   stumble: {
     container:
-      "border-rose-500/60 bg-rose-50 text-rose-950 dark:bg-rose-500/10 dark:text-rose-100",
+      "border-[#fa8699] bg-[#fff1f2] text-rose-950 dark:bg-[#1a0810] dark:text-rose-100",
     badge: "bg-rose-600 text-white dark:bg-rose-500",
     label: "つまずき",
   },
   closing: {
     container:
-      "border-violet-500/60 bg-violet-50 text-violet-950 dark:bg-violet-500/10 dark:text-violet-100",
+      "border-[#b598f9] bg-[#f5f3ff] text-violet-950 dark:bg-[#150d24] dark:text-violet-100",
     badge: "bg-violet-600 text-white dark:bg-violet-500",
     label: "今日のひとこと",
   },
@@ -76,7 +80,7 @@ interface DialogProps {
 }
 
 const DIALOG_BODY =
-  "[&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-white/10";
+  "[&_code]:rounded [&_code]:bg-[#e2e8f0] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-[#1e293b]";
 
 function isCharacterSpeaker(
   speaker: DialogSpeaker
