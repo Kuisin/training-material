@@ -1,3 +1,4 @@
+import type { AssessmentAttemptRecord } from "./assessment-storage";
 import type { ScoreEntry } from "./score-store";
 import { getReportDetail } from "./score-store";
 
@@ -28,6 +29,11 @@ export interface AssessmentReportSummary {
   tierMessage: string;
 }
 
+interface AnswerDetails {
+  userAnswer: (id: string) => string;
+  correctAnswer: (id: string) => string;
+}
+
 function kindLabel(kind: ScoreReportItem["kind"]): string {
   if (kind === "code") return "コード組み立て";
   if (kind === "flow") return "フロー組み立て";
@@ -39,22 +45,21 @@ function resultLabel(entry: ScoreEntry | undefined): string {
   return entry.correct ? "正解" : "不正解";
 }
 
-/** 採点結果を Excel（.xlsx）としてダウンロードする。 */
-export async function downloadAssessmentExcel(
+async function buildAssessmentWorkbook(
   meta: AssessmentReportMeta,
   summary: AssessmentReportSummary,
   items: ScoreReportItem[],
-  entries: Array<{ id: string; entry: ScoreEntry | undefined }>
-): Promise<void> {
+  entries: Array<{ id: string; entry: ScoreEntry | undefined }>,
+  details: AnswerDetails,
+  reportDate: string
+) {
   const XLSX = await import("xlsx");
-  const now = new Date();
-  const dateStr = now.toLocaleString("ja-JP", { hour12: false });
 
   const summarySheet = XLSX.utils.aoa_to_sheet([
     ["項目", "値"],
     ["研修コース", meta.courseTitle],
     ["テスト名", meta.assessmentTitle],
-    ["実施日時", dateStr],
+    ["実施日時", reportDate],
     ["総問題数", summary.total],
     ["回答数", summary.answered],
     ["未回答数", summary.total - summary.answered],
@@ -77,6 +82,7 @@ export async function downloadAssessmentExcel(
   ];
   const detailRows = items.map((item, i) => {
     const entry = entries.find((e) => e.id === item.id)?.entry;
+    const userAnswer = details.userAnswer(item.id);
     return [
       i + 1,
       `L${item.lessonNum} ${item.lessonTitle}`,
@@ -84,8 +90,8 @@ export async function downloadAssessmentExcel(
       item.difficulty ? quizLevelLabel(item.difficulty) : "—",
       item.labelText,
       resultLabel(entry),
-      getReportDetail(item.id) || "（未回答）",
-      getReportDetail(`${item.id}:correct`),
+      userAnswer || "（未回答）",
+      details.correctAnswer(item.id),
       item.explanation ?? "",
     ];
   });
@@ -106,8 +112,70 @@ export async function downloadAssessmentExcel(
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, summarySheet, "サマリー");
   XLSX.utils.book_append_sheet(workbook, detailSheet, "詳細");
+  return workbook;
+}
 
-  const stamp = now.toISOString().slice(0, 10);
-  const fileName = meta.fileName ?? `assessment-report-${stamp}.xlsx`;
-  XLSX.writeFile(workbook, fileName);
+function formatFileNameStamp(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function buildReportFileName(
+  meta: AssessmentReportMeta,
+  date: Date,
+  attemptNumber?: number
+): string {
+  const base = meta.fileName?.replace(/\.xlsx$/i, "") ?? "assessment_report";
+  const stamp = formatFileNameStamp(date);
+  if (attemptNumber !== undefined) {
+    return `${base}_#${attemptNumber}_${stamp}.xlsx`;
+  }
+  return `${base}_${stamp}.xlsx`;
+}
+
+/** 現在の受験結果を Excel（.xlsx）としてダウンロードする。 */
+export async function downloadAssessmentExcel(
+  meta: AssessmentReportMeta,
+  summary: AssessmentReportSummary,
+  items: ScoreReportItem[],
+  entries: Array<{ id: string; entry: ScoreEntry | undefined }>
+): Promise<void> {
+  const XLSX = await import("xlsx");
+  const reportDate = new Date().toLocaleString("ja-JP", { hour12: false });
+  const workbook = await buildAssessmentWorkbook(meta, summary, items, entries, {
+    userAnswer: (id) => getReportDetail(id),
+    correctAnswer: (id) => getReportDetail(`${id}:correct`),
+  }, reportDate);
+
+  XLSX.writeFile(workbook, buildReportFileName(meta, new Date()));
+}
+
+/** 過去の受験履歴を Excel（.xlsx）としてダウンロードする。 */
+export async function downloadHistoricalAttemptExcel(
+  meta: AssessmentReportMeta,
+  record: AssessmentAttemptRecord,
+  items: ScoreReportItem[],
+  tierMessage: string,
+  attemptNumber?: number
+): Promise<void> {
+  const XLSX = await import("xlsx");
+  const entries = items.map((item) => ({
+    id: item.id,
+    entry: record.scores[item.id],
+  }));
+  const summary: AssessmentReportSummary = {
+    total: record.summary.total,
+    answered: record.summary.answered,
+    correct: record.summary.correct,
+    percent: record.summary.percent,
+    tierMessage,
+  };
+  const reportDate = new Date(record.finishedAt).toLocaleString("ja-JP", { hour12: false });
+  const workbook = await buildAssessmentWorkbook(meta, summary, items, entries, {
+    userAnswer: (id) => record.details[id]?.userAnswer ?? "",
+    correctAnswer: (id) => record.details[id]?.correctAnswer ?? "",
+  }, reportDate);
+
+  const finishedAt = new Date(record.finishedAt);
+  XLSX.writeFile(workbook, buildReportFileName(meta, finishedAt, attemptNumber));
 }

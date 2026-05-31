@@ -78,7 +78,7 @@ const SCORE_ITEMS = ASSESSMENTS.flatMap((a) => {
 const REPORT_META = {
   courseTitle: "ABAP研修（仕訳日記帳・会計伝票登録）",
   assessmentTitle: lessonMeta.title,
-  fileName: "abap-training-assessment-report.xlsx",
+  fileName: "abap-training-assessment_report.xlsx",
 };
 
 function LessonReviewSlide({ lesson }: { lesson: LessonAssessmentData }) {
@@ -212,9 +212,6 @@ export default function FinalAssessmentLesson() {
           content: (
             <>
               <h2>総合結果</h2>
-              <p>
-                各レッスンページで「提出する」を押した結果を集計しています（全 {SCORE_ITEMS.length} 問）。
-              </p>
               <ScoreBoard items={SCORE_ITEMS} report={REPORT_META} />
               <Dialog speaker="closing">
                 ここまでやり切ったあなたは、仕訳日記帳を題材に ABAP の一連の流れを体験できました。間違えたレッスンは該当章に戻って復習しましょう。
