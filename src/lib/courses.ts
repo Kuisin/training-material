@@ -69,19 +69,32 @@ export function lessonFileHref(lesson: CourseLesson): string {
 export function lessonChromeLinks(
   courseSlug: string,
   lessonFile: string
-): { prevHref: string; nextHref: string; indexHref: string } {
+): {
+  lessonNum: string;
+  prevHref: string;
+  nextHref: string;
+  indexHref: string;
+  prevLesson?: { num: string; title: string };
+  nextLesson?: { num: string; title: string };
+} {
   const course = courses.find((c) => c.slug === courseSlug);
   if (!course) {
-    return { prevHref: "", nextHref: "", indexHref: "../../index.html" };
+    return { lessonNum: "", prevHref: "", nextHref: "", indexHref: "../../index.html" };
   }
 
   const index = course.lessons.findIndex((l) => l.file === lessonFile);
+  const current = index >= 0 ? course.lessons[index] : undefined;
   const prev = index > 0 ? course.lessons[index - 1] : undefined;
   const next = index >= 0 && index < course.lessons.length - 1 ? course.lessons[index + 1] : undefined;
 
+  const adjacent = (lesson: CourseLesson) => ({ num: lesson.num, title: lesson.title });
+
   return {
+    lessonNum: current?.num ?? String(Math.max(index, 0)),
     prevHref: prev ? lessonFileHref(prev) : "",
     nextHref: next ? lessonFileHref(next) : "",
     indexHref: `../../index.html?course=${encodeURIComponent(courseSlug)}`,
+    prevLesson: prev ? adjacent(prev) : undefined,
+    nextLesson: next ? adjacent(next) : undefined,
   };
 }

@@ -5,9 +5,11 @@ import {
   Dialog,
   CodeBlock,
   Quiz,
+  Reveal,
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
   mountLesson,
 } from "../../src/lesson";
 
@@ -304,48 +306,79 @@ SORT lt_bkpf BY bukrs ASCENDING
         {
           title: "1件取り出す：READ",
           plainText:
-            "狙った1件を取り出す：READ TABLE\nREAD TABLE lt_bkpf INTO ls_bkpf WITH KEY belnr = '0000000001'.\nIF sy-subrc = 0.   \" 見つかった\n  WRITE ls_bkpf-budat.\nENDIF.\n先生：LOOP＝全件を順番に、READ TABLE＝条件に合う1件を1発で。見つかったかは sy-subrc で確認。\nAくん：目的が全件処理か1件検索かで命令を選ぶ整理ですね。\nBちゃん：sy-subrc を見ないとどうなるの？\n先生：前の値が残ったまま進んで誤った結果になることがある。取り出したら必ず sy-subrc を確認。",
+            "狙った1件を取り出す：READ TABLE\nLOOP＝棚の全行を上から順に机へ。READ TABLE＝条件に合う1行だけを一発で机へ。\nREAD TABLE lt_bkpf INTO ls_bkpf WITH KEY belnr = '0000000001'.\nIF sy-subrc = 0.\n  WRITE ls_bkpf-budat.\nELSE.\n  WRITE '該当なし'.\nENDIF.\nWITH KEY＝どの列で探すかを指定。INTO＝見つかった1行を机(ls_bkpf)へ。\nsy-subrc＝直前の命令の結果。0＝成功、4＝該当なし（READ TABLE）。\n先生：LOOP＝全件を順番に、READ TABLE＝条件に合う1件を1発で。見つかったかは sy-subrc で必ず確認。\nAくん：目的が全件処理か1件検索かで命令を選ぶ整理ですね。\nBちゃん：sy-subrc を見ないとどうなるの？\n先生：前の値が残ったまま進んで誤った結果になる。取り出したら必ず sy-subrc を確認。\nBちゃん：棚から指定の書類を1枚だけ抜く感じ？\n先生：その通り。見つからなければ机の中身は変わらない。だから結果を必ず確認する。",
           content: (
             <>
               <h2>狙った1件を取り出す：<code>READ TABLE</code></h2>
               <p>
-                全件を回さず、<strong>条件に合う1行だけ</strong>を取り出したいときに使います。
+                <code>LOOP</code> は棚の<strong>全行</strong>を上から順に机へ出します。一方{" "}
+                <code>READ TABLE</code> は、<strong>条件に合う1行だけ</strong>を一発で取り出します。
+                「この伝票番号の行だけ見たい」「会社コードが一致する行があるか確認したい」といった、
+                <strong>1件検索</strong>の場面で使います。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`READ TABLE lt_bkpf INTO ls_bkpf
+                code={`" 伝票番号 belnr が一致する1行だけを棚から机へ
+READ TABLE lt_bkpf INTO ls_bkpf
   WITH KEY belnr = '0000000001'.
 
-IF sy-subrc = 0.        " 0 なら見つかった
-  WRITE ls_bkpf-budat.
+" 見つかったかどうかを必ず確認する
+IF sy-subrc = 0.        " 0 ＝ 見つかった
+  WRITE ls_bkpf-budat.  " 机の上の1行を使って処理
 ELSE.
-  WRITE '該当なし'.
+  WRITE '該当なし'.     " 見つからなかったときの処理
 ENDIF.`}
               />
               <h3>1行ずつ読む</h3>
               <ul>
                 <li>
-                  <code>READ TABLE lt_bkpf INTO ls_bkpf WITH KEY belnr = ...</code> … 伝票番号が一致する1行だけを棚から机へ取り出す
+                  <code>READ TABLE lt_bkpf</code> … 棚（<code>lt_bkpf</code>）の中から1行を探す
                 </li>
                 <li>
-                  <code>IF sy-subrc = 0.</code> … 見つかったか確認。<code>0</code> なら成功、それ以外は該当なし
+                  <code>INTO ls_bkpf</code> … 見つかった行を机（作業領域）へ取り出す。<code>LOOP</code> の <code>INTO</code> と同じ考え方
                 </li>
                 <li>
-                  <code>ELSE.</code> … 見つからなかったときの処理。確認を省略すると前の値が残る事故につながる
+                  <code>WITH KEY belnr = &apos;0000000001&apos;.</code> … 「どの列で、どんな値と一致する行を探すか」を指定。ここでは伝票番号（<code>belnr</code>）が一致する行
+                </li>
+                <li>
+                  <code>IF sy-subrc = 0.</code> … 直前の命令（ここでは <code>READ TABLE</code>）が成功したか確認。<code>0</code> なら見つかった
+                </li>
+                <li>
+                  <code>sy-subrc = 4</code> … <code>READ TABLE</code> で該当行がなかったときの代表的な値（初学者は「0 以外＝見つからなかった」と覚えればOK）
+                </li>
+                <li>
+                  <code>ELSE.</code> … 見つからなかったときの処理。確認を省略すると、机（<code>ls_bkpf</code>）に<strong>前の値が残ったまま</strong>誤処理につながる
                 </li>
               </ul>
               <Callout variant="note">
-                <code>LOOP</code>＝全件を順番に。<code>READ TABLE</code>＝条件に合う1件を一発で。見つかったかどうかは
-                <strong> <code>sy-subrc</code>（0＝成功）</strong>で必ず確認します。
+                <strong><code>LOOP</code> と <code>READ TABLE</code> の使い分け</strong>
+                <br />
+                <code>LOOP</code>＝全件を順番に処理したい（集計・一覧表示など）。
+                <code>READ TABLE</code>＝条件に合う1件だけ欲しい（伝票番号で1行取得など）。
+                見つかったかどうかは <strong><code>sy-subrc</code>（0＝成功）</strong>で必ず確認します。
+              </Callout>
+              <Callout variant="tip">
+                たとえ：棚に100枚の書類があるとき、<code>LOOP</code> は1枚目から順に全部机へ出す。
+                <code>READ TABLE</code> は「番号0000000001の書類だけ」を指定して1枚だけ抜く。
+                見つからなければ机の中身は変わらない——だから <code>sy-subrc</code> の確認が欠かせません。
               </Callout>
               <Dialog speaker="a">
-                目的が「全件処理」か「1件検索」かで命令を選ぶ、という整理ですね。無駄なループを避けられそうです。
+                目的が「全件処理」か「1件検索」かで命令を選ぶ、という整理ですね。100件ある表から1件だけ欲しいなら、わざわざ <code>LOOP</code> で全部回す必要はない。
+              </Dialog>
+              <Dialog speaker="b">
+                棚から「この番号の書類だけ」1枚抜く、みたいなイメージですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。見つかれば机（<code>ls_bkpf</code>）にその1行が載ります。見つからなければ机の中身は<strong>前のまま変わりません</strong>。だから「取れたかどうか」を <code>sy-subrc</code> で必ず確認する、と覚えてください。
               </Dialog>
               <Dialog speaker="b">
                 見つからなかったときに <code>sy-subrc</code> を見ないと、どうなるんですか？
               </Dialog>
               <Dialog speaker="teacher">
-                良い質問です。確認しないと、<code>ls_bkpf</code> に<strong>前の値が残ったまま</strong>処理が進み、誤った結果になることがあります。だから「取り出したら必ず <code>sy-subrc</code> を確認」をクセにしましょう。
+                たとえば前の処理で机に載っていた「別の伝票」のデータが残ったまま、今回の処理が進んでしまいます。「存在しないはずの伝票なのに日付が表示された」といった<strong>静かなバグ</strong>になりがちです。取り出したら必ず <code>sy-subrc</code> を確認するクセをつけましょう。
+              </Dialog>
+              <Dialog speaker="stumble">
+                <code>WITH KEY</code> に書く項目名は、内部テーブルの行の型（ここでは <code>bkpf</code>）に存在するフィールドである必要があります。存在しない名前を書くと、プログラム作成時（構文チェック）でエラーになります。
               </Dialog>
             </>
           ),
@@ -388,7 +421,79 @@ REFRESH lt_bkpf.             " 棚（テーブル全体）を空にする`}
                 <code>CLEAR</code> を忘れると、前の行の値が残って混ざる事故が起きます。
               </Dialog>
               <Dialog speaker="b">
-                作業台の上を毎回きれいに拭いてから次の物を置く、みたいなことですね。
+                作業台の上を毎回きれいに片付けてから次の物を置く、みたいなことですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "コマンド早見表",
+          plainText:
+            "コマンド早見表\nこの章で学んだ内部テーブル操作の一覧。sy-subrc を確認する命令には注意マーク。\nDATA TYPE TABLE OF＝棚・机の宣言／SORT＝並べ替え／LOOP AT INTO＝全行を1行ずつ／READ TABLE INTO WITH KEY＝1件検索（sy-subrc要確認）／APPEND TO＝行追加／CLEAR＝机を空に／REFRESH＝棚を空に\nsy-subrc＝直前の命令の結果を示すシステム変数。0＝成功、4＝該当なし（READ TABLE）。READ TABLE のあとは必ず IF sy-subrc = 0 で確認。\n先生：一覧表は復習用。特に READ TABLE の sy-subrc 確認は現場でも必須のクセ。",
+          content: (
+            <>
+              <h2>コマンド早見表</h2>
+              <p>
+                ここまで学んだ命令を一覧にまとめました。戻って確認するときの<strong>チートシート</strong>として使ってください。
+              </p>
+              <InfoPanel
+                title="この章のコマンド一覧"
+                variant="reference"
+                lead={
+                  <>
+                    棚（内部テーブル）と机（作業領域）を扱う基本命令。<code>sy-subrc</code>{" "}
+                    の確認が必要な命令には ⚠️ を付けています。
+                  </>
+                }
+              >
+                <ul>
+                  <li>
+                    <code>DATA ... TYPE TABLE OF</code> … 内部テーブル（棚）と作業領域（机）の宣言
+                  </li>
+                  <li>
+                    <code>SORT lt_... BY ...</code> … 棚の中身を並べ替え（昇順／降順）
+                  </li>
+                  <li>
+                    <code>LOOP AT lt_... INTO ls_...</code> … 全行を1行ずつ机へ取り出して処理
+                  </li>
+                  <li>
+                    <code>READ TABLE lt_... INTO ls_... WITH KEY ...</code> … 条件に合う1行だけ取得{" "}
+                    <strong>⚠️ <code>sy-subrc</code> を確認</strong>
+                  </li>
+                  <li>
+                    <code>APPEND ls_... TO lt_...</code> … 机の1行を棚の末尾に追加
+                  </li>
+                  <li>
+                    <code>CLEAR ls_...</code> … 机（作業領域・1行）だけを空にする
+                  </li>
+                  <li>
+                    <code>REFRESH lt_...</code> … 棚（内部テーブル全体）を空にする
+                  </li>
+                </ul>
+                <p className="mb-2 mt-4 font-semibold">
+                  <code>sy-subrc</code>（返り値）の見方
+                </p>
+                <ul>
+                  <li>
+                    <code>sy-subrc</code> … 直前の命令が成功したかを示す<strong>システム変数</strong>（自分で宣言しない）
+                  </li>
+                  <li>
+                    <code>sy-subrc = 0</code> … 成功（<code>READ TABLE</code> なら「行が見つかった」）
+                  </li>
+                  <li>
+                    <code>sy-subrc = 4</code> … 該当なし（<code>READ TABLE</code> なら「条件に合う行がなかった」）
+                  </li>
+                  <li>
+                    <code>IF sy-subrc = 0.</code> … 見つかったときだけ処理する定番パターン。確認を省略すると机に前の値が残る
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                この一覧は復習用です。特に <code>READ TABLE</code> のあとの{" "}
+                <code>sy-subrc</code> 確認は、現場でも必須のクセになります。迷ったら「取り出した？ → 確認した？」の2段で考えてください。
+              </Dialog>
+              <Dialog speaker="a">
+                返り値の確認が要るのは <code>READ TABLE</code> だけ、と覚えておけば十分ですね。
               </Dialog>
             </>
           ),
@@ -420,10 +525,10 @@ REFRESH lt_bkpf.             " 棚（テーブル全体）を空にする`}
         {
           title: "DBとの違い",
           plainText:
-            "Excelの表と似て、ちょっと違う／DBとも違う\n行と列の表という点はExcelに似ている。でも内部テーブルはプログラムが動いている間だけメモリ上にある一時的な表で、実行が終われば消える。\nつまずき：内部テーブル＝データベースではない。DBは倉庫（永続）、内部テーブルは作業台（一時）。\nつまずき：内部テーブルを書き換えてもDBは変わらない。DBへ反映するには別の処理（更新）が要る。\nBちゃん：机の上のメモを直しても倉庫の台帳はそのまま、ということ？\n先生：その通り。倉庫を更新したいなら書き戻す手続きが要る。\nAくん：逆に言えば内部テーブルで試行錯誤してもDBは汚れない。安全に加工できる場所ですね。",
+            "Excelの表と似てて、ちょっと違う／DBとも違う\n行と列の表という点はExcelに似ている。でも内部テーブルはプログラムが動いている間だけメモリ上にある一時的な表で、実行が終われば消える。\nつまずき：内部テーブル＝データベースではない。DBは倉庫（永続）、内部テーブルは作業台（一時）。\nつまずき：内部テーブルを書き換えてもDBは変わらない。DBへ反映するには別の処理（更新）が要る。\nBちゃん：机の上のメモを直しても倉庫の台帳はそのまま、ということ？\n先生：その通り。倉庫を更新したいなら書き戻す手続きが要る。\nAくん：逆に言えば内部テーブルで試行錯誤してもDBは汚れない。安全に加工できる場所ですね。",
           content: (
             <>
-              <h2>Excelの表に似て、ちょっと違う（DBとも違う）</h2>
+              <h2>Excelの表に似てて、ちょっと違う（DBとも違う）</h2>
               <p>
                 「行と列の表」という点はExcelに似ています。でも内部テーブルは
                 <strong>プログラムが動いている間だけ、メモリ上にある一時的な表</strong>で、実行が終われば消えます。
@@ -459,15 +564,17 @@ REFRESH lt_bkpf.             " 棚（テーブル全体）を空にする`}
               <p>
                 <strong>先生の問い：</strong>「棚にある全書類を、日付順に1枚ずつ確認したい」。どの操作を、どの順で使う？
               </p>
-              <Dialog speaker="a">
-                まず <code>SORT</code> で日付順に並べ、<code>LOOP</code> で1行ずつ回す、です。
-              </Dialog>
-              <Dialog speaker="b">
-                先に並べ替えてからめくる、なら家でもやってます。安心しました。
-              </Dialog>
-              <Dialog speaker="teacher">
-                正解です。「並べる→1件ずつ」は今後あらゆる場面で使う黄金パターン。覚えておくとずっと楽になります。
-              </Dialog>
+              <Reveal>
+                <Dialog speaker="a">
+                  まず <code>SORT</code> で日付順に並べ、<code>LOOP</code> で1行ずつ回す、です。
+                </Dialog>
+                <Dialog speaker="b">
+                  先に並べ替えてからめくる、なら家でもやってます。安心しました。
+                </Dialog>
+                <Dialog speaker="teacher">
+                  正解です。「並べる→1件ずつ」は今後あらゆる場面で使う黄金パターン。覚えておくとずっと楽になります。
+                </Dialog>
+              </Reveal>
             </>
           ),
         },

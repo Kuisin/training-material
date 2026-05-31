@@ -9,15 +9,26 @@ export interface SlideDefinition {
   plainText?: string;
 }
 
+export interface AdjacentLesson {
+  num: string;
+  title: string;
+}
+
 export interface LessonChrome {
   /** レッスンタイトル（上部バー・<title> に使用） */
   title: string;
+  /** course.json のレッスン番号（ヘッダー表示用） */
+  lessonNum: string;
   /** 次の章のパス（例 "01-overview.html"）。最終章は空文字。 */
   nextHref: string;
   /** 前の章のパス（例 "00-introduction.html"）。最初の章は空文字。 */
   prevHref: string;
   /** レッスン一覧（トップ）へのリンク */
   indexHref: string;
+  /** 前の章（章移動の確認ダイアログ用） */
+  prevLesson?: AdjacentLesson;
+  /** 次の章（章移動の確認ダイアログ用） */
+  nextLesson?: AdjacentLesson;
 }
 
 export interface CourseLesson {

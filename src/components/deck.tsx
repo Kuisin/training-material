@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { LessonChrome, SlideDefinition } from "../lib/types";
+import type { AdjacentLesson, LessonChrome, SlideDefinition } from "../lib/types";
 import { ProgressBar } from "./progress-bar";
 import { TopBar } from "./top-bar";
 import { Controls } from "./controls";
@@ -13,9 +13,19 @@ interface DeckProps {
 }
 
 function initialIndex(total: number): number {
+  if (location.hash === "#last") return Math.max(total - 1, 0);
   const match = location.hash.match(/^#s(\d+)/);
   if (!match) return 0;
   return Math.min(Math.max(Number(match[1]) - 1, 0), total - 1);
+}
+
+function chapterConfirmMessage(direction: "prev" | "next", lesson: AdjacentLesson): string {
+  const label = direction === "prev" ? "前の章" : "次の章";
+  return `${label}（レッスン ${lesson.num}: ${lesson.title}）に移動しますか？`;
+}
+
+function navigateToChapter(href: string, hash: "" | "#last") {
+  location.href = hash ? `${href}${hash}` : href;
 }
 
 export function Deck({ chrome, slides }: DeckProps) {
@@ -35,15 +45,19 @@ export function Deck({ chrome, slides }: DeckProps) {
 
   const goNext = useCallback(() => {
     if (idx === total - 1) {
-      if (chrome.nextHref) location.href = chrome.nextHref;
+      if (!chrome.nextHref || !chrome.nextLesson) return;
+      if (!window.confirm(chapterConfirmMessage("next", chrome.nextLesson))) return;
+      navigateToChapter(chrome.nextHref, "");
     } else go(idx + 1);
-  }, [idx, total, chrome.nextHref, go]);
+  }, [idx, total, chrome.nextHref, chrome.nextLesson, go]);
 
   const goPrev = useCallback(() => {
     if (idx === 0) {
-      if (chrome.prevHref) location.href = chrome.prevHref;
+      if (!chrome.prevHref || !chrome.prevLesson) return;
+      if (!window.confirm(chapterConfirmMessage("prev", chrome.prevLesson))) return;
+      navigateToChapter(chrome.prevHref, "#last");
     } else go(idx - 1);
-  }, [idx, chrome.prevHref, go]);
+  }, [idx, chrome.prevHref, chrome.prevLesson, go]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -61,6 +75,10 @@ export function Deck({ chrome, slides }: DeckProps) {
   // 外部からのハッシュ変更（URL 直接編集・戻る/進む）にも追従する。
   useEffect(() => {
     function onHash() {
+      if (location.hash === "#last") {
+        setIdx(Math.max(total - 1, 0));
+        return;
+      }
       const match = location.hash.match(/^#s(\d+)/);
       if (match) setIdx(Math.min(Math.max(Number(match[1]) - 1, 0), total - 1));
     }
@@ -72,6 +90,7 @@ export function Deck({ chrome, slides }: DeckProps) {
     <div className="min-h-dvh pb-20">
       <ProgressBar ratio={(idx + 1) / total} />
       <TopBar
+        lessonNum={chrome.lessonNum}
         title={chrome.title}
         current={idx + 1}
         total={total}

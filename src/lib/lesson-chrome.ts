@@ -6,6 +6,9 @@ export function lessonChrome(
   lessonFile: string,
   title: string
 ): LessonChrome {
-  const { prevHref, nextHref, indexHref } = lessonChromeLinks(courseSlug, lessonFile);
-  return { title, prevHref, nextHref, indexHref };
+  const { lessonNum, prevHref, nextHref, indexHref, prevLesson, nextLesson } = lessonChromeLinks(
+    courseSlug,
+    lessonFile
+  );
+  return { title, lessonNum, prevHref, nextHref, indexHref, prevLesson, nextLesson };
 }

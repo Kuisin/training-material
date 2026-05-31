@@ -5,6 +5,7 @@ import {
   Dialog,
   CodeBlock,
   Quiz,
+  Reveal,
   MermaidDiagram,
   Figure,
   LessonMeta,
@@ -198,15 +199,17 @@ ls_out-amount = ls_bseg-dmbtr.         " 個別に1項目だけ移す`}
             <>
               <h2>確認質問＆ミニ演習</h2>
               <p><strong>先生の問い：</strong>「1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？」</p>
-              <Dialog speaker="a">
-                作業領域を <code>CLEAR</code> します。前の値が残ると混ざるので。
-              </Dialog>
-              <Dialog speaker="b">
-                使った皿を洗ってから次の料理、みたいな感じですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通り！「組み立て→APPEND→CLEAR」を口ぐせにすれば、混ざる事故はほぼ防げます。
-              </Dialog>
+              <Reveal>
+                <Dialog speaker="a">
+                  作業領域を <code>CLEAR</code> します。前の値が残ると混ざるので。
+                </Dialog>
+                <Dialog speaker="b">
+                  使った皿を洗ってから次の料理、みたいな感じですね。
+                </Dialog>
+                <Dialog speaker="teacher">
+                  その通り！「組み立て→APPEND→CLEAR」を口ぐせにすれば、混ざる事故はほぼ防げます。
+                </Dialog>
+              </Reveal>
             </>
           ),
         },
