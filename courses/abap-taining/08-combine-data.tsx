@@ -1131,6 +1131,124 @@ ENDLOOP.`}
           ),
         },
         {
+          title: "コード早見表",
+          plainText:
+            "コード早見表（チートシート）\n出力行の型：TYPES BEGIN OF ty_out ... END OF ty_out.\n変数宣言：lt_bkpf / lt_bseg / lt_out と ls_bkpf / ls_bseg / ls_out\nMOVE-CORRESPONDING ls_bkpf TO ls_out. / ls_out-amount = ls_bseg-dmbtr.\nAPPEND ls_out TO lt_out. / CLEAR ls_out.\nLOOP：明細LOOP→READ TABLEヘッダ→組み立て→APPEND→CLEAR\nリズム：組み立て → APPEND → CLEAR\n先生：テスト前にこの一覧を見返してください。",
+          content: (
+            <>
+              <h2>コード早見表</h2>
+              <p>
+                この章で使うコードを一覧にまとめました。チートシートとして見返してください。
+              </p>
+
+              <h3>出力行の型（<code>ty_out</code>）</h3>
+              <p>
+                出力用テーブルの行の形は、<code>TYPES</code> で先に定義します（第5章の「設計図と実物」）。
+                BKPF/BSEG そのものではなく、<strong>一覧に載せたい項目だけ</strong>を並べます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`TYPES: 
+  BEGIN OF ty_out,
+    belnr  TYPE bkpf-belnr,   " 伝票番号（ヘッダと同名 → MOVE-CORRESPONDING）
+    budat  TYPE bkpf-budat,   " 日付（同上）
+    bukrs  TYPE bkpf-bukrs,   " 会社コード（同上）
+    amount TYPE bseg-dmbtr,   " 金額（明細の dmbtr を手動で移す）
+  END OF ty_out.`}
+              />
+              <ul>
+                <li>
+                  <code>TYPES ... BEGIN OF ty_out ... END OF ty_out.</code> … 出力<strong>1行分</strong>の型（構造）を定義
+                </li>
+                <li>
+                  <code>TYPE bkpf-belnr</code> など … 既存項目と同じ型・長さを借りる書き方（<code>LIKE</code> と同様の考え方）
+                </li>
+                <li>
+                  同名項目（<code>belnr</code> など）は <code>MOVE-CORRESPONDING</code> で自動コピー、
+                  違う名前（<code>amount</code> ← <code>dmbtr</code>）は手動代入
+                </li>
+              </ul>
+
+              <h3>変数の宣言</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" ty_out の型が定義済みであること
+DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
+DATA lt_bseg TYPE TABLE OF bseg.   " 明細取得用
+DATA lt_out  TYPE TABLE OF ty_out. " 出力用（ty_out 型の行を複数）
+
+DATA ls_bkpf TYPE bkpf.            " ヘッダ1行（作業領域）
+DATA ls_bseg TYPE bseg.            " 明細1行（作業領域）
+DATA ls_out  TYPE ty_out.          " 出力1行（作業領域）`}
+              />
+
+              <InfoPanel
+                title="この章の命令一覧"
+                variant="reference"
+                lead={
+                  <>
+                    取得用から1行を読み、出力用へ<strong>組み立て → 追加 → クリア</strong>する命令。
+                    <code>READ TABLE</code> のあとは <code>sy-subrc</code> を確認します。
+                  </>
+                }
+              >
+                <ul>
+                  <li>
+                    <code>MOVE-CORRESPONDING ls_bkpf TO ls_out.</code> … 同名項目をまとめてコピー
+                  </li>
+                  <li>
+                    <code>ls_out-amount = ls_bseg-dmbtr.</code> … 名前が違う項目は手動で代入
+                  </li>
+                  <li>
+                    <code>APPEND ls_out TO lt_out.</code> … できた1行を出力用に追加
+                  </li>
+                  <li>
+                    <code>CLEAR ls_out.</code> … 作業領域（1行）を空にする
+                  </li>
+                  <li>
+                    <code>REFRESH lt_out.</code> … 出力用テーブル全体を空にする（ループ外・やり直し用）
+                  </li>
+                  <li>
+                    <code>LOOP AT lt_bseg INTO ls_bseg.</code> … 明細を1行ずつ処理
+                  </li>
+                  <li>
+                    <code>READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ...</code> … 対応ヘッダを1行取得{" "}
+                    <strong>⚠️ <code>sy-subrc</code> を確認</strong>
+                  </li>
+                </ul>
+              </InfoPanel>
+
+              <h3>LOOP の型（この章の核心）</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`LOOP AT lt_bseg INTO ls_bseg.
+
+  READ TABLE lt_bkpf INTO ls_bkpf
+    WITH KEY bukrs = ls_bseg-bukrs
+             belnr = ls_bseg-belnr
+             gjahr = ls_bseg-gjahr.
+  IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+  MOVE-CORRESPONDING ls_bkpf TO ls_out.
+  ls_out-amount = ls_bseg-dmbtr.
+
+  APPEND ls_out TO lt_out.
+  CLEAR ls_out.
+
+ENDLOOP.`}
+              />
+
+              <Callout variant="tip">
+                覚えるのはリズムだけ：<strong>組み立て → APPEND → CLEAR</strong>。
+                通帳コピーと家計簿のたとえで言えば、フォルダから1枚 → 家計簿へ1行追加 → 机を空にする、の繰り返しです。
+              </Callout>
+              <Dialog speaker="teacher">
+                この一覧は復習用です。コードが長く見えても、中身はこの型の繰り返しだけ——次のスライドで理解度を確認しましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "確認テスト",
           plainText:
             "理解度チェック\nQ1 同じ名前の項目をまとめて移すのに便利なのは？→ MOVE-CORRESPONDING\nQ2 1行をAPPENDした後、次の行の前に作業領域を空にする命令は？→ CLEAR\nQ3 内部テーブルを取得用と出力用に分ける主な利点は？→ 役割が分離され整形処理を安全に管理できる\nBちゃん：組み立て→追加→クリア。このリズムが身につけば、難しい章も乗り越えられそうです。",
