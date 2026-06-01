@@ -641,22 +641,164 @@ export default function ExerciseJournalLedgerDetailLesson() {
         {
           title: "全体像",
           plainText:
-            "全体像 — 型/定数 → 入力/初期化 → T001・T003T → BKPF(0件チェック) → 入れ子LOOPでBSEG+SKAT結合 → ソート → TOP-OF-PAGE/END-OF-SELECTION出力",
+            "全体像 — 利用者が選択画面で会社・日付を入力して実行するところから図示。並列OKは会社設定と伝票タイプ名表。順番固定は掃除→伝票取得→1件ずつ明細を拾う→並べ替え→画面表示。",
           content: (
             <>
               <h2>全体像 — データの流れ</h2>
               <p>
-                レポートは大きく<strong>「データを集める」→「並べ替える」→「画面に書く」</strong>
-                の3段階です。集める段階が今回いちばん長くなります。
+                流れは<strong>「あなたが条件を入れる」</strong>ところから始まります。
+                実行（F8）のあと、SAP がデータを集めて、最後に仕訳日記帳を画面に出します。
               </p>
+              <Callout variant="note">
+                図の見方：枠のタイトルが<strong>「並列OK」</strong>の部分は、どちらを先に書いてもよい処理です。
+                <strong>「順番どおり」</strong>の部分は、上から順に進める必要があり、入れ替えできません。
+              </Callout>
               <MermaidDiagram
                 chart={`flowchart TD
-  init["型・定数・変数・入力"] --> m1["T001 / T003T 取得"]
-  m1 --> bkpf["BKPF 取得 + 0件チェック"]
-  bkpf --> join["LOOP: BKPF → BSEG → SKAT → gt_out"]
-  join --> sort["SORT gt_out"]
-  sort --> out["TOP-OF-PAGE / END-OF-SELECTION"]`}
+  subgraph userStep ["STEP 0 利用者がすること"]
+    direction TB
+    screen["選択画面が表示される"]
+    inp1["会社コードを入力<br/>p_bukrs"]
+    inp2["転記日付の範囲を入力<br/>s_budat"]
+    f8["実行ボタン F8"]
+    screen --> inp1
+    screen --> inp2
+    inp1 --> f8
+    inp2 --> f8
+  end
+
+  subgraph sapStart ["STEP 1 SAPがプログラムを動かし始める"]
+    init["前回のデータを消す<br/>CLEAR / REFRESH"]
+    saveDate["入力した日付を控える<br/>帳票ヘッダ表示用"]
+    f8 --> init
+    init --> saveDate
+  end
+
+  subgraph parallel ["並列OK — どちらを先に読んでもよい"]
+    direction LR
+    t001["会社の設定を1件読む<br/>T001 → gs_t001"]
+    t003t["伝票タイプの名前表を読む<br/>T003T → gt_t003t"]
+  end
+
+  saveDate --> t001
+  saveDate --> t003t
+
+  ready["2つの準備が終わった"]
+
+  t001 --> ready
+  t003t --> ready
+
+  subgraph sequential ["順番どおり — 前が終わるまで次へ進めない"]
+    direction TB
+    bkpf["条件に合う伝票の表紙を読む<br/>BKPF → gt_bkpf"]
+    zero1{"伝票は0件?"}
+    stop1["メッセージして終了"]
+    loopHead["伝票を1件ずつ処理"]
+    stepA["伝票タイプの日本語名を当てる"]
+    stepB["その伝票の明細を読む<br/>BSEG"]
+    stepC["明細1行ずつ<br/>勘定名 SKAT → gt_out に1行追加"]
+    zero2{"明細は0件?"}
+    stop2["メッセージして終了"]
+    sort["一覧の並び順を整える<br/>SORT gt_out"]
+    ready --> bkpf
+    bkpf --> zero1
+    zero1 -->|はい| stop1
+    zero1 -->|いいえ| loopHead
+    loopHead --> stepA --> stepB --> stepC
+    stepC --> zero2
+    zero2 -->|はい| stop2
+    zero2 -->|いいえ| sort
+  end
+
+  subgraph display ["STEP 最後 画面に出す"]
+    direction LR
+    top["各ページの見出し<br/>TOP-OF-PAGE"]
+    list["明細の行を印刷<br/>END-OF-SELECTION"]
+  end
+
+  sort --> top
+  sort --> list`}
               />
+              <h3>3行で覚える全体の流れ</h3>
+              <ol>
+                <li>
+                  <strong>入力</strong> … 会社・日付を入れて実行
+                </li>
+                <li>
+                  <strong>準備＋収集</strong> … 辞書と伝票を読み、1明細＝1行の一覧（
+                  <code>gt_out</code>）を作る
+                </li>
+                <li>
+                  <strong>表示</strong> … 並べ替えてから、仕訳日記帳を画面に出す
+                </li>
+              </ol>
+              <InfoPanel title="図とプログラムの対応（初学者向け）" variant="breakdown">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>図の言葉</th>
+                      <th>コードでいうと</th>
+                      <th>並列？</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>会社コード・転記日付を入力</td>
+                      <td>
+                        <code>PARAMETERS</code> / <code>SELECT-OPTIONS</code>
+                      </td>
+                      <td>—（あなたが先に行う）</td>
+                    </tr>
+                    <tr>
+                      <td>前回のデータを消す</td>
+                      <td>
+                        <code>CLEAR</code> / <code>REFRESH</code>
+                      </td>
+                      <td>順番どおり（いちばん最初）</td>
+                    </tr>
+                    <tr>
+                      <td>会社の設定／伝票タイプの名前表</td>
+                      <td>
+                        T001 / T003T の <code>SELECT</code>
+                      </td>
+                      <td>
+                        <strong>並列OK</strong>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>伝票の表紙を読む</td>
+                      <td>
+                        BKPF の <code>SELECT</code>
+                      </td>
+                      <td>順番どおり（入力した会社・日付を使う）</td>
+                    </tr>
+                    <tr>
+                      <td>伝票→明細→勘定名→1行追加</td>
+                      <td>
+                        入れ子 <code>LOOP</code> と <code>APPEND gt_out</code>
+                      </td>
+                      <td>順番どおり（中を入れ替えると壊れる）</td>
+                    </tr>
+                    <tr>
+                      <td>並べ替え→画面</td>
+                      <td>
+                        <code>SORT</code> → <code>WRITE</code>
+                      </td>
+                      <td>順番どおり（一覧ができてから）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                図が「自分が F8 を押す」ところから始まっているので、何のために動いているか分かりやすいです。
+              </Dialog>
+              <Dialog speaker="a">
+                並列OKは「2つの辞書を先に揃える」、順番どおりは「伝票を開いてから中身を見る」、と対応していますね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                プログラムは<strong>上から1行ずつ</strong>動きます。「並列OK」は、T001 のブロックと T003T
+                のブロックを、ソース上で入れ替えてもよい、という意味です。LOOP の中（表紙→明細→勘定名）は絶対に順番を変えないでください。
+              </Dialog>
               <h3>たとえ話：伝票＝領収書の束</h3>
               <Dialog speaker="teacher">
                 <strong>BKPF</strong> は「領収書の表紙」（いつ・誰が・伝票番号）。
