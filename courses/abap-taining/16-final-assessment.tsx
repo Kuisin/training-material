@@ -19,7 +19,7 @@ import {
   ASSESSMENTS,
   isMultiQuiz,
   type LessonAssessmentData,
-} from "./14-assessment-data";
+} from "./16-assessment-data";
 
 const ASSESSMENT_STORAGE_KEY = "abap-final-assessment";
 configureAssessmentStorage(ASSESSMENT_STORAGE_KEY);
@@ -154,7 +154,7 @@ export default function FinalAssessmentLesson() {
   return (
     <Lesson
       key={attemptId}
-      chrome={lessonChrome("abap-taining", "14-final-assessment", lessonMeta.title)}
+      chrome={lessonChrome("abap-taining", "16-final-assessment", lessonMeta.title)}
       slides={[
         {
           title: "概要",

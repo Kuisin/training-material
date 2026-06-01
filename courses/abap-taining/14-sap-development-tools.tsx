@@ -19,7 +19,7 @@ export const lessonMeta = {
 export default function SapDevelopmentToolsLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "15-sap-development-tools", lessonMeta.title)}
+      chrome={lessonChrome("abap-taining", "14-sap-development-tools", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -49,6 +49,7 @@ export default function SapDevelopmentToolsLesson() {
                 <li>エディタ・ショートカット・ヘルプ（<code>F1</code>）の使い方</li>
                 <li>デバッガの基本操作（ブレークポイント・ステップ実行）</li>
                 <li>よく使うトランザクションと汎用モジュールの位置づけ</li>
+                <li>アドオンテーブル（ドメイン → データエレメント → テーブル）と DB 更新の基本</li>
               </ul>
               <Callout variant="note">
                 具体的な課題の手順・プログラム名は<strong>別資料（演習）</strong>で進めます。ここでは「どの道具を、何のために使うか」だけを押さえます。
@@ -336,6 +337,18 @@ export default function SapDevelopmentToolsLesson() {
                       </td>
                       <td>テーブル内容の参照（データブラウズ）</td>
                     </tr>
+                    <tr>
+                      <td>
+                        <code>SM30</code>
+                      </td>
+                      <td>テーブルメンテナンス（マスタの手入力・確認）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>SE80</code>
+                      </td>
+                      <td>オブジェクトナビゲータ（汎用グループなどの作成）</td>
+                    </tr>
                   </tbody>
                 </table>
               </InfoPanel>
@@ -373,12 +386,176 @@ export default function SapDevelopmentToolsLesson() {
           ),
         },
         {
+          title: "データ辞書の作成順",
+          plainText:
+            "データ辞書の作成順\nアドオンテーブルは SE11 で、ドメイン→データエレメント→テーブルの順が基本。ドメイン＝型と桁、DE＝項目定義、テーブル＝データ保持。主キー・拡張不可など技術設定もここで決める。演習の具体名は別資料。",
+          content: (
+            <>
+              <h2>データ辞書（<code>SE11</code>）の作成順</h2>
+              <p>
+                取込履歴や重複防止用の<strong>アドオンテーブル</strong>は、ABAP Dictionary で定義します。
+                作成順を守ると、あとから項目を足し直す手間が減ります。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart LR
+  D[ドメイン] --> E[データエレメント]
+  E --> T[テーブル]`}
+              />
+              <InfoPanel title="オブジェクトの役割" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>オブジェクト</th>
+                      <th>役割</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ドメイン</td>
+                      <td>データ型・桁数・値の範囲</td>
+                    </tr>
+                    <tr>
+                      <td>データエレメント</td>
+                      <td>項目の意味・ラベル（画面・帳票の表示名）</td>
+                    </tr>
+                    <tr>
+                      <td>テーブル</td>
+                      <td>実際のデータを保持（主キー・技術設定を定義）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <p>
+                テーブル定義では、<strong>主キー</strong>（重複を防ぐ組み合わせ）と、
+                必要に応じて「拡張不可」などの技術設定を決めます。
+                マスタのメンテナンスは <code>SM30</code>（テーブル更新ダイアログ）で行うことがありますが、
+                連携プログラムからは <code>INSERT</code> 等で更新するのが一般的です。
+              </p>
+              <Callout variant="note">
+                演習で作るテーブル名・項目名は<strong>別資料</strong>に従います。
+                ここでは「何を、どの順で作るか」だけを押さえます。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "アドオンテーブルとDB更新",
+          plainText:
+            "アドオンテーブルとDB更新\n履歴用Z表へのINSERT/UPDATE/MODIFY/DELETE。更新後はCOMMIT WORKで確定、失敗時はROLLBACK。標準伝票テーブルへの直接INSERTはNG（第11章）。自社履歴だけ直接更新するイメージ。",
+          content: (
+            <>
+              <h2>アドオンテーブルへの DB 更新</h2>
+              <p>
+                会計伝票<strong>本体</strong>は BAPI 経由（第11章）ですが、
+                <strong>取込履歴・エラー記録</strong>など標準にない情報は、自社のアドオンテーブルに保存します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 履歴1件を追加
+INSERT zif_hist FROM ls_hist.
+
+" 既存行を更新
+UPDATE zif_hist FROM ls_hist.
+
+" あれば更新、なければ追加
+MODIFY zif_hist FROM ls_hist.
+
+" 条件に合う行を削除
+DELETE FROM zif_hist WHERE file_id = lv_file_id.
+
+" 更新を DB に反映（履歴だけの更新でも明示する）
+COMMIT WORK.
+
+" まとめて取り消すとき
+ROLLBACK WORK.`}
+              />
+              <Dialog speaker="teacher">
+                <code>zif_hist</code> は架空の履歴テーブル名です。実プロジェクトでは設計書の表名を使います。
+                伝票登録の確定は BAPI 側のコミットとセットで考え、履歴の書き込みタイミングは
+                「登録結果が分かってから」と第11章で整理しました。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "自社汎用モジュール",
+          plainText:
+            "自社汎用モジュール\nSE80で汎用グループ、SE37でFunction Module。パラメータはIMPORT/EXPORT/CHANGING/EXCEPTIONS。TABLESは新規では非推奨。例外はRAISEまたはMESSAGE … RAISING。履歴登録・検証の共通化に使う。",
+          content: (
+            <>
+              <h2>自社の汎用モジュール（<code>SE37</code>）</h2>
+              <p>
+                SAP 標準の Function に加え、プロジェクトでは<strong>自社の汎用モジュール</strong>を作り、
+                履歴登録・行検証・重複チェックなどを <code>CALL FUNCTION</code> で共通化します。
+                第10章の <code>FORM</code> より、<strong>プログラムをまたいで</strong>使える点が違います。
+              </p>
+              <InfoPanel title="パラメータの種別" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>種別</th>
+                      <th>内容</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>IMPORT</code>
+                      </td>
+                      <td>呼び出し側 → モジュールへ渡す（入力）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>EXPORT</code>
+                      </td>
+                      <td>モジュール → 呼び出し側へ返す（出力）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>CHANGING</code>
+                      </td>
+                      <td>入出力（渡した値を書き換えて返す）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>EXCEPTIONS</code>
+                      </td>
+                      <td>エラー種別（呼び出し側で <code>sy-subrc</code> を見る）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Callout variant="warning">
+                パラメータ種別 <code>TABLES</code> はレガシーです。新規設計では
+                <code>IMPORT</code> に内部テーブルを渡す形が一般的です（詳細はプロジェクト標準に従う）。
+              </Callout>
+              <CodeBlock
+                language="ABAP"
+                code={`" 呼び出し例（履歴登録を共通化）
+CALL FUNCTION 'Z_LOG_INTERFACE_RESULT'
+  EXPORTING
+    is_key    = ls_key
+    iv_status = 'OK'
+    iv_belnr  = lv_belnr
+  EXCEPTIONS
+    duplicate = 1
+    OTHERS    = 2.
+
+IF sy-subrc <> 0.
+  " 重複や更新失敗の処理
+ENDIF.`}
+              />
+              <p>モジュール内部では、異常時に <code>RAISE</code> やメッセージ＋<code>RAISING</code> で呼び出し元に知らせます。</p>
+            </>
+          ),
+        },
+        {
           title: "汎用モジュールとチェーン",
           plainText:
             "汎用モジュールとチェーン\n汎用モジュール＝SAPが用意した共通処理。CALL FUNCTIONで呼ぶ（第11章）。\n例：NUMERIC_CHECK FILE_GET_NAME CONVERT_TO_LOCAL_CURRENCY REUSE_ALV_GRID_DISPLAY\nチェーン：CONSTANTSやDATAで共通部分をまとめて宣言できる。",
           content: (
             <>
-              <h2>汎用モジュール（Function Module）</h2>
+              <h2>SAP 標準の汎用モジュール</h2>
               <p>
                 <strong>汎用モジュール</strong>は、SAPが用意した再利用可能な処理です。
                 第10・11章の <code>CALL FUNCTION</code> で呼び出します。すべて暗記する必要はなく、

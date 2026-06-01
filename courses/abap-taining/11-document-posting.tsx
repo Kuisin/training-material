@@ -42,9 +42,47 @@ export default function DocumentPostingLesson() {
               <h3>この章で学ぶこと</h3>
               <ul>
                 <li>照会（見る）と登録（書き込む）の責任の違い</li>
-                <li>外部ファイル → 検証 → 登録 → 履歴 → 結果、という登録フロー</li>
+                <li>外部データの取込 → 検証 → 登録 → 履歴 → 結果、という登録フロー</li>
                 <li>登録を支える部品：アドオンテーブル・汎用モジュール・BAPI・ロックオブジェクト</li>
+                <li>BAPI の結果判定（<code>RETURN</code>）と確定（コミット）の関係</li>
               </ul>
+              <Callout variant="note">
+                プロジェクト演習の手順・オブジェクト名は<strong>別資料</strong>です。ここでは実案件と同型の「登録の型」だけを学びます。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "連携登録の目的",
+          plainText:
+            "連携登録の目的と構成\n外部システム由来の会計データを、SAPへ安全に登録する典型パターン。要件：取込・伝票登録・履歴管理（重複防止）・エラー保持。\n構成：レポート→ファイル読込→BAPI登録→汎用モジュールで履歴。アドオンテーブルに結果を残す。\n演習手順は別資料。ここでは部品の役割と順序だけ。",
+          content: (
+            <>
+              <h2>連携登録の目的と構成</h2>
+              <p>
+                実務でよくあるのは、<strong>外部システムで作った会計データを SAP に自動登録する</strong>プログラムです。
+                照会レポート（前半）とは違い、「書き込み」「重複防止」「エラー管理」まで設計に含めます。
+              </p>
+              <InfoPanel title="よくある要件（概念）" variant="reference">
+                <ul>
+                  <li>外部ファイル（または連携データ）を SAP へ取り込む</li>
+                  <li>会計伝票を<strong>公式ルート</strong>（BAPI）で登録する</li>
+                  <li>登録履歴を残し、<strong>二重登録を防ぐ</strong></li>
+                  <li>エラー内容を保持し、運用者が追えるようにする</li>
+                </ul>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart TB
+  F[外部データ] --> R[レポートプログラム]
+  R --> U[ファイル読込]
+  R --> B[BAPI 会計伝票登録]
+  R --> H[履歴登録]
+  H --> T[(アドオンテーブル)]`}
+              />
+              <Dialog speaker="teacher">
+                ファイルの置き場所や論理名、テーブル名はプロジェクトごとに決まります。
+                演習では別資料で触れますが、<strong>この図の役割分担</strong>は本番でもほぼ同じです。
+              </Dialog>
             </>
           ),
         },
@@ -97,6 +135,10 @@ export default function DocumentPostingLesson() {
               <Dialog speaker="a">
                 取って終わりではなく、確定（コミット）と記録までが1セットなんですね。途中で止まると中途半端な登録になりそう。
               </Dialog>
+              <Callout variant="tip">
+                第15章では「ファイルをどう読むか」、履歴用テーブルと検証用の汎用モジュールは本章で扱い、開発ツールの全体像は第14章を参照します。
+                この章では<strong>登録の責任と順序</strong>に集中します。
+              </Callout>
             </>
           ),
         },
@@ -166,13 +208,99 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
           ),
         },
         {
+          title: "BAPIの結果と確定",
+          plainText:
+            "BAPIの結果判定と確定\n会計伝票でよく使うBAPI：POST（登録）・COMMIT（確定）・ROLLBACK（取消）。RETURNテーブルでtype=Eを見てエラー判定。sy-subrcだけでは不十分なことが多い。\n成功時のみCOMMIT WORKまたはBAPI_TRANSACTION_COMMIT。失敗時はROLLBACK。RETURN未確認のCOMMITは危険。",
+          content: (
+            <>
+              <h2>BAPI の結果判定と確定</h2>
+              <p>
+                BAPI は「呼べば必ず成功」とは限りません。会計伝票では、
+                <strong><code>RETURN</code> テーブル</strong>にメッセージが返り、
+                <code>TYPE = &apos;E&apos;</code>（エラー）があれば登録は失敗扱いにします。
+              </p>
+              <InfoPanel title="会計伝票でよく使う BAPI（用途で覚える）" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>BAPI（例）</th>
+                      <th>役割</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>BAPI_ACC_DOCUMENT_POST</code>
+                      </td>
+                      <td>伝票登録（本番の書き込み）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>BAPI_ACC_DOCUMENT_CHECK</code>
+                      </td>
+                      <td>登録前の検証のみ（DB に確定しない）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>BAPI_TRANSACTION_COMMIT</code>
+                      </td>
+                      <td>BAPI 更新の確定（<code>COMMIT WORK</code> と同目的のことが多い）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>BAPI_TRANSACTION_ROLLBACK</code>
+                      </td>
+                      <td>BAPI 更新の取消</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
+  EXPORTING documentheader = ls_header
+  TABLES    accountgl      = lt_gl
+            return           = lt_return.
+
+DATA lv_error TYPE abap_bool.
+LOOP AT lt_return INTO DATA(ls_return).
+  IF ls_return-type = 'E' OR ls_return-type = 'A'.
+    lv_error = abap_true.
+  ENDIF.
+ENDLOOP.
+
+IF lv_error = abap_false.
+  CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'.
+  " または COMMIT WORK.  （プロジェクトの標準に従う）
+ELSE.
+  CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+  " または ROLLBACK WORK.
+ENDIF.`}
+              />
+              <Dialog speaker="stumble">
+                <code>SY-SUBRC</code> だけ見てコミットするのは危険です。
+                BAPI は「呼び出しは成功したが、<code>RETURN</code> にエラーがある」パターンがよくあります。
+              </Dialog>
+              <Dialog speaker="teacher">
+                実務で特に押さえる3点は、<strong>BAPI とコミットのセット</strong>、
+                <strong><code>RETURN</code> のエラー確認</strong>、<strong>ロック（<code>ENQUEUE</code>）</strong>です。
+                演習の細部は別資料、ここでは判断の型を身につけてください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "ロックは何を守るか",
           plainText:
             "ロック ＝ 「使用中」の札\n2人が同時に同じデータを書き込むと記録が壊れる。ロックオブジェクトはトイレの使用中札のように今このデータは私が触っていますと示し二重更新を防ぐ。\nBちゃん：試着室の使用中札と同じ。空くまで待つ？\n先生：取れなければRETURNで諦めるのが基本。終わったら必ずDEQUEUE。\nコード：ENQUEUE_EZ_BKPF→mode_bukrs='E'排他/bukrs=会社コード→foreign_lock=他者使用中→sy-subrc<>0でRETURN→BAPI→DEQUEUE必須。\n1行ずつ：CALL FUNCTION ENQUEUE=札を出す/sy-subrc=結果/DEQUEUE=札を戻す。\nQ：なぜBAPI前？Q：DEQUEUEは成功時だけ？→どちらも不可。",
           content: (
             <>
               <h2>ロック ＝ 「使用中」の札</h2>
-              <p>2人が同時に同じデータを書き込むと、記録が壊れます。<strong>ロックオブジェクト</strong>は、トイレの「使用中」札のように「今このデータは私が触っています」と示し、二重更新を防ぎます。</p>
+              <p>
+                2人が同時に同じデータを書き込むと、記録が壊れます。<strong>ロックオブジェクト</strong>は、
+                トイレの「使用中」札のように「今このデータは私が触っています」と示し、二重更新を防ぎます。
+                テーブル全体ではなく、<strong>主キー（会社コード・伝票キーなど）単位</strong>で札を出すのが基本です。
+              </p>
               <Dialog speaker="b">
                 試着室の「使用中」札と同じですね。空くまで待つんですか？
               </Dialog>
@@ -401,9 +529,53 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
           ),
         },
         {
+          title: "実装の全体フロー",
+          plainText:
+            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第15章が①②、本章が⑧の土台と③〜⑦の責任。演習は別資料で各パーツを練習し、本番はこの順でつなぐ。",
+          content: (
+            <>
+              <h2>実装の全体フロー（最重要）</h2>
+              <p>
+                ファイル連携＋会計伝票登録は、次の順序を<strong>1本の処理</strong>として設計します。
+                順番を入れ替えると、未検証登録・未確定データ・ロック残りなどの不具合につながります。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart TD
+  S1[① ファイル読込] --> S2[② 行データの分解]
+  S2 --> S3[③ BAPI 用データ作成]
+  S3 --> S4[④ 排他ロック]
+  S4 --> S5[⑤ BAPI 登録]
+  S5 --> S6[⑥ RETURN でエラー判定]
+  S6 --> S7[⑦ COMMIT / ROLLBACK]
+  S7 --> S8[⑧ 履歴テーブル更新]
+  S8 --> S9[⑨ ロック解除]`}
+              />
+              <InfoPanel title="各段の担当（章との対応）" variant="reference">
+                <ul>
+                  <li>
+                    <strong>①②</strong> … 第15章（<code>OPEN DATASET</code>・<code>SPLIT</code> など）
+                  </li>
+                  <li>
+                    <strong>③〜⑦</strong> … 本章（BAPI・ロック・確定）
+                  </li>
+                  <li>
+                    <strong>⑧</strong> … 本章のアドオンテーブル・汎用モジュール（履歴・重複チェック）
+                  </li>
+                  <li>
+                    <strong>⑨</strong> … 本章（<code>DEQUEUE</code> は成功・失敗どちらでも）
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                演習ではパーツごとに作りますが、本番はこの図のように<strong>つながった1本</strong>なんですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "コードで見る：登録の型",
           plainText:
-            "コードで見る：登録の型\n架空のファイル取込プログラムの骨格。①検証（CALL FUNCTION Z_CHECK）→②ロック（ENQUEUE）→③BAPI登録→④COMMIT/ROLLBACK→⑤ZIFLOG履歴→⑥DEQUEUE。\n1行ずつ：検証失敗はCONTINUE、BAPI失敗はROLLBACK、成功はCOMMIT、最後に必ずDEQUEUE。\nBちゃん：finallyでDEQUEUEするイメージ？先生：ABAPでは明示的に書く。成功・失敗どちらでも解放が鉄則。\nAくん：ZIFLOGはBAPIの前後どちら？先生：結果が分かってから。成功なら伝票番号、失敗ならエラー内容を残す。",
+            "コードで見る：登録の型\n架空のファイル取込プログラムの骨格。①検証→②ロック→③BAPI→④RETURN確認→⑤COMMIT/ROLLBACK→⑥履歴→⑦DEQUEUE。\n検証失敗はCONTINUE、RETURNにEがあればROLLBACK、成功のみCOMMIT、最後に必ずDEQUEUE。",
           content: (
             <>
               <h2>コードで見る：登録の型</h2>
@@ -432,20 +604,22 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
 
   " ③ BAPI で登録
   PERFORM build_bapi_data USING ls_row
-    CHANGING ls_header lt_gl.
+    CHANGING ls_header lt_gl lt_return.
   CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
     EXPORTING documentheader = ls_header
     TABLES    accountgl      = lt_gl
+              return           = lt_return
     IMPORTING obj_key         = lv_belnr
     EXCEPTIONS OTHERS = 1.
 
-  " ④ 確定 or 取り消し
-  IF sy-subrc = 0.
-    COMMIT WORK.
-    PERFORM log_result USING ls_row lv_belnr.  " OK + 伝票番号
+  " ④ RETURN でエラー判定 → 確定 or 取り消し
+  PERFORM check_bapi_return USING lt_return CHANGING lv_error.
+  IF sy-subrc = 0 AND lv_error = abap_false.
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'.
+    PERFORM log_result USING ls_row lv_belnr.  " 履歴へ OK + 伝票番号
   ELSE.
-    ROLLBACK WORK.
-    PERFORM log_result USING ls_row sy-msgv1.  " NG + エラー
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+    PERFORM log_result USING ls_row sy-msgv1.  " 履歴へ NG + エラー
   ENDIF.
 
   " ⑤ ロック解放（成功・失敗どちらでも）
@@ -469,15 +643,14 @@ ENDLOOP.`}
                     取れなければその行は諦める（無理に二重登録しない）
                   </li>
                   <li>
-                    <strong>③ BAPI</strong> … <code>sy-subrc</code> で成功/失敗を判定。
-                    伝票番号は <code>obj_key</code> などに返る
+                    <strong>③ BAPI</strong> … 登録実行。<code>RETURN</code> と <code>sy-subrc</code> の<strong>両方</strong>を見る
                   </li>
                   <li>
-                    <strong>④ コミット</strong> … 成功時だけ <code>COMMIT WORK</code>。
-                    失敗時は <code>ROLLBACK WORK</code> で取り消し
+                    <strong>④ 確定</strong> … エラーがなければ <code>BAPI_TRANSACTION_COMMIT</code> 等で確定。
+                    エラー時は <code>ROLLBACK</code>
                   </li>
                   <li>
-                    <strong>⑤ 履歴</strong> … <code>ZIFLOG</code> へ OK/NG・伝票番号・エラーを記録（標準テーブルとは別）
+                    <strong>⑤ 履歴</strong> … アドオンテーブルへ OK/NG・伝票番号・エラーを記録（標準テーブルとは別）
                   </li>
                   <li>
                     <strong>⑥ DEQUEUE</strong> … ループの各行の最後に必ず実行（使用中札を戻す）
@@ -604,6 +777,16 @@ ENDLOOP.`}
                   "BAPI登録だけ行い、結果記録は省略する",
                   "ロックより先にコミットしてから検証する",
                   "検証してからロックし、BAPI後にコミットして結果を残す",
+                ]}
+              />
+              <Quiz
+                answer={1}
+                explanation="BAPI の成否は RETURN テーブルの TYPE（E/A など）で判定するのが基本です。SY-SUBRC だけではエラーを見逃すことがあります。エラー時は COMMIT せず ROLLBACK します。"
+                question={<strong>BAPI 登録後のエラー判定として適切なのは？</strong>}
+                options={[
+                  "RETURN を見ずに SY-SUBRC だけで COMMIT する",
+                  "RETURN の TYPE が E の行がないことを確認してから COMMIT する",
+                  "エラーがあっても COMMIT してから履歴に書く",
                 ]}
               />
               <Dialog speaker="closing">

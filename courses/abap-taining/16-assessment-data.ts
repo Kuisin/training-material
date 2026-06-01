@@ -741,7 +741,7 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
     ],
   },
   {
-    num: "15",
+    num: "14",
     title: "SAP開発ツール",
     summary: "SE38 の開発サイクル、デバッグ、主要トランザクションと汎用モジュールの位置づけを確認します。",
     arrangeKind: "flow",
@@ -789,7 +789,7 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
     ],
   },
   {
-    num: "16",
+    num: "15",
     title: "ファイル連携とバッチ",
     summary: "論理ファイル、サーバファイル操作、バックグラウンドジョブ、BDC の関係を確認します。",
     arrangeKind: "flow",

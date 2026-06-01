@@ -96,13 +96,13 @@ export default function AbapMinimumUnitLesson() {
         {
           title: "SE38の手順",
           plainText:
-            "SE38での公式な手順\n作る＝エディタで編集・保存／構文チェック＝Ctrl+F2／有効化＝Ctrl+F3／実行＝F8。保存だけでは動かないことが多い。\n先生：有効化を忘れるのが初学者の定番。第15章でツール全体を整理する。",
+            "SE38での公式な手順\n作る＝エディタで編集・保存／構文チェック＝Ctrl+F2／有効化＝Ctrl+F3／実行＝F8。保存だけでは動かないことが多い。\n先生：有効化を忘れるのが初学者の定番。第14章でツール全体を整理する。",
           content: (
             <>
               <h2>
                 <code>SE38</code> での公式な手順
               </h2>
-              <p>第3章の3ステップは、SAP では次の操作に対応します（詳細は第15章）。</p>
+              <p>第3章の3ステップは、SAP では次の操作に対応します（詳細は第14章）。</p>
               <ol>
                 <li>
                   <strong>作る</strong> … エディタで編集し保存（<code>Ctrl + S</code>）
@@ -118,7 +118,7 @@ export default function AbapMinimumUnitLesson() {
                 </li>
               </ol>
               <Dialog speaker="teacher">
-                「保存したのに動かない」は、多くの場合<strong>有効化のし忘れ</strong>です。ショートカットとデバッグの全体像は第15章でまとめています。
+                「保存したのに動かない」は、多くの場合<strong>有効化のし忘れ</strong>です。ショートカットとデバッグの全体像は第14章でまとめています。
               </Dialog>
             </>
           ),

@@ -19,7 +19,7 @@ export const lessonMeta = {
 export default function FilesJobsAndBatchLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "16-files-jobs-and-batch", lessonMeta.title)}
+      chrome={lessonChrome("abap-taining", "15-files-jobs-and-batch", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -45,9 +45,15 @@ export default function FilesJobsAndBatchLesson() {
               <ul>
                 <li>論理パス・論理ファイルと物理パスの関係</li>
                 <li>サーバファイルの参照・アップロード・ダウンロード（<code>AL11</code> / <code>CG3Y</code> / <code>CG3Z</code>）</li>
+                <li>
+                  <code>OPEN DATASET</code> / <code>READ DATASET</code> による行読込と分解（<code>SPLIT</code>）
+                </li>
                 <li>バックグラウンドジョブの作成と確認（<code>SM36</code> / <code>SM37</code>）</li>
                 <li>バッチインプット（BDC）の考え方</li>
               </ul>
+              <Callout variant="note">
+                演習のファイル名・配置手順は<strong>別資料</strong>です。ここでは ABAP からファイルを読む<strong>型</strong>を学びます。
+              </Callout>
             </>
           ),
         },
@@ -137,6 +143,87 @@ CALL FUNCTION 'FILE_GET_NAME'
               <Dialog speaker="a">
                 プログラムは論理名だけ持ち、パス解決は <code>FILE_GET_NAME</code> に任せる——環境差分をここで吸収する設計ですね。
               </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "OPEN DATASETで読む",
+          plainText:
+            "OPEN DATASETで読む\nFILE_GET_NAMEで物理パス取得→OPEN FOR INPUT→READ DATASETで1行ずつ→CLOSE。TEXT MODE ENCODING UTF-8がCSV/テキストで一般的。DOループ＋sy-subrc<>0でEXITが定番。",
+          content: (
+            <>
+              <h2>
+                <code>OPEN DATASET</code> でサーバファイルを読む
+              </h2>
+              <p>
+                論理ファイル名から物理パスを得たあと、ABAP は次の<strong>3ステップ</strong>で1行ずつ読みます。
+                第11章の「① ファイル読込」に相当する処理です。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart LR
+  O[OPEN DATASET] --> R[READ DATASET]
+  R --> P[行の処理]
+  P --> R
+  P --> C[CLOSE DATASET]`}
+              />
+              <CodeBlock
+                language="ABAP"
+                code={`DATA lv_path TYPE string.
+DATA lv_line TYPE string.
+
+CALL FUNCTION 'FILE_GET_NAME'
+  EXPORTING logical_filename = 'ZIF_DATA_IN'
+  CHANGING  physical_filename = lv_path.
+
+OPEN DATASET lv_path
+  FOR INPUT
+  IN TEXT MODE
+  ENCODING UTF-8.
+
+DO.
+  READ DATASET lv_path INTO lv_line.
+  IF sy-subrc <> 0.
+    EXIT.  " ファイル終端
+  ENDIF.
+
+  " ここで SPLIT や検証・登録へ（第11章）
+
+ENDDO.
+
+CLOSE DATASET lv_path.`}
+              />
+              <Dialog speaker="teacher">
+                物理パスをプログラムに直書きしない——<code>FILE_GET_NAME</code> とセットで覚えると、
+                開発・本番の切り替えが楽になります。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "行の分解",
+          plainText:
+            "行データの分解\nCSVなどは1行をSPLITで項目に分ける。区切り文字（カンマ・タブ）は設計書で確認。分解後に内部テーブルやBAPI用構造へMOVE。",
+          content: (
+            <>
+              <h2>行データの分解（<code>SPLIT</code>）</h2>
+              <p>
+                外部ファイルの1行は、しばしば<strong>区切り文字</strong>で連結された文字列です。
+                <code>SPLIT</code> で項目に分け、検証や BAPI 用データ作成（第11章 ③）へ渡します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`DATA: lv_a TYPE string,
+        lv_b TYPE string,
+        lv_c TYPE string.
+
+SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
+
+" 項目数が可変のときは INTO TABLE 句を使う設計もある`}
+              />
+              <Callout variant="tip">
+                区切り文字・文字コード・ヘッダ行の有無は<strong>設計書</strong>で確認します。
+                演習資料のフォーマット定義と、本番のインターフェース仕様は同じ考え方です。
+              </Callout>
             </>
           ),
         },
@@ -328,18 +415,22 @@ ENDIF.`}
               </ul>
               <MermaidDiagram
                 chart={`flowchart TB
-  subgraph file [ファイル連携]
-    F1[外部ファイル] --> F2[サーバ配置]
-    F2 --> F3[ABAP 取込]
+  subgraph file [ファイル連携 第15章]
+    F1[外部ファイル] --> F2[サーバ配置 AL11/CG3Z]
+    F2 --> F3[OPEN/READ/CLOSE]
+    F3 --> F4[SPLIT 分解]
   end
-  subgraph reg [登録]
-    R1[検証] --> R2[BAPI または BDC]
-    R2 --> R3[結果・履歴]
+  subgraph reg [登録 第11章]
+    R1[検証] --> R2[ロック]
+    R2 --> R3[BAPI + RETURN]
+    R3 --> R4[COMMIT/ROLLBACK]
+    R4 --> R5[履歴 第11章]
+    R5 --> R6[DEQUEUE]
   end
   file --> reg`}
               />
               <Dialog speaker="teacher">
-                演習では各パーツを分けて練習しますが、本番ではこの図のように<strong>一連の連携</strong>として動きます。
+                演習では各パーツを分けて練習しますが、本番では第11章の<strong>9段フロー</strong>としてつながります。
                 設計書を読むときは「ファイルか・ジョブか・登録か」を意識すると迷いません。
               </Dialog>
             </>
@@ -376,6 +467,16 @@ ENDIF.`}
                   "データベースを直接 UPDATE するだけの仕組み",
                   "画面操作をデータ化して自動実行する仕組み",
                   "ファイルを PC にだけ保存する仕組み",
+                ]}
+              />
+              <Quiz
+                answer={0}
+                explanation="サーバ上のテキストファイルは OPEN → READ（ループ）→ CLOSE の順で読みます。READ で sy-subrc <> 0 になったらファイル終端としてループを抜けるのが定番です。"
+                question={<strong>サーバファイルを1行ずつ読む基本的な順序は？</strong>}
+                options={[
+                  "OPEN DATASET → READ DATASET（ループ）→ CLOSE DATASET",
+                  "CLOSE DATASET → READ DATASET → OPEN DATASET",
+                  "SELECT だけでファイル全文を取得する",
                 ]}
               />
               <Dialog speaker="closing">
