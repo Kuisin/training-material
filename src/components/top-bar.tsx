@@ -28,7 +28,7 @@ export function TopBar({
         aria-label="スライド一覧メニューを開く"
       >
         <span aria-hidden>☰</span>
-        <span className="hidden sm:inline">メニュー</span>
+        <span className="hidden sm:inline">目次</span>
       </button>
 
       <span
