@@ -9,6 +9,7 @@ import {
   Figure,
   LessonMeta,
   InfoPanel,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 import { lessonPageHref } from "../../src/lib/app-href";
@@ -366,7 +367,10 @@ ENDIF.`}
               <Callout variant="note">
                 実行中の値を確実に確認したいときは、<code>SELECT</code> 直後の行にブレークポイントを置いて
                 デバッガで <code>sy-subrc</code> と <code>lt_bkpf</code> の中身を見ます。
-                操作手順は <a href={debuggerLessonHref}>第14章（デバッグ）</a> を参照してください。
+                <br />
+                <strong>
+                  ブレークポイントの具体的な置き方と、デバッガ画面の見方は次のスライドで説明します。
+                </strong>
               </Callout>
               <h3>追記した2行</h3>
               <ul>
@@ -434,6 +438,11 @@ ENDIF.`}
                 ローカル変数はローカル側、プログラム全体で使う変数はグローバル側に出ることがあります。
                 見えないときはタブを切り替えて探す癖をつけると、調査が速くなります。
               </Dialog>
+              <LessonLinkButton
+                href={debuggerLessonHref}
+                label="もっと知りたい？　第14章（デバッグ詳細）で理解を深める"
+                className="mb-4"
+              />
             </>
           ),
         },
