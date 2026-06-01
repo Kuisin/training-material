@@ -34,7 +34,7 @@
 トラックフォルダは既存の `abap-taining/` を使用する。
 
 ```
-traininig-material/
+training-material/
 ├─ index.html                         # ルートに1回コピーし、全レッスンを登録
 └─ abap-taining/
    ├─ plan.md                         # 本ファイル

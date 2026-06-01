@@ -25,10 +25,10 @@ pnpm dev
 
 ### GitHub Pages と同じパスでローカル確認
 
-公開先はプロジェクトサイト（`/traininig-material/` 配下）です。
+公開先はプロジェクトサイト（`/training-material/` 配下）です。
 
 ```bash
-pnpm dev:pages          # http://localhost:5173/traininig-material/
+pnpm dev:pages          # http://localhost:5173/training-material/
 pnpm run preview:pages  # ビルド後の本番同等プレビュー
 ```
 
@@ -36,7 +36,7 @@ pnpm run preview:pages  # ビルド後の本番同等プレビュー
 
 `main` へ push すると Actions が自動デプロイします。
 
-- 公開 URL: **https://kuisin.github.io/traininig-material/**
+- 公開 URL: **https://kuisin.github.io/training-material/**
 - ワークフローは `BASE_PATH=/<リポジトリ名>/` でビルドします（リポジトリ名を変えた場合は `package.json` の `dev:pages` / `preview:pages` も合わせて更新）
 
 ## ビルド・プレビュー
@@ -45,7 +45,7 @@ pnpm run preview:pages  # ビルド後の本番同等プレビュー
 pnpm build              # ローカル用（base: /）
 pnpm preview            # http://localhost:4173/
 
-pnpm run build:pages    # GitHub Pages 用（base: /traininig-material/）
+pnpm run build:pages    # GitHub Pages 用（base: /training-material/）
 pnpm run preview:pages  # Pages と同じ URL で確認
 ```
 

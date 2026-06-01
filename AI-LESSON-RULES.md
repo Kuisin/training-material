@@ -20,7 +20,7 @@
 ## 2. ファイル・命名規則
 
 ```
-traininig-material/
+training-material/
 ├─ AI-LESSON-RULES.md
 ├─ index.html                     # 一覧ページの Vite エントリ（ルート / 用）
 ├─ index.tsx                      # レッスン一覧（React）
