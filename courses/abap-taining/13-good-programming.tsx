@@ -7,13 +7,14 @@ import {
   Quiz,
   Figure,
   InfoPanel,
+  MermaidDiagram,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
 
 export const lessonMeta = {
   title: "良いABAP — 性能と保守性・SELECT/LOOPの書き方",
-  meta: "初学者 · 25分",
+  meta: "初学者 · 35分",
 };
 
 export default function GoodProgrammingLesson() {
@@ -24,7 +25,7 @@ export default function GoodProgrammingLesson() {
         {
           title: "概要",
           plainText:
-            "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・性能（速さ）と保守性（直しやすさ）を両立する書き方\n・SELECT や LOOP の書き方で、なぜ速度に差が出るのか\n・悪い例・良い例の対比と、引き継げるコードの条件\nBちゃん：動けばいいのでは？\n先生：動くことは最低条件。本番のデータ量・次に直す人まで含めて良いコードと呼ぶ。前章の地図と習慣に、速さと直しやすさのバランスを足す章。",
+            "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
           content: (
             <>
               <hgroup>
@@ -37,16 +38,17 @@ export default function GoodProgrammingLesson() {
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "25分" },
+                  { icon: "⏱", text: "35分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
               <h3>この章で学ぶこと</h3>
               <ul>
-                <li>性能（速さ）と保守性（直しやすさ）を両立する書き方</li>
-                <li><code>SELECT</code> や <code>LOOP</code> の書き方で、なぜ速度に差が出るのか</li>
-                <li>悪い例・良い例の対比と、引き継げるコードの条件</li>
+                <li>長期運用の視点（継続利用・改修前提の設計）</li>
+                <li><code>SELECT</code> / 内部テーブルの性能改善（往復削減・LOOP削減）</li>
+                <li>実行時間分析の基本（<code>SE30</code> / <code>SAT</code>）</li>
+                <li>可読性・保守性（コメント・履歴・開発標準・わかりやすい書き方）</li>
               </ul>
               <Dialog speaker="b">
                 正直、まだ実務経験がないので…「動けばいいのでは？」って思っちゃいます。
@@ -62,6 +64,48 @@ export default function GoodProgrammingLesson() {
               </Dialog>
               <Dialog speaker="a">
                 つまり、品質は「今の画面で動いたか」だけじゃなく、 <strong>本番件数でも困らないか</strong>と <strong>半年後に読めるか</strong>の両方で測る、ですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "長期運用の視点",
+          plainText:
+            "10年後も使われる前提\nプログラムは継続的に使用され、改修される。10年後に開発者がいなくても直せる設計が求められる。\nよくある失敗：少量データでは高速→本番大量データで停止。初期は高速→データ増加で極端に遅延。\nパフォーマンス：日付などの抽出条件、DBキー項目の指定（数倍～数十倍の差）。\n可読性：ルール遵守、シンプルなコード、変更履歴の記録。",
+          content: (
+            <>
+              <h2>10年後も使われる前提で設計する</h2>
+              <p>
+                業務プログラムは「一度作って終わり」ではありません。
+                <strong>継続的に使われ、改修される</strong>ものとして捉えます。
+                10年後に元の開発者がいなくても、誰かが安全に直せる——それが実務の品質基準です。
+              </p>
+              <InfoPanel
+                title="長期運用で意識する2軸"
+                variant="reference"
+                lead="性能と保守性は、時間が経つほど効いてきます。"
+              >
+                <ul>
+                  <li>
+                    <strong>パフォーマンス</strong> … データ抽出条件（とくに日付）、DBキー項目の指定。
+                    キーを使った絞り込みは、数倍～数十倍の差になることもある
+                  </li>
+                  <li>
+                    <strong>可読性・保守性</strong> … 開発標準の遵守、シンプルなコード、
+                    変更履歴（いつ・なぜ・何を）の記録
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="warning">
+                <strong>よくある失敗パターン</strong>
+                <ul className="mt-2 list-disc pl-5">
+                  <li>少量データでは高速 → 本番の大量データで処理が停止する</li>
+                  <li>リリース直後は高速 → データが増えるにつれ極端に遅くなる</li>
+                </ul>
+              </Callout>
+              <Dialog speaker="teacher">
+                性能の問題は、開発環境では見えにくいのが怖いところです。
+                「今動く」だけでなく、「データが10倍・100倍になっても耐えられるか」を最初から問いかけましょう。
               </Dialog>
             </>
           ),
@@ -144,6 +188,43 @@ export default function GoodProgrammingLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 いい着眼です。次のスライドで、第8章の「まとめて取って、メモリで突き合わせる」書き方が、 なぜ速いのかを<strong>悪い例・良い例</strong>で体感しましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "SELECT：一括取得",
+          plainText:
+            "INTO TABLE vs SELECT～ENDSELECT\nDBアクセス回数を削減し、必要最小限のデータだけ取得する。\n✅ SELECT ... INTO TABLE → LOOP AT\n❌ SELECT ... ENDSELECT（1行ごとに倉庫往復）\nAくん：第6章で学んだ INTO TABLE が、性能面でも正解だったんですね。",
+          content: (
+            <>
+              <h2><code>SELECT</code>：一括取得が基本</h2>
+              <p>
+                性能改善の第一歩は、<strong>DBアクセス回数を減らす</strong>ことと、
+                <strong>必要最小限のデータだけ</strong>取ることです。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" ✅ 良い：1回で内部テーブルへまとめて取得
+SELECT bukrs belnr budat
+  FROM bkpf
+  INTO TABLE lt_bkpf
+  WHERE bukrs = p_bukrs.
+
+LOOP AT lt_bkpf INTO ls_bkpf.
+  " 手元の棚で処理
+ENDLOOP.
+
+" ❌ 悪い：1行ごとにDBへ往復
+SELECT bukrs belnr budat
+  FROM bkpf
+  WHERE bukrs = p_bukrs.
+  APPEND ... TO lt_bkpf.
+ENDSELECT.`}
+              />
+              <Dialog speaker="a">
+                第6章で学んだ <code>INTO TABLE</code> が、性能面でも正解だったんですね。
+                <code>SELECT</code> ～ <code>ENDSELECT</code> は行数分だけ倉庫へ往復します。
               </Dialog>
             </>
           ),
@@ -288,6 +369,197 @@ ENDLOOP.`}
           ),
         },
         {
+          title: "WHEREとキー項目",
+          plainText:
+            "WHERE句とキー項目\nキー項目を条件に指定すると、DBが効率よくデータを探せる。LIKEよりEQを優先。\n日付条件はできるだけ早い段階で絞る。条件が後ろに回るとデータ増加で性能劣化。\nAくん：インデックス付きの棚で、ラベルが完全一致の方が探しやすい、というイメージですね。",
+          content: (
+            <>
+              <h2><code>WHERE</code> 句とキー項目</h2>
+              <p>
+                DBは<strong>キー項目</strong>（インデックス）を使ってデータを探します。
+                キーを条件に含めると、探す範囲が一気に狭まり、数倍～数十倍速くなることもあります。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" ✅ キー項目（会社コード＋伝票番号＋年度）を指定
+SELECT belnr budat
+  FROM bkpf
+  INTO TABLE lt_bkpf
+  WHERE bukrs = p_bukrs
+    AND belnr = p_belnr
+    AND gjahr = p_gjahr.
+
+" ✅ 完全一致（EQ）を優先。LIKE は必要なときだけ
+WHERE bukrs = p_bukrs          " EQ（等しい）
+  AND budat IN s_budat.`}
+              />
+              <Callout variant="note">
+                日付などの抽出条件は、<strong>できるだけ早い段階</strong>で絞り込みます。
+                条件が後ろの処理に回る設計は、データ増加とともに性能が劣化しやすいです。
+              </Callout>
+              <Dialog speaker="a">
+                インデックス付きの棚で、ラベルが完全一致の方が探しやすい——そんなイメージですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "SELECTの技法",
+          plainText:
+            "SELECT SINGLE / 集計 / ビュー / JOIN\n1件だけなら SELECT SINGLE。MAX など集計関数もDB側で処理。\nSAP標準ビューや JOIN で、複数表を1回の取得にまとめる。\nBちゃん：往復1回で済むなら、それが一番ですね。",
+          content: (
+            <>
+              <h2><code>SELECT</code> のその他の技法</h2>
+              <CodeBlock
+                language="ABAP"
+                code={`" 1件だけ → SELECT SINGLE（キーが揃っているとき）
+SELECT SINGLE budat
+  FROM bkpf
+  INTO ls_bkpf
+  WHERE bukrs = p_bukrs
+    AND belnr = p_belnr
+    AND gjahr = p_gjahr.
+
+" 集計 → DB側で計算（全件を取ってから MAX するより効率的）
+SELECT MAX( msgnr )
+  FROM t100
+  INTO lv_max
+  WHERE arbgb = 'Z01'.
+
+" 複数表 → JOIN で1回の取得に（ループ内SELECTの代替）
+SELECT mkpf~mblnr mseg~matnr mseg~menge
+  FROM mkpf
+  INNER JOIN mseg ON mkpf~mblnr = mseg~mblnr
+                   AND mkpf~mjahr = mseg~mjahr
+  INTO TABLE lt_mat
+  WHERE mkpf~budat IN s_budat.`}
+              />
+              <Callout variant="tip">
+                SAP標準<strong>ビュー</strong>を使うと、アプリ側で複雑な <code>JOIN</code> を書かずに
+                まとめて取得できる場合があります。既存の標準ビューがないか、先に調べるのも有効です。
+              </Callout>
+              <Dialog speaker="b">
+                往復1回で済むなら、それがいちばんですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "SELECTアンチパターン",
+          plainText:
+            "避けたいSELECTの書き方\n❌ SELECT *（不要列まで転送）\n❌ LOOP内SELECT（二重ループ＝DBアクセス爆増）\n❌ 日付条件が後ろ、キーなしの全件取得\n先生：二重ループは致命的。まず往復回数を数える習慣を。",
+          content: (
+            <>
+              <h2>避けたい <code>SELECT</code> の書き方</h2>
+              <ul>
+                <li>
+                  <code>SELECT *</code> … 不要な列まで転送・メモリ消費（必要列だけ指定）
+                </li>
+                <li>
+                  <code>LOOP</code> 内の <code>SELECT</code> … 二重ループに相当し、DBアクセスが件数分爆増（N+1問題）
+                </li>
+                <li>
+                  キーなし・日付条件なしの全件取得 … データ増加で一気に遅くなる
+                </li>
+                <li>
+                  日付条件を後段の処理に回す設計 … 最初に絞れないと、無駄なデータを運ぶ
+                </li>
+              </ul>
+              <MermaidDiagram
+                chart={`flowchart LR
+  subgraph bad ["❌ 二重ループ"]
+    L1[LOOP 外側] --> L2[LOOP 内側]
+    L2 --> S[毎回 SELECT]
+    S --> L2
+  end
+  subgraph good ["✅ 一括取得"]
+    Q[1回 SELECT / JOIN] --> M[メモリで照合]
+  end`}
+              />
+              <Dialog speaker="teacher">
+                「二重ループ」は性能問題の典型です。コードを読むとき、
+                <strong>DBへの往復が何回起きるか</strong>を数える習慣をつけましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "内部テーブルで速く",
+          plainText:
+            "内部テーブルの性能\nLOOP回数を減らし、処理をシンプルに。条件付きLOOP、BINARY SEARCH、一括挿入など。\nSORTしてから READ TABLE ... BINARY SEARCH で高速検索。\nAくん：DB往復を減らしたあとは、手元の棚の操作を効率化する段階ですね。",
+          content: (
+            <>
+              <h2>内部テーブル：LOOPを減らす</h2>
+              <p>
+                DBからまとめて取ったあとは、<strong>手元の棚（内部テーブル）</strong>の操作を効率化します。
+                基本方針は「LOOP回数を減らす」「処理をシンプルにする」の2つです。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 条件付き LOOP（不要な行をスキップ）
+LOOP AT lt_bkpf INTO ls_bkpf WHERE bukrs = '1000'.
+  " 会社1000だけ処理
+ENDLOOP.
+
+" BINARY SEARCH（SORT 済みが前提）
+SORT lt_bkpf BY bukrs belnr.
+READ TABLE lt_bkpf INTO ls_bkpf
+  WITH KEY bukrs = '1000' belnr = '0000000001'
+  BINARY SEARCH.
+
+" 一括挿入
+APPEND LINES OF lt_src TO lt_dest.`}
+              />
+              <Dialog speaker="a">
+                DB往復を減らしたあとは、手元の棚の操作を効率化する段階ですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "内部テーブル技法",
+          plainText:
+            "内部テーブル早見表\nフィールドシンボル、重複削除、ソート項目明示、一括代入など。\nAPPEND LINES OF / ASSIGNING / DELETE ADJACENT DUPLICATES / SORT BY 項目明示 / TAB2 = TAB1",
+          content: (
+            <>
+              <h2>内部テーブルの技法（早見表）</h2>
+              <InfoPanel
+                title="LOOP削減・高速化のテクニック"
+                variant="reference"
+                lead="第5章の基本操作を、性能向きに使いこなす。"
+              >
+                <ul>
+                  <li>
+                    <code>LOOP AT ... WHERE ...</code> … 条件に合う行だけ処理（全件ループを避ける）
+                  </li>
+                  <li>
+                    <code>SORT ... BY 項目.</code> ＋ <code>READ TABLE ... BINARY SEARCH</code> … ソート済み表からの高速検索
+                  </li>
+                  <li>
+                    <code>APPEND LINES OF lt_a TO lt_b.</code> … 行を一括で追加（1行ずつ <code>APPEND</code> より効率的）
+                  </li>
+                  <li>
+                    <code>LOOP AT ... ASSIGNING &lt;fs&gt;.</code> … フィールドシンボルで直接参照（コピー削減）
+                  </li>
+                  <li>
+                    <code>DELETE ADJACENT DUPLICATES FROM lt ... COMPARING ...</code> … 隣接する重複行を削除
+                  </li>
+                  <li>
+                    <code>SORT lt BY bukrs ASCENDING budat DESCENDING.</code> … 昇順/降順を明示（意図が読み取りやすい）
+                  </li>
+                  <li>
+                    <code>lt_b = lt_a.</code> … 内部テーブル全体の一括代入
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="note">
+                <code>APPEND</code> 前に <code>SORT</code> する必要がある場合は、
+                <strong>ソートと追加を分けて</strong>書くと、意図が明確になりバグも減ります。
+              </Callout>
+            </>
+          ),
+        },
+        {
           title: "図解：往復を減らす",
           plainText:
             "図で見る：無駄な往復を減らす\n悪い例＝LOOP↔毎回SELECT（往復多）／良い例＝1回まとめてSELECT→メモリ照合\nBちゃん：左の矢印がすごい…右は最初だけ太い矢印であとは机の上。\n先生：往復を減らす・必要な列だけ取る。この2つだけでも体感速度は大きく変わる。\nAくん：性能改善の最初の一手は往復回数の削減。設計の型として覚える。",
@@ -330,6 +602,45 @@ ENDLOOP.`}
               </Dialog>
               <Dialog speaker="a">
                 性能改善の「最初の一手」は、いきなり難しいアルゴリズムではなく<strong>往復回数の削減</strong>—— 研修で学んだ型として、最初から選べるようになりたいですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "実行時間分析",
+          plainText:
+            "SE30 / SAT で計測\n同条件で複数回実行し、平均値で判断。Database時間＝SELECT問題、ABAP時間＝LOOP問題、System時間＝設計問題の目安。\n注意：本番データで実行すると更新系は実データが変わる。分析環境で行う。",
+          content: (
+            <>
+              <h2>実行時間分析（<code>SE30</code> / <code>SAT</code>）</h2>
+              <p>
+                「遅い」と感じたら、<strong>どこに時間がかかっているか</strong>を計測します。
+                古典的な <code>SE30</code>（Runtime Analysis）や、新しい <code>SAT</code>（ABAP Trace）が代表ツールです。
+              </p>
+              <InfoPanel
+                title="分析指標の見方（目安）"
+                variant="reference"
+                lead="同条件で複数回計測し、平均値で判断するのが定石です。"
+              >
+                <ul>
+                  <li>
+                    <strong>Database 時間</strong> … <code>SELECT</code> がボトルネック。WHERE・キー・一括取得を見直す
+                  </li>
+                  <li>
+                    <strong>ABAP 時間</strong> … <code>LOOP</code> や内部テーブル操作がボトルネック
+                  </li>
+                  <li>
+                    <strong>System 時間</strong> … 設計全体（呼び出し構造・不要処理）を見直す段階
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="warning">
+                計測実行は、<strong>更新処理</strong>（登録・変更）を含むプログラムでは実データが変わる場合があります。
+                分析は開発・検証環境で行い、本番データへの影響に注意してください。
+              </Callout>
+              <Dialog speaker="teacher">
+                感覚で「たぶんSELECTが遅い」と決めつけず、計測結果で<strong>根拠を持って直す</strong>——
+                これが性能改善の実務的な進め方です。
               </Dialog>
             </>
           ),
@@ -394,6 +705,65 @@ SELECT bukrs butxt FROM t001
           ),
         },
         {
+          title: "わかりやすい書き方",
+          plainText:
+            "コメント・条件分岐・明示的な指定\nコメントは処理意図を書く（開発者メモではない）。変更履歴はいつ・なぜ・何を。\nCASE を推奨。IF NOT は避けて肯定条件で書く。SORT は ASCENDING/DESCENDING を明示。",
+          content: (
+            <>
+              <h2>わかりやすいコードの書き方</h2>
+              <p>
+                性能だけでなく、<strong>半年後の自分や後任が読めるか</strong>も品質です。
+                第12章の習慣に加え、次の書き方を意識します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" コメント＝処理の意図（「なぜこうするか」）
+" 会社コードで絞った後、日付順に出力するためソート
+SORT lt_bkpf BY bukrs ASCENDING
+                budat ASCENDING.
+
+" 複数値の分岐 → CASE が読みやすい
+CASE ls_bkpf-blart.
+  WHEN 'SA' OR 'KR'.
+    " 総勘定・仕入先
+  WHEN OTHERS.
+    " その他
+ENDCASE.
+
+" ❌ 否定条件は読みにくい
+IF NOT lv_found = 'X'.
+
+" ✅ 肯定条件で書く
+IF lv_found = 'X'.`}
+              />
+              <InfoPanel
+                title="保守性チェックリスト"
+                variant="reference"
+                lead="開発標準（命名規則・文法統一）に合わせつつ、次を守る。"
+              >
+                <ul>
+                  <li>
+                    <strong>コメント</strong> … 処理の意図を書く。自分用メモやデバッグ残しではない
+                  </li>
+                  <li>
+                    <strong>変更履歴</strong> … いつ・なぜ・何を変更したか（プログラムヘッダやチケット番号）
+                  </li>
+                  <li>
+                    <strong>明示的な指定</strong> … <code>SORT ... ASCENDING</code> のように、暗黙の既定値に頼らない
+                  </li>
+                  <li>
+                    <strong>条件分岐</strong> … 値の分岐は <code>CASE</code> を優先。<code>IF NOT</code> の多用は避ける
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                「読みにくいから遅い」——直すのに時間がかかれば、結果的にプロジェクト全体が遅くなります。
+                シンプルで、ルールに沿ったコードが、長期運用では最強です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "対話で整理",
           plainText:
             "対話で整理\nBちゃん：実務未経験でも動けばOKじゃない？→最低条件。本番件数と未来の自分まで含めて品質。\n先生：近道＝LOOP内SELECTは試食会では平気・宴会で渋滞。往復は事務所↔倉庫の旅。\nAくん：悪い例はN+1。良い例はFOR ALL ENTRIES＋READ TABLE。空チェック必須。\nつまずき：自分のPCで秒で終わった＝問題ない、は本番で止まる典型。\nBちゃん：往復2つ＋前章の習慣＝速くて読みやすく直せる。研修おつかれさま！\n①往復を減らす ②必要列だけ ③前章の地図と習慣",
@@ -452,10 +822,11 @@ SELECT bukrs butxt FROM t001
                 研修、ここまで来られて自分でも驚いてます…！
               </Dialog>
               <Callout variant="tip">
-                <strong>① 往復を減らす</strong>（まとめて取得 → <code>READ TABLE</code> で照合）<br />
-                <strong>② 必要な列だけ取る</strong>（<code>SELECT *</code> を避ける）<br />
-                <strong>③ 前章の地図と習慣</strong>（入力→取得→出力、コメント・命名・履歴・テスト）<br />
-                良いコードは、未来へのやさしさです。
+                <strong>最重要3点</strong><br />
+                ① <code>SELECT</code> 最適化（<code>WHERE</code>・キー・一括取得）<br />
+                ② 内部テーブル運用（LOOP削減・<code>BINARY SEARCH</code> など）<br />
+                ③ 可読性（コメント・履歴・シンプルな設計）<br />
+                プログラムは長期使用・改修前提。速くて、読みやすく、安全に直せる——それが適切なプログラミングです。
               </Callout>
               <Dialog speaker="teacher">
                 ここまで来たあなたは、もう「翻訳者」の入口に立っています—— 業務の言葉を、SAPが理解できる形に翻訳する人。
@@ -510,6 +881,16 @@ SELECT bukrs butxt FROM t001
                   "毎回SELECT *で全列を取得する",
                   "必要な列に絞ってSELECTする",
                   "READ TABLEを使わず常に二重LOOPにする",
+                ]}
+              />
+              <Quiz
+                answer={1}
+                explanation="SE30 や SAT で Database 時間が突出している場合、SELECT 文（WHERE 条件・キー・一括取得）の見直しが第一候補です。ABAP 時間は LOOP、System 時間は設計全体の見直しを示唆します。"
+                question={<strong>実行時間分析で Database 時間が突出している場合、最初に見直すのは？</strong>}
+                options={[
+                  "WRITE の桁位置指定",
+                  "SELECT 文と WHERE 条件",
+                  "コメントの量",
                 ]}
               />
               <Dialog speaker="closing">
