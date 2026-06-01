@@ -28,8 +28,14 @@
   "specialContent": [
     {
       "file": "92-exercise-journal-ledger",
-      "title": "特別演習 — 仕訳日記帳プログラムを作る",
+      "title": "特別演習① — 仕訳日記帳プログラムを作る",
       "meta": "特別 · 45分"
+    },
+    {
+      "file": "93-exercise-journal-ledger-detail",
+      "title": "特別演習② — 明細・金額つき仕訳日記帳を作る",
+      "meta": "特別 · 60分",
+      "lock": { "requires": "course", "password": "shiwake-master-cc", "mode": "any" }
     }
   ]
 }
