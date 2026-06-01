@@ -5,6 +5,7 @@ import {
   Dialog,
   Quiz,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
@@ -35,7 +36,7 @@ export default function S4hanaModulesLesson() {
         {
           title: "概要",
           plainText:
-            "S/4HANA とモジュール\nS/4HANA は現行の ERP コア。Fiori の UI の下で各モジュールの業務ロジックが動き、HANA にデータが載る。",
+            "S/4HANA とモジュール\nS/4HANA は現行の ERP コア。Fiori の UI の下で各モジュールの業務ロジックが動き、HANA にデータが載る。\n⏱ 25分 / 📶 初学者 / 🏷 SAP 構造とサービス\nこの章で学ぶこと\n・S/4HANA を中心としたモジュール地図\n・よく出る略語（FI / SD / MM など）の意味\n・UI・アプリケーション・DB の三層（システム構造）",
           content: (
             <>
               <hgroup>
@@ -58,16 +59,29 @@ export default function S4hanaModulesLesson() {
                 <li>よく出る略語（FI / SD / MM など）の意味</li>
                 <li>UI・アプリケーション・DB の三層（システム構造）</li>
               </ul>
+              <Dialog speaker="b">
+                FI、SD、MM… 略語がたくさんで覚えられる気がしないです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                全部覚えなくて大丈夫です。「どの部門の話か」が分かれば十分。今日は<strong>地図として眺める</strong>だけでOKです。
+              </Dialog>
             </>
           ),
         },
         {
           title: "モジュール一覧",
-          plainText: "主要モジュールの一覧",
+          plainText:
+            "主要モジュールの一覧\nFI=財務会計・CO=管理会計・SD=販売管理・MM=購買在庫・PP=生産管理・QM=品質管理・EWM=倉庫管理・PS=プロジェクト・EAM=設備管理・TR=資金管理\nABAPで扱う会計（伝票・BKPF/BSEG）はFI領域のデータ。",
           content: (
             <>
               <h2>主要モジュール（業務層）</h2>
               <p>プロジェクトや業界により使うモジュールは異なりますが、次がよく登場します。</p>
+              <Figure
+                src="image/03-module-map.webp"
+                alt="SAP S/4HANA ERP製品のモジュール構成図。上部にSAP Fiori（UI層）。内部にPP生産管理・PEO製造実行・QM品質管理・SD販売管理・EWM倉庫管理・PS工事プロジェクト・MM購買在庫管理・EAM設備管理・FI財務会計・CO管理会計・TR資金管理がHANAインメモリデータベースを中心に配置。右側にAriba/Concur/SuccessFactors/Fieldglass等のSAP Cloud SaaS Solutions。"
+                caption="SAP S/4HANA の全モジュール構成（Fiori UI＋HANAインメモリDB＋周辺SaaS）"
+                kind="concept"
+              />
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -80,9 +94,7 @@ export default function S4hanaModulesLesson() {
                   <tbody>
                     {MODULE_ROWS.map((m) => (
                       <tr key={m.code}>
-                        <td>
-                          <strong>{m.code}</strong>
-                        </td>
+                        <td><strong>{m.code}</strong></td>
                         <td>{m.name}</td>
                         <td>{m.desc}</td>
                       </tr>
@@ -90,6 +102,9 @@ export default function S4hanaModulesLesson() {
                   </tbody>
                 </table>
               </div>
+              <Dialog speaker="a">
+                ABAP 研修で扱う会計の伝票（BKPF/BSEG）は <strong>FI</strong> 領域のデータなんですね。ようやく文脈がつながりました。
+              </Dialog>
               <Callout variant="tip">
                 ABAP 研修で扱う会計（伝票・BKPF/BSEG）は <strong>FI</strong> 領域のデータです。
               </Callout>
@@ -99,7 +114,7 @@ export default function S4hanaModulesLesson() {
         {
           title: "三層アーキ",
           plainText:
-            "システムの三層\nUI＝Fiori（ユーザー操作）／アプリ＝S/4HANA（業務ロジック）／DB＝HANA（データ管理）",
+            "システムの三層\nUI＝Fiori（ユーザー操作）／アプリ＝S/4HANA（業務ロジック）／DB＝HANA（データ管理）\nAくん：画面でボタンを押す＝UI、裏でルールチェック＝アプリ、結果が残る＝DB、と分けると良い。\n先生：その通り。この三層を頭に入れておくと、問題が起きたときに「どこを調べるか」が判断しやすくなります。",
           content: (
             <>
               <h2>システム構造（アーキテクチャ）</h2>
@@ -112,52 +127,45 @@ export default function S4hanaModulesLesson() {
   UI --> APP --> DB`}
               />
               <ul>
-                <li>
-                  <strong>UI（Fiori）</strong> … ロールベースのモダンな画面。従来の SAP GUI 画面も併用されることがあります。
-                </li>
-                <li>
-                  <strong>アプリケーション（S/4HANA）</strong> … 受注処理や仕訳登録などの<strong>業務ロジック</strong>
-                </li>
-                <li>
-                  <strong>DB（HANA）</strong> … インメモリ DB による<strong>高速なデータ管理・分析</strong>
-                </li>
+                <li><strong>UI（Fiori）</strong> … ロールベースのモダンな画面。従来の SAP GUI 画面も併用されることがあります。</li>
+                <li><strong>アプリケーション（S/4HANA）</strong> … 受注処理や仕訳登録などの<strong>業務ロジック</strong></li>
+                <li><strong>DB（HANA）</strong> … インメモリ DB による<strong>高速なデータ管理・分析</strong></li>
               </ul>
               <Dialog speaker="a">
                 「画面でボタンを押す」＝UI、「裏でルールチェック」＝アプリ、「結果が残る」＝DB、と分けるとよさそうです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。この三層を頭に入れておくと、問題が起きたときに「どこを調べるか」が判断しやすくなります。
               </Dialog>
             </>
           ),
         },
         {
-          title: "製造・その他",
+          title: "製造・その他とSaaS",
           plainText:
-            "PP・PEO・QM・EWM・PS・EAM・TR など。クラウド SaaS は S/4 の外側で専門領域を補完する。",
+            "PP・PEO・QM・EWM・PS・EAM・TRなど。クラウドSaaS（Ariba/Concur/SuccessFactors等）はS/4の外側で専門領域を補完。\nS/4＝社内の業務コア、SaaS＝周辺の専門クラウド。\nBちゃん：S/4が本体で、SaaSが専門のオプション追加みたいなイメージですね。",
           content: (
             <>
               <h2>その他のモジュールとクラウド SaaS</h2>
               <p>S/4HANA には、前章の表以外にも次のようなモジュールがあります（案件により導入範囲は異なります）。</p>
               <ul>
-                <li>
-                  <strong>PEO</strong> … 製造実行（Production Engineering and Operations）
-                </li>
-                <li>
-                  <strong>QM</strong> … 品質管理、<strong>EWM</strong> … 倉庫の高度運用
-                </li>
-                <li>
-                  <strong>PS</strong> … 工事・プロジェクト、<strong>EAM</strong> … 設備・保全
-                </li>
-                <li>
-                  <strong>TR</strong> … 資金・金融取引
-                </li>
+                <li><strong>PEO</strong> … 製造実行（Production Engineering and Operations）</li>
+                <li><strong>QM</strong> … 品質管理、<strong>EWM</strong> … 倉庫の高度運用</li>
+                <li><strong>PS</strong> … 工事・プロジェクト、<strong>EAM</strong> … 設備・保全</li>
+                <li><strong>TR</strong> … 資金・金融取引</li>
               </ul>
-              <p>
-                一方、<strong>SAP Cloud SaaS</strong> は S/4 の“外”で専門機能を担います。例:
-              </p>
+              <p>一方、<strong>SAP Cloud SaaS</strong> は S/4 の"外"で専門機能を担います。例:</p>
               <ul>
                 <li>Ariba（調達）、Concur（経費）、SuccessFactors（人事）</li>
                 <li>Fieldglass、Customer Experience、Integrated Business Planning、Digital Manufacturing</li>
                 <li>SAP Analytics Cloud（分析・計画）</li>
               </ul>
+              <Dialog speaker="b">
+                S/4 が本体で、SaaS が専門のオプション追加みたいなイメージですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                そのイメージで合っています。S/4 は社内の業務コアで、Ariba や Concur はそれぞれ調達・経費の専門クラウドです。案件によって必要な SaaS だけ組み合わせます。
+              </Dialog>
               <Callout variant="tip">
                 <strong>S/4 ＝ 社内の業務コア</strong>、<strong>SaaS ＝ 周辺の専門クラウド</strong>、と覚えると製品地図が整理しやすいです。
               </Callout>
@@ -166,7 +174,8 @@ export default function S4hanaModulesLesson() {
         },
         {
           title: "確認テスト",
-          plainText: "理解度チェック",
+          plainText:
+            "理解度チェック\nQ1 購買・在庫管理に対応するモジュールは？→ MM\nQ2 ユーザーが日常操作するモダン UIは？→ SAP Fiori\n今日のひとこと：略語は全部覚えなくていい。「どの部門の話か」が分かれば十分です。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -182,6 +191,9 @@ export default function S4hanaModulesLesson() {
                 question={<strong>ユーザーが日常操作するモダン UI として説明されるのは？</strong>}
                 options={["SAP Fiori", "SAP HANA のみ", "SAP Cloud Connector のみ"]}
               />
+              <Dialog speaker="closing">
+                略語は全部覚えなくていい。「どの部門の話か」が分かれば十分です。
+              </Dialog>
             </>
           ),
         },

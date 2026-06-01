@@ -5,6 +5,7 @@ import {
   Dialog,
   Quiz,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
@@ -22,7 +23,7 @@ export default function FitToStandardLesson() {
         {
           title: "概要",
           plainText:
-            "Fit to Standard\n業務をシステムの標準プロセスに合わせることで、コスト削減・迅速なアップデート・ベストプラクティス適用が期待できる。",
+            "Fit to Standard\n業務をシステムの標準プロセスに合わせることで、コスト削減・迅速なアップデート・ベストプラクティス適用が期待できる。\n⏱ 15分 / 📶 初学者 / 🏷 SAP 構造とサービス\nこの章で学ぶこと\n・Fit to Standard のコンセプト\n・期待される効果（コスト・更新・ベストプラクティス）\n・「全部カスタム」とのバランス",
           content: (
             <>
               <hgroup>
@@ -45,35 +46,45 @@ export default function FitToStandardLesson() {
                 <li>期待される効果（コスト・更新・ベストプラクティス）</li>
                 <li>「全部カスタム」とのバランス</li>
               </ul>
+              <Dialog speaker="b">
+                業務のやり方を変える、ということですか？ 現場が反発しそう…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                そこが難しいところです。「SAP に合わせる」ことで本当に困る部分は拡張しますが、まず<strong>本当に標準で無理か</strong>を確認する姿勢が大切です。
+              </Dialog>
             </>
           ),
         },
         {
           title: "コンセプト",
-          plainText: "業務 → システムに合わせる。効果: 開発コスト削減、アップデート高速化、ベストプラクティス適用。",
+          plainText:
+            "業務をシステムに合わせる。効果: 開発コスト削減、アップデート高速化、ベストプラクティス適用。\nたとえ：既製スーツに体を合わせる（標準）vs 全身オーダーメイド（カスタム）。標準は安く速い。\nAくん：一から全部作るより、すでにある仕組みを使う方がコスパが良い、という考え方ですね。",
           content: (
             <>
               <h2>コンセプトと効果</h2>
+              <Figure
+                src="image/05-fit-to-standard.webp"
+                alt="Fit to Standardによる標準化と効率化を示すベン図。青い大きな円（システム）とオレンジの円（業務）が大きく重なり合った状態。業務をシステムに合わせることで重複領域が最大化し、標準化が実現していることを表現。"
+                caption="Fit to Standard：業務（オレンジ）をシステム（青）に合わせ、重なりを最大化する"
+                kind="concept"
+              />
               <p>
                 従来型の「既存の紙の運用をそのままシステムに載せ替える」方式と比べ、SAP では
                 <strong>標準プロセスを採用する</strong>ことで次のメリットを狙います。
               </p>
               <ul>
-                <li>
-                  <strong>開発コストの削減</strong> … 独自 ABAP や改修が減る
-                </li>
-                <li>
-                  <strong>アップデートの高速化</strong> … カスタムが少ないほど、新バージョン取り込みが容易
-                </li>
-                <li>
-                  <strong>ベストプラクティスの適用</strong> … 業界で実績のあるプロセスをそのまま活用
-                </li>
+                <li><strong>開発コストの削減</strong> … 独自 ABAP や改修が減る</li>
+                <li><strong>アップデートの高速化</strong> … カスタムが少ないほど、新バージョン取り込みが容易</li>
+                <li><strong>ベストプラクティスの適用</strong> … 業界で実績のあるプロセスをそのまま活用</li>
               </ul>
               <MermaidDiagram
                 chart={`flowchart LR
   A[従来型\n業務そのまま実装] --> C[高コスト\n更新困難]
   B[Fit to Standard\n標準プロセス採用] --> D[低コスト\n更新しやすい]`}
               />
+              <Dialog speaker="a">
+                一から全部作るより、すでにある仕組みを使う方がコスパが良い、という考え方ですね。
+              </Dialog>
               <Callout variant="warning">
                 標準化は「現場の事情を無視する」ことではありません。<strong>本当に差別化が必要な部分だけ拡張</strong>する、というバランスが重要です。
               </Callout>
@@ -83,7 +94,7 @@ export default function FitToStandardLesson() {
         {
           title: "実務での判断",
           plainText:
-            "標準化は「業務 → システムに合わせる」。無理なカスタムを減らし、本当に必要な差別化だけ残す。",
+            "標準化は「業務→システムに合わせる」。無理なカスタムを減らし、本当に必要な差別化だけ残す。\nやめること：標準でできる独自ABAP・重複帳票・過剰ワークフロー。残すこと：競争優位に直結する差別化。\n先生：標準に合わせられないと言われたら、まず本当に標準で無理かを確認する。\nBちゃん：現場のやり方を全部変えろ、ではないんですね。安心しました。",
           content: (
             <>
               <h2>実務での判断のしかた</h2>
@@ -92,28 +103,26 @@ export default function FitToStandardLesson() {
                 現場の運用をそのまま再現するのではなく、SAP が持つ標準プロセスを起点に設計します。
               </p>
               <ul>
-                <li>
-                  <strong>やめること</strong> … 標準で賄える処理の独自 ABAP、重複する帳票、過剰なワークフロー
-                </li>
-                <li>
-                  <strong>残すこと</strong> … 競争優位に直結する差別化（次章の拡張で実装）
-                </li>
-                <li>
-                  <strong>得られること</strong> … 開発コスト削減、リリース・アップグレードの迅速化、ベストプラクティス適用
-                </li>
+                <li><strong>やめること</strong> … 標準で賄える処理の独自 ABAP、重複する帳票、過剰なワークフロー</li>
+                <li><strong>残すこと</strong> … 競争優位に直結する差別化（次章の拡張で実装）</li>
+                <li><strong>得られること</strong> … 開発コスト削減、リリース・アップグレードの迅速化、ベストプラクティス適用</li>
               </ul>
               <Dialog speaker="a">
                 ABAP で全部作るのではなく、<strong>標準機能＋最小限の拡張</strong>、がプロジェクトの方針になりそうです。
               </Dialog>
+              <Dialog speaker="b">
+                現場のやり方を全部変えろ、ではないんですね。安心しました。
+              </Dialog>
               <Dialog speaker="teacher">
-                「標準に合わせられない」要件が出たら、まず<strong>本当に標準で無理か</strong>を確認してから拡張を検討します。
+                「標準に合わせられない」要件が出たら、まず<strong>本当に標準で無理か</strong>を確認してから拡張を検討します。その確認プロセス自体がコンサルタントの価値です。
               </Dialog>
             </>
           ),
         },
         {
           title: "確認テスト",
-          plainText: "理解度チェック",
+          plainText:
+            "理解度チェック\nQ1 Fit to Standardの説明として正しいのは？→ 業務をSAPの標準プロセスに合わせる\nQ2 標準化の期待効果に含まれないのは？→ SAPを使わないこと\n今日のひとこと：標準に乗れるところは乗る、本当に必要なところだけ作る。この判断がプロの仕事です。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -133,6 +142,9 @@ export default function FitToStandardLesson() {
                 question={<strong>標準化の期待効果に含まれないのは？</strong>}
                 options={["開発コスト削減", "アップデートのしやすさ", "SAP を使わないこと"]}
               />
+              <Dialog speaker="closing">
+                標準に乗れるところは乗る、本当に必要なところだけ作る。この判断がプロの仕事です。
+              </Dialog>
             </>
           ),
         },

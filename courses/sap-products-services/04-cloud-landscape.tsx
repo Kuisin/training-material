@@ -5,6 +5,7 @@ import {
   Dialog,
   Quiz,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
@@ -22,7 +23,7 @@ export default function CloudLandscapeLesson() {
         {
           title: "概要",
           plainText:
-            "クラウド製品\nオンプレの S/4 に加え、RISE・各種 SaaS・Analytics Cloud・BTP が連携してエコシステムを構成する。",
+            "クラウド製品\nオンプレの S/4 に加え、RISE・各種 SaaS・Analytics Cloud・BTP が連携してエコシステムを構成する。\n⏱ 25分 / 📶 初学者 / 🏷 SAP 構造とサービス\nこの章で学ぶこと\n・RISE with SAP（S/4HANA Cloud, private edition）の位置づけ\n・代表的な SaaS（Ariba / Concur / SuccessFactors など）\n・BTP と Analytics Cloud の役割\n・Cloud Connector とセキュア接続のイメージ",
           content: (
             <>
               <hgroup>
@@ -46,13 +47,19 @@ export default function CloudLandscapeLesson() {
                 <li>BTP と Analytics Cloud の役割</li>
                 <li>Cloud Connector とセキュア接続のイメージ</li>
               </ul>
+              <Dialog speaker="b">
+                RISE とか BTP とか、カタカナと略語が多くてついていけるか心配です…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                大丈夫。今日は「どこにどんな製品が置かれているか」の地図を作るだけです。細かい機能は案件ごとに覚えれば十分です。
+              </Dialog>
             </>
           ),
         },
         {
           title: "RISEと基盤",
           plainText:
-            "RISE with SAP\nハイパースケーラ上のプライベートクラウドで S/4 を運用。BASIS・モジュール・HANA を含む。",
+            "RISE with SAP\nハイパースケーラ上のプライベートクラウドで S/4 を運用。BASIS・モジュール・HANA を含む。\nRISEはクラウドへ引っ越しを支援するパッケージ。GROW with SAPは成長企業向けのSaaS中心オファー。\nAくん：RISEはインフラごとSAPに任せて、S/4を動かし続けるための仕組みなんですね。\nBちゃん：自前でサーバーを管理しなくていい、ということかな。",
           content: (
             <>
               <h2>RISE with SAP（プライベートクラウド）</h2>
@@ -66,6 +73,15 @@ export default function CloudLandscapeLesson() {
                 <li>外部連携の入口: <strong>SAP Cloud Connector</strong></li>
                 <li>インターネット経由で SaaS や BTP と<strong>セキュアトンネル</strong>で接続</li>
               </ul>
+              <Dialog speaker="a">
+                RISE はインフラごと SAP に任せて、S/4 を動かし続けるためのパッケージなんですね。
+              </Dialog>
+              <Dialog speaker="b">
+                自前でサーバーを管理しなくていい、ということかな。
+              </Dialog>
+              <Dialog speaker="teacher">
+                そうです。<strong>GROW with SAP</strong> は、より SaaS 中心の成長企業向けのオファーとして覚えておくとよいです。
+              </Dialog>
               <Callout variant="note">
                 <strong>GROW with SAP</strong> は、より SaaS 中心の成長企業向けのクラウド移行オファーとして覚えておくとよいです（詳細は案件により異なります）。
               </Callout>
@@ -75,10 +91,16 @@ export default function CloudLandscapeLesson() {
         {
           title: "SaaSとBTP",
           plainText:
-            "SaaS: Ariba, Concur, SuccessFactors 等。BTP: 拡張・連携・AI。SAC: 分析・ダッシュボード。",
+            "SaaS: Ariba（調達）, Concur（経費）, SuccessFactors（人事）等。BTP: 拡張・連携・AI。SAC: 分析・ダッシュボード。\nS/4はCloud Connector経由でBTPや各SaaSとセキュアにつながる。",
           content: (
             <>
-              <h2>SaaS・Analytics・BTP</h2>
+              <h2>SaaS・Analytics・BTP の全体像</h2>
+              <Figure
+                src="image/04-cloud-landscape.webp"
+                alt="RISE with SAP S/4HANA Cloud Private Editionの構成図。左ブロック：Cloud Service(Azure/AWS/GCP)→VM(Hyperscaler)→OS/Kernel→S/4 HANA→BASIS→モジュール群→SAP HANAの積み重ね構造。中央にSAP Cloud ConnectorとInternet Secure Tunnel。右ブロック：Ariba/Concur/SuccessFactorsなどSAP Cloud SaaS SolutionsとBusiness Technology Platform(3rd-Party Integration/Custom Processes/Pre-made Templates/SAP Analytics Cloud)、さらにNon-SAP External Services。"
+                caption="RISE with SAP のフル構成：プライベートクラウドのS/4スタック → Cloud Connector → Cloud SaaS & BTP"
+                kind="diagram"
+              />
               <MermaidDiagram
                 chart={`flowchart LR
   subgraph core["ERP コア（例）"]
@@ -99,32 +121,25 @@ export default function CloudLandscapeLesson() {
   BTP --> EXT[非 SAP 外部サービス]`}
               />
               <ul>
-                <li>
-                  <strong>Ariba</strong> … 調達・サプライヤネットワーク
-                </li>
-                <li>
-                  <strong>Concur</strong> … 経費・出張管理
-                </li>
-                <li>
-                  <strong>SuccessFactors</strong> … 人事・タレント管理
-                </li>
-                <li>
-                  <strong>SAP Analytics Cloud（SAC）</strong> … 分析・計画・ダッシュボード
-                </li>
-                <li>
-                  <strong>BTP</strong> … カスタムアプリ、連携、AI、Side-by-Side 拡張の基盤
-                </li>
+                <li><strong>Ariba</strong> … 調達・サプライヤネットワーク</li>
+                <li><strong>Concur</strong> … 経費・出張管理</li>
+                <li><strong>SuccessFactors</strong> … 人事・タレント管理</li>
+                <li><strong>SAP Analytics Cloud（SAC）</strong> … 分析・計画・ダッシュボード</li>
+                <li><strong>BTP</strong> … カスタムアプリ、連携、AI、Side-by-Side 拡張の基盤</li>
               </ul>
-              <p className="text-sm opacity-80">
-                その他の例: Fieldglass、Customer Experience、Integrated Business Planning、Digital Manufacturing など
-              </p>
+              <Dialog speaker="b">
+                調達に Ariba、経費に Concur、人事に SuccessFactors、分析に SAC……それぞれ専門家を別に雇う感じですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                いいたとえです。S/4 がゼネラリスト（社内全般）で、各 SaaS が専門家（外部委託）、BTP がそれをつなぐ共通基盤、という見方もできます。
+              </Dialog>
             </>
           ),
         },
         {
           title: "接続の仕組み",
           plainText:
-            "RISE 上の S/4 は Cloud Connector 経由で BTP・SaaS とセキュアに接続。ハイパースケーラ上に VM・OS・HANA まで含む。",
+            "RISE上のS/4はCloud Connector経由でBTP・SaaSとセキュアに接続。IaaS→VM→OS→S4スタックの積み上げ構造。\nAくん：Cloud Connectorがファイアウォールの中から外へのセキュアな出口を作るイメージ。\n先生：S/4単体で全部入れるより、コア＋必要なSaaS＋BTP拡張が典型の構成です。",
           content: (
             <>
               <h2>プライベートクラウドと外部の接続</h2>
@@ -141,7 +156,6 @@ export default function CloudLandscapeLesson() {
               <p>
                 社内やインターネット越しに <strong>SAP Cloud SaaS</strong> や <strong>BTP</strong> とつなぐときは、
                 <strong>SAP Cloud Connector</strong> を経由し、<strong>セキュアトンネル</strong>で通信します。
-                Analytics Cloud では、外部データ連携やカスタムプロセス、テンプレート分析も可能です。
               </p>
               <MermaidDiagram
                 chart={`flowchart LR
@@ -160,6 +174,9 @@ export default function CloudLandscapeLesson() {
   TUN --> SAAS
   BTP --> SAC`}
               />
+              <Dialog speaker="a">
+                Cloud Connector がファイアウォールの中から外へのセキュアな出口を作るイメージですね。
+              </Dialog>
               <Dialog speaker="teacher">
                 すべてを一度に導入するわけではありません。<strong>コア S/4 ＋ 必要な SaaS ＋ BTP で拡張</strong>、が典型です。
               </Dialog>
@@ -168,7 +185,8 @@ export default function CloudLandscapeLesson() {
         },
         {
           title: "確認テスト",
-          plainText: "理解度チェック",
+          plainText:
+            "理解度チェック\nQ1 カスタムアプリや外部連携の拡張基盤は？→ SAP BTP\nQ2 人事・タレント管理のSaaSは？→ SuccessFactors\n今日のひとこと：略語に迷ったら「どの専門家が何を担うか」に戻ると整理できます。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -184,6 +202,9 @@ export default function CloudLandscapeLesson() {
                 question={<strong>人事・タレント管理の SaaS として代表的なのは？</strong>}
                 options={["Ariba", "SuccessFactors", "Concur"]}
               />
+              <Dialog speaker="closing">
+                略語に迷ったら「どの専門家が何を担うか」に戻ると整理できます。
+              </Dialog>
             </>
           ),
         },

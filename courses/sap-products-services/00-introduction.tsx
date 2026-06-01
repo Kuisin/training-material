@@ -6,6 +6,7 @@ import {
   CharacterIntro,
   Quiz,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
@@ -39,6 +40,12 @@ export default function IntroductionLesson() {
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "SAP 構造とサービス" },
                 ]}
+              />
+              <Figure
+                src="image/00-integrated-platform.webp"
+                alt="左：会計・販売・購買・人事などがバラバラに離れて置かれた旧来の個別システム。右：それらが1つの基盤（プラットフォーム）に差し込まれてつながり、上にDX/クラウドの輝き。SAP ERP＝業務を1つにつなぐ統合基盤のイメージ。"
+                caption="SAP ERP＝バラバラの業務を1つの基盤につなぐ統合プラットフォーム"
+                kind="concept"
               />
               <h3>この章で学ぶこと</h3>
               <ul>
@@ -102,6 +109,18 @@ export default function IntroductionLesson() {
               <Callout variant="tip">
                 「全部カスタム」ではなく、<strong>標準を土台に、必要なところだけ拡張</strong>するのが現代の SAP の考え方です。
               </Callout>
+              <Dialog speaker="b">
+                3つもあると、覚えられるか不安です…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                今は名前だけで大丈夫。日本語で「①そろえる（標準化）／②足す（拡張）／③預ける（運用をクラウドへ）」の3つ、と覚えてください。
+              </Dialog>
+              <Dialog speaker="a">
+                ゼロから全部作るのではなく、標準を土台にして、必要な部分だけ足す——という設計思想なんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。この「土台＋必要な拡張」という発想が、以降の章すべての背骨になります。
+              </Dialog>
             </>
           ),
         },

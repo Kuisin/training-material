@@ -3,6 +3,7 @@ import {
   lessonChrome,
   Dialog,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   LessonLinkButton,
   mountLesson,
@@ -42,6 +43,12 @@ export default function OverviewLesson() {
                 <li>クラウド製品（SaaS・BTP・RISE）の位置が分かる</li>
                 <li>標準化と拡張、エンドツーエンドの流れを説明できる</li>
               </ul>
+              <Dialog speaker="b">
+                覚えることがいっぱいで、ちょっと身構えてしまいます…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                暗記ではなく「地図づくり」です。製品名を覚えるより、<strong>どこに何があるか</strong>が言えればOK。会議で迷子にならないことがゴールです。
+              </Dialog>
             </>
           ),
         },
@@ -60,6 +67,12 @@ export default function OverviewLesson() {
   D --> E[拡張と BTP]
   E --> F[エンドツーエンド]
   F --> G[復習テスト]`}
+              />
+              <Figure
+                src="image/01-course-map.webp"
+                alt="左から右へ続く道のりマップ。三層構造→S/4モジュール→クラウド製品→Fit to Standard→拡張とBTP→エンドツーエンド→復習テスト、の順にマイルストーンのピンが並ぶ。"
+                caption="本コースの道のり：構造を下から積み上げ、最後に一枚絵で復習する"
+                kind="concept"
               />
               <ol>
                 <li>

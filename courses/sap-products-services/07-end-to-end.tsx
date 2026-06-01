@@ -4,6 +4,7 @@ import {
   Dialog,
   Quiz,
   MermaidDiagram,
+  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
@@ -21,7 +22,7 @@ export default function EndToEndLesson() {
         {
           title: "概要",
           plainText:
-            "エンドツーエンド構造\n顧客・サプライヤ → S/4HANA（ERPコア）→ BTP（拡張）→ SaaS（Ariba/Concur/SF）の一本流れ。",
+            "エンドツーエンド構造\n顧客・サプライヤ → S/4HANA（ERPコア）→ BTP（拡張）→ SaaS（Ariba/Concur/SF）の一本流れ。\n⏱ 15分 / 📶 初学者 / 🏷 SAP 構造とサービス\nこの章で学ぶこと\n・4 段階のエンドツーエンド構造\n・各段階の代表製品\n・全体像を一枚絵で説明する練習",
           content: (
             <>
               <hgroup>
@@ -44,29 +45,30 @@ export default function EndToEndLesson() {
                 <li>各段階の代表製品</li>
                 <li>全体像を一枚絵で説明する練習</li>
               </ul>
+              <Dialog speaker="teacher">
+                この章はコースの締めくくりです。これまで学んだ三層・モジュール・クラウド・標準化・拡張を、<strong>一本の流れ</strong>として見てみましょう。
+              </Dialog>
             </>
           ),
         },
         {
           title: "4段階",
           plainText:
-            "①フロント:顧客・サプライヤ ②ERPコア:S/4HANA ③拡張:BTP ④外部:SaaS",
+            "①フロント:顧客・サプライヤ ②ERPコア:S/4HANA ③拡張:BTP ④外部:SaaS\n先生：案件では必ずしも4つ全部が同時に入るわけではないが「どこに何があるか」の説明に最適な図。\nBちゃん：取引先→社内→拡張→外部専門家、と順番に処理が流れるイメージですね。",
           content: (
             <>
               <h2>4 段階の構造</h2>
+              <Figure
+                src="image/07-end-to-end.webp"
+                alt="拡張開発を活用した差別化を示すアーキテクチャ図。左ブロック：RISE with SAP S/4HANA Cloud Private Edition（モジュール群・BASIS・S/4 HANA・OS・VM・Cloud ServiceのスタックとSAP Cloud Connector）。中央にInternet Secure Tunnelを介した接続。右ブロック：Cloud SaaS & BTPのうちBusiness Technology Platformが強調表示（3rd-Party Integration・Custom Processes・Pre-made Templates・SAP Analytics Cloud）。S/4コアからBTPへの連携＝差別化の拡張を表す。"
+                caption="拡張開発による差別化：S/4コアはクリーンに保ちながら、BTP（Side-by-Side）でAI・連携・独自アプリを実現"
+                kind="diagram"
+              />
               <ol>
-                <li>
-                  <strong>【フロント】</strong> … <strong>顧客・サプライヤ</strong>（取引の入口）
-                </li>
-                <li>
-                  <strong>【ERP コア】</strong> … <strong>S/4HANA</strong>（受注・購買・会計などの業務処理）
-                </li>
-                <li>
-                  <strong>【拡張】</strong> … <strong>BTP</strong>（AI・連携・独自アプリ）
-                </li>
-                <li>
-                  <strong>【外部 SaaS】</strong> … <strong>Ariba / Concur / SuccessFactors</strong> など
-                </li>
+                <li><strong>【フロント】</strong> … <strong>顧客・サプライヤ</strong>（取引の入口）</li>
+                <li><strong>【ERP コア】</strong> … <strong>S/4HANA</strong>（受注・購買・会計などの業務処理）</li>
+                <li><strong>【拡張】</strong> … <strong>BTP</strong>（AI・連携・独自アプリ）</li>
+                <li><strong>【外部 SaaS】</strong> … <strong>Ariba / Concur / SuccessFactors</strong> など</li>
               </ol>
               <MermaidDiagram
                 chart={`flowchart TB
@@ -76,6 +78,9 @@ export default function EndToEndLesson() {
   S["【外部】\nSaaS\nAriba / Concur / SF"]
   F --> E --> X --> S`}
               />
+              <Dialog speaker="b">
+                取引先→社内→拡張→外部専門家、と順番に処理が流れるイメージですね。
+              </Dialog>
               <Dialog speaker="teacher">
                 案件では必ずしも4つ全部が同時に入るわけではありませんが、<strong>「どこに何があるか」</strong>の説明には最適な図です。
               </Dialog>
@@ -85,38 +90,37 @@ export default function EndToEndLesson() {
         {
           title: "つながりの例",
           plainText:
-            "例: サプライヤが Ariba で見積 → S/4 で発注・会計 → BTP で在庫連携 → Concur で経費。",
+            "例: サプライヤが Ariba で見積 → S/4 で発注・会計 → BTP で在庫連携 → Concur で経費。\n会議で「BTPでやりましょう」と言われたら拡張層の話だと分かる。\nAくん：「今の話はフロントか、コアか、拡張か、SaaSか」を切り分けられるようになりたい。",
           content: (
             <>
               <h2>つながりの例（イメージ）</h2>
               <p>4 段階を、調達から経費までのざっくりした流れで見てみます。</p>
               <ol>
-                <li>
-                  <strong>【フロント】</strong> … サプライヤがポータルや Ariba 経由で見積・受注情報をやり取り
-                </li>
-                <li>
-                  <strong>【ERP コア】</strong> … S/4HANA で発注・入庫・仕訳（MM / FI）を処理
-                </li>
-                <li>
-                  <strong>【拡張】</strong> … BTP で倉庫システムや AI 需要予測と連携
-                </li>
-                <li>
-                  <strong>【外部 SaaS】</strong> … 出張者は Concur、人事評価は SuccessFactors
-                </li>
+                <li><strong>【フロント】</strong> … サプライヤがポータルや Ariba 経由で見積・受注情報をやり取り</li>
+                <li><strong>【ERP コア】</strong> … S/4HANA で発注・入庫・仕訳（MM / FI）を処理</li>
+                <li><strong>【拡張】</strong> … BTP で倉庫システムや AI 需要予測と連携</li>
+                <li><strong>【外部 SaaS】</strong> … 出張者は Concur、人事評価は SuccessFactors</li>
               </ol>
               <p>
                 実案件ではこのうち<strong>必要な段だけ</strong>を導入します。重要なのは、
                 「今の話はフロントか、コアか、拡張か、SaaS か」を切り分けられることです。
               </p>
-              <Dialog speaker="b">
+              <Dialog speaker="a">
                 会議で「BTP でやりましょう」と言われたら、<strong>拡張層</strong>の話だと分かる、という感じですね。
+              </Dialog>
+              <Dialog speaker="b">
+                「Ariba で見積」と聞いたら外部SaaSの話、と切り分けられるようになりたいです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                それができれば十分です。全部の機能を知らなくても、<strong>「どの段の話か」</strong>が言えれば会話に乗れます。
               </Dialog>
             </>
           ),
         },
         {
           title: "確認テスト",
-          plainText: "理解度チェック",
+          plainText:
+            "理解度チェック\nQ1 ERPコアに位置づけられるのは？→ S/4HANA\nQ2 拡張層の代表例は？→ BTP\n今日のひとこと：「どの段の話か」が言えれば、現場の会議に迷わず参加できます。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -127,11 +131,14 @@ export default function EndToEndLesson() {
                 options={["Concur のみ", "S/4HANA", "顧客ポータルのみ"]}
               />
               <Quiz
-                answer={2}
+                answer={1}
                 explanation="BTP は拡張層で AI や連携を担います。Ariba / Concur / SuccessFactors は外部 SaaS 層の例です。"
                 question={<strong>【拡張】層の代表例は？</strong>}
                 options={["SAP GUI", "BTP", "紙の伝票"]}
               />
+              <Dialog speaker="closing">
+                「どの段の話か」が言えれば、現場の会議に迷わず参加できます。
+              </Dialog>
             </>
           ),
         },
