@@ -8,6 +8,7 @@ import {
   coursesIndexHref,
   lessonHref,
 } from "../lib/courses";
+import { CourseSearch } from "../components/course-search";
 import { cn } from "../lib/cn";
 import type { Course, CourseLesson } from "../lib/types";
 
@@ -146,6 +147,7 @@ function CourseCard({ course }: { course: Course }) {
 function CoursePickerPage() {
   return (
     <PageShell title="コースを選ぶ" description="学びたいコースを選んでください。">
+      <CourseSearch placeholder="全コースから検索…" className="mb-6" />
       <div className="grid items-stretch gap-4 sm:grid-cols-2">
         {courses.map((course) => (
           <CourseCard key={course.slug} course={course} />
@@ -162,6 +164,11 @@ function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boo
       description={course.description || "レッスンを選んで学習を始めましょう。"}
       backHref={showBack ? coursesIndexHref() : undefined}
     >
+      <CourseSearch
+        courseSlug={course.slug}
+        placeholder="このコース内を検索…"
+        className="mb-6"
+      />
       <LessonList course={course} />
     </PageShell>
   );

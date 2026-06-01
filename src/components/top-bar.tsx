@@ -7,6 +7,7 @@ interface TopBarProps {
   total: number;
   indexHref: string;
   onOpenMenu: () => void;
+  onOpenSearch?: () => void;
 }
 
 export function TopBar({
@@ -16,6 +17,7 @@ export function TopBar({
   total,
   indexHref,
   onOpenMenu,
+  onOpenSearch,
 }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white/80 px-4 py-2.5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
@@ -41,6 +43,18 @@ export function TopBar({
       <span className="hidden whitespace-nowrap text-sm tabular-nums text-slate-500 sm:inline dark:text-slate-400">
         {current} / {total}
       </span>
+
+      {onOpenSearch ? (
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          aria-label="コース内検索を開く"
+        >
+          <span aria-hidden>🔍</span>
+          <span className="hidden sm:inline">検索</span>
+        </button>
+      ) : null}
 
       <ThemeToggle />
 

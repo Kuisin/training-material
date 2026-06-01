@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { buildSearchIndex } from './scripts/extract-search-index.mjs';
 
 function htmlShell(scriptHref, cssHrefs = []) {
   const cssLinks = cssHrefs
@@ -127,6 +128,10 @@ function readCourseImages(root) {
  * courses/<slug>/*.tsx 用の HTML をビルド時に生成し、dev では仮想ルートで配信する。
  * ルート index はプロジェクト直下の index.html を使う（Vite 標準）。
  */
+function searchIndexJson(root) {
+  return JSON.stringify(buildSearchIndex(root));
+}
+
 export function tsxMpaPlugin({ root }) {
   const indexHtml = path.resolve(root, 'index.html');
   const lessons = readLessonEntries(root);
@@ -153,6 +158,21 @@ export function tsxMpaPlugin({ root }) {
       base = config.base;
     },
     configureServer(server) {
+      // 検索インデックス（dev ではリクエスト時に再生成）
+      server.middlewares.use((req, res, next) => {
+        const pathname = req.url?.split('?')[0] ?? '';
+        const basePrefix = base.endsWith('/') ? base.slice(0, -1) : base;
+        const rel =
+          basePrefix && pathname.startsWith(basePrefix)
+            ? pathname.slice(basePrefix.length)
+            : pathname;
+        if (rel !== '/search-index.json') return next();
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.end(searchIndexJson(root));
+      });
+
       // 画像配信: /<slug>/image/<file> を courses/<slug>/image/<file> から返す
       server.middlewares.use((req, res, next) => {
         const pathname = req.url?.split('?')[0] ?? '';
@@ -235,6 +255,12 @@ export function tsxMpaPlugin({ root }) {
           source: fs.readFileSync(image.absPath),
         });
       }
+
+      this.emitFile({
+        type: 'asset',
+        fileName: 'search-index.json',
+        source: searchIndexJson(root),
+      });
     },
   };
 }

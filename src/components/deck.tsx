@@ -5,7 +5,9 @@ import { TopBar } from "./top-bar";
 import { Controls } from "./controls";
 import { SlideMenu } from "./slide-menu";
 import { AiAskButton } from "./ai-ask-button";
+import { CourseSearchDialog } from "./course-search";
 import { Slide } from "./slide";
+import { courseSlugFromPathname } from "../lib/course-search";
 
 interface DeckProps {
   chrome: LessonChrome;
@@ -32,6 +34,8 @@ export function Deck({ chrome, slides }: DeckProps) {
   const total = slides.length;
   const [idx, setIdx] = useState(() => initialIndex(total));
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const courseSlug = courseSlugFromPathname(window.location.pathname);
 
   const go = useCallback(
     (next: number) => {
@@ -63,6 +67,14 @@ export function Deck({ chrome, slides }: DeckProps) {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        if (courseSlug) {
+          e.preventDefault();
+          setSearchOpen(true);
+        }
+        return;
+      }
+      if (searchOpen) return;
       if (e.key === "ArrowRight" || e.key === "PageDown") goNext();
       else if (e.key === "ArrowLeft" || e.key === "PageUp") goPrev();
       else if (e.key === "Home") go(0);
@@ -70,7 +82,7 @@ export function Deck({ chrome, slides }: DeckProps) {
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, go, total]);
+  }, [goNext, goPrev, go, total, searchOpen, courseSlug]);
 
   // 外部からのハッシュ変更（URL 直接編集・戻る/進む）にも追従する。
   useEffect(() => {
@@ -96,12 +108,19 @@ export function Deck({ chrome, slides }: DeckProps) {
         total={total}
         indexHref={chrome.indexHref}
         onOpenMenu={() => setMenuOpen(true)}
+        onOpenSearch={courseSlug ? () => setSearchOpen(true) : undefined}
       />
       <AiAskButton title={chrome.title} slides={slides} />
 
       <main className="mx-auto w-full max-w-3xl px-5 py-8">
         <Slide slide={slides[idx]} />
       </main>
+
+      <CourseSearchDialog
+        open={searchOpen}
+        courseSlug={courseSlug}
+        onClose={() => setSearchOpen(false)}
+      />
 
       <SlideMenu
         open={menuOpen}
