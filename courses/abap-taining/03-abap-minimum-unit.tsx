@@ -132,6 +132,92 @@ WRITE 'こんにちは、ABAP'.`}
           ),
         },
         {
+          title: "REPORT のオプション",
+          plainText:
+            "レポート宣言のオプション\nREPORT 行には用紙サイズや標準ヘッダの有無を指定できるオプションが付けられる。\nREPORT z_report LINE-SIZE 170 LINE-COUNT 58 NO STANDARD PAGE HEADING.\nLINE-SIZE＝1行の横幅／LINE-COUNT＝1ページの行数／NO STANDARD PAGE HEADING＝SAP標準のページヘッダを出さない\nAくん：用紙の向きや余白を最初に決める、という感じですね。\n先生：帳票レポートではこの3つをよく使う。見た目の土台はここで決めます。",
+          content: (
+            <>
+              <h2>レポート宣言のオプション</h2>
+              <p>
+                <code>REPORT</code> 行には、用紙サイズや標準ヘッダの有無を指定する<strong>オプション</strong>を付けられます。
+                帳票出力のレポートでは、次のような宣言がよく使われます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`REPORT z_report
+  LINE-SIZE 170
+  LINE-COUNT 58
+  NO STANDARD PAGE HEADING.`}
+              />
+              <InfoPanel
+                title="よく使う REPORT オプション"
+                variant="reference"
+                lead="名前は英語の意味どおりと覚えると読みやすい。"
+              >
+                <ul>
+                  <li>
+                    <code>LINE-SIZE 170</code> … 1行の横幅（文字数）。列をそろえるときの基準になる
+                  </li>
+                  <li>
+                    <code>LINE-COUNT 58</code> … 1ページあたりの行数。改ページの目安
+                  </li>
+                  <li>
+                    <code>NO STANDARD PAGE HEADING</code> … SAP標準のページヘッダ（日付・ページ番号など）を出さない。帳票ヘッダを自分で設計するときに使う
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                用紙の向きや余白を最初に決める、という感じですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。帳票の「土台」を <code>REPORT</code> 行で決めてから、あとで <code>WRITE</code> や <code>TOP-OF-PAGE</code>（第7章）で中身を整えます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "システム変数",
+          plainText:
+            "システム変数 SY-*\nSAPが自動で用意する値。自分で DATA 宣言しない。\nSY-DATUM＝今日の日付／SY-UZEIT＝現在時刻／SY-UNAME＝ログインユーザ／SY-SUBRC＝直前の命令の結果（0＝成功）\n先生：帳票ヘッダに実行日・ユーザ名を出すときは SY-DATUM や SY-UNAME を使う。取得結果の確認は SY-SUBRC（第6章で詳しく）。",
+          content: (
+            <>
+              <h2>システム変数 <code>SY-*</code></h2>
+              <p>
+                <code>SY-</code> で始まる変数は、SAPが実行時に自動で値を入れてくれる<strong>システム変数</strong>です。
+                自分で <code>DATA</code> 宣言する必要はありません。
+              </p>
+              <InfoPanel
+                title="よく使う SY-*"
+                variant="reference"
+                lead="帳票ヘッダ出力と、データ取得後の結果確認で登場します。"
+              >
+                <ul>
+                  <li>
+                    <code>SY-DATUM</code> … 今日の日付（<code>YYYYMMDD</code> 形式）。帳票の「出力日」に使う
+                  </li>
+                  <li>
+                    <code>SY-UZEIT</code> … 現在時刻。必要に応じて帳票ヘッダに表示
+                  </li>
+                  <li>
+                    <code>SY-UNAME</code> … ログインユーザ名。「誰が実行したか」の記録
+                  </li>
+                  <li>
+                    <code>SY-SUBRC</code> … 直前の命令の結果。<code>0</code>＝成功。第6章で <code>SELECT</code> 後の確認に使う
+                  </li>
+                </ul>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`WRITE: / '出力日:', sy-datum,
+       / '実行者:', sy-uname.`}
+              />
+              <Dialog speaker="teacher">
+                帳票ヘッダに「いつ・誰が」実行したかを残すのは実務でも定番です。<code>SY-DATUM</code> や <code>SY-UNAME</code> を使えば、1行で済みます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "変数",
           plainText:
             "変数 ＝ 中身を入れ替えられる箱\nDATA で箱を用意する。箱には名前を付け、あとから値を入れたり替えたりできる。\nDATA lv_name TYPE string.\nlv_name = '田中'.\nWRITE lv_name.\nAくん：数学の文字 x のようなもの。x にいろいろな値を代入できる、あの感覚。\nBちゃん：ラベルを貼ったタッパー。中身は入れ替えられるけど容器の名前は同じ。\n先生：その2つのたとえ、どちらも正解です。",

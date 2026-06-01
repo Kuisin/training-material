@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
   mountLesson,
 } from "../../src/lesson";
 
@@ -140,6 +141,86 @@ export default function SelectionScreenLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 1点を指すなら <code>PARAMETERS</code>、幅で指すなら <code>SELECT-OPTIONS</code>。これが使い分けの軸です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "必須入力（OBLIGATORY）",
+          plainText:
+            "OBLIGATORY ＝ 空欄のまま実行させない\n会社コードのように必ず指定してほしい項目は OBLIGATORY を付ける。空のまま実行ボタンを押すとSAPが止めてくれる。\nPARAMETERS p_bukrs TYPE t001-bukrs OBLIGATORY.\nBちゃん：必須マーク付きの入力欄と同じですね。\n先生：会社コードを必須にすれば、全件取得の事故を防げます。",
+          content: (
+            <>
+              <h2>必須入力（<code>OBLIGATORY</code>）</h2>
+              <p>
+                会社コードのように<strong>必ず指定してほしい項目</strong>には、
+                <code>OBLIGATORY</code>（必須）を付けます。空のまま実行しようとすると、SAPが入力を求めて止めてくれます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`PARAMETERS p_bukrs TYPE t001-bukrs OBLIGATORY.`}
+              />
+              <Callout variant="note">
+                会社コードのように、絞り込みの起点になる項目は <code>OBLIGATORY</code> にするのが定番です。
+                条件なしの全件取得は重くなるうえ、意図しないデータまで拾ってしまいます。
+              </Callout>
+              <Dialog speaker="b">
+                Webフォームの「必須」マーク付き入力欄と同じですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その感覚でOKです。入口で「最低限これだけは入れて」と決めておくと、後続の <code>SELECT</code> が安全になります。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "SELECT-OPTIONSの中身",
+          plainText:
+            "SELECT-OPTIONS の内部構造\n画面で見える From/To は、内部では SIGN・OPTION・LOW・HIGH の4項目で1行を表す。\nSIGN＝I(含む)/E(除外)／OPTION＝EQ(等しい)/BT(範囲)など／LOW＝下限／HIGH＝上限\nAくん：WHERE ... IN s_budat と書けばSAPがこの構造を解釈してくれるんですね。\n先生：初学者は画面の From/To だけ意識すれば十分。IN 句で渡すのがポイント。",
+          content: (
+            <>
+              <h2><code>SELECT-OPTIONS</code> の内部構造</h2>
+              <p>
+                画面では From / To の2欄に見えますが、内部では次の4項目で<strong>1行の条件</strong>を表します。
+                複数行入力すると、条件が複数行分たまります。
+              </p>
+              <InfoPanel
+                title="SELECT-OPTIONS 1行の構成"
+                variant="reference"
+                lead="画面操作だけなら意識しなくても動きますが、デバッグや応用で名前が出てきます。"
+              >
+                <ul>
+                  <li>
+                    <code>SIGN</code> … <code>I</code>（含む）/ <code>E</code>（除外）
+                  </li>
+                  <li>
+                    <code>OPTION</code> … <code>EQ</code>（等しい）/ <code>BT</code>（Between＝範囲）/ <code>CP</code>（パターン）など
+                  </li>
+                  <li>
+                    <code>LOW</code> … 下限（From に相当）
+                  </li>
+                  <li>
+                    <code>HIGH</code> … 上限（To に相当。単一値のときは空）
+                  </li>
+                </ul>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`DATA g_date TYPE d.
+SELECT-OPTIONS s_date FOR g_date.
+
+" SELECT 側では IN でそのまま渡せる
+SELECT belnr budat
+  FROM bkpf
+  INTO TABLE lt_bkpf
+  WHERE bukrs = p_bukrs
+    AND budat IN s_date.`}
+              />
+              <Dialog speaker="a">
+                <code>WHERE ... IN s_date</code> と書けば、SAPが内部構造を解釈してくれるんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。初学者は画面の From/To を意識し、<code>IN</code> 句で渡す——この2点を押さえれば十分です。
               </Dialog>
             </>
           ),

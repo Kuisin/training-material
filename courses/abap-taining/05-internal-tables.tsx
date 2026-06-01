@@ -160,6 +160,53 @@ DATA lt_tab TYPE TABLE OF bkpf.`}
           ),
         },
         {
+          title: "自分で型を定義する",
+          plainText:
+            "TYPES BEGIN OF … END OF\n必要な列だけ持つ独自の行型を定義できる。DB テーブルから必要項目だけ抜き出した型を作る典型パターン。\nTYPES: BEGIN OF ty_bkpf_sel, bukrs TYPE bkpf-bukrs, belnr TYPE bkpf-belnr, gjahr TYPE bkpf-gjahr, END OF ty_bkpf_sel.\nDATA ls_bkpf_sel TYPE ty_bkpf_sel. \" 作業領域\nDATA lt_bkpf_sel TYPE STANDARD TABLE OF ty_bkpf_sel. \" 内部テーブル\nAくん：テーブル項目を参照して型を決めると、型不一致のダンプを防げますね。\n先生：その通り。必要な列だけに絞ると、メモリも読みやすさも良くなります。",
+          content: (
+            <>
+              <h2>自分で型を定義する（<code>TYPES BEGIN OF</code>）</h2>
+              <p>
+                テーブル全体（<code>bkpf</code>）をそのまま使う代わりに、
+                <strong>必要な列だけ</strong>を持つ独自の行型を定義できます。
+                取得・出力に必要な項目だけに絞りたいときの定番パターンです。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`TYPES: BEGIN OF ty_bkpf_sel,
+         bukrs TYPE bkpf-bukrs,
+         belnr TYPE bkpf-belnr,
+         gjahr TYPE bkpf-gjahr,
+       END OF ty_bkpf_sel.
+
+DATA ls_bkpf_sel TYPE ty_bkpf_sel.                    " 作業領域（1行）
+DATA lt_bkpf_sel TYPE STANDARD TABLE OF ty_bkpf_sel.  " 内部テーブル（複数行）`}
+              />
+              <h3>1行ずつ読む</h3>
+              <ul>
+                <li>
+                  <code>TYPES: BEGIN OF ... END OF.</code> … 行の「設計図」を自分で定義。各項目は <code>TYPE bkpf-項目</code> でテーブルと同じ型・桁にする
+                </li>
+                <li>
+                  <code>ls_bkpf_sel</code> … 作業領域（机の上の1枚）。<code>LOOP ... INTO</code> の受け皿
+                </li>
+                <li>
+                  <code>lt_bkpf_sel</code> … 内部テーブル（棚）。<code>SELECT ... INTO TABLE</code> の受け皿
+                </li>
+              </ul>
+              <Callout variant="warning">
+                型不一致は実行時ダンプの典型原因です。項目の型は必ず <code>TYPE [テーブル]-[項目]</code> でテーブルに合わせましょう。
+              </Callout>
+              <Dialog speaker="a">
+                テーブル項目を参照して型を決めると、型不一致のダンプを防げますね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。必要な列だけに絞ると、メモリ効率も読みやすさも上がります。「型・作業領域・内部テーブル」の3点セットとして覚えておいてください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "作り方",
           plainText:
             "内部テーブルの作り方\nまず形（型）を決め、その形の入れ物を用意する。\nTYPES: tt_bkpf TYPE STANDARD TABLE OF bkpf WITH EMPTY KEY.\nDATA: lt_bkpf TYPE tt_bkpf,\n      ls_bkpf TYPE bkpf.\n先生：TYPE TABLE OF は STANDARD TABLE OF の短い書き方。最初は STANDARD（標準）でOK。\nAくん：TYPES が設計図、DATA が実物、という関係ですね。\n先生：その通り。設計図は何個でも実物を作れます。\nBちゃん：クッキーの型と、焼いたクッキー本体、みたいな？\n先生：完璧なたとえです。型は1つ、クッキー（データ）はたくさん。",

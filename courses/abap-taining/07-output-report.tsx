@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
   mountLesson,
 } from "../../src/lesson";
 
@@ -136,6 +137,113 @@ ENDLOOP.`}
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。数字（20, 40）は「何桁目から書くか」という位置指定。列をそろえると一気に表らしくなります。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "WRITE の書式",
+          plainText:
+            "WRITE の位置・桁・表示オプション\n/10(20) は10桁目から20文字幅。NO-ZERO・NO-SIGN・RIGHT-JUSTIFIED などで見た目を整える。\nWRITE /10(20) sy-datum+4(2) RIGHT-JUSTIFIED.\nAくん：列幅と右寄せを指定すれば、数字が表らしく並びますね。\n先生：帳票ヘッダでも日付や数値の整列に使います。",
+          content: (
+            <>
+              <h2><code>WRITE</code> の位置・桁・表示オプション</h2>
+              <p>
+                <code>WRITE</code> には、<strong>どこに・何文字分・どう見せるか</strong>を指定する書式があります。
+                帳票ヘッダ・明細の整列に使います。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" /10(20) … 10桁目から20文字幅で書く
+WRITE /10(20) sy-datum+4(2) RIGHT-JUSTIFIED.
+
+" よく使うオプション
+WRITE: lv_amount NO-ZERO,      " 先頭の0を非表示
+       lv_amount NO-SIGN,      " 符号（+/-）を非表示
+       lv_text LEFT-JUSTIFIED, " 左寄せ
+       lv_title CENTERED.      " 中央寄せ`}
+              />
+              <InfoPanel
+                title="WRITE の主なオプション"
+                variant="reference"
+                lead="位置指定と表示オプションを組み合わせて、帳票の列をそろえます。"
+              >
+                <ul>
+                  <li>
+                    <code>/10(20)</code> … 10桁目から最大20文字幅。見出しと明細で同じ数字を使うと列が揃う
+                  </li>
+                  <li>
+                    <code>NO-ZERO</code> … 数値の先頭ゼロを非表示
+                  </li>
+                  <li>
+                    <code>NO-SIGN</code> … 符号（+/-）を非表示
+                  </li>
+                  <li>
+                    <code>RIGHT-JUSTIFIED</code> / <code>LEFT-JUSTIFIED</code> / <code>CENTERED</code> … 寄せ方向
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                列幅と右寄せを指定すれば、数字が表らしく並びますね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                まず <code>ULINE</code> で区切り線、次に <code>WRITE</code> の位置指定で列をそろえる——この2段が帳票の基本形です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "イベント",
+          plainText:
+            "START-OF-SELECTION / TOP-OF-PAGE\n実行ボタンを押したあとのメイン処理は START-OF-SELECTION。各ページの先頭は TOP-OF-PAGE。\nSTART-OF-SELECTION. … SELECT / SORT / LOOP …\nTOP-OF-PAGE. … WRITE 帳票ヘッダ / ULINE …\nBちゃん：メイン処理とページヘッダを分けて書くんですね。\n先生：取得・判定・出力は START-OF-SELECTION の中。帳票ヘッダは TOP-OF-PAGE に置く。",
+          content: (
+            <>
+              <h2>イベント：<code>START-OF-SELECTION</code> / <code>TOP-OF-PAGE</code></h2>
+              <p>
+                レポートプログラムでは、処理を<strong>イベント</strong>（きっかけ）ごとにブロックに分けて書きます。
+                照会レポートでよく使うのは主に次の2つです。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`START-OF-SELECTION.
+  " 実行ボタン押下後のメイン処理
+  SELECT bukrs belnr gjahr budat
+    FROM bkpf
+    INTO TABLE lt_bkpf
+    WHERE bukrs = p_bukrs
+      AND budat IN s_budat.
+
+  IF sy-subrc <> 0.
+    MESSAGE '該当する伝票がありません' TYPE 'E'.
+  ENDIF.
+
+  SORT lt_bkpf BY budat belnr.
+  " LOOP で明細出力 …
+
+TOP-OF-PAGE.
+  " 各ページの先頭（帳票ヘッダ）
+  WRITE: / '会計伝票一覧', 60 '出力日:', sy-datum.
+  ULINE.`}
+              />
+              <MermaidDiagram
+                chart={`flowchart TD
+  A[実行ボタン] --> B[START-OF-SELECTION]
+  B --> C[SELECT → 判定 → SORT → LOOP]
+  C --> D[WRITE で出力]
+  D --> E{改ページ?}
+  E -->|はい| F[TOP-OF-PAGE: ヘッダ出力]
+  F --> D`}
+              />
+              <Callout variant="note">
+                <code>NO STANDARD PAGE HEADING</code>（第3章）とセットで使うと、SAP標準ヘッダの代わりに
+                <code>TOP-OF-PAGE</code> で独自の帳票ヘッダを毎ページ出せます。
+              </Callout>
+              <Dialog speaker="b">
+                メイン処理とページヘッダを分けて書くんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                取得・判定・出力は <code>START-OF-SELECTION</code> の中。
+                帳票ヘッダの出力は <code>TOP-OF-PAGE</code> に置く——この分担を覚えてください。
               </Dialog>
             </>
           ),

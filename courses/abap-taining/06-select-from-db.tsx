@@ -1,12 +1,14 @@
 import {
   Lesson,
   lessonChrome,
+  Callout,
   Dialog,
   CodeBlock,
   Quiz,
   MermaidDiagram,
   Figure,
   LessonMeta,
+  InfoPanel,
   mountLesson,
 } from "../../src/lesson";
 
@@ -232,6 +234,98 @@ export default function SelectFromDbLesson() {
               />
               <Dialog speaker="teacher">
                 性能の話は第13章で深掘りします。今は「まとめて運ぶのが基本形」と覚えてください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "条件分岐（IF / CASE）",
+          plainText:
+            "条件分岐 IF / CASE\n取得結果や項目値に応じて処理を分ける。SY-SUBRC の確認も IF で行う。\nIF sy-subrc <> 0. MESSAGE 'データなし' TYPE 'E'. ENDIF.\nCASE ls_bkpf-blart. WHEN 'SA'. ... WHEN OTHERS. ... ENDCASE.\nAくん：IF は二択、CASE は複数の値から選ぶ、という使い分けですね。\n先生：SELECT 後の IF sy-subrc が最重要。CASE は伝票タイプごとに表示を変えたいときなどに使います。",
+          content: (
+            <>
+              <h2>条件分岐（<code>IF</code> / <code>CASE</code>）</h2>
+              <p>
+                取得結果や項目の値に応じて、処理の道筋を変えます。
+                照会レポートでいちばん重要なのは、<code>SELECT</code> のあとに <code>IF sy-subrc</code> で分岐することです。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`IF sy-subrc <> 0.
+  MESSAGE 'データなし' TYPE 'E'.
+ENDIF.
+
+" 複数の値から分岐したいとき
+CASE ls_bkpf-blart.
+  WHEN 'SA'.
+    " 総勘定元帳伝票
+  WHEN 'KR'.
+    " 仕入先伝票
+  WHEN OTHERS.
+    " その他
+ENDCASE.`}
+              />
+              <Callout variant="note">
+                <code>IF</code> … はい／いいえの二択、または <code>ELSEIF</code> で段階的に分岐。
+                <code>CASE</code> … 1つの変数の値が決まった候補のどれか、という分岐向け。
+              </Callout>
+              <Dialog speaker="a">
+                <code>IF</code> は二択、<code>CASE</code> は複数の値から選ぶ、という使い分けですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>SELECT</code> のあとに <code>IF sy-subrc</code> で結果を確認する——これが安全なレポートの基本です。0件のときにそのまま <code>LOOP</code> や帳票出力へ進まないようにします。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "メッセージ（MESSAGE）",
+          plainText:
+            "MESSAGE で利用者に伝える\n処理結果やエラーを画面に表示する。TYPE で種類（S/E/W/I/A）を指定する。\nMESSAGE s001(z01) WITH '1000' 'BKPF'.\nS＝成功／E＝エラー（処理停止）／W＝警告／I＝情報／A＝強制終了\nBちゃん：E は赤いエラーで止まる、I は青いお知らせ、というイメージですね。",
+          content: (
+            <>
+              <h2>メッセージ（<code>MESSAGE</code>）</h2>
+              <p>
+                処理結果やエラーを、利用者の画面に伝えます。
+                データが0件のときに <code>MESSAGE</code> で「該当なし」を知らせる場面が典型です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" テキストを直接書く（手軽な方法）
+MESSAGE '該当する伝票がありません' TYPE 'I'.
+
+" メッセージクラスを使う（実務でよく見る形）
+MESSAGE s001(z01) WITH '1000' 'BKPF'.`}
+              />
+              <InfoPanel
+                title="MESSAGE TYPE の意味"
+                variant="reference"
+                lead="TYPE の1文字で、画面の見え方と処理への影響が決まります。"
+              >
+                <ul>
+                  <li>
+                    <code>S</code> … Success（成功）。緑のステータスバー
+                  </li>
+                  <li>
+                    <code>E</code> … Error（エラー）。処理を停止する
+                  </li>
+                  <li>
+                    <code>W</code> … Warning（警告）。続行可能だが注意を促す
+                  </li>
+                  <li>
+                    <code>I</code> … Information（情報）。該当なしのお知らせなど
+                  </li>
+                  <li>
+                    <code>A</code> … Abend（強制終了）。重大エラーでプログラムを止める
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="b">
+                <code>E</code> は赤いエラーで止まる、<code>I</code> は青いお知らせ、というイメージですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                0件のときは <code>TYPE &apos;I&apos;</code> か <code>&apos;E&apos;</code> を使い分けます。
+                「続行して空の帳票を出す」のが <code>I</code>、「条件を見直してほしい」のが <code>E</code>、という整理です。
               </Dialog>
             </>
           ),
