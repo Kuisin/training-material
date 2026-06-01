@@ -118,7 +118,7 @@ export default function BusinessBasicsLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。この一覧を ABAP で作るのが、前半の照会レポートの題材になります。
-                具体的な実装は別資料で進めますが、<strong>何を並べる帳票か</strong>はここで押さえておきましょう。
+                <strong>何を並べる帳票か</strong>はここで押さえておきましょう。
               </Dialog>
             </>
           ),

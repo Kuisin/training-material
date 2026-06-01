@@ -25,14 +25,13 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "概要",
           plainText:
-            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・履歴確認・主要トランザクションを、演習課題に依存しない形で整理します。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作と sy-subrc などの追い方（GUI操作手順付き）\n・SE16N・ST22・バージョン管理による履歴確認\n・よく使うトランザクションと汎用モジュールの位置づけ",
+            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・履歴確認・主要トランザクションを整理します。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作と sy-subrc などの追い方（GUI操作手順付き）\n・SE16N・ST22・バージョン管理による履歴確認\n・よく使うトランザクションと汎用モジュールの位置づけ",
           content: (
             <>
               <hgroup>
                 <h1>SAP開発ツール</h1>
                 <p>
-                  日々の開発で使う画面操作・デバッグ・<strong>履歴確認</strong>・主要トランザクションを、
-                  <strong>演習課題に依存しない</strong>形で整理します。
+                  日々の開発で使う画面操作・デバッグ・<strong>履歴確認</strong>・主要トランザクションを整理します。
                 </p>
               </hgroup>
               <LessonMeta
@@ -55,9 +54,6 @@ export default function SapDevelopmentToolsLesson() {
                 <li>よく使うトランザクションと汎用モジュールの位置づけ</li>
                 <li>アドオンテーブル（ドメイン → データエレメント → テーブル）と DB 更新の基本</li>
               </ul>
-              <Callout variant="note">
-                具体的な課題の手順・プログラム名は<strong>別資料（演習）</strong>で進めます。ここでは「どの道具を、何のために使うか」だけを押さえます。
-              </Callout>
             </>
           ),
         },
@@ -213,7 +209,7 @@ export default function SapDevelopmentToolsLesson() {
                 「エラーメッセージをそのままコピーして調べる」——地味ですが、実務でいちばん効く習慣です。最初は時間がかかっても、2回目以降が速くなります。
               </Dialog>
               <Callout variant="warning">
-                演習の答えをそのまま探すのではなく、「<strong>なぜそのエラーか</strong>」を理解する調べ方を身につけることが、研修後の独力につながります。
+                答えをそのまま探すのではなく、「<strong>なぜそのエラーか</strong>」を理解する調べ方を身につけましょう。
               </Callout>
             </>
           ),
@@ -247,7 +243,7 @@ export default function SapDevelopmentToolsLesson() {
                   終わったら <code>/n</code> でデバッグモードを<strong>終了</strong>（次回は通常実行に戻る）
                 </li>
               </ol>
-              <InfoPanel title="操作手順（SE38 → デバッガ）" variant="reference" lead="演習でそのまま試せる順番です。">
+              <InfoPanel title="操作手順（SE38 → デバッガ）" variant="reference">
                 <ol>
                   <li>
                     コマンド欄に <code>SE38</code> と入力 → <kbd>Enter</kbd>
@@ -582,7 +578,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                     初回のみ … 警告画面が出たら内容を確認し、チェックボックスにチェック → <strong>続行</strong>（環境により表示）
                   </li>
                   <li>
-                    <strong>テーブル名</strong>欄に <code>ZIFLOG</code>（演習で使う履歴表名）を入力 → <strong>実行</strong> または <kbd>Enter</kbd>
+                    <strong>テーブル名</strong>欄に <code>ZIFLOG</code>（第11章の履歴表の例）を入力 → <strong>実行</strong> または <kbd>Enter</kbd>
                   </li>
                   <li>
                     フィールド選択 … 確認したい列（<code>STATUS</code>・<code>BELNR</code> 等）にチェック → <strong>実行</strong>
@@ -638,13 +634,12 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
         {
           title: "操作チェックリスト",
           plainText:
-            "操作チェックリスト\nデバッグ：SE38→行番号クリック→/h→F8→F5/F6→Variables→/n\nST22：ST22→行ダブルクリック→Program/Line→SE38で再デバッグ\nSE16N：テーブル名→実行→キー入力→結果一覧\n版管理：SE38→ユーティリティ→バージョン管理→バージョン\n演習ではこの順番をそのまま試せる。",
+            "操作チェックリスト\nデバッグ：SE38→行番号クリック→/h→F8→F5/F6→Variables→/n\nST22：ST22→行ダブルクリック→Program/Line→SE38で再デバッグ\nSE16N：テーブル名→実行→キー入力→結果一覧\n版管理：SE38→ユーティリティ→バージョン管理→バージョン",
           content: (
             <>
               <h2>操作チェックリスト</h2>
               <p>
-                演習で「画面のどこを押すか」迷ったとき用の<strong>最短手順</strong>です。
-                詳細は前のスライドの InfoPanel を参照してください。
+                画面操作で迷ったとき用の<strong>最短手順</strong>です。詳細は前のスライドの InfoPanel を参照してください。
               </p>
               <InfoPanel title="デバッグ（最初の1回）" variant="reference">
                 <p>
@@ -814,7 +809,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
         {
           title: "データ辞書の作成順",
           plainText:
-            "データ辞書の作成順\nアドオンテーブルは SE11 で、ドメイン→データエレメント→テーブルの順が基本。ドメイン＝型と桁、DE＝項目定義、テーブル＝データ保持。主キー・拡張不可など技術設定もここで決める。演習の具体名は別資料。",
+            "データ辞書の作成順\nアドオンテーブルは SE11 で、ドメイン→データエレメント→テーブルの順が基本。ドメイン＝型と桁、DE＝項目定義、テーブル＝データ保持。主キー・拡張不可など技術設定もここで決める。",
           content: (
             <>
               <h2>データ辞書（<code>SE11</code>）の作成順</h2>
@@ -857,10 +852,6 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 マスタのメンテナンスは <code>SM30</code>（テーブル更新ダイアログ）で行うことがありますが、
                 連携プログラムからは <code>INSERT</code> 等で更新するのが一般的です。
               </p>
-              <Callout variant="note">
-                演習で作るテーブル名・項目名は<strong>別資料</strong>に従います。
-                ここでは「何を、どの順で作るか」だけを押さえます。
-              </Callout>
             </>
           ),
         },
@@ -1027,7 +1018,7 @@ DATA:
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：SE38のサイクル、F1、デバッガ、ST22/SE16Nでの履歴確認——道具の地図。\nBちゃん：演習は別資料、ここは辞書みたいで助かる。\nAくん：止まったらST22、動いたかはSE16N、と用途で束ねる。",
+            "対話で整理\n先生：SE38のサイクル、F1、デバッガ、ST22/SE16Nでの履歴確認——道具の地図。\nBちゃん：トランザクション名は多いけど、用途で束ねると覚えやすい。\nAくん：止まったらST22、動いたかはSE16N、と用途で束ねる。",
           content: (
             <>
               <h2>対話で整理</h2>
@@ -1036,7 +1027,7 @@ DATA:
                 <code>ST22</code> / <code>SE16N</code> での履歴確認——迷ったらここに戻ってください。
               </Dialog>
               <Dialog speaker="b">
-                演習の手順は別資料なので、ここは辞書として使えそうです。
+                トランザクション名は多いですが、用途で束ねると辞書みたいに使えそうです。
               </Dialog>
               <Dialog speaker="a">
                 調査も用途で束ねられますね。<strong>止まった</strong> → <code>ST22</code>、
@@ -1078,7 +1069,7 @@ DATA:
               />
               <Dialog speaker="closing">
                 道具は増えても、<code>SE38</code> のサイクルと <code>F1</code> があれば怖くない。
-                <strong>止まったら ST22、結果は SE16N、中身はデバッガ</strong>——この3つを手元に置いて演習を進みましょう。
+                <strong>止まったら ST22、結果は SE16N、中身はデバッガ</strong>——この3つを手元に置いておきましょう。
               </Dialog>
             </>
           ),

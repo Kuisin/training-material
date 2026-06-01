@@ -46,16 +46,13 @@ export default function DocumentPostingLesson() {
                 <li>登録を支える部品：アドオンテーブル・汎用モジュール・BAPI・ロックオブジェクト</li>
                 <li>BAPI の結果判定（<code>RETURN</code>）と確定（コミット）の関係</li>
               </ul>
-              <Callout variant="note">
-                プロジェクト演習の手順・オブジェクト名は<strong>別資料</strong>です。ここでは実案件と同型の「登録の型」だけを学びます。
-              </Callout>
             </>
           ),
         },
         {
           title: "連携登録の目的",
           plainText:
-            "連携登録の目的と構成\n外部システム由来の会計データを、SAPへ安全に登録する典型パターン。要件：取込・伝票登録・履歴管理（重複防止）・エラー保持。\n構成：レポート→ファイル読込→BAPI登録→汎用モジュールで履歴。アドオンテーブルに結果を残す。\n演習手順は別資料。ここでは部品の役割と順序だけ。",
+            "連携登録の目的と構成\n外部システム由来の会計データを、SAPへ安全に登録する典型パターン。要件：取込・伝票登録・履歴管理（重複防止）・エラー保持。\n構成：レポート→ファイル読込→BAPI登録→汎用モジュールで履歴。アドオンテーブルに結果を残す。",
           content: (
             <>
               <h2>連携登録の目的と構成</h2>
@@ -81,7 +78,7 @@ export default function DocumentPostingLesson() {
               />
               <Dialog speaker="teacher">
                 ファイルの置き場所や論理名、テーブル名はプロジェクトごとに決まります。
-                演習では別資料で触れますが、<strong>この図の役割分担</strong>は本番でもほぼ同じです。
+                <strong>この図の役割分担</strong>は本番でもほぼ同じです。
               </Dialog>
             </>
           ),
@@ -284,7 +281,6 @@ ENDIF.`}
               <Dialog speaker="teacher">
                 実務で特に押さえる3点は、<strong>BAPI とコミットのセット</strong>、
                 <strong><code>RETURN</code> のエラー確認</strong>、<strong>ロック（<code>ENQUEUE</code>）</strong>です。
-                演習の細部は別資料、ここでは判断の型を身につけてください。
               </Dialog>
             </>
           ),
@@ -531,7 +527,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
         {
           title: "実装の全体フロー",
           plainText:
-            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第15章が①②、本章が⑧の土台と③〜⑦の責任。演習は別資料で各パーツを練習し、本番はこの順でつなぐ。",
+            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第15章が①②、本章が⑧の土台と③〜⑦の責任。",
           content: (
             <>
               <h2>実装の全体フロー（最重要）</h2>
@@ -567,7 +563,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
                 </ul>
               </InfoPanel>
               <Dialog speaker="a">
-                演習ではパーツごとに作りますが、本番はこの図のように<strong>つながった1本</strong>なんですね。
+                開発ではパーツごとに作ることもありますが、本番はこの図のように<strong>つながった1本</strong>なんですね。
               </Dialog>
             </>
           ),

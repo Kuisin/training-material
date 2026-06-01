@@ -31,7 +31,7 @@ export default function FilesJobsAndBatchLesson() {
                 <h1>ファイル連携とバッチ</h1>
                 <p>
                   請求データの取込・夜間処理・画面登録の自動化など、
-                  FI/ERP 連携で頻出する仕組みを、演習に依存しない形で整理します。
+                  FI/ERP 連携で頻出する仕組みを整理します。
                 </p>
               </hgroup>
               <LessonMeta
@@ -51,9 +51,6 @@ export default function FilesJobsAndBatchLesson() {
                 <li>バックグラウンドジョブの作成と確認（<code>SM36</code> / <code>SM37</code>）</li>
                 <li>バッチインプット（BDC）の考え方</li>
               </ul>
-              <Callout variant="note">
-                演習のファイル名・配置手順は<strong>別資料</strong>です。ここでは ABAP からファイルを読む<strong>型</strong>を学びます。
-              </Callout>
             </>
           ),
         },
@@ -222,7 +219,6 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
               />
               <Callout variant="tip">
                 区切り文字・文字コード・ヘッダ行の有無は<strong>設計書</strong>で確認します。
-                演習資料のフォーマット定義と、本番のインターフェース仕様は同じ考え方です。
               </Callout>
             </>
           ),
@@ -310,7 +306,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
                 本来手で入力する画面操作を、データとして記録し、プログラムから<strong>自動再生</strong>する仕組みです。
                 標準トランザクションで登録する処理（伝票登録など）を、API が無い・使わない場合の選択肢として残っています。
               </p>
-              <p>おおまかな流れは次のとおりです（詳細手順は別資料・プロジェクト標準に従います）。</p>
+              <p>おおまかな流れは次のとおりです（詳細はプロジェクト標準に従います）。</p>
               <ol>
                 <li>
                   <code>SM35</code> などで画面操作を<strong>記録</strong>し、BDC 用のデータ構造を得る
@@ -373,7 +369,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
               </h2>
               <p>
                 BDC データを渡して、指定したトランザクションを実行する典型的な書き方です。
-                トランザクションコードは<strong>業務で使う画面のコード</strong>（例: 伝票登録系）であり、演習固有の名前ではありません。
+                トランザクションコードは<strong>業務で使う画面のコード</strong>（例: 伝票登録系）です。
               </p>
               <CodeBlock
                 language="ABAP"
@@ -430,7 +426,7 @@ ENDIF.`}
   file --> reg`}
               />
               <Dialog speaker="teacher">
-                演習では各パーツを分けて練習しますが、本番では第11章の<strong>9段フロー</strong>としてつながります。
+                開発では各パーツを分けて作ることもありますが、本番では第11章の<strong>9段フロー</strong>としてつながります。
                 設計書を読むときは「ファイルか・ジョブか・登録か」を意識すると迷いません。
               </Dialog>
             </>

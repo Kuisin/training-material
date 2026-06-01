@@ -871,7 +871,7 @@ IF lv_found = 'X'.`}
               </InfoPanel>
               <Dialog speaker="teacher">
                 章の地図（第1章）と、ここでの実務の型をセットで覚えておいてください。
-                具体的な課題実装は別資料で進めますが、<strong>なぜその技術が要るか</strong>はここまでで一通り押さえました。
+                <strong>なぜその技術が要るか</strong>はここまでで一通り押さえました。
               </Dialog>
             </>
           ),
