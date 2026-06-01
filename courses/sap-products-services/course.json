@@ -1,0 +1,16 @@
+{
+  "title": "SAP 構造とサービス紹介",
+  "active": true,
+  "description": "SAP ERP の全体像・三層構造・S/4HANA モジュール・クラウド製品・標準化と拡張（BTP）・エンドツーエンド構造まで、製品とサービスの地図を学ぶコース。",
+  "lessons": [
+    { "file": "00-introduction", "title": "SAP ERP とは — DX 基盤としての3つの軸", "meta": "初学者 · 15分" },
+    { "file": "01-overview", "title": "コース全体像 — この研修で身につける地図", "meta": "初学者 · 10分" },
+    { "file": "02-three-layers", "title": "三層構造 — 業務・データ・システム", "meta": "初学者 · 20分" },
+    { "file": "03-s4hana-modules", "title": "S/4HANA とモジュール — 業務ロジックの地図", "meta": "初学者 · 25分" },
+    { "file": "04-cloud-landscape", "title": "クラウド製品 — RISE・SaaS・BTP・Analytics", "meta": "初学者 · 25分" },
+    { "file": "05-fit-to-standard", "title": "標準化 — Fit to Standard の考え方", "meta": "初学者 · 15分" },
+    { "file": "06-extensions-clean-core", "title": "差別化と拡張 — Clean Core と BTP", "meta": "初学者 · 20分" },
+    { "file": "07-end-to-end", "title": "エンドツーエンド — フロントから SaaS まで", "meta": "初学者 · 15分" },
+    { "file": "08-review-and-quiz", "title": "総仕上げ — 構造の復習と確認テスト", "meta": "初学者 · 20分" }
+  ]
+}
