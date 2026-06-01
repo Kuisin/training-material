@@ -1,0 +1,16 @@
+{
+  "title": "SAP GUI 基礎",
+  "active": true,
+  "description": "SAP GUI の画面構成・ログイン・トランザクション・ショートカットまで、初心者がゼロから操作できるようになるコース。",
+  "lessons": [
+    { "file": "00-introduction", "title": "SAP GUI とは — なぜ操作を覚えるのか", "meta": "初学者 · 10分" },
+    { "file": "01-overview", "title": "コース全体像 — この研修で身につけること", "meta": "初学者 · 10分" },
+    { "file": "02-login-and-connection", "title": "ログインと接続 — クライアント・ユーザー・パスワード", "meta": "初学者 · 15分" },
+    { "file": "03-screen-layout", "title": "画面の見方 — メニュー・ツールバー・ステータスバー", "meta": "初学者 · 15分" },
+    { "file": "04-transactions", "title": "トランザクション — コマンド欄とお気に入り", "meta": "初学者 · 20分" },
+    { "file": "05-navigation", "title": "画面の移動 — 戻る・セッション・複数画面", "meta": "初学者 · 15分" },
+    { "file": "06-input-and-help", "title": "入力とヘルプ — F4・必須項目・メッセージ", "meta": "初学者 · 15分" },
+    { "file": "07-shortcuts", "title": "ショートカット集 — 覚えると速くなるキー操作", "meta": "初学者 · 20分" },
+    { "file": "08-tips-and-practice", "title": "実務のコツ — 設定・トラブル対処・確認テスト", "meta": "初学者 · 15分" }
+  ]
+}
