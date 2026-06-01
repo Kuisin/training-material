@@ -23,7 +23,7 @@ export default function SelectFromDbLesson() {
         {
           title: "概要",
           plainText:
-            "データベースから取得する\n倉庫から取ってくる依頼（SELECT）→ 本当に取れたか確認（SY-SUBRC）の2段で学びます。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SELECT ＝ 倉庫番への取り出し依頼（条件で絞る）\n・SY-SUBRC ＝ 依頼のあと、本当に箱が取れたかの確認\n・会計でよく使う表（BKPF / BSEG / T001 / T003T）が何の情報か",
+            "データベースから取得する\n倉庫から取ってくる依頼（SELECT）→ 本当に取れたか確認（SY-SUBRC）の2段で学びます。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SELECT ＝ 倉庫番への取り出し依頼（条件で絞る）\n・件数に応じた SELECT の出し方（まとめて取る／1箱だけ／存在確認）\n・SY-SUBRC ＝ 依頼のあと、本当に箱が取れたかの確認\n・会計でよく使う表（BKPF / BSEG / T001 / T003T）が何の情報か",
           content: (
             <>
               <hgroup>
@@ -43,6 +43,7 @@ export default function SelectFromDbLesson() {
               <h3>この章で学ぶこと</h3>
               <ul>
                 <li><code>SELECT</code>＝ 倉庫番への<strong>取り出し依頼</strong>（条件で絞る）</li>
+                <li>何件取るか・どこに受け取るかで変わる <code>SELECT</code> の出し方</li>
                 <li><code>SY-SUBRC</code>＝ 依頼のあと、<strong>本当に箱が取れたか</strong>の確認</li>
                 <li>会計でよく使う表（BKPF / BSEG / T001 / T003T）が何の情報か</li>
               </ul>
@@ -151,6 +152,91 @@ export default function SelectFromDbLesson() {
           ),
         },
         {
+          title: "何件・どこへ受け取るか",
+          plainText:
+            "何件・どこへ受け取るか\nSELECTの書き方は「何件欲しいか」「手元の棚か机の上か」で決める。名前を4つ覚えるより、この2問が先。\n複数件：INTO TABLEで台車いっぱい（倉庫往復1回）。選択画面で絞ったBKPF一覧が典型。\n1件だけ：キーが揃っているときSELECT SINGLE。会社＋伝票番号＋年度で1伝票を机（作業領域）へ。\n存在だけ知りたい：UP TO 1 ROWSで入口で1箱だけ見る。中身は全部運ばない。\n避ける型：SELECT～ENDSELECTは1箱ごとに倉庫往復。第13章で詳しく。\nBちゃん：まとめて運ぶのがこの章の基本形ですね。",
+          content: (
+            <>
+              <h2>何件取る？ どこに置く？</h2>
+              <p>
+                <code>SELECT</code> にはいくつかの書き方がありますが、
+                まず覚えるのは<strong>2つの問い</strong>です。
+              </p>
+              <ul>
+                <li><strong>何件</strong>欲しい？（0件かもしれない／1件／たくさん）</li>
+                <li>受け取り先は<strong>手元の棚</strong>（内部テーブル）か、<strong>机の上の1箱</strong>（作業領域）か？</li>
+              </ul>
+              <Dialog speaker="teacher">
+                用語の一覧を丸暗記するより、「この画面では何件・どこへ？」と自分に聞く習慣をつけてください。
+              </Dialog>
+
+              <h3>複数件 → 台車いっぱいにまとめて（<code>INTO TABLE</code>）</h3>
+              <p>
+                選択画面で会社と日付を指定し、<strong>条件に合う伝票をまとめて</strong>扱うときが典型です。
+                倉庫番は条件に合う箱を<strong>一度の往復で台車に載せ</strong>、
+                手元の棚 <code>lt_bkpf</code> に並べます。これが先ほどの <code>INTO TABLE</code> です。
+              </p>
+              <Dialog speaker="b">
+                往復は1回で、あとは棚の上で <code>LOOP</code> すればいいんですね。
+              </Dialog>
+
+              <h3>1件だけ → 伝票キーが揃っているとき（<code>SELECT SINGLE</code>）</h3>
+              <p>
+                「この会社の、この伝票番号の、この年度」——
+                伝票を<strong>1件に特定できる</strong>ときは、箱を1つだけ机に置きます。
+                受け取り先は<strong>作業領域</strong>（構造）で、内部テーブルには入れません。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`SELECT SINGLE belnr budat bukrs
+  FROM bkpf
+  INTO ls_bkpf
+  WHERE bukrs = p_bukrs
+    AND belnr = p_belnr
+    AND gjahr = p_gjahr.`}
+              />
+              <Dialog speaker="a">
+                会社コード＋伝票番号＋会計年度、の3つが揃っているから SINGLE で取れるんですね。
+              </Dialog>
+              <Dialog speaker="stumble">
+                キーが足りないのに <code>SINGLE</code> すると、条件に合う「最初の1行」が返るだけで、
+                意図した伝票とは限りません。1件に絞れる条件かどうかを先に確認します。
+              </Dialog>
+
+              <h3>「あるかだけ知りたい」とき</h3>
+              <p>
+                日付の範囲だけなど、<strong>まだ1件に特定できない</strong>条件で
+                「該当データが1件でもあるか」を調べるときは、
+                倉庫の入口で<strong>1箱だけ見て帰る</strong>イメージです。
+                <code>SELECT ... UP TO 1 ROWS ... ENDSELECT</code> のように、
+                件数に上限を付けて中身を全部運ばない書き方を使います。
+              </p>
+              <Dialog speaker="teacher">
+                この章のメインは「まとめて取って、棚で扱う」です。
+                存在確認だけのパターンは、ここでは名前だけ知っておけば十分。実装で迷ったら先輩のコードを見る場面が多いです。
+              </Dialog>
+
+              <h3>避けたい型：<code>SELECT</code> ～ <code>ENDSELECT</code></h3>
+              <p>
+                条件に合う行を<strong>1行ずつ</strong>取りに行く書き方もありますが、
+                行の数だけ倉庫へ往復するため、件数が増えると一気に遅くなります。
+                可能なら <code>INTO TABLE</code> でまとめて取り、第5章の内部テーブル操作に任せます。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart LR
+  Q{何件?}
+  Q -->|複数| T["INTO TABLE<br/>台車でまとめて"]
+  Q -->|1件・キー完備| S["SELECT SINGLE<br/>机に1箱"]
+  Q -->|あるかだけ| E["UP TO 1 ROWS<br/>入口で1箱確認"]
+  Q -.->|避ける| L["SELECT～ENDSELECT<br/>1行ごとに往復"]`}
+              />
+              <Dialog speaker="teacher">
+                性能の話は第13章で深掘りします。今は「まとめて運ぶのが基本形」と覚えてください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "取れた？取れない？",
           plainText:
             "本当に取れたか確認（SY-SUBRC）\n依頼（SELECT）の直後に SY-SUBRC を見る。0＝1件以上、0以外＝0件。\nIF sy-subrc = 0. → 続行 / ELSE → MESSAGE で該当なしを伝える。\nつまずき：依頼だけして確認せず、空のまま後続処理へ進む。\nBちゃん：台車が空っぽなら次へ進まない。",
@@ -222,7 +308,7 @@ ENDIF.`}
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nQ1 明細の表 → BSEG\nQ2 取れたかの判定 → SY-SUBRC = 0\nQ3 複数件の取得 → SELECT ... INTO TABLE ... WHERE ...\n締め：依頼して終わりにせず、確認まで。",
+            "理解度チェック\nQ1 明細の表 → BSEG\nQ2 取れたかの判定 → SY-SUBRC = 0\nQ3 複数件の取得 → SELECT ... INTO TABLE ... WHERE ...\nQ4 1件だけ・キー全部指定 → SELECT SINGLE\n締め：依頼して終わりにせず、確認まで。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -246,6 +332,20 @@ ENDIF.`}
                   "SELECT SINGLE ... INTO ...",
                   "READ TABLE ... WITH KEY ...",
                   "SELECT ... INTO TABLE ... WHERE ...",
+                ]}
+              />
+              <Quiz
+                answer={0}
+                explanation="伝票キー（会社コード＋伝票番号＋会計年度）が揃っていて1件だけ机（作業領域）に受け取るときは SELECT SINGLE です。複数件を棚に載せるなら INTO TABLE。1行ずつ倉庫へ行く SELECT～ENDSELECT はこの章では避ける型として覚えます。"
+                question={
+                  <strong>
+                    キー項目をすべて条件に指定して、1件だけ変数に受け取りたいときに向いているのは？
+                  </strong>
+                }
+                options={[
+                  "SELECT SINGLE ... INTO ...",
+                  "SELECT ... ENDSELECT（件数分DBアクセス）",
+                  "SELECT ... INTO TABLE ...（複数件一括）",
                 ]}
               />
               <Dialog speaker="closing">
