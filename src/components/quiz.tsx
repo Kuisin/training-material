@@ -9,6 +9,9 @@ import {
   usePersistentState,
 } from "../lib/score-store";
 import { QuizLevelBadge, type QuizLevel } from "./quiz-level-badge";
+import { resolveQuizMode, type QuizMode } from "./quiz-mode";
+
+export type { QuizMode } from "./quiz-mode";
 
 interface QuizProps {
   question: ReactNode;
@@ -18,12 +21,16 @@ interface QuizProps {
   explanation: string;
   scoreId?: string;
   level?: QuizLevel;
+  /** instant: 選択で即解説 / submit: ページ提出後に解説 */
+  mode?: QuizMode;
 }
 
-export function Quiz({ question, options, answer, explanation, scoreId, level }: QuizProps) {
-  const confirmed = useItemConfirmed(scoreId);
+export function Quiz({ question, options, answer, explanation, scoreId, level, mode }: QuizProps) {
+  const effectiveMode = resolveQuizMode(mode, scoreId);
+  const pageConfirmed = useItemConfirmed(scoreId);
   const [selected, setSelected] = usePersistentState<number | null>(scoreId, null);
   const answered = selected !== null;
+  const confirmed = effectiveMode === "instant" ? answered : pageConfirmed;
   const isCorrect = selected === answer;
 
   useEffect(() => {
@@ -96,7 +103,7 @@ export function Quiz({ question, options, answer, explanation, scoreId, level }:
         ))}
       </ul>
 
-      {answered && !confirmed && (
+      {effectiveMode === "submit" && answered && !confirmed && (
         <p className="mt-4 text-xs font-medium text-brand">回答済み（ページ下部で提出）</p>
       )}
 
@@ -116,4 +123,14 @@ export function Quiz({ question, options, answer, explanation, scoreId, level }:
       )}
     </div>
   );
+}
+
+/** レッスン末尾の小テスト — 選択後すぐに正解・解説を表示 */
+export function LessonQuiz(props: Omit<QuizProps, "mode" | "scoreId">) {
+  return <Quiz {...props} mode="instant" />;
+}
+
+/** コーステスト — ページ提出後にのみ正解・解説を表示 */
+export function CourseTestQuiz(props: Omit<QuizProps, "mode"> & { scoreId: string }) {
+  return <Quiz {...props} mode="submit" />;
 }

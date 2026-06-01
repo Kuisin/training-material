@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import {
@@ -9,6 +9,9 @@ import {
   usePersistentState,
 } from "../lib/score-store";
 import { QuizLevelBadge, type QuizLevel } from "./quiz-level-badge";
+import { resolveQuizMode, type QuizMode } from "./quiz-mode";
+
+export type { QuizMode } from "./quiz-mode";
 
 interface MultiQuizProps {
   question: ReactNode;
@@ -18,6 +21,8 @@ interface MultiQuizProps {
   explanation: string;
   scoreId?: string;
   level?: QuizLevel;
+  /** instant: 「答えを見る」で解説 / submit: ページ提出後に解説 */
+  mode?: QuizMode;
 }
 
 function setsEqual(a: number[], b: number[]): boolean {
@@ -119,10 +124,14 @@ function countResults(selected: number[], answers: number[]) {
   return { hits, misses, wrongs, totalCorrect: answers.length };
 }
 
-export function MultiQuiz({ question, options, answers, explanation, scoreId, level }: MultiQuizProps) {
-  const confirmed = useItemConfirmed(scoreId);
+export function MultiQuiz({ question, options, answers, explanation, scoreId, level, mode }: MultiQuizProps) {
+  const effectiveMode = resolveQuizMode(mode, scoreId);
+  const pageConfirmed = useItemConfirmed(scoreId);
+  const [revealed, setRevealed] = useState(false);
   const [selected, setSelected] = usePersistentState<number[]>(scoreId, []);
   const answered = selected.length > 0;
+  const confirmed =
+    effectiveMode === "instant" ? revealed : pageConfirmed;
   const isCorrect = setsEqual(selected, answers);
   const results = countResults(selected, answers);
 
@@ -225,10 +234,22 @@ export function MultiQuiz({ question, options, answers, explanation, scoreId, le
         })}
       </ul>
 
-      {answered && !confirmed && (
+      {effectiveMode === "submit" && answered && !confirmed && (
         <p className="mt-4 text-xs font-medium text-brand">
           {selected.length} 件選択済み（ページ下部で提出）
         </p>
+      )}
+
+      {effectiveMode === "instant" && answered && !confirmed && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setRevealed(true)}
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            答えを見る
+          </button>
+        </div>
       )}
 
       {answered && confirmed && (
@@ -266,4 +287,14 @@ export function MultiQuiz({ question, options, answers, explanation, scoreId, le
       )}
     </div>
   );
+}
+
+/** レッスン末尾の複数選択テスト — 「答えを見る」で解説を表示 */
+export function LessonMultiQuiz(props: Omit<MultiQuizProps, "mode" | "scoreId">) {
+  return <MultiQuiz {...props} mode="instant" />;
+}
+
+/** コーステスト — ページ提出後にのみ正解・解説を表示 */
+export function CourseTestMultiQuiz(props: Omit<MultiQuizProps, "mode"> & { scoreId: string }) {
+  return <MultiQuiz {...props} mode="submit" />;
 }

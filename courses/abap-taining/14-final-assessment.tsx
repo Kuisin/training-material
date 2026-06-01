@@ -5,8 +5,8 @@ import {
   Dialog,
   CodeArrange,
   FlowArrange,
-  Quiz,
-  MultiQuiz,
+  CourseTestQuiz,
+  CourseTestMultiQuiz,
   ScoreBoard,
   PageSubmitBar,
   LessonMeta,
@@ -109,7 +109,7 @@ function LessonReviewSlide({ lesson }: { lesson: LessonAssessmentData }) {
       </p>
       {lesson.quizzes.map((q) =>
         isMultiQuiz(q) ? (
-          <MultiQuiz
+          <CourseTestMultiQuiz
             key={q.level}
             scoreId={scoreId(lesson.num, `quiz-${q.level}`)}
             level={q.level}
@@ -119,7 +119,7 @@ function LessonReviewSlide({ lesson }: { lesson: LessonAssessmentData }) {
             explanation={q.explanation}
           />
         ) : (
-          <Quiz
+          <CourseTestQuiz
             key={q.level}
             scoreId={scoreId(lesson.num, `quiz-${q.level}`)}
             level={q.level}

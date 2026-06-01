@@ -12,7 +12,7 @@ import {
   Callout,
   Dialog,
   CodeBlock,
-  Quiz,
+  LessonQuiz,
   MermaidDiagram,
   LessonMeta,
   lessonChrome,
@@ -83,7 +83,7 @@ export default function ExampleLesson() {
           content: (
             <>
               <h2>理解度チェック</h2>
-              <Quiz
+              <LessonQuiz
                 answer={0}
                 explanation="{{EXPLANATION}}"
                 question={<strong>{{QUESTION}}</strong>}
