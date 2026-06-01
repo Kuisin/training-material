@@ -38,12 +38,36 @@ export interface CourseLesson {
   meta: string;
 }
 
-/** 特別コンテンツの解放条件（password と requires は「いずれか」を満たせば解放）。 */
+/**
+ * 完了の前提条件。
+ * - "course": このコース（self）のレッスンをすべて完了
+ * - string[]: このコース内の指定レッスンファイルをすべて完了
+ * - オブジェクト: 別コースの完了を含む柔軟な指定
+ */
+export type ContentRequirement =
+  | "course"
+  | string[]
+  | {
+      /** 完了が必要なコース slug 一覧（"self" = このコース） */
+      courses?: string[];
+      /** 完了が必要なこのコース内のレッスンファイル一覧 */
+      lessons?: string[];
+      /** 条件の満たし方。"all"=すべて / "any"=いずれか（既定: all） */
+      match?: "all" | "any";
+    };
+
+/** 特別コンテンツ（追加コース）の解放条件。 */
 export interface ContentLock {
-  /** 前提となる完了: "course"（コース完了）またはレッスンファイルの配列（すべて完了） */
-  requires?: "course" | string[];
+  /** 前提となる完了条件（特定コース・複数コースのいずれか／すべて等） */
+  requires?: ContentRequirement;
   /** 解放用パスワード（静的サイトのため簡易ゲート。バンドルに含まれる点に注意） */
   password?: string;
+  /**
+   * requires と password の両方を設定したときの扱い。
+   * - "any"（既定）: どちらか一方を満たせば解放
+   * - "all": 完了条件とパスワードの両方が必要
+   */
+  mode?: "all" | "any";
 }
 
 export interface SpecialContentEntry extends CourseLesson {

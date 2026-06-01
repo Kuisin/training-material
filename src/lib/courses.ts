@@ -1,4 +1,10 @@
-import type { Course, CourseLesson, ContentLock, SpecialContentEntry } from "./types";
+import type {
+  Course,
+  CourseLesson,
+  ContentLock,
+  ContentRequirement,
+  SpecialContentEntry,
+} from "./types";
 import { appHref, lessonPageHref } from "./app-href";
 import {
   getCompletedLessons,
@@ -34,18 +40,31 @@ function slugFromPath(filePath: string): string {
   return match?.[1] ?? "";
 }
 
-function mapLessonEntries(lessons: CourseJsonLesson[] | undefined): CourseLesson[] {
+// カテゴリごとに独立した採番。明示的な num があればそれを優先する。
+// - レッスン: 0 始まりの番号（ファイル名と一致）
+// - コーステスト: "T1", "T2", …
+// - 追加コンテンツ: "A1", "A2", …
+// - 特別コンテンツ: "S1", "S2", …
+function mapLessonEntries(
+  lessons: CourseJsonLesson[] | undefined,
+  prefix = "",
+  startAt = 0
+): CourseLesson[] {
   return (lessons ?? []).map((lesson, index) => ({
-    num: lesson.num ?? String(index),
+    num: lesson.num ?? `${prefix}${index + startAt}`,
     file: lesson.file,
     title: lesson.title,
     meta: lesson.meta ?? "",
   }));
 }
 
-function mapSpecialEntries(lessons: CourseJsonLesson[] | undefined): SpecialContentEntry[] {
+function mapSpecialEntries(
+  lessons: CourseJsonLesson[] | undefined,
+  prefix = "S",
+  startAt = 1
+): SpecialContentEntry[] {
   return (lessons ?? []).map((lesson, index) => ({
-    num: lesson.num ?? String(index),
+    num: lesson.num ?? `${prefix}${index + startAt}`,
     file: lesson.file,
     title: lesson.title,
     meta: lesson.meta ?? "",
@@ -59,10 +78,10 @@ function toCourse(slug: string, meta: CourseJson): Course {
     title: meta.title ?? slug,
     description: meta.description ?? "",
     active: meta.active !== false,
-    lessons: mapLessonEntries(meta.lessons),
-    courseTest: mapLessonEntries(meta.courseTest),
-    additionalContent: mapLessonEntries(meta.additionalContent),
-    specialContent: mapSpecialEntries(meta.specialContent),
+    lessons: mapLessonEntries(meta.lessons, "", 0),
+    courseTest: mapLessonEntries(meta.courseTest, "T", 1),
+    additionalContent: mapLessonEntries(meta.additionalContent, "A", 1),
+    specialContent: mapSpecialEntries(meta.specialContent, "S", 1),
   };
 }
 
@@ -97,61 +116,120 @@ export function courseEntryCount(course: Course): number {
   );
 }
 
-/** コース完了 = 通常レッスン（lessons）をすべて完了している */
-export function isCourseComplete(course: Course): boolean {
+function courseLessonsComplete(course: Course): boolean {
   if (course.lessons.length === 0) return false;
   const done = new Set(getCompletedLessons(course.slug));
   return course.lessons.every((lesson) => done.has(lesson.file));
 }
 
+/** コース完了 = 通常レッスン（lessons）をすべて完了している */
+export function isCourseComplete(course: Course): boolean {
+  return courseLessonsComplete(course);
+}
+
+/** slug 指定でコース完了を判定（別コースの前提条件用） */
+export function isCourseSlugComplete(slug: string): boolean {
+  const course = courses.find((c) => c.slug === slug);
+  return course ? courseLessonsComplete(course) : false;
+}
+
 export interface SpecialAccess {
   /** 解放済みか */
   unlocked: boolean;
-  /** パスワード入力が解放手段として有効か（未入力で未解放のとき true） */
+  /** パスワード入力欄を表示すべきか（パスワード設定あり・未入力・未解放のとき true） */
   needsPassword: boolean;
   /** 前提完了条件を満たしているか */
   requirementMet: boolean;
   /** 前提完了条件の説明（未設定なら undefined） */
   requirementLabel?: string;
+  /** requires と password の両方が必要か（"all"）、いずれかか（"any"） */
+  mode: "all" | "any";
+  /** パスワードを既に入力済みか */
+  passwordEntered: boolean;
 }
 
-function requirementLabel(course: Course, requires: NonNullable<ContentLock["requires"]>): string {
-  if (requires === "course") return "コースのレッスンをすべて完了すると解放されます";
-  const titles = requires.map((file) => findCourseEntry(course, file)?.title ?? file);
-  return `次を完了すると解放されます: ${titles.join(" / ")}`;
+function courseTitleForSlug(course: Course, slug: string): string {
+  if (slug === "self") return course.title;
+  return courses.find((c) => c.slug === slug)?.title ?? slug;
 }
 
-function requirementSatisfied(
-  course: Course,
-  requires: NonNullable<ContentLock["requires"]>
-): boolean {
-  if (requires === "course") return isCourseComplete(course);
-  const done = new Set(getCompletedLessons(course.slug));
-  return requires.every((file) => done.has(file));
+function requirementLabel(course: Course, requires: ContentRequirement): string {
+  if (requires === "course") {
+    return "このコースのレッスンをすべて完了すると解放されます";
+  }
+  if (Array.isArray(requires)) {
+    const titles = requires.map((file) => findCourseEntry(course, file)?.title ?? file);
+    return `次を完了すると解放されます: ${titles.join(" / ")}`;
+  }
+
+  const parts: string[] = [];
+  for (const slug of requires.courses ?? []) parts.push(courseTitleForSlug(course, slug));
+  for (const file of requires.lessons ?? []) parts.push(findCourseEntry(course, file)?.title ?? file);
+
+  const match = requires.match ?? "all";
+  if (parts.length === 0) return "解放条件があります";
+  const joiner = match === "any" ? " または " : " / ";
+  const verb = match === "any" ? "いずれかを完了" : "すべて完了";
+  return `次を${verb}すると解放されます: ${parts.join(joiner)}`;
+}
+
+function requirementSatisfied(course: Course, requires: ContentRequirement): boolean {
+  if (requires === "course") return courseLessonsComplete(course);
+
+  if (Array.isArray(requires)) {
+    const done = new Set(getCompletedLessons(course.slug));
+    return requires.every((file) => done.has(file));
+  }
+
+  const checks: boolean[] = [];
+  for (const slug of requires.courses ?? []) {
+    checks.push(slug === "self" ? courseLessonsComplete(course) : isCourseSlugComplete(slug));
+  }
+  if (requires.lessons && requires.lessons.length > 0) {
+    const done = new Set(getCompletedLessons(course.slug));
+    for (const file of requires.lessons) checks.push(done.has(file));
+  }
+
+  if (checks.length === 0) return true;
+  return (requires.match ?? "all") === "any" ? checks.some(Boolean) : checks.every(Boolean);
 }
 
 /**
- * 特別コンテンツの解放状態を評価する。
- * requires と password は「いずれか」を満たせば解放（and/or）。どちらも未設定なら無条件解放。
+ * 特別コンテンツ（追加コース）の解放状態を評価する。
+ * - requires のみ: 完了条件で解放
+ * - password のみ: パスワードで解放
+ * - 両方 + mode "any"（既定）: どちらかで解放
+ * - 両方 + mode "all": 完了条件とパスワードの両方が必要
  */
 export function evaluateSpecialAccess(course: Course, entry: SpecialContentEntry): SpecialAccess {
   const lock = entry.lock;
-  if (!lock || (!lock.requires && !lock.password)) {
-    return { unlocked: true, needsPassword: false, requirementMet: true };
+  const mode = lock?.mode ?? "any";
+
+  if (!lock || (lock.requires === undefined && !lock.password)) {
+    return { unlocked: true, needsPassword: false, requirementMet: true, mode, passwordEntered: false };
   }
 
-  const hasRequires = Boolean(lock.requires);
+  const hasRequires = lock.requires !== undefined;
   const hasPassword = Boolean(lock.password);
   const requirementMet = hasRequires ? requirementSatisfied(course, lock.requires!) : false;
-  const passwordUnlocked = hasPassword ? isSpecialUnlocked(course.slug, entry.file) : false;
+  const passwordEntered = hasPassword ? isSpecialUnlocked(course.slug, entry.file) : false;
 
-  const unlocked = requirementMet || passwordUnlocked;
+  let unlocked: boolean;
+  if (hasRequires && hasPassword) {
+    unlocked = mode === "all" ? requirementMet && passwordEntered : requirementMet || passwordEntered;
+  } else if (hasRequires) {
+    unlocked = requirementMet;
+  } else {
+    unlocked = passwordEntered;
+  }
 
   return {
     unlocked,
-    needsPassword: hasPassword && !unlocked,
+    needsPassword: hasPassword && !passwordEntered && !unlocked,
     requirementMet,
     requirementLabel: hasRequires ? requirementLabel(course, lock.requires!) : undefined,
+    mode,
+    passwordEntered,
   };
 }
 

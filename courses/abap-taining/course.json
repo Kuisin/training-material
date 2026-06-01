@@ -3,35 +3,34 @@
   "active": true,
   "description": "SAP ABAP の基礎から会計伝票登録まで、仕訳日記帳を題材に学ぶ研修コース。",
   "lessons": [
-    { "num": "0", "file": "00-introduction", "title": "ABAP開発の役割 — 業務の要望をシステムの動きに翻訳する", "meta": "初学者 · 15分" },
-    { "num": "1", "file": "01-overview", "title": "コース全体像 — 入力→取得→加工→出力と照会と登録", "meta": "初学者 · 15分" },
-    { "num": "2", "file": "02-business-basics", "title": "会計の基本 — 仕訳日記帳・伝票・ヘッダと明細", "meta": "初学者 · 20分" },
-    { "num": "3", "file": "03-abap-minimum-unit", "title": "最初のABAP — レポートプログラム・変数・定数・コメント", "meta": "初学者 · 20分" },
-    { "num": "4", "file": "04-selection-screen", "title": "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力", "meta": "初学者 · 20分" },
-    { "num": "5", "file": "05-internal-tables", "title": "内部テーブル — 複数行の保持・LOOP・READ TABLE・並べ替え", "meta": "初学者 · 25分" },
-    { "num": "6", "file": "06-select-from-db", "title": "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）", "meta": "初学者 · 25分" },
-    { "num": "7", "file": "07-output-report", "title": "帳票出力 — WRITE・改行・見やすいレポートの整え方", "meta": "初学者 · 20分" },
-    { "num": "8", "file": "08-combine-data", "title": "データ結合 — ヘッダと明細をMOVEで一覧に組み立てる", "meta": "初学者 · 25分" },
-    { "num": "9", "file": "09-control-flow", "title": "レポート制御 — サプレス・AT NEW/END OF・フラグ", "meta": "初学者 · 30分" },
-    { "num": "10", "file": "10-modularization", "title": "モジュール化 — FORM/PERFORM・引数（USING/CHANGING）・スコープ", "meta": "初学者 · 25分" },
-    { "num": "11", "file": "11-document-posting", "title": "会計伝票登録 — BAPI・ロック・検証から登録までのフロー", "meta": "初学者 · 30分" },
-    { "num": "12", "file": "12-real-world", "title": "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣", "meta": "初学者 · 20分" },
-    { "num": "13", "file": "13-good-programming", "title": "良いABAP — 性能と保守性・SELECT/LOOPの書き方", "meta": "初学者 · 35分" }
+    { "file": "00-introduction", "title": "ABAP開発の役割 — 業務の要望をシステムの動きに翻訳する", "meta": "初学者 · 15分" },
+    { "file": "01-overview", "title": "コース全体像 — 入力→取得→加工→出力と照会と登録", "meta": "初学者 · 15分" },
+    { "file": "02-business-basics", "title": "会計の基本 — 仕訳日記帳・伝票・ヘッダと明細", "meta": "初学者 · 20分" },
+    { "file": "03-abap-minimum-unit", "title": "最初のABAP — レポートプログラム・変数・定数・コメント", "meta": "初学者 · 20分" },
+    { "file": "04-selection-screen", "title": "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力", "meta": "初学者 · 20分" },
+    { "file": "05-internal-tables", "title": "内部テーブル — 複数行の保持・LOOP・READ TABLE・並べ替え", "meta": "初学者 · 25分" },
+    { "file": "06-select-from-db", "title": "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）", "meta": "初学者 · 25分" },
+    { "file": "07-output-report", "title": "帳票出力 — WRITE・改行・見やすいレポートの整え方", "meta": "初学者 · 20分" },
+    { "file": "08-combine-data", "title": "データ結合 — ヘッダと明細をMOVEで一覧に組み立てる", "meta": "初学者 · 25分" },
+    { "file": "09-control-flow", "title": "レポート制御 — サプレス・AT NEW/END OF・フラグ", "meta": "初学者 · 30分" },
+    { "file": "10-modularization", "title": "モジュール化 — FORM/PERFORM・引数（USING/CHANGING）・スコープ", "meta": "初学者 · 25分" },
+    { "file": "11-document-posting", "title": "会計伝票登録 — BAPI・ロック・検証から登録までのフロー", "meta": "初学者 · 30分" },
+    { "file": "12-real-world", "title": "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣", "meta": "初学者 · 20分" },
+    { "file": "13-good-programming", "title": "良いABAP — 性能と保守性・SELECT/LOOPの書き方", "meta": "初学者 · 35分" }
   ],
   "courseTest": [
-    { "num": "16", "file": "16-final-assessment", "title": "総仕上げ — レッスン別確認テスト", "meta": "初学者 · 60分" }
+    { "file": "16-final-assessment", "title": "総仕上げ — レッスン別確認テスト", "meta": "初学者 · 60分" }
   ],
   "additionalContent": [
-    { "num": "14", "file": "14-sap-development-tools", "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション", "meta": "初学者 · 35分" },
-    { "num": "15", "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" }
+    { "file": "14-sap-development-tools", "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション", "meta": "初学者 · 35分" },
+    { "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" }
   ],
   "specialContent": [
     {
-      "num": "★",
-      "file": "91-bonus-cheatsheet",
-      "title": "特別コンテンツ — ABAP実務チートシート",
-      "meta": "特別 · 10分",
-      "lock": { "requires": "course", "password": "abap-master" }
+      "file": "92-exercise-journal-ledger",
+      "title": "特別演習 — 仕訳日記帳プログラムを作る（Z_TR077_TGLR0100）",
+      "meta": "特別 · 45分",
+      "lock": { "requires": "course", "password": "shiwake-master", "mode": "all" }
     }
   ]
 }

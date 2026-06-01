@@ -133,15 +133,20 @@ function LockedSpecialRow({
   course,
   entry,
   requirementLabel,
+  requirementMet,
   needsPassword,
+  mode,
 }: {
   course: Course;
   entry: SpecialContentEntry;
   requirementLabel?: string;
+  requirementMet: boolean;
   needsPassword: boolean;
+  mode: "all" | "any";
 }) {
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
+  const bothRequired = mode === "all" && Boolean(requirementLabel) && needsPassword;
 
   function handleUnlock(event: React.FormEvent) {
     event.preventDefault();
@@ -165,8 +170,23 @@ function LockedSpecialRow({
         </span>
         <span className="hidden shrink-0 text-xs text-slate-400 sm:inline">{entry.meta}</span>
       </div>
+      {bothRequired ? (
+        <p className="mt-2 pl-11 text-xs font-semibold text-amber-600 dark:text-amber-400">
+          完了条件とパスワードの両方が必要です
+        </p>
+      ) : null}
       {requirementLabel ? (
-        <p className="mt-2 pl-11 text-xs text-slate-500 dark:text-slate-400">{requirementLabel}</p>
+        <p
+          className={cn(
+            "mt-2 pl-11 text-xs",
+            requirementMet
+              ? "font-medium text-emerald-600 dark:text-emerald-400"
+              : "text-slate-500 dark:text-slate-400"
+          )}
+        >
+          <span aria-hidden>{requirementMet ? "✓ " : "・"}</span>
+          {requirementLabel}
+        </p>
       ) : null}
       {needsPassword ? (
         <form onSubmit={handleUnlock} className="mt-2 flex flex-wrap items-center gap-2 pl-11">
@@ -222,7 +242,9 @@ function SpecialContentSection({ course }: { course: Course }) {
               course={course}
               entry={entry}
               requirementLabel={access.requirementLabel}
+              requirementMet={access.requirementMet}
               needsPassword={access.needsPassword}
+              mode={access.mode}
             />
           );
         })}

@@ -8,7 +8,7 @@ import { AiAskButton } from "./ai-ask-button";
 import { CourseSearchDialog } from "./course-search";
 import { Slide } from "./slide";
 import { courseSlugFromPathname } from "../lib/course-search";
-import { LessonCompleteButton } from "./lesson-complete-button";
+import { isLessonComplete, markLessonComplete, useCompletion } from "../lib/completion-store";
 
 function lessonFileFromPath(pathname: string): string {
   const last = pathname.split("/").filter(Boolean).pop() ?? "";
@@ -43,7 +43,12 @@ export function Deck({ chrome, slides }: DeckProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const courseSlug = courseSlugFromPathname(window.location.pathname);
   const lessonFile = lessonFileFromPath(window.location.pathname);
-  const isLastSlide = idx === total - 1;
+  const canComplete = Boolean(courseSlug && lessonFile);
+
+  useCompletion();
+  const lessonComplete = canComplete ? isLessonComplete(courseSlug!, lessonFile) : false;
+  // 最終スライドで次の章へ進むには、まず完了が必要。
+  const blockChapterAdvance = idx === total - 1 && Boolean(chrome.nextHref) && canComplete && !lessonComplete;
 
   const go = useCallback(
     (next: number) => {
@@ -58,10 +63,11 @@ export function Deck({ chrome, slides }: DeckProps) {
   const goNext = useCallback(() => {
     if (idx === total - 1) {
       if (!chrome.nextHref || !chrome.nextLesson) return;
+      if (blockChapterAdvance) return; // 完了するまで次の章へ進めない
       if (!window.confirm(chapterConfirmMessage("next", chrome.nextLesson))) return;
       navigateToChapter(chrome.nextHref, "");
     } else go(idx + 1);
-  }, [idx, total, chrome.nextHref, chrome.nextLesson, go]);
+  }, [idx, total, chrome.nextHref, chrome.nextLesson, blockChapterAdvance, go]);
 
   const goPrev = useCallback(() => {
     if (idx === 0) {
@@ -122,9 +128,6 @@ export function Deck({ chrome, slides }: DeckProps) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-8">
         <Slide slide={slides[idx]} />
-        {isLastSlide && courseSlug && lessonFile ? (
-          <LessonCompleteButton courseSlug={courseSlug} lessonFile={lessonFile} />
-        ) : null}
       </main>
 
       <CourseSearchDialog
@@ -151,6 +154,9 @@ export function Deck({ chrome, slides }: DeckProps) {
         hasNextChapter={Boolean(chrome.nextHref)}
         onPrev={goPrev}
         onNext={goNext}
+        canComplete={canComplete}
+        lessonComplete={lessonComplete}
+        onMarkComplete={() => courseSlug && markLessonComplete(courseSlug, lessonFile)}
       />
     </div>
   );

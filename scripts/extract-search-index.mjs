@@ -171,19 +171,23 @@ export function buildSearchIndex(root) {
       text: [meta.title, meta.description].filter(Boolean).join('\n'),
     });
 
-    const allLessons = [
-      ...(meta.lessons ?? []),
-      ...(meta.courseTest ?? []),
-      ...(meta.additionalContent ?? []),
-      ...(meta.specialContent ?? []),
+    // カテゴリごとに独立採番（courses.ts と同じ規則）。
+    const categories = [
+      { list: meta.lessons ?? [], prefix: '', startAt: 0 },
+      { list: meta.courseTest ?? [], prefix: 'T', startAt: 1 },
+      { list: meta.additionalContent ?? [], prefix: 'A', startAt: 1 },
+      { list: meta.specialContent ?? [], prefix: 'S', startAt: 1 },
     ];
+    const allLessons = categories.flatMap(({ list, prefix, startAt }) =>
+      list.map((lesson, index) => ({ lesson, num: lesson.num ?? `${prefix}${index + startAt}` }))
+    );
 
-    for (const lesson of allLessons) {
+    for (const { lesson, num } of allLessons) {
       const tsxPath = path.join(courseDir, `${lesson.file}.tsx`);
       if (!fs.existsSync(tsxPath)) continue;
 
       const source = fs.readFileSync(tsxPath, 'utf8');
-      const lessonNum = lesson.num ?? '';
+      const lessonNum = num;
       const lessonTitle = lesson.title ?? lesson.file;
 
       entries.push({
