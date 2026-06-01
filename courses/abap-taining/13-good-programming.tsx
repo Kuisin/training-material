@@ -837,6 +837,45 @@ IF lv_found = 'X'.`}
           ),
         },
         {
+          title: "コースのまとめ",
+          plainText:
+            "研修全体を振り返る\n技術と章の対応：基本文法→第3〜7章、データ結合→第8章、出力最適化→第9章、実務構造→第10章、登録→第11章。\n実務の要点：SAP帳票の基本はBKPF+BSEG、JOINより内部テーブル処理、サプレスは必須、フラグは多用、最終的にGUI+DLが求められる。\n先生：章の地図と実務の型をセットで覚える。",
+          content: (
+            <>
+              <h2>研修全体を振り返る</h2>
+              <p>この章の前に、コース全体で学んだ技術と章の対応を整理します。</p>
+              <InfoPanel
+                title="技術スキルと章の対応"
+                variant="reference"
+              >
+                <ul>
+                  <li><strong>基本文法・帳票出力</strong> … 第3〜7章（<code>SELECT</code>・<code>WRITE</code>・選択画面）</li>
+                  <li><strong>データ結合</strong> … 第8章（<code>LOOP</code> / <code>READ TABLE</code> / <code>APPEND</code>）</li>
+                  <li><strong>出力最適化</strong> … 第9章（サプレス・制御ブロック・フラグ）</li>
+                  <li><strong>実務構造</strong> … 第10章（<code>FORM</code>・GUI・ダウンロード）</li>
+                  <li><strong>会計伝票登録</strong> … 第11章（BAPI・ロック・検証）</li>
+                </ul>
+              </InfoPanel>
+              <InfoPanel
+                title="実務で押さえておきたいポイント"
+                variant="breakdown"
+              >
+                <ul>
+                  <li>SAP 会計帳票の基本は <strong>BKPF ＋ BSEG</strong>（環境によって ACDOCA）</li>
+                  <li>複数表の結合は、SQL JOIN より<strong>内部テーブル上の LOOP 処理</strong>が多い</li>
+                  <li><strong>サプレス</strong>（同じ見出しを省く）は実務帳票の必須スキル</li>
+                  <li><strong>フラグ</strong>は状態管理・ネスト回避・<code>SY-SUBRC</code> 補完に多用される</li>
+                  <li>照会レポートも、最終的には<strong>画面整備 ＋ ダウンロード</strong>まで求められることが多い</li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                章の地図（第1章）と、ここでの実務の型をセットで覚えておいてください。
+                具体的な課題実装は別資料で進めますが、<strong>なぜその技術が要るか</strong>はここまでで一通り押さえました。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "確認テスト",
           plainText:
             "理解度チェック\nBちゃん：間違えても大丈夫？→ 解説で復習できる。実務に入る前の型を確認する場。\nQ1 避けたい書き方→ LOOP内で毎回SELECT（N+1）\nQ2 適切なプログラミング→ 性能と保守性の両立\nQ3 往復を減らすと並ぶ方針→ 必要な列に絞る\n今日のひとこと：翻訳者の入口に立ったあなたへ。良いコードは未来へのやさしさ。",

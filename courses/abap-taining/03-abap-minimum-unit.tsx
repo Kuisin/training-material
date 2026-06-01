@@ -94,6 +94,36 @@ export default function AbapMinimumUnitLesson() {
           ),
         },
         {
+          title: "SE38の手順",
+          plainText:
+            "SE38での公式な手順\n作る＝エディタで編集・保存／構文チェック＝Ctrl+F2／有効化＝Ctrl+F3／実行＝F8。保存だけでは動かないことが多い。\n先生：有効化を忘れるのが初学者の定番。第15章でツール全体を整理する。",
+          content: (
+            <>
+              <h2>
+                <code>SE38</code> での公式な手順
+              </h2>
+              <p>第3章の3ステップは、SAP では次の操作に対応します（詳細は第15章）。</p>
+              <ol>
+                <li>
+                  <strong>作る</strong> … エディタで編集し保存（<code>Ctrl + S</code>）
+                </li>
+                <li>
+                  <strong>構文チェック</strong> … <code>Ctrl + F2</code>
+                </li>
+                <li>
+                  <strong>有効化</strong> … <code>Ctrl + F3</code>（ここを忘れると実行時に古いままのことが多い）
+                </li>
+                <li>
+                  <strong>実行</strong> … <code>F8</code>
+                </li>
+              </ol>
+              <Dialog speaker="teacher">
+                「保存したのに動かない」は、多くの場合<strong>有効化のし忘れ</strong>です。ショートカットとデバッグの全体像は第15章でまとめています。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "最小のコード",
           plainText:
             "いちばん小さなプログラム\n最初の行 REPORT は「これはレポートプログラムです」という宣言。WRITE は「画面に書く」命令。\nREPORT z_hello.\nWRITE 'こんにちは、ABAP'.\nAくん：REPORT がプログラムの名札、WRITE が出力命令、と読めば素直ですね。\n先生：英語の意味そのまま。write＝書く。記号に身構えず「英単語の命令文」として読みましょう。",

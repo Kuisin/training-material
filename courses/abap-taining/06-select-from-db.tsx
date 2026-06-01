@@ -47,7 +47,7 @@ export default function SelectFromDbLesson() {
                 <li><code>SELECT</code>＝ 倉庫番への<strong>取り出し依頼</strong>（条件で絞る）</li>
                 <li>何件取るか・どこに受け取るかで変わる <code>SELECT</code> の出し方</li>
                 <li><code>SY-SUBRC</code>＝ 依頼のあと、<strong>本当に箱が取れたか</strong>の確認</li>
-                <li>会計でよく使う表（BKPF / BSEG / T001 / T003T）が何の情報か</li>
+                <li>会計でよく使う表（BKPF / BSEG / ACDOCA / T001 / T003T）が何の情報か</li>
               </ul>
             </>
           ),
@@ -81,7 +81,7 @@ export default function SelectFromDbLesson() {
         {
           title: "会計の主な表",
           plainText:
-            "会計でよく出る表（ざっくり）\nBKPF：伝票ヘッダ（日付・会社など）\nBSEG：伝票明細（金額・科目）\nT001：会社マスタ（辞書）\nT003T：伝票タイプ名称（辞書）\nAくん：第2章のヘッダと明細が BKPF / BSEG になっている。\n先生：T001 などはコードを名前に変える辞書。",
+            "会計でよく出る表（ざっくり）\nBKPF：伝票ヘッダ（日付・会社など）\nBSEG：伝票明細（金額・科目）\nACDOCA：Universal Journal（S/4HANA以降の統合会計）\nT001：会社マスタ（辞書）\nT003T：伝票タイプ名称（辞書）\nAくん：第2章のヘッダと明細が BKPF / BSEG になっている。\n先生：T001 などはコードを名前に変える辞書。",
           content: (
             <>
               <h2>会計でよく出る表（ざっくり）</h2>
@@ -95,6 +95,10 @@ export default function SelectFromDbLesson() {
               <ul>
                 <li><strong>BKPF</strong>：会計伝票の<strong>ヘッダ</strong>（見出し：日付・会社など）</li>
                 <li><strong>BSEG</strong>：会計伝票の<strong>明細</strong>（中身の行：金額・科目）</li>
+                <li>
+                  <strong>ACDOCA</strong>：S/4HANA 以降の<strong>Universal Journal</strong>
+                  （統合会計テーブル。環境によっては BKPF/BSEG の代わりにこちらを参照する）
+                </li>
                 <li><strong>T001</strong>：会社コードの<strong>マスタ</strong>（会社の一覧）</li>
                 <li><strong>T003T</strong>：伝票タイプの<strong>名称</strong>（コードの読み仮名表）</li>
               </ul>
@@ -106,6 +110,7 @@ export default function SelectFromDbLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 T001 のようなマスタは「コードの意味を引く辞書」です。番号だけでは伝わらないので、名前に変換するときに使います。
+                ACDOCA は第2章でも触れた統合版——<strong>まずは BKPF / BSEG を軸</strong>に覚え、環境に応じて ACDOCA を使う、と理解しておけば十分です。
               </Dialog>
             </>
           ),

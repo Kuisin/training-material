@@ -973,6 +973,49 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
           ),
         },
         {
+          title: "結合の流れ",
+          plainText:
+            "ヘッダと明細を一覧にする処理の型\n① BKPF（ヘッダ）を取得\n② T003T などでコードを名称に変換\n③ BSEG（明細）と対応付け\n④ 出力用内部テーブルへ1行ずつ格納\nAくん：SQLのJOINでも書けそうですが、ABAPレポートではLOOP＋READ TABLEが定番？\n先生：その通り。取得はSELECTでまとめ、結合は内部テーブル上で行うのが実務の型。",
+          content: (
+            <>
+              <h2>ヘッダと明細を一覧にする処理の型</h2>
+              <p>仕訳日記帳のような一覧を作るとき、おおむね次の流れになります。</p>
+              <MermaidDiagram
+                chart={`flowchart LR
+  A[BKPF 取得] --> B[T003T 等で名称化]
+  B --> C[BSEG と対応付け]
+  C --> D[出力用内部テーブルへ格納]`}
+              />
+              <InfoPanel
+                title="なぜ SQL JOIN より LOOP + READ TABLE か"
+                variant="reference"
+                lead="他の言語では JOIN が自然でも、ABAP レポートでは次の理由で内部テーブル結合が多い。"
+              >
+                <ul>
+                  <li>
+                    <strong>取得と加工を分ける</strong> … まず <code>SELECT</code> で必要な表を内部テーブルに載せ、
+                    そのあとメモリ上で <code>LOOP</code> / <code>READ TABLE</code> して組み立てる
+                  </li>
+                  <li>
+                    <strong>帳票向けの柔軟さ</strong> … 1明細1行の出力、項目の再配置、
+                    後段のサプレス処理など、帳票特有の加工がしやすい
+                  </li>
+                  <li>
+                    <strong>実務の定番パターン</strong> … 複数表の JOIN 1発より、
+                    「表ごとに取得 → ループで結合 → 出力用に APPEND」の方が読みやすいコードが多い
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                SQL の JOIN でも書けそうですが、ABAP レポートでは <code>LOOP</code> ＋ <code>READ TABLE</code> が定番なんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "LOOPの中で組み立てる",
           plainText:
             "実際の流れ：LOOPの中で1行ずつ\nLOOP AT lt_bseg INTO ls_bseg. READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ... MOVE-CORRESPONDING ls_bkpf TO ls_out. ls_out-amount = ls_bseg-dmbtr. APPEND ls_out TO lt_out. CLEAR ls_out. ENDLOOP.\nBちゃん：明細1行ずつ、対応ヘッダを探して出力1行を作る？\n先生：その通り。明細1行につき出力1行。これがこの章の実務パターン。\nBちゃん：中身は長いけど、やってることは「組み立て→追加→クリア」の繰り返しだけ？\n先生：まさに。コードが長く見えても中身は同じリズム。",
@@ -1078,12 +1121,12 @@ ENDLOOP.`}
           ),
         },
         {
-          title: "ミニ演習",
+          title: "確認質問",
           plainText:
-            "確認質問＆ミニ演習\n先生の問い：1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？\nBちゃん：家計簿へ1行追加したら、次の行を書く前に机を空に…つまり CLEAR？\n先生：正解！組み立て→APPEND→CLEAR を口ぐせにすれば混ざる事故はほぼ防げます。\nBちゃん：最初は APPEND だけで終わっちゃいそうでした。クリア、忘れやすい。",
+            "確認質問\n先生の問い：1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？\nBちゃん：家計簿へ1行追加したら、次の行を書く前に机を空に…つまり CLEAR？\n先生：正解！組み立て→APPEND→CLEAR を口ぐせにすれば混ざる事故はほぼ防げます。\nBちゃん：最初は APPEND だけで終わっちゃいそうでした。クリア、忘れやすい。",
           content: (
             <>
-              <h2>確認質問＆ミニ演習</h2>
+              <h2>確認質問</h2>
               <p><strong>先生の問い：</strong>「1行を組み立てて出力テーブルに足したあと、次の行に進む前にやるべきことは？」</p>
               <Dialog speaker="b">
                 えっと…家計簿へ1行追加したら、次の行を書く前に机を空にする…つまり <code>CLEAR</code>、ですか？

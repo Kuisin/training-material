@@ -740,4 +740,104 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
     ],
   },
+  {
+    num: "15",
+    title: "SAP開発ツール",
+    summary: "SE38 の開発サイクル、デバッグ、主要トランザクションと汎用モジュールの位置づけを確認します。",
+    arrangeKind: "flow",
+    codeInstruction: "SE38 でプログラムを実行するまでの正しい流れを組み立ててください",
+    codeLines: [
+      "エディタで編集し保存する。",
+      "構文チェックを行う。",
+      "有効化する。",
+      "実行（F8）する。",
+      "結果を確認し、必要なら修正に戻る。",
+    ],
+    quizzes: [
+      {
+        level: "basic",
+        question: "保存後に実行しても動かないとき、最初に疑う操作は？",
+        options: ["有効化を忘れた", "テーブルを削除した", "選択画面を増やした"],
+        answer: 0,
+        explanation: "有効化しないと実行時オブジェクトが更新されません。構文チェックと有効化はセットで行います。",
+      },
+      {
+        level: "intermediate",
+        question: "デバッグや開発で有用な操作として正しいものは？（複数選択）",
+        options: [
+          "ブレークポイントを設定する",
+          "F1 でヘルプを見る",
+          "有効化を省略して毎回保存だけする",
+          "F6 でサブルーチン内部を飛ばす",
+        ],
+        answers: [0, 1, 3],
+        explanation: "ブレークポイント・F1・F6 は日常の調査に使います。有効化省略は典型的な不具合原因です。",
+      },
+      {
+        level: "advanced",
+        question: "汎用モジュールについて正しい説明は？（複数選択）",
+        options: [
+          "CALL FUNCTION で呼び出す",
+          "すべての処理をプログラム内に重複実装すべき",
+          "FILE_GET_NAME は論理ファイル名の解決に使える",
+          "REUSE_ALV_GRID_DISPLAY は一覧表示に使える",
+        ],
+        answers: [0, 2, 3],
+        explanation:
+          "汎用モジュールは共通処理の再利用です。FILE_GET_NAME・ALV 表示は代表例です。",
+      },
+    ],
+  },
+  {
+    num: "16",
+    title: "ファイル連携とバッチ",
+    summary: "論理ファイル、サーバファイル操作、バックグラウンドジョブ、BDC の関係を確認します。",
+    arrangeKind: "flow",
+    codeInstruction: "外部ファイルを取り込んで登録する流れの概略を組み立ててください",
+    codeLines: [
+      "外部ファイルをサーバの所定位置へ配置する。",
+      "ABAP が論理ファイル名でデータを読み込む。",
+      "内容を検証・変換する。",
+      "BAPI または BDC 等で登録する。",
+      "結果・履歴を確認する。",
+    ],
+    quizzes: [
+      {
+        level: "basic",
+        question: "論理ファイルを使う主な理由は？",
+        options: [
+          "環境ごとの物理パス差を設定側で吸収できる",
+          "プログラムに物理パスを直書きするため",
+          "GUI でファイル操作できなくするため",
+        ],
+        answer: 0,
+        explanation: "論理名はプログラムで固定し、物理パスは FILE 設定で切り替えます。",
+      },
+      {
+        level: "intermediate",
+        question: "ファイル連携・ジョブで正しい組み合わせは？（複数選択）",
+        options: [
+          "AL11 でサーバ上のファイルを参照できる",
+          "SM37 でジョブ結果を確認できる",
+          "CG3Z はサーバから PC へダウンロードする",
+          "FILE_GET_NAME で論理名から物理パスを得られる",
+        ],
+        answers: [0, 1, 3],
+        explanation: "AL11・SM37・FILE_GET_NAME は連携で頻出です。CG3Z はアップロード（PC→サーバ）です。",
+      },
+      {
+        level: "advanced",
+        question: "BDC と BAPI の位置づけとして適切なものは？（複数選択）",
+        options: [
+          "新規開発では BAPI が優先されることが多い",
+          "BDC は画面操作をデータ化して再生する",
+          "BDC は常にテーブルへ直接 INSERT するだけ",
+          "CALL TRANSACTION 実行後は SY-SUBRC 等で成否を確認する",
+        ],
+        answers: [0, 1, 3],
+        explanation:
+          "BAPI は公式登録窓口。BDC は画面再生方式。成否は SY-SUBRC とメッセージで確認します。",
+      },
+    ],
+  },
 ];

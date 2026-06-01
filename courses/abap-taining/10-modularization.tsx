@@ -360,19 +360,63 @@ ENDFORM.
         {
           title: "GUI・イベント・DL",
           plainText:
-            "画面・イベント・ダウンロード処理もサブルーチンに\n実務では画面の表示・ボタンが押されたときの処理（イベント）・ファイルのダウンロードなども、それぞれサブルーチンに分けて整理する。Figure：メインから画面表示／イベント／DLの3サブルーチンへPERFORMで分岐。\n先生：今は役割ごとに分けるという発想だけ持てれば十分。詳しい書き方は使うときに覚えれば大丈夫。",
+            "画面・イベント・ダウンロード\nレポートのライフサイクル：INITIALIZATION→START-OF-SELECTION→END-OF-SELECTION→TOP-OF-PAGE。ボタン押下はAT USER-COMMAND。\nSET TITLEBAR/SET PF-STATUSで画面を整え、GUI_DOWNLOADでファイル出力。\n汎用モジュール（CALL FUNCTION）はプログラム横断の共通処理。パラメータ変更は全利用先に影響するので注意。",
           content: (
             <>
               <h2>画面・イベント・ダウンロード処理もサブルーチンに</h2>
-              <p>実務では、画面の表示・ボタンが押されたときの処理（イベント）・ファイルのダウンロードなども、それぞれサブルーチンに分けて整理します。機能が増えるほど、この“分ける力”が効いてきます。</p>
+              <p>
+                実務では、画面の表示・ボタンが押されたときの処理（イベント）・ファイルのダウンロードなども、
+                それぞれサブルーチンに分けて整理します。機能が増えるほど、この“分ける力”が効いてきます。
+              </p>
               <Figure
                 src="image/10-gui-modules.webp"
                 alt="左：画面とボタンがあるアプリ画面。右：メインプログラムから3つのサブルーチン（画面表示・イベント処理・ファイルダウンロード）へPERFORMで分岐する構成図。GUIまわりも役割ごとに分けるイメージ。"
                 caption="画面表示／ボタン押下／ダウンロードも、それぞれ別のサブルーチンに分けて整理する"
                 kind="concept"
               />
+              <h3>レポートのイベント（処理のタイミング）</h3>
+              <ul>
+                <li><code>INITIALIZATION</code> … プログラム開始時の初期設定</li>
+                <li><code>START-OF-SELECTION</code> … メイン処理の入口（データ取得・加工）</li>
+                <li><code>END-OF-SELECTION</code> … メイン処理の後（結果表示・ダウンロード準備）</li>
+                <li><code>TOP-OF-PAGE</code> … 改ページ時の見出し出力</li>
+                <li><code>AT SELECTION-SCREEN</code> … 選択画面での入力チェック</li>
+                <li><code>AT USER-COMMAND</code> … ツールバーのボタンが押されたとき</li>
+              </ul>
+              <h3>画面とダウンロード</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" 画面のタイトルとボタン（PF-STATUS）を設定
+SET TITLEBAR '仕訳日記帳'.
+SET PF-STATUS 'ZSTATUS' EXCLUDING lt_exclude.
+
+" ファイル保存ダイアログ → PCへダウンロード
+CALL METHOD cl_gui_frontend_services=>file_save_dialog
+  EXPORTING default_extension = 'txt'
+  CHANGING  filename           = lv_path.
+
+CALL FUNCTION 'GUI_DOWNLOAD'
+  EXPORTING filename = lv_path filetype = 'ASC'
+  TABLES    data_tab = lt_out.`}
+              />
+              <InfoPanel
+                title="汎用モジュール（Function Module）"
+                variant="reference"
+                lead={
+                  <>
+                    <code>CALL FUNCTION &apos;...&apos;</code> で呼ぶ、SAP 全体で再利用できる共通処理。
+                    第11章の BAPI も同じ呼び方です。
+                  </>
+                }
+              >
+                <ul>
+                  <li><strong>再利用</strong> … 検証・ダウンロードなど、複数プログラムで同じ処理を共通化できる</li>
+                  <li><strong>注意</strong> … インターフェース（引数）を変えると、利用している<strong>全プログラム</strong>に影響する</li>
+                </ul>
+              </InfoPanel>
               <Dialog speaker="teacher">
-                今は「役割ごとに分ける」という発想だけ持てれば十分。詳しい書き方は使うときに覚えれば大丈夫です。
+                今は「役割ごとに分ける」という発想と、イベントが“いつ動くか”の位置づけだけ押さえれば十分です。
+                詳しい書き方は使うときに深めていきましょう。
               </Dialog>
             </>
           ),
