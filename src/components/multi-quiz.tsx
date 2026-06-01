@@ -162,6 +162,11 @@ export function MultiQuiz({ question, options, answers, explanation, scoreId, le
     setSelected(selected.includes(i) ? selected.filter((v) => v !== i) : [...selected, i]);
   }
 
+  function handleRetry() {
+    setSelected([]);
+    setRevealed(false);
+  }
+
   return (
     <div className="not-prose my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
       <div className="mb-1 flex flex-wrap items-start gap-2">
@@ -283,6 +288,15 @@ export function MultiQuiz({ question, options, answers, explanation, scoreId, le
           )}
 
           <p className="mt-2">{explanation}</p>
+          {effectiveMode === "instant" && !isCorrect && (
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="mt-3 rounded-lg border border-current/30 px-4 py-2 text-sm font-semibold transition hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              解き直す
+            </button>
+          )}
         </div>
       )}
     </div>

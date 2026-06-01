@@ -47,6 +47,10 @@ export function Quiz({ question, options, answer, explanation, scoreId, level, m
     registerReportDetail(`${scoreId}:correct`, () => options[answer] ?? "");
   }, [scoreId, answer, options]);
 
+  function handleRetry() {
+    setSelected(null);
+  }
+
   function optionClass(i: number): string {
     if (!answered)
       return "border-slate-300 bg-white hover:border-brand hover:bg-brand/5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand";
@@ -119,6 +123,15 @@ export function Quiz({ question, options, answer, explanation, scoreId, level, m
         >
           <p className="font-bold">{isCorrect ? "✅ 正解！" : "❌ 惜しい！"}</p>
           <p className="mt-1">{explanation}</p>
+          {effectiveMode === "instant" && !isCorrect && (
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="mt-3 rounded-lg border border-current/30 px-4 py-2 text-sm font-semibold transition hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              解き直す
+            </button>
+          )}
         </div>
       )}
     </div>
