@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { InfoPanelVariant } from "../lib/types";
 import { cn } from "../lib/cn";
+import { NESTED_TABLE_STYLES } from "../lib/nested-table-styles";
 
 interface InfoPanelVariantStyle {
   container: string;
@@ -69,7 +70,8 @@ export function InfoPanel({
       ) : null}
       <div
         className={cn(
-          "text-[0.95rem] leading-relaxed",
+          "overflow-x-auto text-[0.95rem] leading-relaxed",
+          NESTED_TABLE_STYLES,
           "[&_ul]:my-0 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:p-0",
           "[&_li]:m-0",
           "[&_code]:rounded [&_code]:bg-black/8 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-white/10"

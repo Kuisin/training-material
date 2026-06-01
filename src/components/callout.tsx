@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { CalloutVariant } from "../lib/types";
 import { cn } from "../lib/cn";
+import { NESTED_TABLE_STYLES } from "../lib/nested-table-styles";
 
 interface CalloutVariantStyle {
   container: string;
@@ -47,7 +48,13 @@ export function Callout({ variant, children }: CalloutProps) {
       <span aria-hidden className="select-none text-lg leading-none">
         {style.icon}
       </span>
-      <div className="min-w-0 [&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-white/10">
+      <div
+        className={cn(
+          "min-w-0 overflow-x-auto",
+          NESTED_TABLE_STYLES,
+          "[&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-white/10"
+        )}
+      >
         <span className="sr-only">{style.label}: </span>
         {children}
       </div>

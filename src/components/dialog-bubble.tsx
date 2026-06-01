@@ -1,12 +1,15 @@
 import { cn } from "../lib/cn";
+import { NESTED_TABLE_STYLES } from "../lib/nested-table-styles";
 
 /** Tail depth (px); matches bubble `border` (1px) overlap via BUBBLE_BORDER. */
 const TAIL_WIDTH = 8;
 const TAIL_HEIGHT = 12;
 const BUBBLE_BORDER = 1;
 
-export const DIALOG_BODY =
-  "[&_code]:rounded [&_code]:bg-[#e2e8f0] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-[#1e293b]";
+export const DIALOG_BODY = cn(
+  NESTED_TABLE_STYLES,
+  "[&_code]:rounded [&_code]:bg-[#e2e8f0] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] dark:[&_code]:bg-[#1e293b]"
+);
 
 export function DialogBubbleTail({
   fill,
