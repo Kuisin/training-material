@@ -472,3 +472,31 @@ many repeated round-trip arrows to a database/warehouse (one per row). RIGHT
 (a desk), then matches in memory with no further DB trips. Contrast the number of
 arrows. Clean flat vector, red vs green accents, minimal text. 16:9.
 ```
+
+---
+
+## 14 SAP開発ツール
+
+| ファイル名 | 種別 | 使用スライド | 内容（alt） |
+| --- | --- | --- | --- |
+| `14-debug-flow.png` | diagram | デバッグの基本 | ブレークポイント→/h→F5/F6→変数確認の流れ |
+| `14-history-check.png` | diagram | 履歴の確認 | SE16N(結果)・ST22(エラー)・バージョン管理(変更)の3入口 |
+
+**`14-debug-flow.png`**（diagram）
+```
+Minimal flat flowchart, white background, left to right. Step 1: ABAP editor with a
+breakpoint dot on a line number. Step 2: command field showing "/h" to start the
+debugger. Step 3: debugger with F5/F6 step buttons highlighted. Step 4: variables
+window showing sy-subrc and an internal table row. Clean flat vector, blue/grey
+palette, minimal English labels. 16:9.
+```
+
+**`14-history-check.png`**（diagram）
+```
+Minimal flat diagram, white background, three columns or panels. LEFT: "SE16N" with
+a table browse icon and rows showing OK/NG status and document numbers (registration
+result check). CENTER: "ST22" with a warning/dump icon (runtime error history).
+RIGHT: "Version management" with stacked document versions and a user/timestamp
+(program change history). Arrows from a central "investigate" magnifying glass.
+Clean flat vector, blue/grey/amber accents, minimal text. 16:9.
+```

@@ -6,14 +6,15 @@ import {
   CodeBlock,
   Quiz,
   MermaidDiagram,
+  Figure,
   InfoPanel,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "SAP開発ツール — SE38・ショートカット・デバッグ・トランザクション",
-  meta: "初学者 · 25分",
+  title: "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション",
+  meta: "初学者 · 35分",
 };
 
 export default function SapDevelopmentToolsLesson() {
@@ -24,19 +25,19 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "概要",
           plainText:
-            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・主要トランザクションを、演習課題に依存しない形で整理します。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作\n・よく使うトランザクションと汎用モジュールの位置づけ",
+            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・履歴確認・主要トランザクションを、演習課題に依存しない形で整理します。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作と sy-subrc などの追い方（GUI操作手順付き）\n・SE16N・ST22・バージョン管理による履歴確認\n・よく使うトランザクションと汎用モジュールの位置づけ",
           content: (
             <>
               <hgroup>
                 <h1>SAP開発ツール</h1>
                 <p>
-                  日々の開発で使う画面操作・デバッグ・主要トランザクションを、
+                  日々の開発で使う画面操作・デバッグ・<strong>履歴確認</strong>・主要トランザクションを、
                   <strong>演習課題に依存しない</strong>形で整理します。
                 </p>
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "25分" },
+                  { icon: "⏱", text: "35分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
@@ -47,7 +48,10 @@ export default function SapDevelopmentToolsLesson() {
                   <code>SE38</code> での作成 → 構文チェック → 有効化 → 実行のサイクル
                 </li>
                 <li>エディタ・ショートカット・ヘルプ（<code>F1</code>）の使い方</li>
-                <li>デバッガの基本操作（ブレークポイント・ステップ実行）</li>
+                <li>デバッガの基本操作（ブレークポイント・ステップ実行・<code>sy-subrc</code> の確認）</li>
+                <li>
+                  <strong>履歴確認</strong> … 登録結果（<code>SE16N</code>）、実行エラー（<code>ST22</code>）、プログラム変更（バージョン管理）の<strong>GUI操作手順</strong>
+                </li>
                 <li>よく使うトランザクションと汎用モジュールの位置づけ</li>
                 <li>アドオンテーブル（ドメイン → データエレメント → テーブル）と DB 更新の基本</li>
               </ul>
@@ -217,7 +221,7 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "デバッグ",
           plainText:
-            "デバッグの基本\nデバッグ＝プログラムの動きを一時停止して、変数の値や処理の流れを確認すること。\n手順：ブレークポイント → コマンド欄に /h でデバッガ起動 → ステップ実行 → 値確認\nF5ステップ F6サブルーチン飛ばし F7戻る F8続行",
+            "デバッグの基本\nデバッグ＝プログラムの動きを一時停止して、変数の値や処理の流れを確認すること。\n手順：ブレークポイント → コマンド欄に /h でデバッガ起動 → ステップ実行 → 値確認\n/h で開始、/n で終了。F5ステップ F6サブルーチン飛ばし F7戻る F8続行",
           content: (
             <>
               <h2>デバッグの基本</h2>
@@ -225,13 +229,52 @@ export default function SapDevelopmentToolsLesson() {
                 <strong>デバッグ</strong>とは、プログラムの実行を一時停止し、
                 変数の値や処理の流れを確認してバグを特定・修正することです。
               </p>
+              <Figure
+                src="image/14-debug-flow.webp"
+                alt="SE38でブレークポイントを置き、/h でデバッガ起動、F5/F6でステップ実行し、変数ウィンドウで値を確認する一連の流れ。"
+                caption="止める → 起動(/h) → ステップ → 値を見る"
+                kind="diagram"
+              />
               <ol>
-                <li>止めたい行に<strong>ブレークポイント</strong>を設定</li>
+                <li>
+                  <code>SE38</code> で止めたい行の行番号をクリックして<strong>ブレークポイント</strong>を設定
+                </li>
                 <li>
                   実行前にコマンド欄へ <code>/h</code> と入力して<strong>デバッガを起動</strong>（次の実行からデバッグモード）
                 </li>
                 <li>ステップ実行で1行ずつ進め、変数ウィンドウで値を確認</li>
+                <li>
+                  終わったら <code>/n</code> でデバッグモードを<strong>終了</strong>（次回は通常実行に戻る）
+                </li>
               </ol>
+              <InfoPanel title="操作手順（SE38 → デバッガ）" variant="reference" lead="演習でそのまま試せる順番です。">
+                <ol>
+                  <li>
+                    コマンド欄に <code>SE38</code> と入力 → <kbd>Enter</kbd>
+                  </li>
+                  <li>
+                    プログラム名を入力 → <strong>表示</strong>（または <strong>変更</strong>）
+                  </li>
+                  <li>
+                    止めたい行の<strong>行番号の左</strong>をクリック → 赤い丸（ブレークポイント）。もう一度クリックで解除
+                  </li>
+                  <li>
+                    コマンド欄に <code>/h</code> と入力 → <kbd>Enter</kbd>（デバッグモード ON）
+                  </li>
+                  <li>
+                    <strong>実行</strong>（<code>F8</code>）… 選択画面が出たら条件を入力して再実行
+                  </li>
+                  <li>
+                    ブレークポイントで停止 → デバッガ画面が開く → <code>F5</code> / <code>F6</code> でステップ実行
+                  </li>
+                  <li>
+                    左ペインの <strong>Variables</strong>（変数）で <code>sy-subrc</code> や作業領域の値を確認
+                  </li>
+                  <li>
+                    終了時 … デバッガを閉じるか <code>F8</code> で続行。デバッグモードを切るときはコマンド欄に <code>/n</code> → <kbd>Enter</kbd>
+                  </li>
+                </ol>
+              </InfoPanel>
               <InfoPanel title="デバッガのステップ操作" variant="reference" lead="F5 と F6 の違いだけ先に押さえれば十分です。">
                 <table>
                   <thead>
@@ -268,8 +311,367 @@ export default function SapDevelopmentToolsLesson() {
                   </tbody>
                 </table>
               </InfoPanel>
+              <Callout variant="note">
+                実行中の画面からデバッグに入る場合も、コマンド欄に <code>/h</code> を入力してから再実行します。
+                バッチジョブのデバッグは別の手順（次章で概要）ですが、考え方は同じです。
+              </Callout>
               <Dialog speaker="a">
                 <code>WRITE</code> で値を出すより、ブレークポイントのほうがループの途中などでも正確に追えますね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "デバッグで見るポイント",
+          plainText:
+            "デバッグで見るポイント\nSELECT・CALL FUNCTION・READ TABLE の直後は sy-subrc を確認（0=成功）。\n内部テーブルは変数ウィンドウでダブルクリックして中身を展開。\nBAPI 後は RETURN テーブルと sy-subrc の両方を見る（第11章）。\n先生：止まった行の前後3行と、直前の sy-subrc が最初のチェックポイント。",
+          content: (
+            <>
+              <h2>デバッグで見るポイント</h2>
+              <p>
+                ブレークポイントで止まったら、<strong>どの変数を見るか</strong>を決めると調査が速くなります。
+                このコースでよく使う確認ポイントを整理します。
+              </p>
+              <InfoPanel title="まず見るもの" variant="reference" lead="「止まった行の直前で何が起きたか」を sy-subrc から読む習慣をつけましょう。">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>タイミング</th>
+                      <th>見るもの</th>
+                      <th>意味</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>SELECT</code> の直後
+                      </td>
+                      <td>
+                        <code>sy-subrc</code>
+                      </td>
+                      <td>
+                        <code>0</code> … 1件以上取得／<code>4</code> … 該当なし（第6章）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>READ TABLE</code> の直後
+                      </td>
+                      <td>
+                        <code>sy-subrc</code> / <code>sy-tabix</code>
+                      </td>
+                      <td>見つかったか、何行目か</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>CALL FUNCTION</code> の直後
+                      </td>
+                      <td>
+                        <code>sy-subrc</code> / <code>RETURN</code>
+                      </td>
+                      <td>例外番号と BAPI のメッセージ（第11章）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>LOOP</code> 中
+                      </td>
+                      <td>
+                        <code>sy-tabix</code> / 作業領域
+                      </td>
+                      <td>何行目を処理中か、行の中身</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <p>
+                内部テーブル（<code>lt_*</code>）は、デバッガの変数一覧で<strong>ダブルクリック</strong>すると
+                行ごとの中身を展開できます。<code>WRITE</code> では見えにくい「ループの3行目だけ」もここで確認できます。
+              </p>
+              <InfoPanel title="操作手順（デバッガ画面）" variant="reference" lead="止まったあと、画面のどこを触るか。">
+                <ol>
+                  <li>
+                    左ペイン <strong>Variables</strong> … 変数名の横の値を読む（<code>sy-subrc</code> は一覧をスクロールするか、名前で探す）
+                  </li>
+                  <li>
+                    内部テーブル（例: <code>LT_BSEG</code>）を<strong>ダブルクリック</strong> → 行一覧ウィンドウが開く
+                  </li>
+                  <li>
+                    行一覧で行番号を選ぶ → その行の各項目の値を確認
+                  </li>
+                  <li>
+                    BAPI 後 … <code>LT_RETURN</code> を展開し、<code>TYPE</code> が <code>E</code> の行がないか見る（第11章）
+                  </li>
+                  <li>
+                    次の行へ … <code>F5</code>（1行ずつ）または <code>F6</code>（<code>PERFORM</code> / Function の中を飛ばす）
+                  </li>
+                  <li>
+                    呼び出し元に戻る … <code>F7</code>（<code>FORM</code> や Function から抜けたあと）
+                  </li>
+                </ol>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`" ブレークポイントをこの行に置く例
+SELECT SINGLE * FROM bkpf INTO ls_bkpf WHERE belnr = p_belnr.
+" → sy-subrc が 4 なら「伝票が見つからない」
+
+READ TABLE lt_bseg INTO ls_bseg WITH KEY buzei = lv_buzei.
+" → sy-subrc <> 0 なら「明細行がない」
+
+CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
+  ...
+" → sy-subrc と lt_return の TYPE を確認`}
+              />
+              <Dialog speaker="teacher">
+                実務では「止まった行の前後3行」と「直前の <code>sy-subrc</code>」を最初に見る——
+                この習慣だけで、原因の8割はここで絞れます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "実行エラーの確認",
+          plainText:
+            "実行エラーの確認（ST22）\nプログラムが異常終了（ダンプ）したときは ST22 で履歴を見る。\nいつ・誰が・どのプログラムで・どの行で止まったかが残る。\nダンプ詳細：エラー種別、変数の値、呼び出し経路（スタック）。\n先生：ユーザーから止まったと言われたら、まず ST22 で自分のユーザーIDを絞る。",
+          content: (
+            <>
+              <h2>実行エラーの確認（<code>ST22</code>）</h2>
+              <p>
+                プログラムが<strong>異常終了（ダンプ）</strong>したとき、SAP はエラー情報を自動で記録します。
+                トランザクション <code>ST22</code>（ABAP ランタイムエラー）で、<strong>いつ・誰が・どのプログラムの何行目</strong>で止まったかを確認できます。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart LR
+  A[プログラム異常終了] --> B[ST22 に記録]
+  B --> C[日時・ユーザー・プログラム名]
+  C --> D[ダンプ詳細を開く]
+  D --> E[エラー行と変数を確認]`}
+              />
+              <InfoPanel title="ST22 で見る項目" variant="reference">
+                <ul>
+                  <li>
+                    <strong>Runtime Errors</strong> … エラー種別（例: ゼロ除算、テーブル範囲外）
+                  </li>
+                  <li>
+                    <strong>Program / Line</strong> … 止まったプログラム名と行番号 → <code>SE38</code> で該当行へ
+                  </li>
+                  <li>
+                    <strong>Variables</strong> … 異常発生時点の変数値（デバッグと同様に中身を追える）
+                  </li>
+                  <li>
+                    <strong>Call stack</strong> … どの <code>FORM</code> / Function から呼ばれたか（呼び出し経路）
+                  </li>
+                </ul>
+              </InfoPanel>
+              <InfoPanel title="操作手順（ST22）" variant="reference" lead="ダンプが出た直後に試す流れです。">
+                <ol>
+                  <li>
+                    コマンド欄に <code>ST22</code> と入力 → <kbd>Enter</kbd>
+                  </li>
+                  <li>
+                    一覧で <strong>自分のユーザー</strong>・<strong>今日の日付</strong>あたりから直近の行を探す（環境により絞込欄あり）
+                  </li>
+                  <li>
+                    該当行を<strong>ダブルクリック</strong> → ダンプ詳細（Short Dump）画面
+                  </li>
+                  <li>
+                    <strong>Program</strong>（プログラム名）と <strong>Line</strong>（行番号）をメモ → <code>SE38</code> で同じ行を開く
+                  </li>
+                  <li>
+                    詳細画面の <strong>Variables</strong> / <strong>Active Variables</strong> で、異常時の変数値を確認
+                  </li>
+                  <li>
+                    <strong>Call stack</strong>（呼び出しスタック）で、どの <code>FORM</code> から来たかをたどる
+                  </li>
+                  <li>
+                    原因が分かったら … 該当行にブレークポイント → <code>/h</code> → 同じ条件で再実行してデバッグ
+                  </li>
+                </ol>
+              </InfoPanel>
+              <Callout variant="warning">
+                ダンプは<strong>再現の手がかり</strong>です。ST22 で行番号を特定したら、同じ条件で
+                ブレークポイントを置いてデバッグする——この2段構えが定番の調査手順です。
+              </Callout>
+              <Dialog speaker="teacher">
+                「プログラムが止まった」と連絡が来たら、まず <code>ST22</code> で自分のユーザー ID を絞り込み、
+                直近のダンプを開く。これだけで「再現前に何が起きたか」の9割は掴めます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "履歴の確認",
+          plainText:
+            "履歴の確認\n登録結果：SE16N でアドオンテーブル（ZIFLOG等）に OK/NG・伝票番号が残っているか。\n伝票本体：SE16N で BKPF/BSEG をキーで検索（第6・11章）。\nプログラム変更：SE38 → ユーティリティ → バージョン管理。\nバッチ結果：SM37（次章）。\nBちゃん：動いたかどうかをDBで確かめるのが履歴確認なんですね。",
+          content: (
+            <>
+              <h2>履歴の確認</h2>
+              <p>
+                「プログラムを動かした<strong>あと</strong>」に、結果が正しく残っているかを確かめる操作も開発の基本です。
+                第11章の登録フロー（取込 → BAPI → 履歴）とつながる確認方法を整理します。
+              </p>
+              <Figure
+                src="image/14-history-check.webp"
+                alt="履歴確認の3つの入口。SE16Nで取込履歴テーブルとBKPF/BSEGを照会、ST22で実行エラー、SE38のバージョン管理でプログラム変更履歴。"
+                caption="結果の確認（SE16N）・エラーの確認（ST22）・変更の確認（バージョン管理）"
+                kind="diagram"
+              />
+              <InfoPanel title="何を確認したいか → どこを見るか" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>確認したいこと</th>
+                      <th>ツール</th>
+                      <th>例</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>取込・登録の<strong>結果</strong></td>
+                      <td>
+                        <code>SE16N</code>
+                      </td>
+                      <td>
+                        アドオンテーブル（<code>ZIFLOG</code> 等）… OK/NG・伝票番号・エラー内容
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>会計伝票<strong>本体</strong></td>
+                      <td>
+                        <code>SE16N</code>
+                      </td>
+                      <td>
+                        <code>BKPF</code> / <code>BSEG</code> … 会社コード・伝票番号で検索（第6章）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>プログラムの<strong>変更履歴</strong></td>
+                      <td>
+                        <code>SE38</code> → ユーティリティ → バージョン管理
+                      </td>
+                      <td>いつ・誰が・どの版を有効化したか</td>
+                    </tr>
+                    <tr>
+                      <td>実行<strong>エラー</strong></td>
+                      <td>
+                        <code>ST22</code>
+                      </td>
+                      <td>ダンプの日時・行番号・変数（前スライド）</td>
+                    </tr>
+                    <tr>
+                      <td>バッチ<strong>ジョブ</strong>の結果</td>
+                      <td>
+                        <code>SM37</code>
+                      </td>
+                      <td>完了/エラー・スプール出力（次章で詳述）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <p>
+                <code>SE16N</code> では、テーブル名を入力し、キー項目（ファイル ID・伝票番号など）で絞り込みます。
+                登録プログラムのテスト後は、<strong>履歴テーブルに1行増えているか</strong>、
+                成功時は <code>BKPF</code> に伝票が見えるか——この2点をセットで確認する習慣をつけましょう。
+              </p>
+              <InfoPanel title="操作手順（SE16N … 取込履歴の確認）" variant="reference" lead="第11章の ZIFLOG 等を見る例。">
+                <ol>
+                  <li>
+                    コマンド欄に <code>SE16N</code> と入力 → <kbd>Enter</kbd>
+                  </li>
+                  <li>
+                    初回のみ … 警告画面が出たら内容を確認し、チェックボックスにチェック → <strong>続行</strong>（環境により表示）
+                  </li>
+                  <li>
+                    <strong>テーブル名</strong>欄に <code>ZIFLOG</code>（演習で使う履歴表名）を入力 → <strong>実行</strong> または <kbd>Enter</kbd>
+                  </li>
+                  <li>
+                    フィールド選択 … 確認したい列（<code>STATUS</code>・<code>BELNR</code> 等）にチェック → <strong>実行</strong>
+                  </li>
+                  <li>
+                    データ選択画面 … ファイル ID・会社コードなど<strong>キー項目</strong>に値を入力 → <strong>実行</strong>
+                  </li>
+                  <li>
+                    結果一覧 … 行が増えているか、<code>STATUS</code> が OK/NG どちらか、伝票番号が入っているかを確認
+                  </li>
+                </ol>
+              </InfoPanel>
+              <InfoPanel title="操作手順（SE16N … 伝票本体の確認）" variant="reference" lead="登録成功後、BKPF に伝票があるか見る例。">
+                <ol>
+                  <li>
+                    <code>SE16N</code> → テーブル名 <code>BKPF</code> → <strong>実行</strong>
+                  </li>
+                  <li>
+                    選択画面 … <code>BUKRS</code>（会社コード）・<code>BELNR</code>（伝票番号）・<code>GJAHR</code>（会計年度）を入力 → <strong>実行</strong>
+                  </li>
+                  <li>
+                    1行表示されればヘッダ存在。明細は同様に <code>BSEG</code> で <code>BELNR</code> 等を指定
+                  </li>
+                </ol>
+              </InfoPanel>
+              <InfoPanel title="操作手順（SE38 … プログラム変更履歴）" variant="reference">
+                <ol>
+                  <li>
+                    <code>SE38</code> で対象プログラムを <strong>表示</strong>
+                  </li>
+                  <li>
+                    メニュー <strong>ユーティリティ</strong> → <strong>バージョン管理</strong> → <strong>バージョン</strong>
+                  </li>
+                  <li>
+                    版の一覧 … 版番号・<strong>変更者</strong>・<strong>日付/時刻</strong>を確認
+                  </li>
+                  <li>
+                    行を選んで <strong>表示</strong> … その版のソースを読む（2版選んで <strong>比較</strong> も可能）
+                  </li>
+                </ol>
+              </InfoPanel>
+              <Callout variant="note">
+                プログラム先頭の<strong>変更履歴コメント</strong>（第12・13章）は「なぜ変えたか」のメモ、
+                <code>SE38</code> のバージョン管理は「いつ誰が有効化したか」の<strong>システム記録</strong>です。両方使い分けます。
+              </Callout>
+              <Dialog speaker="b">
+                「動いた気がする」を<strong>DB で確かめる</strong>のが履歴確認なんですね。
+                二重登録の調査も、まず <code>SE16N</code> で履歴キーを見るところから始まりそうです。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "操作チェックリスト",
+          plainText:
+            "操作チェックリスト\nデバッグ：SE38→行番号クリック→/h→F8→F5/F6→Variables→/n\nST22：ST22→行ダブルクリック→Program/Line→SE38で再デバッグ\nSE16N：テーブル名→実行→キー入力→結果一覧\n版管理：SE38→ユーティリティ→バージョン管理→バージョン\n演習ではこの順番をそのまま試せる。",
+          content: (
+            <>
+              <h2>操作チェックリスト</h2>
+              <p>
+                演習で「画面のどこを押すか」迷ったとき用の<strong>最短手順</strong>です。
+                詳細は前のスライドの InfoPanel を参照してください。
+              </p>
+              <InfoPanel title="デバッグ（最初の1回）" variant="reference">
+                <p>
+                  <code>SE38</code> → 行番号クリック（BP）→ <code>/h</code> → <code>F8</code> → 停止したら <code>F5</code>/<code>F6</code> → Variables → 終わったら <code>/n</code>
+                </p>
+              </InfoPanel>
+              <InfoPanel title="異常終了後の調査" variant="reference">
+                <p>
+                  <code>ST22</code> → 直近行ダブルクリック → Program / Line をメモ → <code>SE38</code> で BP → <code>/h</code> → 再実行
+                </p>
+              </InfoPanel>
+              <InfoPanel title="登録テスト後の確認" variant="reference">
+                <p>
+                  <code>SE16N</code> → <code>ZIFLOG</code> → キー入力 → STATUS/BELNR 確認 → 必要なら <code>BKPF</code> も同様
+                </p>
+              </InfoPanel>
+              <InfoPanel title="誰がいつ直したか" variant="reference">
+                <p>
+                  <code>SE38</code> → ユーティリティ → バージョン管理 → バージョン → 変更者・日時を確認
+                </p>
+              </InfoPanel>
+              <Callout variant="note">
+                メニュー名やボタンラベルは SAP GUI の言語設定（日本語/英語）で多少異なります。
+                見つからないときは <code>F1</code> でカーソル位置の項目名を確認してください。
+              </Callout>
+              <Dialog speaker="teacher">
+                手順は最初はメモを見ながらで構いません。3回繰り返すと、<code>/h</code> と <code>SE16N</code> への入り方は体で覚えます。
               </Dialog>
             </>
           ),
@@ -299,11 +701,11 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "主要トランザクション",
           plainText:
-            "主要トランザクション\n開発：SE38プログラム SE37 Function SE11データ定義 SE16Nテーブル参照\nファイル：AL11サーバ参照 CG3Yダウンロード CG3Zアップロード\n次章で論理ファイル・ジョブ・BDCを扱う。",
+            "主要トランザクション\n開発：SE38 SE37 SE11 SE16N SM30 SE80\n調査：ST22実行エラー SM37ジョブ\nファイル：AL11 CG3Y CG3Z\n次章で論理ファイル・ジョブ・BDCを扱う。",
           content: (
             <>
               <h2>主要トランザクション</h2>
-              <p>開発とファイル連携で、まず名前だけ押さえておく一覧です。詳細は次章（ファイル・ジョブ）でも触れます。</p>
+              <p>開発・調査・ファイル連携で、まず名前だけ押さえておく一覧です。詳細は次章（ファイル・ジョブ）でも触れます。</p>
               <InfoPanel title="開発" variant="reference">
                 <table>
                   <thead>
@@ -348,6 +750,30 @@ export default function SapDevelopmentToolsLesson() {
                         <code>SE80</code>
                       </td>
                       <td>オブジェクトナビゲータ（汎用グループなどの作成）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <InfoPanel title="調査・履歴確認" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Tr-cd</th>
+                      <th>内容</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>ST22</code>
+                      </td>
+                      <td>ABAP ランタイムエラー（ダンプ）の一覧・詳細</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>SM37</code>
+                      </td>
+                      <td>バックグラウンドジョブの実行履歴・ログ</td>
                     </tr>
                   </tbody>
                 </table>
@@ -601,18 +1027,20 @@ DATA:
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：SE38の保存→チェック→有効化→実行、F1とデバッガ、トランザクション一覧——道具の地図。\nBちゃん：演習は別資料、ここは辞書みたいで助かる。\nAくん：FILE_GET_NAMEはファイル連携、ALVは一覧表示、と用途で束ねる。",
+            "対話で整理\n先生：SE38のサイクル、F1、デバッガ、ST22/SE16Nでの履歴確認——道具の地図。\nBちゃん：演習は別資料、ここは辞書みたいで助かる。\nAくん：止まったらST22、動いたかはSE16N、と用途で束ねる。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="teacher">
-                この章は「道具の地図」です。<code>SE38</code> のサイクル、ショートカット、<code>F1</code>、デバッガ、主要トランザクション——迷ったらここに戻ってください。
+                この章は「道具の地図」です。<code>SE38</code> のサイクル、ショートカット、<code>F1</code>、デバッガ、
+                <code>ST22</code> / <code>SE16N</code> での履歴確認——迷ったらここに戻ってください。
               </Dialog>
               <Dialog speaker="b">
                 演習の手順は別資料なので、ここは辞書として使えそうです。
               </Dialog>
               <Dialog speaker="a">
-                汎用モジュールも、名前より<strong>用途</strong>（数値チェック・パス取得・ALV）で束ねて覚えると実務で探しやすいですね。
+                調査も用途で束ねられますね。<strong>止まった</strong> → <code>ST22</code>、
+                <strong>動いたか確認</strong> → <code>SE16N</code>、<strong>中身を追う</strong> → デバッガ。
               </Dialog>
             </>
           ),
@@ -620,7 +1048,7 @@ DATA:
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nQ1 実行直前に忘れがちな操作は？→ 有効化\nQ2 F6の意味は？→ サブルーチンの中に入らず飛ばす\nQ3 汎用モジュールの呼び方は？→ CALL FUNCTION\n今日のひとこと：道具は増えても、SE38のサイクルとF1があれば怖くない。",
+            "理解度チェック\nQ1 実行直前に忘れがちな操作は？→ 有効化\nQ2 F6の意味は？→ サブルーチンの中に入らず飛ばす\nQ3 取込結果の履歴確認は？→ SE16N\nQ4 汎用モジュールの呼び方は？→ CALL FUNCTION\n今日のひとこと：止まったらST22、結果はSE16N、中身はデバッガ。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -637,13 +1065,20 @@ DATA:
                 options={["1行ずつステップ実行する", "サブルーチンの中に入らず飛ばす", "プログラムを終了する"]}
               />
               <Quiz
+                answer={1}
+                explanation="取込・登録の結果（OK/NG・伝票番号など）はアドオンテーブルに保存されます。SE16N でテーブル内容を参照して確認します。ST22 は実行エラー（ダンプ）の確認用です。"
+                question={<strong>第11章の取込履歴テーブルに、登録結果が残っているか確認するのに使うのは？</strong>}
+                options={["ST22", "SE16N", "SM30"]}
+              />
+              <Quiz
                 answer={0}
                 explanation="汎用モジュールは CALL FUNCTION で呼び出します。第11章の BAPI 呼び出しも同じ形です。"
                 question={<strong>汎用モジュールをプログラムから呼び出す命令は？</strong>}
                 options={["CALL FUNCTION", "SELECT", "WRITE"]}
               />
               <Dialog speaker="closing">
-                道具は増えても、<code>SE38</code> のサイクルと <code>F1</code> があれば怖くない。演習ではここで学んだ地図を手元に置いて進みましょう。
+                道具は増えても、<code>SE38</code> のサイクルと <code>F1</code> があれば怖くない。
+                <strong>止まったら ST22、結果は SE16N、中身はデバッガ</strong>——この3つを手元に置いて演習を進みましょう。
               </Dialog>
             </>
           ),
