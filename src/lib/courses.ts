@@ -11,6 +11,7 @@ import {
   isSpecialUnlocked,
   markSpecialUnlocked,
 } from "./completion-store";
+import { isDevMode } from "./dev-mode";
 
 interface CourseJsonLesson {
   num?: string;
@@ -90,6 +91,13 @@ export const courses: Course[] = Object.entries(courseJsonModules)
   .sort((a, b) => a.slug.localeCompare(b.slug));
 
 export const activeCourses = courses.filter((course) => course.active);
+
+/** 一覧・URL から開けるコース（dev モード時は active=false も含む） */
+export function isCourseAccessible(course: Course): boolean {
+  return course.active || isDevMode;
+}
+
+export const navigableCourses = courses.filter(isCourseAccessible);
 
 /** 前後ナビ用の線形フロー（レッスン → コーステスト。追加コンテンツは含めない） */
 export function courseLinearFlow(course: Course): CourseLesson[] {
@@ -204,6 +212,10 @@ function requirementSatisfied(course: Course, requires: ContentRequirement): boo
 export function evaluateSpecialAccess(course: Course, entry: SpecialContentEntry): SpecialAccess {
   const lock = entry.lock;
   const mode = lock?.mode ?? "any";
+
+  if (isDevMode) {
+    return { unlocked: true, needsPassword: false, requirementMet: true, mode, passwordEntered: true };
+  }
 
   if (!lock || (lock.requires === undefined && !lock.password)) {
     return { unlocked: true, needsPassword: false, requirementMet: true, mode, passwordEntered: false };

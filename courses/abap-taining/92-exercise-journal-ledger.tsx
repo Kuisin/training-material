@@ -13,7 +13,7 @@ import {
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "特別演習 — 仕訳日記帳プログラムを作る（Z_TR077_TGLR0100）",
+  title: "特別演習 — 仕訳日記帳プログラムを作る",
   meta: "特別 · 45分",
 };
 
@@ -57,15 +57,15 @@ export default function ExerciseJournalLedgerLesson() {
         {
           title: "演習の概要",
           plainText:
-            "特別演習 — 仕訳日記帳プログラムを作る（Z_TR077_TGLR0100）\nコース完了者・パスワード保持者向けの実践演習。入力→取得→加工→出力の流れを、6ステップで1本のレポートに組み立てます。\n各ステップでBREAK-POINTを差し込み、変数が想定どおり動いているかをデバッガで確認します。最後に単体テストと機能テストを行います。",
+            "特別演習 — 仕訳日記帳プログラムを作る\nコース完了者・パスワード保持者向けの実践演習。入力→取得→加工→出力の流れを、6ステップで1本のレポートに組み立てます。\n各ステップでBREAK-POINTを差し込み、変数が想定どおり動いているかをデバッガで確認します。最後に単体テストと機能テストを行います。",
           content: (
             <>
               <hgroup>
                 <h1>特別演習 — 仕訳日記帳プログラムを作る</h1>
                 <p>
                   会計伝票ヘッダ（BKPF）を読み取り、
-                  <strong>仕訳日記帳</strong>として一覧出力するレポート
-                  <code>Z_TR077_TGLR0100</code> を、6ステップで組み立てます。
+                  <strong>仕訳日記帳</strong>として一覧出力するレポートを、6ステップで組み立てます。
+                  SE38 で任意のプログラム名（例：<code>z_journal_ledger</code>）を付けて作成してください。
                 </p>
               </hgroup>
               <LessonMeta
@@ -147,9 +147,9 @@ export default function ExerciseJournalLedgerLesson() {
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`REPORT z_tr077_tglr0100
+                code={`REPORT z_journal_ledger
   NO STANDARD PAGE HEADING
-  MESSAGE-ID z01
+  MESSAGE-ID z01        " メッセージクラス（SE91で文言を登録）
   LINE-SIZE 170
   LINE-COUNT 58.
 
@@ -170,6 +170,10 @@ TOP-OF-PAGE.
               />
               <InfoPanel title="この行たちの意味" variant="breakdown">
                 <ul>
+                  <li>
+                    <code>MESSAGE-ID z01</code> — デフォルトのメッセージクラス。
+                    後述の <code>MESSAGE s000.</code> は SE91 で登録した文言が画面に出る
+                  </li>
                   <li>
                     <code>NO STANDARD PAGE HEADING</code> — 標準ヘッダを止め、
                     <code>TOP-OF-PAGE</code> で自前のヘッダを出す
@@ -203,7 +207,8 @@ TOP-OF-PAGE.
                 reveal={
                   <ul>
                     <li>
-                      <code>sy-cprog</code> = <code>Z_TR077_TGLR0100</code>
+                      <code>sy-cprog</code> = 自分が付けたプログラム名（例{" "}
+                      <code>Z_JOURNAL_LEDGER</code>）
                     </li>
                     <li>
                       <code>sy-uname</code> = ログイン中のユーザ名
@@ -227,7 +232,7 @@ TOP-OF-PAGE.
         {
           title: "② 入力画面",
           plainText:
-            "ステップ2 データ入力画面（選択画面）\nPARAMETERSで会社コード（単一・必須）、SELECT-OPTIONSで転記日付（範囲・必須）、p_demoのチェックボックスを用意する。SELECT-OPTIONSの参照用にg_wrk_budatを先に宣言する。\nブレークポイント：START-OF-SELECTION先頭で止め、p_bukrs・s_budat[]・p_demoに入力値が入っているか確認する。",
+            "ステップ2 データ入力画面（選択画面）\nPARAMETERSで会社コード（単一・必須）、SELECT-OPTIONSで転記日付（範囲・必須）、p_demoのチェックボックスを用意する。SELECT-OPTIONSの参照用にlv_budatを先に宣言する。\nブレークポイント：START-OF-SELECTION先頭で止め、p_bukrs・s_budat[]・p_demoに入力値が入っているか確認する。",
           content: (
             <>
               <h2>② 入力画面 — 条件を受け取る選択画面</h2>
@@ -235,14 +240,14 @@ TOP-OF-PAGE.
                 次に、利用者が条件を入力する画面を作ります。単一値は{" "}
                 <code>PARAMETERS</code>、範囲は <code>SELECT-OPTIONS</code>{" "}
                 です。<code>SELECT-OPTIONS</code> は参照する変数が必要なので、
-                <code>g_wrk_budat</code> を先に宣言しておきます。
+                <code>lv_budat</code> を先に宣言しておきます。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`DATA: g_wrk_budat TYPE bkpf-budat.                 "S_BUDAT参照用
+                code={`DATA: lv_budat TYPE bkpf-budat.                 "S_BUDAT参照用
 
 PARAMETERS:     p_bukrs TYPE t001-bukrs OBLIGATORY. "会社コード（単一）
-SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY. "転記日付（範囲）
+SELECT-OPTIONS: s_budat FOR lv_budat OBLIGATORY. "転記日付（範囲）
 
 PARAMETERS: p_demo AS CHECKBOX DEFAULT ''.          "デモ用スイッチ`}
               />
@@ -267,7 +272,7 @@ PARAMETERS: p_demo AS CHECKBOX DEFAULT ''.          "デモ用スイッチ`}
   BREAK-POINT.        " ★確認用`}
                 ask={
                   <>
-                    会社コードに <code>FMC1</code>、日付に範囲を入れて実行します。
+                    環境に存在する会社コードと日付の範囲を入れて実行します。
                     <code>p_bukrs</code>・<code>s_budat[]</code>・
                     <code>p_demo</code> は入力どおりですか？
                   </>
@@ -275,7 +280,7 @@ PARAMETERS: p_demo AS CHECKBOX DEFAULT ''.          "デモ用スイッチ`}
                 reveal={
                   <ul>
                     <li>
-                      <code>p_bukrs</code> = <code>FMC1</code>
+                      <code>p_bukrs</code> = 入力した会社コード
                     </li>
                     <li>
                       <code>s_budat</code> = 1行（<code>sign=I</code>,{" "}
@@ -299,7 +304,7 @@ PARAMETERS: p_demo AS CHECKBOX DEFAULT ''.          "デモ用スイッチ`}
         {
           title: "③ 型と変数",
           plainText:
-            "ステップ3 テーブル型と変数の準備\nTYPESでヘッダ取得用の構造g_typ_bkpf（bukrs/blart/budat/bldat/belnr/usnam）を定義し、DATAで内部テーブルg_tab_bkpfと作業領域g_rec_bkpf、ヘッダ表示用のg_start_date/g_end_dateを宣言する。\nブレークポイント：宣言直後で止め、g_tab_bkpfが0行・各変数が初期値であることを確認する。",
+            "ステップ3 テーブル型と変数の準備\nTYPESでヘッダ取得用の構造ty_bkpf_hdr（bukrs/blart/budat/bldat/belnr/usnam）を定義し、DATAで内部テーブルlt_bkpfと作業領域ls_bkpf、ヘッダ表示用のlv_start_date/lv_end_dateを宣言する。\nブレークポイント：宣言直後で止め、lt_bkpfが0行・各変数が初期値であることを確認する。",
           content: (
             <>
               <h2>③ 型と変数 — 入れ物を用意する</h2>
@@ -312,20 +317,20 @@ PARAMETERS: p_demo AS CHECKBOX DEFAULT ''.          "デモ用スイッチ`}
               <CodeBlock
                 language="ABAP"
                 code={`TYPES:
-  BEGIN OF g_typ_bkpf,
+  BEGIN OF ty_bkpf_hdr,
     bukrs TYPE bkpf-bukrs,   "会社コード
     blart TYPE bkpf-blart,   "伝票タイプ
     budat TYPE bkpf-budat,   "転記日付
     bldat TYPE bkpf-bldat,   "伝票日付
     belnr TYPE bkpf-belnr,   "会計伝票番号
     usnam TYPE bkpf-usnam,   "ユーザ名
-  END OF g_typ_bkpf.
+  END OF ty_bkpf_hdr.
 
-DATA: g_tab_bkpf TYPE STANDARD TABLE OF g_typ_bkpf,  "内部テーブル
-      g_rec_bkpf TYPE g_typ_bkpf.                    "作業領域
+DATA: lt_bkpf TYPE STANDARD TABLE OF ty_bkpf_hdr,  "内部テーブル
+      ls_bkpf TYPE ty_bkpf_hdr.                    "作業領域
 
-DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
-      g_end_date   TYPE bkpf-budat.   "ヘッダ表示用 終了日`}
+DATA: lv_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
+      lv_end_date   TYPE bkpf-budat.   "ヘッダ表示用 終了日`}
               />
               <Callout variant="tip">
                 <code>TYPE bkpf-bukrs</code>{" "}
@@ -336,21 +341,21 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
   BREAK-POINT.        " ★確認用（取得前）`}
                 ask={
                   <>
-                    取得処理を書く前に止めます。<code>g_tab_bkpf</code>{" "}
-                    は空（0行）、<code>g_rec_bkpf</code>・<code>g_start_date</code>{" "}
+                    取得処理を書く前に止めます。<code>lt_bkpf</code>{" "}
+                    は空（0行）、<code>ls_bkpf</code>・<code>lv_start_date</code>{" "}
                     は初期値になっていますか？
                   </>
                 }
                 reveal={
                   <ul>
                     <li>
-                      <code>g_tab_bkpf</code> = 0 行（テーブル表示で「行なし」）
+                      <code>lt_bkpf</code> = 0 行（テーブル表示で「行なし」）
                     </li>
                     <li>
-                      <code>g_rec_bkpf</code> = 全項目が空
+                      <code>ls_bkpf</code> = 全項目が空
                     </li>
                     <li>
-                      <code>g_start_date</code> / <code>g_end_date</code> ={" "}
+                      <code>lv_start_date</code> / <code>lv_end_date</code> ={" "}
                       <code>00000000</code>
                     </li>
                   </ul>
@@ -362,7 +367,7 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
         {
           title: "④ データ取得",
           plainText:
-            "ステップ4 SELECTでデータ取得\nSTART-OF-SELECTIONでCLEAR後、p_demo='X'ならデモ2行をAPPEND、そうでなければBKPFからbukrs=p_bukrs AND budat IN s_budatでINTO TABLE取得する。SELECTの直後はsy-subrcを確認し、0以外ならMESSAGE後にLEAVE LIST-PROCESSING。\nブレークポイント：SELECT直後で止め、sy-subrcとg_tab_bkpfの件数を確認する。",
+            "ステップ4 SELECTでデータ取得\nSTART-OF-SELECTIONでCLEAR後、p_demo='X'ならデモ2行をAPPEND、そうでなければBKPFからbukrs=p_bukrs AND budat IN s_budatでINTO TABLE取得する。SELECTの直後はsy-subrcを確認し、0以外ならMESSAGE後にLEAVE LIST-PROCESSING。\nブレークポイント：SELECT直後で止め、sy-subrcとlt_bkpfの件数を確認する。",
           content: (
             <>
               <h2>④ データ取得 — SELECTとSY-SUBRC</h2>
@@ -375,60 +380,79 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
                 language="ABAP"
                 code={`START-OF-SELECTION.
 
-  CLEAR g_tab_bkpf.
+  CLEAR lt_bkpf.
 
   IF p_demo = 'X'.
     " --- デモ2行（DB不要で動作確認）---
-    CLEAR g_rec_bkpf.
-    g_rec_bkpf-bukrs = 'FMC1'.  g_rec_bkpf-blart = 'SA'.
-    g_rec_bkpf-budat = '20260501'.  g_rec_bkpf-bldat = '20260501'.
-    g_rec_bkpf-belnr = '0000000001'.  g_rec_bkpf-usnam = sy-uname.
-    APPEND g_rec_bkpf TO g_tab_bkpf.
+    CLEAR ls_bkpf.
+    ls_bkpf-bukrs = p_bukrs.  ls_bkpf-blart = 'SA'.
+    ls_bkpf-budat = '20250101'.  ls_bkpf-bldat = '20250101'.
+    ls_bkpf-belnr = '1000000001'.  ls_bkpf-usnam = sy-uname.
+    APPEND ls_bkpf TO lt_bkpf.
 
-    CLEAR g_rec_bkpf.
-    g_rec_bkpf-bukrs = 'FMC1'.  g_rec_bkpf-blart = 'SA'.
-    g_rec_bkpf-budat = '20260502'.  g_rec_bkpf-bldat = '20260502'.
-    g_rec_bkpf-belnr = '0000000002'.  g_rec_bkpf-usnam = sy-uname.
-    APPEND g_rec_bkpf TO g_tab_bkpf.
+    CLEAR ls_bkpf.
+    ls_bkpf-bukrs = p_bukrs.  ls_bkpf-blart = 'SA'.
+    ls_bkpf-budat = '20250102'.  ls_bkpf-bldat = '20250102'.
+    ls_bkpf-belnr = '1000000002'.  ls_bkpf-usnam = sy-uname.
+    APPEND ls_bkpf TO lt_bkpf.
 
   ELSE.
     " --- BKPFから会計伝票ヘッダを取得 ---
     SELECT bukrs blart budat bldat belnr usnam
       FROM bkpf
-      INTO TABLE g_tab_bkpf
+      INTO TABLE lt_bkpf
       WHERE bukrs = p_bukrs
         AND budat IN s_budat.
 
     IF sy-subrc <> 0.
-      MESSAGE s000.
-      LEAVE LIST-PROCESSING.
+      MESSAGE s000.       " → 画面下部ステータスバーに表示（SE91: z01/000 の文言）
+      LEAVE LIST-PROCESSING. " → リスト出力を終了し、選択画面へ戻る
     ENDIF.
   ENDIF.`}
               />
+              <InfoPanel
+                title="MESSAGE s000 の見え方"
+                variant="reference"
+                lead="メッセージクラス z01 の 000 番が呼ばれます。SE91 で登録した文言・種別どおりに画面に出ます。"
+              >
+                <ul>
+                  <li>
+                    <code>s000</code> の先頭 <code>s</code> … Success（成功）種別 →{" "}
+                    <strong>画面下部のステータスバーが緑</strong>で表示
+                  </li>
+                  <li>
+                    SE91 で z01/000 に「該当データがありません」等と登録されていれば、その文言が出る
+                  </li>
+                  <li>
+                    <code>LEAVE LIST-PROCESSING.</code> … 空の帳票を出さず、
+                    <strong>選択画面に戻る</strong>
+                  </li>
+                </ul>
+              </InfoPanel>
               <Callout variant="warning">
                 <code>SELECT … INTO TABLE</code> の <code>SY-SUBRC</code> は
                 「1件でも取れたら 0 / 0件なら 4」です。0件のときに後続のLOOPへ進むと空の帳票が出てしまうため、ここで止めます。
               </Callout>
               <BreakPointCheck
                 insert={`    SELECT bukrs blart budat bldat belnr usnam
-      FROM bkpf INTO TABLE g_tab_bkpf
+      FROM bkpf INTO TABLE lt_bkpf
       WHERE bukrs = p_bukrs AND budat IN s_budat.
     BREAK-POINT.        " ★SELECT直後で確認`}
                 ask={
                   <>
                     取得直後に止めます。<code>sy-subrc</code> は何ですか？{" "}
-                    <code>g_tab_bkpf</code> の件数は入力条件と合っていますか？
+                    <code>lt_bkpf</code> の件数は入力条件と合っていますか？
                   </>
                 }
                 reveal={
                   <ul>
                     <li>
                       該当ありなら <code>sy-subrc = 0</code>、
-                      <code>g_tab_bkpf</code> に件数分の行
+                      <code>lt_bkpf</code> に件数分の行
                     </li>
                     <li>
                       該当なしなら <code>sy-subrc = 4</code> →{" "}
-                      <code>MESSAGE</code> 後に処理終了
+                      ステータスバーに <code>MESSAGE s000</code> の文言が表示 → 選択画面へ戻る
                     </li>
                     <li>
                       デモ実行（<code>p_demo = X</code>）なら、SELECTを通らず2行が入る
@@ -442,7 +466,7 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
         {
           title: "⑤ データ加工",
           plainText:
-            "ステップ5 データ加工\nREAD TABLE s_budat INDEX 1で入力範囲を取り出し、g_start_date/g_end_dateへ退避（ヘッダ表示用）。SORT g_tab_bkpf BY budat belnrで転記日付・伝票番号順に並べ替える。\nブレークポイント：SORT後に止め、g_start_date/g_end_dateと並び順を確認する。",
+            "ステップ5 データ加工\nREAD TABLE s_budat INDEX 1で入力範囲を取り出し、lv_start_date/lv_end_dateへ退避（ヘッダ表示用）。SORT lt_bkpf BY budat belnrで転記日付・伝票番号順に並べ替える。\nブレークポイント：SORT後に止め、lv_start_date/lv_end_dateと並び順を確認する。",
           content: (
             <>
               <h2>⑤ データ加工 — 退避と並べ替え</h2>
@@ -455,12 +479,12 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
                 code={`  " ヘッダ表示用に転記日付の範囲を退避
   READ TABLE s_budat INDEX 1.
   IF sy-subrc = 0.
-    g_start_date = s_budat-low.
-    g_end_date   = s_budat-high.
+    lv_start_date = s_budat-low.
+    lv_end_date   = s_budat-high.
   ENDIF.
 
   " 明細を 転記日付 → 伝票番号 の順に並べ替え
-  SORT g_tab_bkpf BY budat belnr.`}
+  SORT lt_bkpf BY budat belnr.`}
               />
               <InfoPanel title="なぜ並べ替える？" variant="breakdown">
                 <ul>
@@ -478,27 +502,27 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
                 </ul>
               </InfoPanel>
               <BreakPointCheck
-                insert={`  SORT g_tab_bkpf BY budat belnr.
+                insert={`  SORT lt_bkpf BY budat belnr.
   BREAK-POINT.        " ★加工後に確認`}
                 ask={
                   <>
-                    <code>g_start_date</code>・<code>g_end_date</code>{" "}
-                    に範囲が入りましたか？ <code>g_tab_bkpf</code>{" "}
+                    <code>lv_start_date</code>・<code>lv_end_date</code>{" "}
+                    に範囲が入りましたか？ <code>lt_bkpf</code>{" "}
                     は日付順に並んでいますか？
                   </>
                 }
                 reveal={
                   <ul>
                     <li>
-                      <code>g_start_date</code> = 入力Fromの日付、
-                      <code>g_end_date</code> = 入力Toの日付
+                      <code>lv_start_date</code> = 入力Fromの日付、
+                      <code>lv_end_date</code> = 入力Toの日付
                     </li>
                     <li>
-                      <code>g_tab_bkpf</code> の <code>budat</code>{" "}
+                      <code>lt_bkpf</code> の <code>budat</code>{" "}
                       が昇順、同日内は <code>belnr</code> 昇順
                     </li>
                     <li>
-                      範囲を単一値（Toなし）で入れた場合、<code>g_end_date</code>{" "}
+                      範囲を単一値（Toなし）で入れた場合、<code>lv_end_date</code>{" "}
                       は <code>00000000</code> のことがある
                     </li>
                   </ul>
@@ -510,7 +534,7 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
         {
           title: "⑥ 画面に表示",
           plainText:
-            "ステップ6 画面に表示\nTOP-OF-PAGEに明細見出しを追加し、END-OF-SELECTIONでLOOP AT g_tab_bkpf INTO g_rec_bkpf。WRITEで会社/伝票タイプ/転記日付/伝票日付/伝票番号/ユーザ名を整列出力。日付はUSING EDIT MASK '____/__/__'で見やすく。\nブレークポイント：LOOP内で止め、g_rec_bkpfが1行ずつ更新されることを確認する。",
+            "ステップ6 画面に表示\nTOP-OF-PAGEに明細見出しを追加し、END-OF-SELECTIONでLOOP AT lt_bkpf INTO ls_bkpf。WRITEで会社/伝票タイプ/転記日付/伝票日付/伝票番号/ユーザ名を整列出力。日付はUSING EDIT MASK '____/__/__'で見やすく。\nブレークポイント：LOOP内で止め、ls_bkpfが1行ずつ更新されることを確認する。",
           content: (
             <>
               <h2>⑥ 画面に表示 — LOOPとWRITE</h2>
@@ -529,42 +553,42 @@ DATA: g_start_date TYPE bkpf-budat,   "ヘッダ表示用 開始日
   ULINE.
 
 END-OF-SELECTION.
-  LOOP AT g_tab_bkpf INTO g_rec_bkpf.
-    WRITE: /1  g_rec_bkpf-bukrs,
-             8  g_rec_bkpf-blart,
-             20 g_rec_bkpf-budat USING EDIT MASK '____/__/__',
-             35 g_rec_bkpf-bldat USING EDIT MASK '____/__/__',
-             50 g_rec_bkpf-belnr,
-             65 g_rec_bkpf-usnam.
+  LOOP AT lt_bkpf INTO ls_bkpf.
+    WRITE: /1  ls_bkpf-bukrs,
+             8  ls_bkpf-blart,
+             20 ls_bkpf-budat USING EDIT MASK '____/__/__',
+             35 ls_bkpf-bldat USING EDIT MASK '____/__/__',
+             50 ls_bkpf-belnr,
+             65 ls_bkpf-usnam.
   ENDLOOP.`}
               />
               <Callout variant="tip">
                 <code>USING EDIT MASK '____/__/__'</code> は{" "}
-                <code>20260501</code> を <code>2026/05/01</code>{" "}
+                <code>20250101</code> を <code>2025/01/01</code>{" "}
                 の見た目にします（中身は変わりません）。列番号（1, 8, 20…）で整列します。
               </Callout>
               <BreakPointCheck
-                insert={`  LOOP AT g_tab_bkpf INTO g_rec_bkpf.
+                insert={`  LOOP AT lt_bkpf INTO ls_bkpf.
     BREAK-POINT.        " ★1行ずつ確認（F8で次の行へ）
-    WRITE: /1 g_rec_bkpf-bukrs.
+    WRITE: /1 ls_bkpf-bukrs.
   ENDLOOP.`}
                 ask={
                   <>
-                    ループ内で止めます。<code>g_rec_bkpf</code>{" "}
+                    ループ内で止めます。<code>ls_bkpf</code>{" "}
                     は周回ごとに次の行へ変わりますか？ 列の位置はそろっていますか？
                   </>
                 }
                 reveal={
                   <ul>
                     <li>
-                      1周目は <code>g_tab_bkpf</code> の1行目、2周目は2行目…と{" "}
-                      <code>g_rec_bkpf</code> が更新される
+                      1周目は <code>lt_bkpf</code> の1行目、2周目は2行目…と{" "}
+                      <code>ls_bkpf</code> が更新される
                     </li>
                     <li>
                       <code>sy-tabix</code> が現在の行番号（1, 2, 3…）
                     </li>
                     <li>
-                      出力されたリストで、日付が <code>2026/05/01</code>{" "}
+                      出力されたリストで、日付が <code>2025/01/01</code>{" "}
                       形式・各列がそろっていればOK
                     </li>
                     <li>確認できたら BREAK-POINT を削除して完成</li>
@@ -632,8 +656,8 @@ END-OF-SELECTION.
                         該当しない会社・日付で実行
                       </td>
                       <td className="border border-slate-300 px-3 py-2 dark:border-slate-600">
-                        <code>MESSAGE</code> 表示 →{" "}
-                        <code>LEAVE LIST-PROCESSING</code>
+                        <code>MESSAGE s000</code> がステータスバー（緑）に表示 →{" "}
+                        <code>LEAVE LIST-PROCESSING</code> で選択画面へ戻る
                       </td>
                     </tr>
                     <tr>
@@ -652,10 +676,10 @@ END-OF-SELECTION.
                         日付整形
                       </td>
                       <td className="border border-slate-300 px-3 py-2 dark:border-slate-600">
-                        <code>20260501</code> を出力
+                        <code>20250101</code> を出力
                       </td>
                       <td className="border border-slate-300 px-3 py-2 dark:border-slate-600">
-                        <code>2026/05/01</code> と表示される
+                        <code>2025/01/01</code> と表示される
                       </td>
                     </tr>
                   </tbody>
@@ -736,7 +760,7 @@ END-OF-SELECTION.
                         該当0件になる条件
                       </td>
                       <td className="border border-slate-300 px-3 py-2 dark:border-slate-600">
-                        メッセージ表示・空の帳票を出さない
+                        <code>MESSAGE s000</code> がステータスバーに表示・空の帳票を出さない
                       </td>
                     </tr>
                     <tr>
@@ -775,54 +799,57 @@ END-OF-SELECTION.
                 <CodeBlock
                   language="ABAP"
                   code={`*&-------------------------------------------------------------------*
-*&  プログラムID : Z_TR077_TGLR0100   仕訳日記帳 演習1
+*&  仕訳日記帳レポート（演習）
 *&-------------------------------------------------------------------*
-REPORT z_tr077_tglr0100
-  NO STANDARD PAGE HEADING MESSAGE-ID z01 LINE-SIZE 170 LINE-COUNT 58.
+REPORT z_journal_ledger
+  NO STANDARD PAGE HEADING
+  MESSAGE-ID z01        " メッセージクラス（SE91で文言を登録）
+  LINE-SIZE 170 LINE-COUNT 58.
 
-TYPES: BEGIN OF g_typ_bkpf,
+TYPES: BEGIN OF ty_bkpf_hdr,
          bukrs TYPE bkpf-bukrs, blart TYPE bkpf-blart,
          budat TYPE bkpf-budat, bldat TYPE bkpf-bldat,
          belnr TYPE bkpf-belnr, usnam TYPE bkpf-usnam,
-       END OF g_typ_bkpf.
+       END OF ty_bkpf_hdr.
 
-DATA: g_wrk_budat  TYPE bkpf-budat.
-DATA: g_tab_bkpf   TYPE STANDARD TABLE OF g_typ_bkpf,
-      g_rec_bkpf   TYPE g_typ_bkpf.
-DATA: g_start_date TYPE bkpf-budat, g_end_date TYPE bkpf-budat.
+DATA: lv_budat  TYPE bkpf-budat.
+DATA: lt_bkpf   TYPE STANDARD TABLE OF ty_bkpf_hdr,
+      ls_bkpf   TYPE ty_bkpf_hdr.
+DATA: lv_start_date TYPE bkpf-budat, lv_end_date TYPE bkpf-budat.
 
 PARAMETERS:     p_bukrs TYPE t001-bukrs OBLIGATORY.
-SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
+SELECT-OPTIONS: s_budat FOR lv_budat OBLIGATORY.
 PARAMETERS:     p_demo  AS CHECKBOX DEFAULT ''.
 
 START-OF-SELECTION.
-  CLEAR g_tab_bkpf.
+  CLEAR lt_bkpf.
 
   IF p_demo = 'X'.
-    CLEAR g_rec_bkpf.
-    g_rec_bkpf-bukrs = 'FMC1'. g_rec_bkpf-blart = 'SA'.
-    g_rec_bkpf-budat = '20260501'. g_rec_bkpf-bldat = '20260501'.
-    g_rec_bkpf-belnr = '0000000001'. g_rec_bkpf-usnam = sy-uname.
-    APPEND g_rec_bkpf TO g_tab_bkpf.
-    CLEAR g_rec_bkpf.
-    g_rec_bkpf-bukrs = 'FMC1'. g_rec_bkpf-blart = 'SA'.
-    g_rec_bkpf-budat = '20260502'. g_rec_bkpf-bldat = '20260502'.
-    g_rec_bkpf-belnr = '0000000002'. g_rec_bkpf-usnam = sy-uname.
-    APPEND g_rec_bkpf TO g_tab_bkpf.
+    CLEAR ls_bkpf.
+    ls_bkpf-bukrs = p_bukrs. ls_bkpf-blart = 'SA'.
+    ls_bkpf-budat = '20250101'. ls_bkpf-bldat = '20250101'.
+    ls_bkpf-belnr = '1000000001'. ls_bkpf-usnam = sy-uname.
+    APPEND ls_bkpf TO lt_bkpf.
+    CLEAR ls_bkpf.
+    ls_bkpf-bukrs = p_bukrs. ls_bkpf-blart = 'SA'.
+    ls_bkpf-budat = '20250102'. ls_bkpf-bldat = '20250102'.
+    ls_bkpf-belnr = '1000000002'. ls_bkpf-usnam = sy-uname.
+    APPEND ls_bkpf TO lt_bkpf.
   ELSE.
     SELECT bukrs blart budat bldat belnr usnam
-      FROM bkpf INTO TABLE g_tab_bkpf
+      FROM bkpf INTO TABLE lt_bkpf
       WHERE bukrs = p_bukrs AND budat IN s_budat.
     IF sy-subrc <> 0.
-      MESSAGE s000. LEAVE LIST-PROCESSING.
+      MESSAGE s000.       " → 画面下部ステータスバーに表示（SE91: z01/000 の文言）
+      LEAVE LIST-PROCESSING. " → リスト出力を終了し、選択画面へ戻る
     ENDIF.
   ENDIF.
 
   READ TABLE s_budat INDEX 1.
   IF sy-subrc = 0.
-    g_start_date = s_budat-low. g_end_date = s_budat-high.
+    lv_start_date = s_budat-low. lv_end_date = s_budat-high.
   ENDIF.
-  SORT g_tab_bkpf BY budat belnr.
+  SORT lt_bkpf BY budat belnr.
 
 TOP-OF-PAGE.
   WRITE: /1 'PGMID:' NO-GAP, 9 sy-cprog,
@@ -837,11 +864,11 @@ TOP-OF-PAGE.
   ULINE.
 
 END-OF-SELECTION.
-  LOOP AT g_tab_bkpf INTO g_rec_bkpf.
-    WRITE: /1 g_rec_bkpf-bukrs, 8 g_rec_bkpf-blart,
-             20 g_rec_bkpf-budat USING EDIT MASK '____/__/__',
-             35 g_rec_bkpf-bldat USING EDIT MASK '____/__/__',
-             50 g_rec_bkpf-belnr, 65 g_rec_bkpf-usnam.
+  LOOP AT lt_bkpf INTO ls_bkpf.
+    WRITE: /1 ls_bkpf-bukrs, 8 ls_bkpf-blart,
+             20 ls_bkpf-budat USING EDIT MASK '____/__/__',
+             35 ls_bkpf-bldat USING EDIT MASK '____/__/__',
+             50 ls_bkpf-belnr, 65 ls_bkpf-usnam.
   ENDLOOP.`}
                 />
               </Reveal>

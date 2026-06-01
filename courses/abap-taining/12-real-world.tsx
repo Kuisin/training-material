@@ -9,6 +9,7 @@ import {
   Figure,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -384,6 +385,12 @@ lv_tax = lv_subtotal / 10.`}
                 10年後も使える書き方——に踏み込みます。
                 ここまでの地図と習慣があれば、きっと乗り越えられます。自信を持って進みましょう。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="13-good-programming"
+                label="第13章: 性能と保守性へ進む"
+                className="mb-4"
+              />
             </>
           ),
         },

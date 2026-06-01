@@ -6,6 +6,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -208,6 +209,12 @@ export default function BusinessBasicsLesson() {
               <Dialog speaker="a">
                 第2章で学んだヘッダ／明細が、そのままテーブル構造になっているんですね。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="06-select-from-db"
+                label="第6章: BKPF/BSEG の SELECT へ進む"
+                className="mb-4"
+              />
             </>
           ),
         },

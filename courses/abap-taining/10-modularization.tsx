@@ -9,6 +9,7 @@ import {
   Figure,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -418,6 +419,12 @@ CALL FUNCTION 'GUI_DOWNLOAD'
                 今は「役割ごとに分ける」という発想と、イベントが“いつ動くか”の位置づけだけ押さえれば十分です。
                 詳しい書き方は使うときに深めていきましょう。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="11-document-posting"
+                label="第11章: 会計伝票登録（BAPI）へ進む"
+                className="mb-4"
+              />
             </>
           ),
         },

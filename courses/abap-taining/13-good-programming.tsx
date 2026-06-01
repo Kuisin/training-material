@@ -9,6 +9,7 @@ import {
   InfoPanel,
   MermaidDiagram,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -226,6 +227,13 @@ ENDSELECT.`}
                 第6章で学んだ <code>INTO TABLE</code> が、性能面でも正解だったんですね。
                 <code>SELECT</code> ～ <code>ENDSELECT</code> は行数分だけ倉庫へ往復します。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="06-select-from-db"
+                label="第6章: SELECT の基本を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -556,6 +564,13 @@ APPEND LINES OF lt_src TO lt_dest.`}
                 <code>APPEND</code> 前に <code>SORT</code> する必要がある場合は、
                 <strong>ソートと追加を分けて</strong>書くと、意図が明確になりバグも減ります。
               </Callout>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="05-internal-tables"
+                label="第5章: 内部テーブルの基本を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },

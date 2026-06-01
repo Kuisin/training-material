@@ -12,7 +12,6 @@ import {
   LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
-import { lessonPageHref } from "../../src/lib/app-href";
 
 export const lessonMeta = {
   title: "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）",
@@ -20,8 +19,6 @@ export const lessonMeta = {
 };
 
 export default function SelectFromDbLesson() {
-  const debuggerLessonHref = lessonPageHref("abap-taining", "14-sap-development-tools");
-
   return (
     <Lesson
       chrome={lessonChrome("abap-taining", "06-select-from-db", lessonMeta.title)}
@@ -109,6 +106,13 @@ export default function SelectFromDbLesson() {
               <Dialog speaker="a">
                 第2章の「ヘッダと明細」が BKPF / BSEG になっているんですね。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="02-business-basics"
+                label="第2章: ヘッダと明細を復習する"
+                variant="back"
+                className="mb-4"
+              />
               <Dialog speaker="teacher">
                 そうです。両者は「会社コード＋伝票番号＋会計年度」の3つで1件に結びつきます（伝票番号だけでは一意になりません）。
               </Dialog>
@@ -244,6 +248,13 @@ export default function SelectFromDbLesson() {
               <Dialog speaker="teacher">
                 性能の話は第13章で深掘りします。今は「まとめて運ぶのが基本形」と覚えてください。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="05-internal-tables"
+                label="第5章: 内部テーブル操作を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -439,7 +450,8 @@ ENDIF.`}
                 見えないときはタブを切り替えて探す癖をつけると、調査が速くなります。
               </Dialog>
               <LessonLinkButton
-                href={debuggerLessonHref}
+                courseSlug="abap-taining"
+                lessonFile="14-sap-development-tools"
                 label="もっと知りたい？　第14章（デバッグ詳細）で理解を深める"
                 className="mb-4"
               />

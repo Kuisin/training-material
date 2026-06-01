@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -244,6 +245,18 @@ WRITE 'こんにちは、ABAP'.`}
               <Dialog speaker="teacher">
                 帳票ヘッダに「いつ・誰が」実行したかを残すのは実務でも定番です。<code>SY-DATUM</code> や <code>SY-UNAME</code> を使えば、1行で済みます。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="04-selection-screen"
+                  label="第4章: 選択画面へ進む"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="06-select-from-db"
+                  label="第6章: SY-SUBRC の詳細へ"
+                />
+              </div>
             </>
           ),
         },

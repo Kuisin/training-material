@@ -9,6 +9,7 @@ import {
   Figure,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -98,6 +99,13 @@ export default function SapDevelopmentToolsLesson() {
               <Dialog speaker="teacher">
                 「保存したのに動かない」は、多くの場合<strong>有効化を忘れた</strong>パターンです。実行の直前に構文チェックと有効化をセットで覚えましょう。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="03-abap-minimum-unit"
+                label="第3章: 最初のABAPを復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -632,6 +640,20 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 「動いた気がする」を<strong>DB で確かめる</strong>のが履歴確認なんですね。
                 二重登録の調査も、まず <code>SE16N</code> で履歴キーを見るところから始まりそうです。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="11-document-posting"
+                  label="第11章: 登録フローを復習する"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="06-select-from-db"
+                  label="第6章: BKPF/BSEG を復習する"
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },
@@ -895,6 +917,13 @@ ROLLBACK WORK.`}
                 伝票登録の確定は BAPI 側のコミットとセットで考え、履歴の書き込みタイミングは
                 「登録結果が分かってから」と第11章で整理しました。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="11-document-posting"
+                label="第11章: BAPI 登録フローを復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },

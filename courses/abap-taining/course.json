@@ -28,7 +28,7 @@
   "specialContent": [
     {
       "file": "92-exercise-journal-ledger",
-      "title": "特別演習 — 仕訳日記帳プログラムを作る（Z_TR077_TGLR0100）",
+      "title": "特別演習 — 仕訳日記帳プログラムを作る",
       "meta": "特別 · 45分",
       "lock": { "requires": "course", "password": "shiwake-master", "mode": "all" }
     }

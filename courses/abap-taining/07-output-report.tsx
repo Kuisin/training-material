@@ -9,6 +9,7 @@ import {
   Figure,
   LessonMeta,
   InfoPanel,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -303,6 +304,18 @@ TOP-OF-PAGE.
               <Dialog speaker="b">
                 数字が並ぶ画面でも、見出しや空行があるだけで安心して読めます。使う人が迷わないように整えるのが、開発側の仕事だと実感しました。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="08-combine-data"
+                  label="第8章: データ結合へ進む"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="09-control-flow"
+                  label="第9章: 出力制御へ進む"
+                />
+              </div>
             </>
           ),
         },

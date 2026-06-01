@@ -7,6 +7,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -99,6 +100,23 @@ export default function OverviewLesson() {
               <Dialog speaker="teacher">
                 そうです。やさしい所から難しい所へ、なだらかに上っていきます。ツールや連携の操作詳細は第14〜15章で扱います。確認テストは第16章です。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="03-abap-minimum-unit"
+                  label="第3章: 最初のABAPから始める"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="11-document-posting"
+                  label="第11章: 会計伝票登録へ進む"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="16-final-assessment"
+                  label="第16章: 総仕上げテスト"
+                />
+              </div>
             </>
           ),
         },
@@ -210,6 +228,12 @@ export default function OverviewLesson() {
               <Dialog speaker="teacher">
                 その理解で完璧です。今は「あとで登録という重い処理が出てくる」とだけ覚えておけば十分。第11章でじっくり扱います。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="11-document-posting"
+                label="第11章: 会計伝票登録の詳細へ"
+                className="mb-4"
+              />
               <Callout variant="tip">
                 この章で出てくる考え方：入力 / 取得 / 加工 / 出力 / 登録（パイプライン）、照会 vs 登録。
               </Callout>

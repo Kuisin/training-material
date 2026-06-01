@@ -2,16 +2,18 @@ import { useLayoutEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "../components/theme-toggle";
 import {
-  activeCourses,
   courseEntryCount,
   courseIndexHref,
   courses,
   coursesIndexHref,
   evaluateSpecialAccess,
+  isCourseAccessible,
   isCourseComplete,
   lessonHref,
+  navigableCourses,
   verifySpecialPassword,
 } from "../lib/courses";
+import { isDevMode } from "../lib/dev-mode";
 import { isLessonComplete, useCompletion } from "../lib/completion-store";
 import { CourseSearch } from "../components/course-search";
 import { cn } from "../lib/cn";
@@ -306,20 +308,21 @@ function CourseContentSections({ course }: { course: Course }) {
 }
 
 function CourseCardBody({ course }: { course: Course }) {
+  const accessible = isCourseAccessible(course);
   return (
     <>
       <div className="flex items-start justify-between gap-3">
         <h2
           className={cn(
             "text-lg font-bold",
-            course.active && "group-hover:text-brand"
+            accessible && "group-hover:text-brand"
           )}
         >
           {course.title}
         </h2>
         {!course.active ? (
           <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-            準備中
+            {isDevMode ? "開発中" : "準備中"}
           </span>
         ) : null}
       </div>
@@ -330,7 +333,7 @@ function CourseCardBody({ course }: { course: Course }) {
       ) : null}
       <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">
         {courseEntryCount(course)} コンテンツ
-        {course.active ? (
+        {accessible ? (
           <span className="ml-2 text-brand opacity-0 transition group-hover:opacity-100" aria-hidden>
             →
           </span>
@@ -341,9 +344,10 @@ function CourseCardBody({ course }: { course: Course }) {
 }
 
 function CourseCard({ course }: { course: Course }) {
+  const accessible = isCourseAccessible(course);
   const className = cn(
     "flex flex-col rounded-2xl border p-5 shadow-sm transition",
-    course.active
+    accessible
       ? cn(
           "group border-slate-200 bg-white hover:border-brand/40 hover:shadow-md",
           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
@@ -352,7 +356,7 @@ function CourseCard({ course }: { course: Course }) {
       : "cursor-not-allowed border-slate-200/80 bg-slate-50 opacity-70 dark:border-slate-800 dark:bg-slate-900/50"
   );
 
-  if (!course.active) {
+  if (!accessible) {
     return (
       <article className={className} aria-disabled="true">
         <CourseCardBody course={course} />
@@ -403,7 +407,7 @@ function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boo
 function getActiveCourse(slug: string | null): Course | undefined {
   if (!slug) return undefined;
   const course = courses.find((item) => item.slug === slug);
-  if (!course?.active) return undefined;
+  if (!course || !isCourseAccessible(course)) return undefined;
   return course;
 }
 
@@ -413,8 +417,8 @@ export function IndexPage() {
   );
 
   useLayoutEffect(() => {
-    if (activeCourses.length !== 1) return;
-    const slug = activeCourses[0]!.slug;
+    if (navigableCourses.length !== 1) return;
+    const slug = navigableCourses[0]!.slug;
     if (courseSlug !== slug) {
       window.history.replaceState(null, "", courseIndexHref(slug));
       setCourseSlug(slug);
@@ -426,7 +430,7 @@ export function IndexPage() {
   }, [courseSlug]);
 
   const selectedCourse = getActiveCourse(courseSlug);
-  const showCoursePicker = activeCourses.length > 1;
+  const showCoursePicker = navigableCourses.length > 1;
 
   if (selectedCourse) {
     return <CourseLessonsPage course={selectedCourse} showBack={showCoursePicker} />;

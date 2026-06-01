@@ -9,6 +9,7 @@ import {
   Figure,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -136,6 +137,18 @@ export default function DocumentPostingLesson() {
                 第15章では「ファイルをどう読むか」、履歴用テーブルと検証用の汎用モジュールは本章で扱い、開発ツールの全体像は第14章を参照します。
                 この章では<strong>登録の責任と順序</strong>に集中します。
               </Callout>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="15-files-jobs-and-batch"
+                  label="第15章: ファイル読込の詳細へ"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="14-sap-development-tools"
+                  label="第14章: 開発ツールへ"
+                />
+              </div>
             </>
           ),
         },
@@ -201,6 +214,13 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 BAPI の呼び出しは <code>CALL FUNCTION</code> ですね。第10章の汎用モジュールと同じ形で、
                 「公式の登録窓口を呼ぶ」と理解しました。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="10-modularization"
+                label="第10章: FORM/CALL FUNCTION を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -565,6 +585,12 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
               <Dialog speaker="a">
                 開発ではパーツごとに作ることもありますが、本番はこの図のように<strong>つながった1本</strong>なんですね。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="15-files-jobs-and-batch"
+                label="第15章: ファイル読込（①②）の詳細へ"
+                className="mb-4"
+              />
             </>
           ),
         },

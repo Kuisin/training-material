@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -193,6 +194,12 @@ CLOSE DATASET lv_path.`}
                 物理パスをプログラムに直書きしない——<code>FILE_GET_NAME</code> とセットで覚えると、
                 開発・本番の切り替えが楽になります。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="11-document-posting"
+                label="第11章: 登録フロー（③以降）へ進む"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -429,6 +436,13 @@ ENDIF.`}
                 開発では各パーツを分けて作ることもありますが、本番では第11章の<strong>9段フロー</strong>としてつながります。
                 設計書を読むときは「ファイルか・ジョブか・登録か」を意識すると迷いません。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="11-document-posting"
+                label="第11章: 会計伝票登録を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },

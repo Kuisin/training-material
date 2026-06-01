@@ -13,6 +13,7 @@ import {
   HorizontalLine,
   horizontalLineClasses,
   horizontalLineBorderColor,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 import type { ReactNode } from "react";
@@ -782,6 +783,13 @@ export default function CombineDataLesson() {
                 取得用を残したまま整形できるので、不具合の調査や仕様変更にも強い。
                 加工中に DB アクセスが増えない点も、性能面で大きいです。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="06-select-from-db"
+                label="第6章: SELECT の基本を復習する"
+                variant="back"
+                className="mb-4"
+              />
               <Dialog speaker="b">
                 わざわざ分ける必要ありますか？ 取得用テーブルを直接書き換えちゃダメなんですか？
               </Dialog>
@@ -847,6 +855,13 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
                 <code>LOOP</code> や <code>READ TABLE</code> で取得用から1行取り出し、
                 <code>ls_out</code> で出力行を組み立て、<code>APPEND</code> で <code>lt_out</code> へ追加します。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="05-internal-tables"
+                label="第5章: 内部テーブルを復習する"
+                variant="back"
+                className="mb-4"
+              />
               <Dialog speaker="b">
                 <code>ty_out</code> と <code>lt_out</code> の違いは？ 名前が似てて混乱します…。
               </Dialog>
@@ -1012,6 +1027,12 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               <Dialog speaker="teacher">
                 その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="09-control-flow"
+                label="第9章: サプレス・出力制御へ進む"
+                className="mb-4"
+              />
             </>
           ),
         },
