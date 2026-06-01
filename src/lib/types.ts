@@ -38,6 +38,19 @@ export interface CourseLesson {
   meta: string;
 }
 
+/** 特別コンテンツの解放条件（password と requires は「いずれか」を満たせば解放）。 */
+export interface ContentLock {
+  /** 前提となる完了: "course"（コース完了）またはレッスンファイルの配列（すべて完了） */
+  requires?: "course" | string[];
+  /** 解放用パスワード（静的サイトのため簡易ゲート。バンドルに含まれる点に注意） */
+  password?: string;
+}
+
+export interface SpecialContentEntry extends CourseLesson {
+  /** 省略時は無条件で解放（通常コンテンツと同じ扱い） */
+  lock?: ContentLock;
+}
+
 export interface Course {
   slug: string;
   title: string;
@@ -47,6 +60,7 @@ export interface Course {
   lessons: CourseLesson[];
   courseTest: CourseLesson[];
   additionalContent: CourseLesson[];
+  specialContent: SpecialContentEntry[];
 }
 
 export type CalloutVariant = "tip" | "warning" | "note";

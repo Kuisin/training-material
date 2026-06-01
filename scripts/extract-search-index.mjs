@@ -175,6 +175,7 @@ export function buildSearchIndex(root) {
       ...(meta.lessons ?? []),
       ...(meta.courseTest ?? []),
       ...(meta.additionalContent ?? []),
+      ...(meta.specialContent ?? []),
     ];
 
     for (const lesson of allLessons) {

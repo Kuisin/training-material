@@ -8,6 +8,12 @@ import { AiAskButton } from "./ai-ask-button";
 import { CourseSearchDialog } from "./course-search";
 import { Slide } from "./slide";
 import { courseSlugFromPathname } from "../lib/course-search";
+import { LessonCompleteButton } from "./lesson-complete-button";
+
+function lessonFileFromPath(pathname: string): string {
+  const last = pathname.split("/").filter(Boolean).pop() ?? "";
+  return last.replace(/\.html$/i, "");
+}
 
 interface DeckProps {
   chrome: LessonChrome;
@@ -36,6 +42,8 @@ export function Deck({ chrome, slides }: DeckProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const courseSlug = courseSlugFromPathname(window.location.pathname);
+  const lessonFile = lessonFileFromPath(window.location.pathname);
+  const isLastSlide = idx === total - 1;
 
   const go = useCallback(
     (next: number) => {
@@ -114,6 +122,9 @@ export function Deck({ chrome, slides }: DeckProps) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-8">
         <Slide slide={slides[idx]} />
+        {isLastSlide && courseSlug && lessonFile ? (
+          <LessonCompleteButton courseSlug={courseSlug} lessonFile={lessonFile} />
+        ) : null}
       </main>
 
       <CourseSearchDialog

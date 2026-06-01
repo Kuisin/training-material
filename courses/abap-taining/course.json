@@ -24,5 +24,14 @@
   "additionalContent": [
     { "num": "14", "file": "14-sap-development-tools", "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション", "meta": "初学者 · 35分" },
     { "num": "15", "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" }
+  ],
+  "specialContent": [
+    {
+      "num": "★",
+      "file": "91-bonus-cheatsheet",
+      "title": "特別コンテンツ — ABAP実務チートシート",
+      "meta": "特別 · 10分",
+      "lock": { "requires": "course", "password": "abap-master" }
+    }
   ]
 }

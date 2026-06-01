@@ -7,11 +7,15 @@ import {
   courseIndexHref,
   courses,
   coursesIndexHref,
+  evaluateSpecialAccess,
+  isCourseComplete,
   lessonHref,
+  verifySpecialPassword,
 } from "../lib/courses";
+import { isLessonComplete, useCompletion } from "../lib/completion-store";
 import { CourseSearch } from "../components/course-search";
 import { cn } from "../lib/cn";
-import type { Course, CourseLesson } from "../lib/types";
+import type { Course, CourseLesson, SpecialContentEntry } from "../lib/types";
 
 function PageShell({
   title,
@@ -54,17 +58,31 @@ function PageShell({
 }
 
 function LessonRow({ course, lesson }: { course: Course; lesson: CourseLesson }) {
+  const completed = isLessonComplete(course.slug, lesson.file);
   return (
     <li className="border-b border-slate-100 last:border-0 dark:border-slate-800">
       <a
         href={lessonHref(course, lesson)}
         className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-brand/5"
       >
-        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-          {lesson.num}
+        <span
+          className={cn(
+            "grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold",
+            completed
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+              : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+          )}
+        >
+          {completed ? "✓" : lesson.num}
         </span>
         <span className="min-w-0 flex-1 font-medium">{lesson.title}</span>
-        <span className="hidden shrink-0 text-xs text-slate-400 sm:inline">{lesson.meta}</span>
+        {completed ? (
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+            完了
+          </span>
+        ) : (
+          <span className="hidden shrink-0 text-xs text-slate-400 sm:inline">{lesson.meta}</span>
+        )}
         <span className="text-slate-300" aria-hidden>
           →
         </span>
@@ -111,6 +129,144 @@ function CourseSection({
   );
 }
 
+function LockedSpecialRow({
+  course,
+  entry,
+  requirementLabel,
+  needsPassword,
+}: {
+  course: Course;
+  entry: SpecialContentEntry;
+  requirementLabel?: string;
+  needsPassword: boolean;
+}) {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  function handleUnlock(event: React.FormEvent) {
+    event.preventDefault();
+    if (verifySpecialPassword(course, entry, input)) {
+      setError(false);
+      setInput("");
+      // useCompletion の購読により親が再描画され、解放後の行に切り替わる。
+    } else {
+      setError(true);
+    }
+  }
+
+  return (
+    <li className="border-b border-slate-100 px-4 py-3.5 last:border-0 dark:border-slate-800">
+      <div className="flex items-center gap-3">
+        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-sm text-slate-400 dark:bg-slate-800 dark:text-slate-500" aria-hidden>
+          🔒
+        </span>
+        <span className="min-w-0 flex-1 font-medium text-slate-500 dark:text-slate-400">
+          {entry.title}
+        </span>
+        <span className="hidden shrink-0 text-xs text-slate-400 sm:inline">{entry.meta}</span>
+      </div>
+      {requirementLabel ? (
+        <p className="mt-2 pl-11 text-xs text-slate-500 dark:text-slate-400">{requirementLabel}</p>
+      ) : null}
+      {needsPassword ? (
+        <form onSubmit={handleUnlock} className="mt-2 flex flex-wrap items-center gap-2 pl-11">
+          <input
+            type="password"
+            value={input}
+            onChange={(event) => {
+              setInput(event.target.value);
+              setError(false);
+            }}
+            placeholder="パスワードを入力"
+            aria-label={`${entry.title} のパスワード`}
+            className="w-44 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700 dark:bg-slate-900"
+          />
+          <button
+            type="submit"
+            className="rounded-lg border border-brand/40 bg-brand/5 px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/10 dark:border-brand/30 dark:bg-brand/10 dark:hover:bg-brand/20"
+          >
+            解放する
+          </button>
+          {error ? (
+            <span className="text-xs font-medium text-red-600 dark:text-red-400">
+              パスワードが違います
+            </span>
+          ) : null}
+        </form>
+      ) : null}
+    </li>
+  );
+}
+
+function SpecialContentSection({ course }: { course: Course }) {
+  useCompletion();
+  if (course.specialContent.length === 0) return null;
+
+  return (
+    <section className="mb-8 last:mb-0">
+      <h2 className="mb-1 text-sm font-bold tracking-wide text-slate-700 dark:text-slate-200">
+        特別コンテンツ
+      </h2>
+      <p className="mb-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+        コース完了、またはパスワードで解放される特典コンテンツです。
+      </p>
+      <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {course.specialContent.map((entry) => {
+          const access = evaluateSpecialAccess(course, entry);
+          if (access.unlocked) {
+            return <LessonRow key={entry.file} course={course} lesson={entry} />;
+          }
+          return (
+            <LockedSpecialRow
+              key={entry.file}
+              course={course}
+              entry={entry}
+              requirementLabel={access.requirementLabel}
+              needsPassword={access.needsPassword}
+            />
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+function CourseProgress({ course }: { course: Course }) {
+  const total = course.lessons.length;
+  if (total === 0) return null;
+
+  const done = course.lessons.filter((lesson) => isLessonComplete(course.slug, lesson.file)).length;
+  const complete = isCourseComplete(course);
+  const percent = Math.round((done / total) * 100);
+
+  return (
+    <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200">学習の進捗</h2>
+        {complete ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+            <span aria-hidden>🎉</span>コース完了
+          </span>
+        ) : (
+          <span className="text-xs font-medium tabular-nums text-slate-500 dark:text-slate-400">
+            {done} / {total} レッスン完了
+          </span>
+        )}
+      </div>
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+        <div
+          className="h-full rounded-full bg-emerald-500 transition-[width] duration-500"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+        各レッスンを最後のスライドまで進めると完了になります。
+        {complete ? "" : " すべて完了すると特別コンテンツが解放されます。"}
+      </p>
+    </div>
+  );
+}
+
 function CourseContentSections({ course }: { course: Course }) {
   return (
     <>
@@ -122,6 +278,7 @@ function CourseContentSections({ course }: { course: Course }) {
         description="各レッスンの範囲外の詳細資料です。レッスン内のリンクから参照してください。"
         lessons={course.additionalContent}
       />
+      <SpecialContentSection course={course} />
     </>
   );
 }
@@ -202,6 +359,8 @@ function CoursePickerPage() {
 }
 
 function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boolean }) {
+  // 完了状態の変化（別タブ・レッスン完了後の遷移）で進捗・チェックを再描画する。
+  useCompletion();
   return (
     <PageShell
       title={course.title}
@@ -213,6 +372,7 @@ function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boo
         placeholder="このコース内を検索…"
         className="mb-6"
       />
+      <CourseProgress course={course} />
       <CourseContentSections course={course} />
     </PageShell>
   );
