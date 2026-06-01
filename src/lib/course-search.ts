@@ -312,3 +312,11 @@ export function courseSlugFromPathname(pathname: string): string | undefined {
   if (!lessonFile.endsWith(".html")) return undefined;
   return segments[segments.length - 2];
 }
+
+/** 現在のレッスンファイル名（拡張子なし、例 "01-overview"）を URL から取得 */
+export function lessonFileFromPathname(pathname: string): string | undefined {
+  const segments = pathname.replace(/\/$/, "").split("/").filter(Boolean);
+  const lessonFile = segments[segments.length - 1] ?? "";
+  if (!lessonFile.endsWith(".html")) return undefined;
+  return lessonFile.replace(/\.html$/i, "");
+}

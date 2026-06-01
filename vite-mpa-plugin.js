@@ -62,8 +62,13 @@ function readLessonEntries(root) {
     if (!fs.existsSync(metaPath)) continue;
 
     const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    const allLessons = [
+      ...(meta.lessons ?? []),
+      ...(meta.courseTest ?? []),
+      ...(meta.additionalContent ?? []),
+    ];
 
-    for (const lesson of meta.lessons ?? []) {
+    for (const lesson of allLessons) {
       const tsxPath = path.join(courseDir, `${lesson.file}.tsx`);
       if (!fs.existsSync(tsxPath)) continue;
 

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ThemeToggle } from "../components/theme-toggle";
 import {
   activeCourses,
+  courseEntryCount,
   courseIndexHref,
   courses,
   coursesIndexHref,
@@ -72,13 +73,56 @@ function LessonRow({ course, lesson }: { course: Course; lesson: CourseLesson })
   );
 }
 
-function LessonList({ course }: { course: Course }) {
+function LessonList({ course, lessons }: { course: Course; lessons: CourseLesson[] }) {
   return (
     <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      {course.lessons.map((lesson) => (
+      {lessons.map((lesson) => (
         <LessonRow key={lesson.file} course={course} lesson={lesson} />
       ))}
     </ol>
+  );
+}
+
+function CourseSection({
+  course,
+  heading,
+  description,
+  lessons,
+}: {
+  course: Course;
+  heading: string;
+  description?: string;
+  lessons: CourseLesson[];
+}) {
+  if (lessons.length === 0) return null;
+
+  return (
+    <section className="mb-8 last:mb-0">
+      <h2 className="mb-1 text-sm font-bold tracking-wide text-slate-700 dark:text-slate-200">
+        {heading}
+      </h2>
+      {description ? (
+        <p className="mb-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          {description}
+        </p>
+      ) : null}
+      <LessonList course={course} lessons={lessons} />
+    </section>
+  );
+}
+
+function CourseContentSections({ course }: { course: Course }) {
+  return (
+    <>
+      <CourseSection course={course} heading="レッスン" lessons={course.lessons} />
+      <CourseSection course={course} heading="コーステスト" lessons={course.courseTest} />
+      <CourseSection
+        course={course}
+        heading="追加コンテンツ"
+        description="各レッスンの範囲外の詳細資料です。レッスン内のリンクから参照してください。"
+        lessons={course.additionalContent}
+      />
+    </>
   );
 }
 
@@ -106,7 +150,7 @@ function CourseCardBody({ course }: { course: Course }) {
         </p>
       ) : null}
       <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">
-        {course.lessons.length} レッスン
+        {courseEntryCount(course)} コンテンツ
         {course.active ? (
           <span className="ml-2 text-brand opacity-0 transition group-hover:opacity-100" aria-hidden>
             →
@@ -169,7 +213,7 @@ function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boo
         placeholder="このコース内を検索…"
         className="mb-6"
       />
-      <LessonList course={course} />
+      <CourseContentSections course={course} />
     </PageShell>
   );
 }

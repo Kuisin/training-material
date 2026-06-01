@@ -45,6 +45,8 @@ export interface Course {
   /** false のときコース一覧で非活性表示（省略時は true） */
   active: boolean;
   lessons: CourseLesson[];
+  courseTest: CourseLesson[];
+  additionalContent: CourseLesson[];
 }
 
 export type CalloutVariant = "tip" | "warning" | "note";

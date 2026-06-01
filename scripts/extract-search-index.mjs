@@ -171,7 +171,13 @@ export function buildSearchIndex(root) {
       text: [meta.title, meta.description].filter(Boolean).join('\n'),
     });
 
-    for (const lesson of meta.lessons ?? []) {
+    const allLessons = [
+      ...(meta.lessons ?? []),
+      ...(meta.courseTest ?? []),
+      ...(meta.additionalContent ?? []),
+    ];
+
+    for (const lesson of allLessons) {
       const tsxPath = path.join(courseDir, `${lesson.file}.tsx`);
       if (!fs.existsSync(tsxPath)) continue;
 
