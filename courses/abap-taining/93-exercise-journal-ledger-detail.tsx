@@ -139,6 +139,7 @@ const PREVIEW_HEADER_ROWS: ReportRow[] = [
       { col: 42, text: "伝票番号" },
       { col: 54, text: "ユーザ" },
       { col: 68, text: "明細" },
+      { col: 73, text: "勘定" },
       { col: 106, text: "借方金額", width: 14, align: "right" },
       { col: 122, text: "貸方金額", width: 14, align: "right" },
       { col: 139, text: "摘要" },
@@ -448,10 +449,10 @@ TOP-OF-PAGE.
          /1   'USER:' NO-GAP,
           9  sy-uname,
           155 'TIME:' NO-GAP,
-          160(9) sy-uzeit,
+          160(9) sy-uzeit RIGHT-JUSTIFIED,
          /80(20) '仕訳日記帳 演習2' CENTERED,
           155 'PAGE:' NO-GAP,
-          160(9) sy-pagno.
+          160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
 
   SKIP.
 
@@ -468,15 +469,16 @@ TOP-OF-PAGE.
 
   SKIP 2.
 
-  WRITE: /1   '伝票タイプ',
-          18  '転記日付',
-          30  '伝票日付',
-          42  '伝票番号',
-          54  'ユーザ',
-          68  '明細',
-          106(14) '借方金額' RIGHT-JUSTIFIED,
-          122(14) '貸方金額' RIGHT-JUSTIFIED,
-          139 '摘要'.
+  WRITE: /1   TEXT-001,
+          18  TEXT-002,
+          30  TEXT-003,
+          42  TEXT-004,
+          54  TEXT-005,
+          68  TEXT-006,
+          73  TEXT-007,
+          106(14) TEXT-008 RIGHT-JUSTIFIED,
+          122(14) TEXT-009 RIGHT-JUSTIFIED,
+          139 TEXT-010.
 
   ULINE.
 
@@ -1205,6 +1207,7 @@ START-OF-SELECTION.
     READ TABLE gt_t003t INTO gs_t003t WITH KEY blart = gs_bkpf-blart.
     IF sy-subrc <> 0. CLEAR gs_t003t. ENDIF.
 
+    CLEAR gs_bseg.
     REFRESH gt_bseg.
     SELECT bukrs belnr gjahr buzei hkont shkzg dmbtr sgtxt
       INTO TABLE gt_bseg FROM bseg
@@ -1297,6 +1300,10 @@ START-OF-SELECTION.
                   <strong>列見出し</strong> … 伝票タイプ・借方金額・貸方金額など + <code>ULINE</code> で下線
                 </li>
               </ol>
+              <Callout variant="note">
+                列見出しは完成コードでは <code>TEXT-001</code>〜<code>TEXT-010</code> を使います。SE38 の{" "}
+                <strong>Text elements</strong> に下表の文言を登録してから実行してください（未登録だと ID がそのまま表示されます）。
+              </Callout>
               <CodeBlock
                 language="ABAP"
                 code={`  SORT gt_out BY blart budat belnr buzei.
@@ -1304,9 +1311,16 @@ START-OF-SELECTION.
 TOP-OF-PAGE.
   WRITE: /1   'PGMID:' NO-GAP, 9 sy-cprog,
           155 'DATE:' NO-GAP, 160(9) sy-datum USING EDIT MASK '____/__/__' RIGHT-JUSTIFIED,
+         /1   'USER:' NO-GAP, 9 sy-uname,
+          155 'TIME:' NO-GAP, 160(9) sy-uzeit RIGHT-JUSTIFIED,
          /80(20) '仕訳日記帳 演習2' CENTERED,
-          ...
-  WRITE: /1 '伝票タイプ', 18 '転記日付', ...
+          155 'PAGE:' NO-GAP, 160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
+  " ... 会社コード・転記日付 ...
+  WRITE: /1   TEXT-001, 18 TEXT-002, 30 TEXT-003, 42 TEXT-004,
+          54 TEXT-005, 68 TEXT-006, 73 TEXT-007,
+          106(14) TEXT-008 RIGHT-JUSTIFIED,
+          122(14) TEXT-009 RIGHT-JUSTIFIED,
+          139 TEXT-010.
   ULINE.`}
               />
               <ReportPreview
@@ -1788,13 +1802,14 @@ TOP-OF-PAGE.
             <>
               <h2>ラベルをテキストエレメントへ（任意の仕上げ）</h2>
               <p>
-                演習中は、まず<strong>ロジックと列位置</strong>に集中するため、画面上の日本語をプログラムに直書きしました。
-                仕上げとして、固定のラベルだけテキストエレメント（テキストシンボル）に移すと、
-                文言変更や多言語対応がしやすくなります。
+                演習の各ステップでは、まず<strong>ロジックと列位置</strong>に集中するため、見出しをプログラムに直書きしても構いません。
+                完成コードでは列見出しを <code>TEXT-001</code>〜<code>TEXT-010</code> に切り替え、
+                SE38 の Text elements に文言を登録します。PGMID や DATE などの固定ラベルは、必要に応じて第4章の{" "}
+                <code>&apos;文言&apos;(id)</code> 形式へ移せます。
               </p>
               <Dialog speaker="teacher">
                 変えるのは<strong>表示する文字列だけ</strong>です。<code>LOOP</code> や <code>shkzg</code>{" "}
-                の判定、列番号（1, 18, 106…）はそのままで構いません。
+                の判定、列番号（1, 18, 73, 106…）はそのままで構いません。
               </Dialog>
               <Dialog speaker="b">
                 ソースに日本語がたくさんあると緊張するので、後からテキストプールに逃がせるのは助かります。
@@ -1802,47 +1817,101 @@ TOP-OF-PAGE.
               <p>
                 書き方の詳しい手順（SE38 の開き方・有効化の順番）は、次のリンク先のスライドで丁寧に説明しています。
               </p>
-              <InfoPanel title="登録するIDの例" variant="reference">
+              <InfoPanel title="TEXT-001〜010（列見出し・完成コード用）" variant="reference">
                 <table>
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>用途（登録する文言）</th>
+                      <th>列</th>
+                      <th>登録する文言</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>
-                        <code>h01</code>
+                        <code>TEXT-001</code>
                       </td>
-                      <td>PGMID:</td>
+                      <td>1</td>
+                      <td>伝票タイプ</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>h02</code>
+                        <code>TEXT-002</code>
                       </td>
-                      <td>USER:</td>
+                      <td>18</td>
+                      <td>転記日付</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>t01</code>
+                        <code>TEXT-003</code>
                       </td>
-                      <td>仕訳日記帳 演習2</td>
+                      <td>30</td>
+                      <td>伝票日付</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>c01</code>〜<code>c09</code>
+                        <code>TEXT-004</code>
                       </td>
-                      <td>伝票タイプ、転記日付、借方金額、貸方金額、摘要…（見出し行）</td>
+                      <td>42</td>
+                      <td>伝票番号</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>m01</code>
+                        <code>TEXT-005</code>
                       </td>
-                      <td>対象データは登録されていません</td>
+                      <td>54</td>
+                      <td>ユーザ</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TEXT-006</code>
+                      </td>
+                      <td>68</td>
+                      <td>明細</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TEXT-007</code>
+                      </td>
+                      <td>73</td>
+                      <td>勘定</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TEXT-008</code>
+                      </td>
+                      <td>106</td>
+                      <td>借方金額</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TEXT-009</code>
+                      </td>
+                      <td>122</td>
+                      <td>貸方金額</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TEXT-010</code>
+                      </td>
+                      <td>139</td>
+                      <td>摘要</td>
                     </tr>
                   </tbody>
                 </table>
+              </InfoPanel>
+              <InfoPanel title="任意：その他のテキストシンボル（第4章の id 形式）" variant="reference">
+                <ul>
+                  <li>
+                    <code>h01</code> … PGMID:、<code>h02</code> … USER: などページヘッダの固定ラベル
+                  </li>
+                  <li>
+                    <code>t01</code> … 仕訳日記帳 演習2（タイトル）
+                  </li>
+                  <li>
+                    <code>m01</code> … 対象データは登録されていません（メッセージ）
+                  </li>
+                </ul>
               </InfoPanel>
               <h3>Before → After（例）</h3>
               <CodeBlock
@@ -1855,8 +1924,12 @@ TOP-OF-PAGE.
   WRITE: /1 'PGMID:'(h01) NO-GAP, 9 sy-cprog.
   MESSAGE s000(z01) WITH '対象データは登録されていません'(m01).
 
-" 見出しも同様
-  WRITE: /1 '伝票タイプ'(c01), 18 '転記日付'(c02), ...`}
+" 見出し（完成コードと同じ列位置）
+  WRITE: /1 TEXT-001, 18 TEXT-002, 30 TEXT-003, 42 TEXT-004,
+          54 TEXT-005, 68 TEXT-006, 73 TEXT-007,
+          106(14) TEXT-008 RIGHT-JUSTIFIED,
+          122(14) TEXT-009 RIGHT-JUSTIFIED,
+          139 TEXT-010.`}
               />
               <Callout variant="tip">
                 引用符内の文字列は<strong>未登録時のフォールバック</strong>
