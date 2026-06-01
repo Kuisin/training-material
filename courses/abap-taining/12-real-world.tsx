@@ -388,6 +388,7 @@ lv_tax = lv_subtotal / 10.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="13-good-programming"
+                slide={4}
                 label="第13章: 性能と保守性へ進む"
                 className="mb-4"
               />

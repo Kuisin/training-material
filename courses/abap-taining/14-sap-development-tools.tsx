@@ -26,7 +26,7 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "概要",
           plainText:
-            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・履歴確認・主要トランザクションを整理します。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作と sy-subrc などの追い方（GUI操作手順付き）\n・SE16N・ST22・バージョン管理による履歴確認\n・よく使うトランザクションと汎用モジュールの位置づけ",
+            "SAP開発ツール\n日々の開発で使う画面操作・デバッグ・履歴確認・主要トランザクションを整理します。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・SE38での作成〜構文チェック〜有効化〜実行のサイクル\n・SE38からテキストエレメント（テキストシンボル）のメンテ画面を開く\n・エディタ・ショートカット・ヘルプの使い方\n・デバッガの基本操作と sy-subrc などの追い方（GUI操作手順付き）\n・SE16N・ST22・バージョン管理による履歴確認\n・よく使うトランザクションと汎用モジュールの位置づけ",
           content: (
             <>
               <hgroup>
@@ -46,6 +46,9 @@ export default function SapDevelopmentToolsLesson() {
               <ul>
                 <li>
                   <code>SE38</code> での作成 → 構文チェック → 有効化 → 実行のサイクル
+                </li>
+                <li>
+                  <code>SE38</code> からテキストエレメント（テキストシンボル）のメンテ画面を開く
                 </li>
                 <li>エディタ・ショートカット・ヘルプ（<code>F1</code>）の使い方</li>
                 <li>デバッガの基本操作（ブレークポイント・ステップ実行・<code>sy-subrc</code> の確認）</li>
@@ -102,10 +105,44 @@ export default function SapDevelopmentToolsLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="03-abap-minimum-unit"
-                label="第3章: 最初のABAPを復習する"
+                slide={4}
+                label="第3章: SE38の手順を復習する"
                 variant="back"
                 className="mb-4"
               />
+            </>
+          ),
+        },
+        {
+          title: "テキストエレメント",
+          plainText:
+            "テキストエレメント（SE38）\n画面上の文言はソースとは別のテキストプール。SE38 → Goto → Text elements → Text symbols／Selection texts。\n概念・選択画面での例・引用付きリテラル・メンテ手順は第4章の該当スライドへ。",
+          content: (
+            <>
+              <h2>テキストエレメント（メンテ画面）</h2>
+              <p>
+                <code>SE38</code> では、ABAP ソースとは<strong>別画面</strong>でテキストシンボルを編集します（
+                <strong>Goto → Text elements</strong>）。保存後はテキスト側を有効化してから、プログラム本体を有効化します。
+              </p>
+              <Callout variant="tip">
+                構文（<code>TEXT-xxx</code>、<code>&apos;…&apos;(id)</code>）や選択画面での使い方は<strong>第4章</strong>にまとめています。ここでは「どこで開くか」だけ押さえます。
+              </Callout>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="04-selection-screen"
+                  slide={5}
+                  label="第4章: テキストシンボルの概念"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="04-selection-screen"
+                  slide={6}
+                  label="第4章: メンテ画面の手順"
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },
@@ -644,12 +681,14 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="11-document-posting"
+                  slide={4}
                   label="第11章: 登録フローを復習する"
                   variant="back"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="06-select-from-db"
+                  slide={4}
                   label="第6章: BKPF/BSEG を復習する"
                   variant="back"
                 />
@@ -920,6 +959,7 @@ ROLLBACK WORK.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="11-document-posting"
+                slide={6}
                 label="第11章: BAPI 登録フローを復習する"
                 variant="back"
                 className="mb-4"

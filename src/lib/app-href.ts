@@ -14,6 +14,17 @@ export function lessonPageHref(courseSlug: string, lessonFile: string): string {
   return appHref(`${courseSlug}/${file}.html`);
 }
 
+/** レッスン内の特定スライド（#s1, #s2, …。slideNumber は 1 始まり） */
+export function lessonSlideHref(
+  courseSlug: string,
+  lessonFile: string,
+  slideNumber: number
+): string {
+  const base = lessonPageHref(courseSlug, lessonFile);
+  if (!Number.isFinite(slideNumber) || slideNumber < 1) return base;
+  return `${base}#s${Math.floor(slideNumber)}`;
+}
+
 /** コース内の図（例: image/05-shelf-desk.webp） */
 export function courseFigureHref(courseSlug: string, relativeSrc: string): string {
   return appHref(`${courseSlug}/${relativeSrc.replace(/^\//, "")}`);

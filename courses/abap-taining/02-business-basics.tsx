@@ -212,6 +212,7 @@ export default function BusinessBasicsLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="06-select-from-db"
+                slide={4}
                 label="第6章: BKPF/BSEG の SELECT へ進む"
                 className="mb-4"
               />

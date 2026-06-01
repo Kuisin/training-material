@@ -422,6 +422,7 @@ CALL FUNCTION 'GUI_DOWNLOAD'
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="11-document-posting"
+                slide={6}
                 label="第11章: 会計伝票登録（BAPI）へ進む"
                 className="mb-4"
               />

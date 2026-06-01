@@ -230,6 +230,7 @@ ENDSELECT.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="06-select-from-db"
+                slide={5}
                 label="第6章: SELECT の基本を復習する"
                 variant="back"
                 className="mb-4"
@@ -567,6 +568,7 @@ APPEND LINES OF lt_src TO lt_dest.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="05-internal-tables"
+                slide={2}
                 label="第5章: 内部テーブルの基本を復習する"
                 variant="back"
                 className="mb-4"

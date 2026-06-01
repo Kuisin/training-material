@@ -786,6 +786,7 @@ export default function CombineDataLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="06-select-from-db"
+                slide={5}
                 label="第6章: SELECT の基本を復習する"
                 variant="back"
                 className="mb-4"
@@ -858,6 +859,7 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="05-internal-tables"
+                slide={5}
                 label="第5章: 内部テーブルを復習する"
                 variant="back"
                 className="mb-4"
@@ -1030,6 +1032,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="09-control-flow"
+                slide={2}
                 label="第9章: サプレス・出力制御へ進む"
                 className="mb-4"
               />

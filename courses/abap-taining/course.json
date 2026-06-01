@@ -7,7 +7,7 @@
     { "file": "01-overview", "title": "コース全体像 — 入力→取得→加工→出力と照会と登録", "meta": "初学者 · 15分" },
     { "file": "02-business-basics", "title": "会計の基本 — 仕訳日記帳・伝票・ヘッダと明細", "meta": "初学者 · 20分" },
     { "file": "03-abap-minimum-unit", "title": "最初のABAP — レポートプログラム・変数・定数・コメント", "meta": "初学者 · 20分" },
-    { "file": "04-selection-screen", "title": "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力", "meta": "初学者 · 20分" },
+    { "file": "04-selection-screen", "title": "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力", "meta": "初学者 · 25分" },
     { "file": "05-internal-tables", "title": "内部テーブル — 複数行の保持・LOOP・READ TABLE・並べ替え", "meta": "初学者 · 25分" },
     { "file": "06-select-from-db", "title": "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）", "meta": "初学者 · 25分" },
     { "file": "07-output-report", "title": "帳票出力 — WRITE・改行・見やすいレポートの整え方", "meta": "初学者 · 20分" },
@@ -29,8 +29,7 @@
     {
       "file": "92-exercise-journal-ledger",
       "title": "特別演習 — 仕訳日記帳プログラムを作る",
-      "meta": "特別 · 45分",
-      "lock": { "requires": "course", "password": "shiwake-master", "mode": "all" }
+      "meta": "特別 · 45分"
     }
   ]
 }

@@ -258,11 +258,13 @@ WRITE 'こんにちは、ABAP'.`}
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="04-selection-screen"
+                  slide={2}
                   label="第4章: 選択画面へ進む"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="06-select-from-db"
+                  slide={9}
                   label="第6章: SY-SUBRC の詳細へ"
                 />
               </div>

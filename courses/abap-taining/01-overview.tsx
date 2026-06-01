@@ -104,16 +104,19 @@ export default function OverviewLesson() {
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="03-abap-minimum-unit"
+                  slide={2}
                   label="第3章: 最初のABAPから始める"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="11-document-posting"
+                  slide={4}
                   label="第11章: 会計伝票登録へ進む"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="16-final-assessment"
+                  slide={1}
                   label="第16章: 総仕上げテスト"
                 />
               </div>
@@ -231,6 +234,7 @@ export default function OverviewLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="11-document-posting"
+                slide={6}
                 label="第11章: 会計伝票登録の詳細へ"
                 className="mb-4"
               />

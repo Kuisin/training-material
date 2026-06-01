@@ -308,11 +308,13 @@ TOP-OF-PAGE.
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="08-combine-data"
+                  slide={7}
                   label="第8章: データ結合へ進む"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="09-control-flow"
+                  slide={2}
                   label="第9章: 出力制御へ進む"
                 />
               </div>

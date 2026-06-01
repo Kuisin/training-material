@@ -1,10 +1,12 @@
 import { cn } from "../lib/cn";
-import { lessonPageHref } from "../lib/app-href";
+import { lessonPageHref, lessonSlideHref } from "../lib/app-href";
 
 interface LessonLinkButtonBaseProps {
   label: string;
   className?: string;
   variant?: "forward" | "back";
+  /** ジャンプ先スライド（1 始まり。URL の #sN と一致） */
+  slide?: number;
 }
 
 interface LessonLinkButtonWithHref extends LessonLinkButtonBaseProps {
@@ -25,12 +27,18 @@ export function LessonLinkButton({
   href,
   courseSlug,
   lessonFile,
+  slide,
   label,
   className,
   variant = "forward",
 }: LessonLinkButtonProps) {
   const resolvedHref =
-    href ?? (courseSlug && lessonFile ? lessonPageHref(courseSlug, lessonFile) : "#");
+    href ??
+    (courseSlug && lessonFile
+      ? slide
+        ? lessonSlideHref(courseSlug, lessonFile, slide)
+        : lessonPageHref(courseSlug, lessonFile)
+      : "#");
 
   return (
     <a

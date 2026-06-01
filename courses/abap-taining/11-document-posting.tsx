@@ -141,11 +141,13 @@ export default function DocumentPostingLesson() {
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="15-files-jobs-and-batch"
+                  slide={5}
                   label="第15章: ファイル読込の詳細へ"
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="14-sap-development-tools"
+                  slide={2}
                   label="第14章: 開発ツールへ"
                 />
               </div>
@@ -217,6 +219,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="10-modularization"
+                slide={4}
                 label="第10章: FORM/CALL FUNCTION を復習する"
                 variant="back"
                 className="mb-4"
@@ -588,6 +591,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="15-files-jobs-and-batch"
+                slide={5}
                 label="第15章: ファイル読込（①②）の詳細へ"
                 className="mb-4"
               />

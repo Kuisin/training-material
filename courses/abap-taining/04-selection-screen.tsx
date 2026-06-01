@@ -9,13 +9,14 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   InfoPanel,
   mountLesson,
 } from "../../src/lesson";
 
 export const lessonMeta = {
   title: "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力",
-  meta: "初学者 · 20分",
+  meta: "初学者 · 25分",
 };
 
 export default function SelectionScreenLesson() {
@@ -26,7 +27,7 @@ export default function SelectionScreenLesson() {
         {
           title: "概要",
           plainText:
-            "入力を受け取る\n選択画面＝検索フォーム。利用者からの入力を受け取り、後の処理の「条件」にする方法を学びます。\n⏱ 20分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・選択画面とは何か（プログラムの入口にある検索フォーム）\n・PARAMETERS（単一指定）と SELECT-OPTIONS（範囲指定）の違い\n・入力した値が、後続の取得処理の「絞り込み条件」になる流れ",
+            "入力を受け取る\n選択画面＝検索フォーム。利用者からの入力を受け取り、後の処理の「条件」にする方法を学びます。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・選択画面とは何か（プログラムの入口にある検索フォーム）\n・PARAMETERS（単一指定）と SELECT-OPTIONS（範囲指定）の違い\n・テキストシンボルで見出し・ラベルをID管理する\n・入力した値が、後続の取得処理の「絞り込み条件」になる流れ",
           content: (
             <>
               <hgroup>
@@ -35,7 +36,7 @@ export default function SelectionScreenLesson() {
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "20分" },
+                  { icon: "⏱", text: "25分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
@@ -44,6 +45,7 @@ export default function SelectionScreenLesson() {
               <ul>
                 <li>選択画面とは何か（プログラムの入口にある検索フォーム）</li>
                 <li><code>PARAMETERS</code>（単一指定）と <code>SELECT-OPTIONS</code>（範囲指定）の違い</li>
+                <li>テキストシンボルで見出し・ラベルをID管理する</li>
                 <li>入力した値が、後続の取得処理の「絞り込み条件」になる流れ</li>
               </ul>
             </>
@@ -142,6 +144,153 @@ export default function SelectionScreenLesson() {
               <Dialog speaker="teacher">
                 1点を指すなら <code>PARAMETERS</code>、幅で指すなら <code>SELECT-OPTIONS</code>。これが使い分けの軸です。
               </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "テキストシンボルとは",
+          plainText:
+            "テキストシンボルとは\n画面上の文言を3文字のIDで管理する仕組み。ソースに「こんにちは」と直書きせず TEXT-s01 のようにIDで参照する。\nメリット：ログオン言語ごとに文言を切り替えられる／文言変更だけならプログラム改修が不要。\nブロック見出し：TEXT-＋3文字ID（例 TEXT-s01）\n出力・メッセージ：引用＋(ID) 例 'データがありません'(002).\nSELECTION-SCREEN BEGIN OF BLOCK ... WITH FRAME TITLE text-s01.",
+          content: (
+            <>
+              <h2>テキストシンボルとは</h2>
+              <p>
+                選択画面の見出しやメッセージなど、<strong>画面上に表示する文言</strong>は、実務ではプログラム中に日本語を直書きせず、
+                <strong>3文字のID</strong>で管理します（SAP では<strong>テキストシンボル</strong>／テキストエレメントとも呼びます）。
+              </p>
+              <Dialog speaker="teacher">
+                たとえば「名前札（ID）」をプログラムに書き、実際の文面は別の箱（テキストプール）に入れておくイメージです。言語が変わっても、箱の中身だけ差し替えれば画面が切り替わります。
+              </Dialog>
+              <InfoPanel title="ソースでの書き方" variant="reference" lead="IDは必ず3文字です（001、s01 など）。">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>用途</th>
+                      <th>書き方</th>
+                      <th>例</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ブロック見出し</td>
+                      <td>
+                        <code>TEXT-</code> + 3文字ID
+                      </td>
+                      <td>
+                        <code>TEXT-s01</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>出力・メッセージ</td>
+                      <td>
+                        引用 + <code>(ID)</code>
+                      </td>
+                      <td>
+                        <code>&apos;データがありません&apos;(002).</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>直接参照</td>
+                      <td>
+                        <code>TEXT-</code> + 数字ID
+                      </td>
+                      <td>
+                        <code>TEXT-001</code>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`SELECTION-SCREEN BEGIN OF BLOCK b1
+  WITH FRAME TITLE text-s01.
+  PARAMETERS p_bukrs TYPE bkpf-bukrs.
+SELECTION-SCREEN END OF BLOCK b1.`}
+              />
+              <p>
+                <code>text-s01</code> に「初めての選択画面」などの文言を登録しておけば、枠のタイトルとして表示されます。
+              </p>
+              <Callout variant="note">
+                ログオン言語に応じた翻訳行をテキストプールに登録できます。文言だけ変えたいときは、プログラムを直さずテキストシンボルを修正する方が安全です。
+              </Callout>
+              <Dialog speaker="b">
+                画面のラベルはコードではなくIDで呼ぶ、と覚えればよさそうですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "メンテ画面の開き方",
+          plainText:
+            "メンテ画面の開き方（ソースと別）\nSE38でプログラムを開く → Goto → Text elements → Text symbols。Selection textsタブで PARAMETERS/SELECT-OPTIONS のラベルも編集。\nIDと文言を入力→保存→テキスト側で有効化(Ctrl+F3)→ソースに戻ってプログラムを有効化→F8実行。\n引用付きリテラル：WRITE '初めての選択画面'(s01). … 未登録なら引用内がフォールバック、登録後はテキストプールの文言を使用。\nテキストシンボルの比較：ソース中の '(ID)' を一覧に取り込める。SE32でも保守可能だが本研修ではSE38経由。\n第14章でSE38操作を復習。",
+          content: (
+            <>
+              <h2>メンテ画面の開き方（ソースと別）</h2>
+              <p>
+                テキストシンボルの文言は、<strong>ABAPソースとは別画面</strong>で編集します。手順は次のとおりです。
+              </p>
+              <InfoPanel title="SE38 での操作手順" variant="reference">
+                <ol>
+                  <li>
+                    トランザクション <code>SE38</code> で対象プログラムを表示する
+                  </li>
+                  <li>
+                    メニュー <strong>Goto → Text elements → Text symbols</strong> を開く
+                  </li>
+                  <li>
+                    <strong>Selection texts</strong> タブで、<code>PARAMETERS</code> / <code>SELECT-OPTIONS</code> のラベルも編集できる
+                  </li>
+                  <li>
+                    ID と文言を入力し保存 → テキストエレメント画面で <code>Ctrl + F3</code>（有効化）
+                  </li>
+                  <li>
+                    ソースに戻り、プログラムを有効化して <code>F8</code> で実行
+                  </li>
+                </ol>
+              </InfoPanel>
+              <h3>引用付きリテラル（ソース側の書き方）</h3>
+              <p>
+                ソースには、引用符で囲んだ文字列の直後に <code>(ID)</code> を付ける書き方もあります。テキストプールと<strong>別画面で結びつける</strong>ための合図です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`WRITE '初めての選択画面'(s01).`}
+              />
+              <ul>
+                <li>
+                  <code>s01</code> が未登録 … 引用内の文字列（フォールバック）が表示される
+                </li>
+                <li>
+                  <code>s01</code> を登録済み … テキストプールの文言が優先される
+                </li>
+              </ul>
+              <Callout variant="tip">
+                テキストシンボル画面の<strong>「テキストシンボルの比較」（Compare text symbols）</strong>を使うと、ソース中の{" "}
+                <code>&apos;…&apos;(id)</code> を一覧に取り込めます。IDの付け忘れ探しに便利です。
+              </Callout>
+              <Callout variant="note">
+                単体トランザクション <code>SE32</code> からも保守できます。本研修では、第3章と同様に <code>SE38</code> → Goto → Text elements を使います。
+              </Callout>
+              <Dialog speaker="a">
+                コードは <code>TEXT-s01</code> や <code>&apos;…&apos;(s01)</code> だけ書いて、日本語の中身はメンテ画面、と分けるんですね。
+              </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="14-sap-development-tools"
+                  slide={2}
+                  label="第14章: SE38の開発サイクル"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="14-sap-development-tools"
+                  slide={3}
+                  label="第14章: テキストエレメント画面"
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },
@@ -311,7 +460,7 @@ SELECT belnr budat
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nQ1 範囲入力に向いているのは？→ SELECT-OPTIONS\nQ2 選択画面で入力した値は後でどう使われる？→ データ取得の絞り込み条件（WHERE）になる\nQ3 会社コードを1社だけ指定したい設計は？→ PARAMETERSで単一入力にする\n今日のひとこと：良い入口は、良いプログラムの第一歩。条件設計はこれからずっと役立ちます。",
+            "理解度チェック\nQ1 範囲入力に向いているのは？→ SELECT-OPTIONS\nQ2 選択画面で入力した値は後でどう使われる？→ データ取得の絞り込み条件（WHERE）になる\nQ3 会社コードを1社だけ指定したい設計は？→ PARAMETERSで単一入力にする\nQ4 枠タイトルをハードコードせず管理する方法は？→ TEXT-xxx（テキストシンボル）\n今日のひとこと：良い入口は、良いプログラムの第一歩。条件設計はこれからずっと役立ちます。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -339,6 +488,16 @@ SELECT belnr budat
                   "SELECT-OPTIONSで必ずFrom/Toを入力させる",
                   "入力欄を作らず全件取得して後で絞る",
                   "PARAMETERSで単一入力にする",
+                ]}
+              />
+              <Quiz
+                answer={1}
+                explanation="選択画面の枠タイトルやラベルは、TEXT-xxx（テキストシンボル）でID管理するのが実務の定番です。文言だけ変えるときはテキストプールを修正すればよく、プログラム改修を避けられます。多言語対応も同じ仕組みで行えます。"
+                question={<strong>選択画面の枠タイトルを、ソースに日本語を直書きせず管理する方法として適切なのは？</strong>}
+                options={[
+                  "WRITE で毎回タイトルを出力する",
+                  "TEXT-xxx（テキストシンボル）でIDを参照する",
+                  "コメント行にタイトルを書いておく",
                 ]}
               />
               <Dialog speaker="closing">

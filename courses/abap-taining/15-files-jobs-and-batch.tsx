@@ -197,6 +197,7 @@ CLOSE DATASET lv_path.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="11-document-posting"
+                slide={10}
                 label="第11章: 登録フロー（③以降）へ進む"
                 className="mb-4"
               />
@@ -439,6 +440,7 @@ ENDIF.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="11-document-posting"
+                slide={4}
                 label="第11章: 会計伝票登録を復習する"
                 variant="back"
                 className="mb-4"

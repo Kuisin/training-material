@@ -109,6 +109,7 @@ export default function SelectFromDbLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="02-business-basics"
+                slide={5}
                 label="第2章: ヘッダと明細を復習する"
                 variant="back"
                 className="mb-4"
@@ -251,6 +252,7 @@ export default function SelectFromDbLesson() {
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="05-internal-tables"
+                slide={7}
                 label="第5章: 内部テーブル操作を復習する"
                 variant="back"
                 className="mb-4"
@@ -452,6 +454,7 @@ ENDIF.`}
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="14-sap-development-tools"
+                slide={6}
                 label="もっと知りたい？　第14章（デバッグ詳細）で理解を深める"
                 className="mb-4"
               />
