@@ -146,7 +146,6 @@ export function useAttemptHistory(): AssessmentAttemptRecord[] {
 /** 設問ごとの採点ロジックを登録する（コンポーネント mount 時）。 */
 export function registerGrader(id: string, grader: Grader): void {
   graders.set(id, grader);
-  emit();
 }
 
 /** Excel レポート用の回答詳細を登録する。 */
@@ -163,20 +162,22 @@ export function unregisterGrader(id: string): void {
 }
 
 function gradeItems(ids: string[]): { answered: number; correct: number } {
-  let answered = 0;
   let correct = 0;
 
   for (const id of ids) {
-    if (!isItemAnswered(id)) continue;
-    const grader = graders.get(id);
-    if (!grader) continue;
-    answered += 1;
-    const ok = grader.grade();
-    if (ok) correct += 1;
-    scores.set(id, { answered: true, correct: ok });
+    if (isItemAnswered(id)) {
+      const grader = graders.get(id);
+      if (grader) {
+        const ok = grader.grade();
+        if (ok) correct += 1;
+        scores.set(id, { answered: true, correct: ok });
+        continue;
+      }
+    }
+    scores.set(id, { answered: true, correct: false });
   }
 
-  return { answered, correct };
+  return { answered: ids.length, correct };
 }
 
 /** 1ページ分の設問を採点して提出する。 */

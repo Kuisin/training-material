@@ -495,10 +495,12 @@ function LessonRow({
                       "shrink-0 font-medium",
                       entry.correct
                         ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                        : isItemAnswered(item.id)
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-amber-600 dark:text-amber-400"
                     )}
                   >
-                    {entry.correct ? "正解" : "不正解"}
+                    {entry.correct ? "正解" : isItemAnswered(item.id) ? "不正解" : "未回答"}
                   </span>
                 )}
                 {!entry?.answered && isItemAnswered(item.id) && (

@@ -57,7 +57,7 @@ export function CodeArrange({ scoreId, instruction, language = "ABAP", lines }: 
   } = useArrangeExercise({ scoreId, lines, autoIndent: true });
 
   function builtRowClass(lineIdx: number, pos: number): string {
-    if (!confirmed) return "border-transparent bg-slate-800/40 hover:bg-slate-800/70";
+    if (!confirmed || !complete) return "border-transparent bg-slate-800/40 hover:bg-slate-800/70";
     if (lineIdx === pos) return "border-emerald-500/60 bg-emerald-950/40";
     return "border-red-500/60 bg-red-950/30";
   }
@@ -132,7 +132,7 @@ export function CodeArrange({ scoreId, instruction, language = "ABAP", lines }: 
                       aria-hidden
                       className="flex w-8 shrink-0 select-none items-center justify-end pr-1 font-mono text-xs tabular-nums text-slate-500"
                     >
-                      {confirmed ? (lineIdx === pos ? "✓" : "✗") : String(pos + 1).padStart(2, "0")}
+                      {confirmed && complete ? (lineIdx === pos ? "✓" : "✗") : String(pos + 1).padStart(2, "0")}
                     </span>
 
                     <code className="min-w-0 flex-1 overflow-x-auto whitespace-pre py-2 pr-2 font-mono text-[0.8125rem] leading-relaxed text-slate-100">
@@ -223,7 +223,7 @@ export function CodeArrange({ scoreId, instruction, language = "ABAP", lines }: 
           )}
         >
           {!complete
-            ? "❌ コード行をすべて組み立ててから提出してください。"
+            ? "❌ 未回答のため採点対象外です。"
             : isCorrect
               ? "✅ 正解！順番どおりに組み立てられました。"
               : "❌ 惜しい！組み立てたコードの順番を見直してみましょう。"}

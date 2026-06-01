@@ -15,16 +15,27 @@ interface PageSubmitBarProps {
 /** レッスンページ末尾の「このページを提出」バー */
 export function PageSubmitBar({ pageId, itemIds, lessonLabel }: PageSubmitBarProps) {
   const submitted = usePageConfirmed(pageId);
-  const { total, answered, correct } = useScoreSummary(itemIds);
+  const { total, correct } = useScoreSummary(itemIds);
   const draftCount = useDraftAnswerCount(itemIds);
 
   function handleSubmit() {
+    if (draftCount < itemIds.length) {
+      const unanswered = itemIds.length - draftCount;
+      if (
+        !window.confirm(
+          `未回答が ${unanswered} 問あります。未回答は不正解として採点されます。\n\n提出しますか？`
+        )
+      ) {
+        return;
+      }
+    }
     confirmPage(pageId, itemIds);
   }
 
   if (submitted) {
-    const ratio = answered > 0 ? correct / answered : 0;
-    const allCorrect = correct === total && answered === total;
+    const pageRatio = total > 0 ? correct / total : 0;
+    const allCorrect = correct === total;
+    const percent = Math.round(pageRatio * 100);
 
     return (
       <div
@@ -47,28 +58,25 @@ export function PageSubmitBar({ pageId, itemIds, lessonLabel }: PageSubmitBarPro
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               正解 {correct} / {total} 問
-              {answered < total && (
-                <span className="text-amber-600 dark:text-amber-400">
-                  {" "}
-                  （未回答 {total - answered} 問）
-                </span>
-              )}
             </p>
           </div>
           <p
             className={cn(
               "text-2xl font-black tabular-nums",
-              ratio >= 1
+              pageRatio >= 1
                 ? "text-emerald-600 dark:text-emerald-400"
-                : ratio >= 0.5
+                : pageRatio >= 0.5
                   ? "text-amber-600 dark:text-amber-400"
                   : "text-red-600 dark:text-red-400"
             )}
           >
-            {answered > 0 ? Math.round(ratio * 100) : 0}%
+            {percent}%
           </p>
         </div>
         <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+          未回答も不正解として計算しています。複数選択はすべて正解の場合のみ正解扱いです。
+        </p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           各問題の解説は上のカード内で確認できます。別ページに移動しても回答は保存されています。
         </p>
       </div>
@@ -102,7 +110,7 @@ export function PageSubmitBar({ pageId, itemIds, lessonLabel }: PageSubmitBarPro
       </div>
       {draftCount > 0 && draftCount < itemIds.length && (
         <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
-          未回答の問題がありますが、回答済みの問題だけ採点されます
+          未回答 {itemIds.length - draftCount} 問 — 提出時は不正解として採点されます
         </p>
       )}
       {draftCount === 0 && (

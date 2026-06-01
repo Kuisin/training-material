@@ -56,7 +56,9 @@ export function FlowArrange({ scoreId, instruction, lines }: FlowArrangeProps) {
   } = useArrangeExercise({ scoreId, lines });
 
   function builtRowClass(lineIdx: number, pos: number): string {
-    if (!confirmed) return "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/60";
+    if (!confirmed || !complete) {
+      return "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/60";
+    }
     if (lineIdx === pos) return "border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10";
     return "border-red-500 bg-red-50 dark:bg-red-500/10";
   }
@@ -127,7 +129,7 @@ export function FlowArrange({ scoreId, instruction, lines }: FlowArrangeProps) {
                     aria-hidden
                     className="flex w-6 shrink-0 items-center justify-center text-xs font-bold text-slate-400"
                   >
-                    {confirmed ? (lineIdx === pos ? "✓" : "✗") : pos + 1}
+                    {confirmed && complete ? (lineIdx === pos ? "✓" : "✗") : pos + 1}
                   </span>
                   <span className="min-w-0 flex-1 text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                     {displayText(lineIdx, pos)}
@@ -210,7 +212,7 @@ export function FlowArrange({ scoreId, instruction, lines }: FlowArrangeProps) {
           )}
         >
           {!complete
-            ? "❌ すべての行を組み立ててから提出してください。"
+            ? "❌ 未回答のため採点対象外です。"
             : isCorrect
               ? "✅ 正解！順番どおりに組み立てられました。"
               : "❌ 惜しい！流れの順番を見直してみましょう。"}

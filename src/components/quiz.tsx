@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import {
@@ -33,7 +33,7 @@ export function Quiz({ question, options, answer, explanation, scoreId, level, m
   const confirmed = effectiveMode === "instant" ? answered : pageConfirmed;
   const isCorrect = selected === answer;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scoreId) return;
     registerGrader(scoreId, {
       isAnswered: () => readUiState<number | null>(scoreId) !== null,

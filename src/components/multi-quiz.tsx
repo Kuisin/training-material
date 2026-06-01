@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import {
@@ -135,7 +135,7 @@ export function MultiQuiz({ question, options, answers, explanation, scoreId, le
   const isCorrect = setsEqual(selected, answers);
   const results = countResults(selected, answers);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scoreId) return;
     registerGrader(scoreId, {
       isAnswered: () => (readUiState<number[]>(scoreId) ?? []).length > 0,

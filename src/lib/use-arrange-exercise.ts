@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   readUiState,
   registerGrader,
@@ -79,7 +79,7 @@ export function useArrangeExercise({ scoreId, lines, autoIndent = false }: UseAr
     }
   }, [scoreId, lines.length, setPool, setBuilt]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerGrader(scoreId, {
       isAnswered: () => {
         const current = readUiState<number[]>(`${scoreId}:built`) ?? [];
