@@ -26,7 +26,7 @@ export default function AbapMinimumUnitLesson() {
         {
           title: "概要",
           plainText:
-            "はじめてのレポートプログラム\nABAPの最小単位「レポートプログラム」を作り、変数・定数・コメントの意味を知ります。\n⏱ 20分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・レポートプログラムとは何か（作る→実行する→結果を見る）\n・変数と定数の違い、それぞれ「何のために」あるのか\n・コメントを書く理由（未来の自分と仲間のため）",
+            "はじめてのレポートプログラム\nABAPの最小単位「レポートプログラム」を作り、変数・定数・コメントの意味を知ります。\n⏱ 20分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・レポートプログラムとは何か（作る→実行する→結果を見る）\n・変数と定数の違い、それぞれ「何のために」あるのか\n・コメントを書く理由（未来の自分と仲間のため）\n・WRITE や DATA でコロン（:）が要るとき",
           content: (
             <>
               <hgroup>
@@ -45,6 +45,9 @@ export default function AbapMinimumUnitLesson() {
                 <li>レポートプログラムとは何か（作る→実行する→結果を見る）</li>
                 <li>変数と定数の違い、それぞれ「何のために」あるのか</li>
                 <li>コメントを書く理由（未来の自分と仲間のため）</li>
+                <li>
+                  <code>WRITE</code> や <code>DATA</code> で、コロン（<code>:</code>）が要るとき
+                </li>
               </ul>
             </>
           ),
@@ -242,6 +245,12 @@ WRITE 'こんにちは、ABAP'.`}
                 code={`WRITE: / '出力日:', sy-datum,
        / '実行者:', sy-uname.`}
               />
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                日付とユーザ名を続けて出すので <code>WRITE:</code> を使っています（1つだけなら <code>WRITE sy-datum.</code> で十分）。
+              </p>
+              <Dialog speaker="b">
+                ここも <code>WRITE:</code> ですね。ラベルと <code>sy-datum</code> をカンマで並べているから、コロンが要るんですね。
+              </Dialog>
               <Dialog speaker="teacher">
                 帳票ヘッダに「いつ・誰が」実行したかを残すのは実務でも定番です。<code>SY-DATUM</code> や <code>SY-UNAME</code> を使えば、1行で済みます。
               </Dialog>
@@ -305,9 +314,71 @@ WRITE lv_name.`}
           ),
         },
         {
+          title: "WRITE と DATA のコロン",
+          plainText:
+            "WRITE と DATA のコロン（:）\n1つだけならコロン不要。同じキーワードのあとに複数をカンマで並べるときは WRITE: や DATA: とコロンが要る。\nWRITE lv_name. … 1つだけ（: 不要）\nWRITE: '名前:', lv_name, '税額:', lv_tax. … 複数を1行で\nDATA: lv_price TYPE p ..., lv_tax TYPE p .... … 変数をまとめて宣言\nBちゃん：構文チェックでエラー！DATA lv_price ... lv_tax ... と続けたのに…\n先生：複数を並べるときは DATA: とコロン。1つだけなら DATA lv_name. でOK。\nBちゃん：WRITE も同じで、1行に2つ出すときは WRITE: が要るんですね。",
+          content: (
+            <>
+              <h2>
+                <code>WRITE</code> と <code>DATA</code> のコロン（<code>:</code>）
+              </h2>
+              <p>
+                <strong>1つだけ</strong>ならコロンは不要です。同じキーワードのあとに<strong>複数をカンマで並べる</strong>ときは、
+                <code>WRITE:</code> や <code>DATA:</code> のように<strong>コロン（<code>:</code>）</strong>が要ります。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 1つだけ → コロン不要
+WRITE lv_name.
+DATA lv_name TYPE string.
+
+" 複数を並べる → コロンが要る
+WRITE: '名前:', lv_name,
+       '税額:', lv_tax.
+
+DATA: lv_price TYPE p DECIMALS 2 VALUE '1000',
+      lv_tax    TYPE p DECIMALS 2.`}
+              />
+              <h3>1行ずつ読む</h3>
+              <ul>
+                <li>
+                  <code>WRITE lv_name.</code> … 表示は1つだけ。<code>:</code> は付けない
+                </li>
+                <li>
+                  <code>WRITE: &apos;名前:&apos;, lv_name, ...</code> … ラベルと値など<strong>複数を1つの WRITE で並べる</strong>ときは <code>WRITE:</code>
+                </li>
+                <li>
+                  <code>DATA lv_name TYPE string.</code> … 変数は1つだけ。<code>:</code> は付けない
+                </li>
+                <li>
+                  <code>DATA: lv_price TYPE ..., lv_tax TYPE ...</code> … <strong>同じ DATA で変数をまとめて宣言</strong>するときは <code>DATA:</code>
+                </li>
+              </ul>
+              <Callout variant="note">
+                別々の行に分ければ、どちらもコロンなしで書けます（<code>WRITE lv_name. WRITE lv_tax.</code> など）。コロンは「同じキーワードを1回だけ書いて、あとをカンマでつなぐ」ための記号です。
+              </Callout>
+              <Dialog speaker="b">
+                構文チェックでエラーになりました！<code>DATA lv_price TYPE p ... lv_tax TYPE p ...</code>{" "}
+                と2つ続けて書いたのに、どこがダメなんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                同じ <code>DATA</code> のあとに<strong>複数の変数をカンマで並べる</strong>ときは、<code>DATA</code> の直後に{" "}
+                <code>:</code> が要ります。<code>DATA:</code> と書いてから続けてください。1つだけなら <code>DATA lv_name TYPE string.</code>{" "}
+                で十分です。
+              </Dialog>
+              <Dialog speaker="b">
+                <code>WRITE</code> も同じですね。1行にラベルと値を2つ出すときは <code>WRITE:</code> が要る、と覚えます。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。エラーメッセージで初めて気づく人が多いので、複数を並べたらまずコロンを疑ってください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "定数",
           plainText:
-            "定数 ＝ 中身を変えない箱\nCONSTANTS は一度決めたら変えない値。消費税率や会社コードのように途中で勝手に変わると困るものに使う。\nCONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.\nDATA lv_price TYPE p DECIMALS 2 VALUE '1000'.\nlv_tax = lv_price * lc_tax_rate.\n1行ずつ読む：CONSTANTS＝定数宣言／lc_tax_rate＝名前（lc＝定数、tax_rate＝消費税率）／TYPE p DECIMALS 2＝小数2桁の数値型／VALUE '0.10'＝10%という初期値（宣言時に必ず指定）。\n先生：変えていい箱（変数）と変えない箱（定数）を区別すると事故が減る。固定の値に名前を付けると読みやすさも上がる。\nAくん：マジックナンバー（0.10 のような裸の数字）に名前を付ける、ということですね。\nBちゃん：lv_tax = lv_price * 0.10 より lc_tax_rate を使う方が、何の計算か一目で分かる。",
+            "定数 ＝ 中身を変えない箱\nCONSTANTS は一度決めたら変えない値。消費税率や会社コードのように途中で勝手に変わると困るものに使う。\nCONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.\nDATA: lv_price TYPE p ..., lv_tax TYPE p ....\nlv_tax = lv_price * lc_tax_rate.\nWRITE: / '税額:', lv_tax.\n1行ずつ読む：CONSTANTS＝定数宣言／lc_tax_rate＝名前（lc＝定数、tax_rate＝消費税率）／TYPE p DECIMALS 2＝小数2桁の数値型／VALUE '0.10'＝10%という初期値（宣言時に必ず指定）。\n先生：変えていい箱（変数）と変えない箱（定数）を区別すると事故が減る。固定の値に名前を付けると読みやすさも上がる。\nAくん：マジックナンバー（0.10 のような裸の数字）に名前を付ける、ということですね。\nBちゃん：lv_tax = lv_price * 0.10 より lc_tax_rate を使う方が、何の計算か一目で分かる。",
           content: (
             <>
               <h2>定数 ＝ 中身を変えない箱</h2>
@@ -324,8 +395,8 @@ WRITE lv_name.`}
                 language="ABAP"
                 code={`CONSTANTS lc_tax_rate TYPE p DECIMALS 2 VALUE '0.10'.
 
-DATA lv_price TYPE p DECIMALS 2 VALUE '1000'.
-DATA lv_tax    TYPE p DECIMALS 2.
+DATA: lv_price TYPE p DECIMALS 2 VALUE '1000',
+      lv_tax    TYPE p DECIMALS 2.
 
 lv_tax = lv_price * lc_tax_rate.
 WRITE: / '税額:', lv_tax.`}
@@ -345,7 +416,13 @@ WRITE: / '税額:', lv_tax.`}
                   <code>VALUE &apos;0.10&apos;</code> … 初期値 10%。定数は宣言時に値を必ず指定する（あとから代入できない）
                 </li>
                 <li>
+                  <code>DATA: lv_price TYPE ..., lv_tax TYPE ...</code> … 変数を2つまとめて宣言（前のスライドの <code>DATA:</code> の例）
+                </li>
+                <li>
                   <code>lv_tax = lv_price * lc_tax_rate</code> … 定数を計算式で使う例。<code>0.10</code> と直接書くより意図が伝わる
+                </li>
+                <li>
+                  <code>WRITE: / &apos;税額:&apos;, lv_tax.</code> … ラベルと値を1行で出す（<code>WRITE:</code>）
                 </li>
               </ul>
               <Callout variant="note">
@@ -454,7 +531,7 @@ lv_total = lv_price + lv_tax.   " ここで合算`}
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：到達点は、最小のレポートを読んで意図を説明できる状態。REPORTで始まり、DATAやCONSTANTSで値を準備し、WRITEで結果を出す流れが基本。\nAくん：変数は途中で値が変わる箱、定数は固定値の箱、コメントは処理意図を残すメモという役割分担。単語の意味を押さえるとコードが命令文として読める。\nBちゃん：英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすい。コメントが未来の自分への手紙だと思うと、書く意味がちゃんとある。",
+            "対話で整理\n先生：到達点は、最小のレポートを読んで意図を説明できる状態。REPORTで始まり、DATAやCONSTANTSで値を準備し、WRITEで結果を出す流れが基本。\nAくん：変数は途中で値が変わる箱、定数は固定値の箱、コメントは処理意図を残すメモという役割分担。単語の意味を押さえるとコードが命令文として読める。\nBちゃん：英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすい。DATA: や WRITE: は複数を並べるときだけ、と覚えれば大丈夫そう。",
           content: (
             <>
               <h2>対話で整理</h2>
@@ -465,7 +542,7 @@ lv_total = lv_price + lv_tax.   " ここで合算`}
                 変数は途中で値が変わる箱、定数は固定値の箱、コメントは処理意図を残すメモという役割分担ですね。単語の意味を押さえるとコードが命令文として読めます。
               </Dialog>
               <Dialog speaker="b">
-                英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすいです。特にコメントが「未来の自分への手紙」だと思うと、書く意味がちゃんとあります。
+                英語が怖かったけど、箱にラベルを貼る感覚で考えると理解しやすいです。構文チェックで怒られた <code>DATA:</code> と <code>WRITE:</code> も、複数を並べるときだけ、と覚えれば大丈夫そうです。
               </Dialog>
             </>
           ),
@@ -473,7 +550,7 @@ lv_total = lv_price + lv_tax.   " ここで合算`}
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nQ1 途中で中身を入れ替えられる箱は？→ DATA（変数）\nQ2 コメントを書く一番の目的は？→ 処理の意図を後で読む人に伝えるため\nQ3 REPORT を最初に書く主な理由は？→ レポートプログラムであることを宣言するため\n今日のひとこと：最初のプログラムは数行で十分。動いた瞬間の「できた！」を大切に。",
+            "理解度チェック\nQ1 途中で中身を入れ替えられる箱は？→ DATA（変数）\nQ2 コメントを書く一番の目的は？→ 処理の意図を後で読む人に伝えるため\nQ3 REPORT を最初に書く主な理由は？→ レポートプログラムであることを宣言するため\nQ4 コロン（:）が要らない書き方は？→ WRITE lv_name.\n今日のひとこと：最初のプログラムは数行で十分。動いた瞬間の「できた！」を大切に。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -501,6 +578,20 @@ lv_total = lv_price + lv_tax.   " ここで合算`}
                   "レポートプログラムであることを宣言するため",
                   "画面の色を変更するため",
                   "変数を自動的に初期化するため",
+                ]}
+              />
+              <Quiz
+                answer={1}
+                explanation="同じキーワードのあとに複数をカンマで並べるときは DATA: や WRITE: のようにコロンが要ります。1つだけなら DATA lv_name TYPE string. のようにコロンは不要です。"
+                question={
+                  <strong>
+                    次のうち、コロン（<code>:</code>）が<strong>要らない</strong>書き方は？
+                  </strong>
+                }
+                options={[
+                  "DATA: lv_a TYPE string, lv_b TYPE i.",
+                  "WRITE lv_name.",
+                  "WRITE: '名前:', lv_name.",
                 ]}
               />
               <Dialog speaker="closing">
