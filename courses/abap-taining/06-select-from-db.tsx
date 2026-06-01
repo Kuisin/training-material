@@ -11,6 +11,7 @@ import {
   InfoPanel,
   mountLesson,
 } from "../../src/lesson";
+import { lessonPageHref } from "../../src/lib/app-href";
 
 export const lessonMeta = {
   title: "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）",
@@ -18,6 +19,8 @@ export const lessonMeta = {
 };
 
 export default function SelectFromDbLesson() {
+  const debuggerLessonHref = lessonPageHref("abap-taining", "14-sap-development-tools");
+
   return (
     <Lesson
       chrome={lessonChrome("abap-taining", "06-select-from-db", lessonMeta.title)}
@@ -338,7 +341,7 @@ MESSAGE s001(z01) WITH '1000' 'BKPF'.`}
         {
           title: "取れた？取れない？",
           plainText:
-            "本当に取れたか確認（SY-SUBRC）\n依頼（SELECT）の直後に SY-SUBRC を見る。0＝1件以上、0以外＝0件。\nIF sy-subrc = 0. → 続行 / ELSE → MESSAGE で該当なしを伝える。\nつまずき：依頼だけして確認せず、空のまま後続処理へ進む。\nBちゃん：台車が空っぽなら次へ進まない。",
+            "本当に取れたか確認（SY-SUBRC）\n依頼（SELECT）の直後に SY-SUBRC を見る。0＝1件以上、0以外＝0件。\nIF sy-subrc = 0. → 続行 / ELSE → MESSAGE で該当なしを伝える。\nつまずき：依頼だけして確認せず、空のまま後続処理へ進む。\n補足：実行中の値は第14章のデバッガで、SELECT直後にブレークポイントを置いて確認できる。\nBちゃん：台車が空っぽなら次へ進まない。",
           content: (
             <>
               <h2>本当に取れたか確認（<code>SY-SUBRC</code>）</h2>
@@ -360,6 +363,11 @@ ELSE.
   MESSAGE '該当する伝票がありません' TYPE 'I'.
 ENDIF.`}
               />
+              <Callout variant="note">
+                実行中の値を確実に確認したいときは、<code>SELECT</code> 直後の行にブレークポイントを置いて
+                デバッガで <code>sy-subrc</code> と <code>lt_bkpf</code> の中身を見ます。
+                操作手順は <a href={debuggerLessonHref}>第14章（デバッグ）</a> を参照してください。
+              </Callout>
               <h3>追記した2行</h3>
               <ul>
                 <li>
@@ -374,6 +382,57 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="b">
                 台車が空っぽなら次へ進まない、ですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "BREAK-POINTの使い方",
+          plainText:
+            "BREAK-POINTで止めて値を確認\nSELECTの直後に BREAK-POINT を置くと、取得結果確認の場所で必ず停止する。\nデバッガは BREAK-POINT で開く。右下の変数（Variables）を見て、sy-subrc や lt_bkpf の値を確認する。\n変数名によっては「グローバル」タブに表示されるので、ローカル/グローバルを切り替えて探す。",
+          content: (
+            <>
+              <h2>
+                <code>BREAK-POINT</code> でデバッガを開く
+              </h2>
+              <p>
+                値の確認を確実にしたいときは、<code>SELECT</code> の直後に <code>BREAK-POINT</code> を置きます。
+                実行時にその行で停止し、デバッガが開きます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`SELECT belnr budat bukrs
+  FROM bkpf
+  INTO TABLE lt_bkpf
+  WHERE bukrs = p_bukrs
+    AND budat IN s_budat.
+
+BREAK-POINT.
+
+IF sy-subrc = 0.
+  " 取得成功
+ENDIF.`}
+              />
+              <InfoPanel
+                title="見る場所（デバッガ画面）"
+                variant="reference"
+                lead="止まったら、まず右下の変数ウィンドウを確認します。"
+              >
+                <ol>
+                  <li>
+                    <code>BREAK-POINT</code> 行で停止するとデバッガが開く
+                  </li>
+                  <li>
+                    画面<strong>右下</strong>の変数（Variables）で <code>sy-subrc</code>、<code>lt_bkpf</code> を確認
+                  </li>
+                  <li>
+                    変数名によって表示場所が変わるため、見つからないときは<strong>グローバル</strong>タブも確認
+                  </li>
+                </ol>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                ローカル変数はローカル側、プログラム全体で使う変数はグローバル側に出ることがあります。
+                見えないときはタブを切り替えて探す癖をつけると、調査が速くなります。
               </Dialog>
             </>
           ),

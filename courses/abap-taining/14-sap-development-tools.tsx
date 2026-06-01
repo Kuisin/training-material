@@ -217,7 +217,7 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "デバッグ",
           plainText:
-            "デバッグの基本\nデバッグ＝プログラムの動きを一時停止して、変数の値や処理の流れを確認すること。\n手順：ブレークポイント → コマンド欄に /h でデバッガ起動 → ステップ実行 → 値確認\n/h で開始、/n で終了。F5ステップ F6サブルーチン飛ばし F7戻る F8続行",
+            "デバッグの基本\nデバッグ＝プログラムの動きを一時停止して、変数の値や処理の流れを確認すること。\n手順：ブレークポイント → コマンド欄に /h でデバッガ起動 → ステップ実行 → 値確認\n特にSELECT結果を確認したいときは、SELECTの直後にブレークポイントを置くと sy-subrc と内部テーブルを確認しやすい。\n/h で開始、/n で終了。F5ステップ F6サブルーチン飛ばし F7戻る F8続行",
           content: (
             <>
               <h2>デバッグの基本</h2>
@@ -234,6 +234,10 @@ export default function SapDevelopmentToolsLesson() {
               <ol>
                 <li>
                   <code>SE38</code> で止めたい行の行番号をクリックして<strong>ブレークポイント</strong>を設定
+                </li>
+                <li>
+                  <code>SELECT</code> の結果確認が目的なら、<code>SELECT</code> 文の<strong>直後</strong>に置くと
+                  <code>sy-subrc</code> と内部テーブルの中身をその場で確認しやすい
                 </li>
                 <li>
                   実行前にコマンド欄へ <code>/h</code> と入力して<strong>デバッガを起動</strong>（次の実行からデバッグモード）
