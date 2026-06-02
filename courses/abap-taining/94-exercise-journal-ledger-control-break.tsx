@@ -1618,7 +1618,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
         {
           title: "B-⑦ 完成コード（全文）",
           plainText:
-            "B-⑦ 完成コード全文 create_report_3。部品の意味（B-①〜B-⑥）を踏まえ、上から下への流れを通して確認する。\nTEXTエレメント(TEXT-001等)はSE38で登録。土台や明細取得・結合は演習②、サプレス/AT制御は第9章を参照。",
+            "B-⑦ 完成コード全文 create_report_3。部品の意味（B-①〜B-⑥）を踏まえ、上から下への流れを通して確認する。\n全文はRevealで開く。TEXTエレメント(TEXT-001等)はSE38で登録。土台や明細取得・結合は演習②、サプレス/AT制御は第9章を参照。",
           content: (
             <>
               <h2>B-⑦ 完成コード（全文）</h2>
@@ -1631,7 +1631,6 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 列見出しの <code>TEXT-001</code>〜<code>TEXT-010</code> は、SE38 の <strong>Text elements</strong> に登録してから実行します
                 （登録手順と文言は演習②の「テキストエレメント」スライドを参照）。
               </Callout>
-              <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
               <InfoPanel title="演習②から増えた箇所だけ拾うと" variant="breakdown">
                 <ul>
                   <li>
@@ -1648,7 +1647,27 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                   </li>
                 </ul>
               </InfoPanel>
+              <p>
+                SE38 に貼り付けて動かす前に、B-②〜B-⑥ で追った部分と見比べると理解が深まります。
+                いきなり全文を暗記する必要はありません。
+              </p>
+              <Reveal label="完成コード（全体）を見る">
+                <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
+              </Reveal>
               <ReferenceLinks />
+            </>
+          ),
+        },
+        {
+          title: "理解度チェック",
+          plainText:
+            "理解度チェック\nQ1 g_typ_outでbudat/bldatをbelnrより前へ移した狙い→ AT NEWはその項目＋左の項目の変化で発火するため、構造体の並び順＝サプレスの階層になるから\nQ2 AT NEWの中で値を読まずフラグだけ立てる理由→ 内側では制御項目より右の作業領域が'*'で埋まる仕様があり誤った値を読む恐れがあるから\nQ3 RESERVE 1 LINESをWRITEの前に置く理由→ 先に改ページを起こしてsy-pagnoを確定させ、見出し再表示の判定を正しくするため",
+          content: (
+            <>
+              <h2>理解度チェック</h2>
+              <p>
+                演習③の要点を3問で確認します。迷ったら B パートの該当スライド（B-②・B-⑤・B-⑥）や第9章に戻って復習してください。
+              </p>
               <LessonQuiz
                 answer={1}
                 question={
