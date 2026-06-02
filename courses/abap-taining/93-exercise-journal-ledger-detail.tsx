@@ -484,16 +484,16 @@ TOP-OF-PAGE.
 
   SKIP 2.
 
-  WRITE: /1   TEXT-001,
-          18  TEXT-002,
-          30  TEXT-003,
-          42  TEXT-004,
-          54  TEXT-005,
-          68  TEXT-006,
-          73  TEXT-007,
-          106(14) TEXT-008 RIGHT-JUSTIFIED,
-          122(14) TEXT-009 RIGHT-JUSTIFIED,
-          139 TEXT-010.
+  WRITE: /1   TEXT-c01,
+          18  TEXT-c02,
+          30  TEXT-c03,
+          42  TEXT-c04,
+          54  TEXT-c05,
+          68  TEXT-c06,
+          73  TEXT-c07,
+          106(14) TEXT-c08 RIGHT-JUSTIFIED,
+          122(14) TEXT-c09 RIGHT-JUSTIFIED,
+          139 TEXT-c10.
 
   ULINE.
 
@@ -1359,7 +1359,8 @@ START-OF-SELECTION.
                 </li>
               </ol>
               <Callout variant="note">
-                列見出しは完成コードでは <code>TEXT-001</code>〜<code>TEXT-010</code> を使います。SE38 の{" "}
+                列見出しは完成コードでは <code>TEXT-c01</code>〜<code>TEXT-c10</code> を使います（<strong>c</strong> ＝ Column／列）。
+                SE38 の{" "}
                 <strong>Text elements</strong> に下表の文言を登録してから実行してください（未登録だと ID がそのまま表示されます）。
               </Callout>
               <CodeBlock
@@ -1374,11 +1375,11 @@ TOP-OF-PAGE.
          /80(20) '仕訳日記帳 演習2' CENTERED,
           155 'PAGE:' NO-GAP, 160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
   " ... 会社コード・転記日付 ...
-  WRITE: /1   TEXT-001, 18 TEXT-002, 30 TEXT-003, 42 TEXT-004,
-          54 TEXT-005, 68 TEXT-006, 73 TEXT-007,
-          106(14) TEXT-008 RIGHT-JUSTIFIED,
-          122(14) TEXT-009 RIGHT-JUSTIFIED,
-          139 TEXT-010.
+  WRITE: /1   TEXT-c01, 18 TEXT-c02, 30 TEXT-c03, 42 TEXT-c04,
+          54 TEXT-c05, 68 TEXT-c06, 73 TEXT-c07,
+          106(14) TEXT-c08 RIGHT-JUSTIFIED,
+          122(14) TEXT-c09 RIGHT-JUSTIFIED,
+          139 TEXT-c10.
   ULINE.`}
               />
               <ReportPreview
@@ -1856,16 +1857,24 @@ TOP-OF-PAGE.
         {
           title: "テキストエレメント",
           plainText:
-            "任意の仕上げ — ラベルを TEXT-xxx / '文言'(id) に切り替え。列位置とロジックは変えない。第4章・追加第14章の該当スライドへリンク。",
+            "任意の仕上げ — ラベルを TEXT-c** / '文言'(id) に切り替え。IDは c=列・p=ページヘッダ・t=タイトル・m=メッセージ。列位置とロジックは変えない。",
           content: (
             <>
               <h2>ラベルをテキストエレメントへ（任意の仕上げ）</h2>
               <p>
                 演習の各ステップでは、まず<strong>ロジックと列位置</strong>に集中するため、見出しをプログラムに直書きしても構いません。
-                完成コードでは列見出しを <code>TEXT-001</code>〜<code>TEXT-010</code> に切り替え、
+                完成コードでは列見出しを <code>TEXT-c01</code>〜<code>TEXT-c10</code> に切り替え、
                 SE38 の Text elements に文言を登録します。PGMID や DATE などの固定ラベルは、必要に応じて第4章の{" "}
-                <code>&apos;文言&apos;(id)</code> 形式へ移せます。
+                <code>&apos;文言&apos;(id)</code> 形式（<code>p01</code> など）へ移せます。
               </p>
+              <Callout variant="note">
+                <strong>ID の命名（3文字・先頭1文字＝意味）</strong>
+                <br />
+                <code>c**</code> … <strong>C</strong>olumn（帳票の<strong>列見出し</strong>）c01〜c10<br />
+                <code>p**</code> … <strong>P</strong>age（ページヘッダの固定ラベル）p01〜<br />
+                <code>t**</code> … <strong>T</strong>itle（帳票タイトル）<br />
+                <code>m**</code> … <strong>M</strong>essage（メッセージ文言）
+              </Callout>
               <Dialog speaker="teacher">
                 変えるのは<strong>表示する文字列だけ</strong>です。<code>LOOP</code> や <code>shkzg</code>{" "}
                 の判定、列番号（1, 18, 73, 106…）はそのままで構いません。
@@ -1876,7 +1885,7 @@ TOP-OF-PAGE.
               <p>
                 書き方の詳しい手順（SE38 の開き方・有効化の順番）は、次のリンク先のスライドで丁寧に説明しています。
               </p>
-              <InfoPanel title="TEXT-001〜010（列見出し・完成コード用）" variant="reference">
+              <InfoPanel title="TEXT-c01〜c10（列見出し・完成コード用）" variant="reference">
                 <table>
                   <thead>
                     <tr>
@@ -1888,70 +1897,70 @@ TOP-OF-PAGE.
                   <tbody>
                     <tr>
                       <td>
-                        <code>TEXT-001</code>
+                        <code>TEXT-c01</code>
                       </td>
                       <td>1</td>
                       <td>伝票タイプ</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-002</code>
+                        <code>TEXT-c02</code>
                       </td>
                       <td>18</td>
                       <td>転記日付</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-003</code>
+                        <code>TEXT-c03</code>
                       </td>
                       <td>30</td>
                       <td>伝票日付</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-004</code>
+                        <code>TEXT-c04</code>
                       </td>
                       <td>42</td>
                       <td>伝票番号</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-005</code>
+                        <code>TEXT-c05</code>
                       </td>
                       <td>54</td>
                       <td>ユーザ</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-006</code>
+                        <code>TEXT-c06</code>
                       </td>
                       <td>68</td>
                       <td>明細</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-007</code>
+                        <code>TEXT-c07</code>
                       </td>
                       <td>73</td>
                       <td>勘定</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-008</code>
+                        <code>TEXT-c08</code>
                       </td>
                       <td>106</td>
                       <td>借方金額</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-009</code>
+                        <code>TEXT-c09</code>
                       </td>
                       <td>122</td>
                       <td>貸方金額</td>
                     </tr>
                     <tr>
                       <td>
-                        <code>TEXT-010</code>
+                        <code>TEXT-c10</code>
                       </td>
                       <td>139</td>
                       <td>摘要</td>
@@ -1959,10 +1968,10 @@ TOP-OF-PAGE.
                   </tbody>
                 </table>
               </InfoPanel>
-              <InfoPanel title="任意：その他のテキストシンボル（第4章の id 形式）" variant="reference">
+              <InfoPanel title="その他のテキストシンボル（p / t / m 系）" variant="reference">
                 <ul>
                   <li>
-                    <code>h01</code> … PGMID:、<code>h02</code> … USER: などページヘッダの固定ラベル
+                    <code>p01</code> … PGMID:、<code>p02</code> … USER:、<code>p03</code> … DATE: などページヘッダの固定ラベル
                   </li>
                   <li>
                     <code>t01</code> … 仕訳日記帳 演習2（タイトル）
@@ -1980,15 +1989,15 @@ TOP-OF-PAGE.
   MESSAGE s000(z01) WITH '対象データは登録されていません'.
 
 " After（テキストシンボル登録後）
-  WRITE: /1 'PGMID:'(h01) NO-GAP, 9 sy-cprog.
+  WRITE: /1 'PGMID:'(p01) NO-GAP, 9 sy-cprog.
   MESSAGE s000(z01) WITH '対象データは登録されていません'(m01).
 
-" 見出し（完成コードと同じ列位置）
-  WRITE: /1 TEXT-001, 18 TEXT-002, 30 TEXT-003, 42 TEXT-004,
-          54 TEXT-005, 68 TEXT-006, 73 TEXT-007,
-          106(14) TEXT-008 RIGHT-JUSTIFIED,
-          122(14) TEXT-009 RIGHT-JUSTIFIED,
-          139 TEXT-010.`}
+" 見出し（完成コードと同じ列位置・c 系 ID）
+  WRITE: /1 TEXT-c01, 18 TEXT-c02, 30 TEXT-c03, 42 TEXT-c04,
+          54 TEXT-c05, 68 TEXT-c06, 73 TEXT-c07,
+          106(14) TEXT-c08 RIGHT-JUSTIFIED,
+          122(14) TEXT-c09 RIGHT-JUSTIFIED,
+          139 TEXT-c10.`}
               />
               <Callout variant="tip">
                 引用符内の文字列は<strong>未登録時のフォールバック</strong>
