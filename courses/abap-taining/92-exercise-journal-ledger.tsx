@@ -170,6 +170,13 @@ TOP-OF-PAGE.
   SKIP 1.
   ULINE.`}
               />
+              <Callout variant="note">
+                <strong>「動いていない」ように見えても、ここは仕様どおりです（エラーではありません）。</strong>
+                <br />
+                この時点のコードはヘッダ定義の学習が目的で、明細を出す処理はまだ未実装です。
+                そのため、条件によっては <code>TOP-OF-PAGE</code> が表示されず、
+                「コードが動かない」ように見えることがありますが正常です。
+              </Callout>
               <InfoPanel title="この行たちの意味" variant="breakdown">
                 <ul>
                   <li>
