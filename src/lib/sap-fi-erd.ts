@@ -39,14 +39,25 @@ function toDataType(sapType: SapColumnType): "text" | "number" | "datetime" | "m
   }
 }
 
-function buildTable(def: SapTableDef) {
+function buildTable(def: SapTableDef, columnCodes?: string[]) {
+  const columns = columnCodes
+    ? def.columns.filter((col) => columnCodes.includes(col.code))
+    : def.columns;
+
+  const primaryKeyCodes = Array.isArray(def.primaryKey) ? def.primaryKey : [def.primaryKey];
+  const primaryKeyLabels = primaryKeyCodes
+    .filter((code) => columns.some((col) => col.code === code))
+    .map((code) => columnLabel(code, columns.find((c) => c.code === code)!.label));
+
+  // react-erd: single PK must be a string; composite PK is string[] (patched in node_modules).
+  const primaryKey: string | string[] =
+    primaryKeyLabels.length === 1 ? primaryKeyLabels[0]! : primaryKeyLabels;
+
   return {
     name: def.subtitle ? `${def.name} — ${def.subtitle}` : def.name,
-    primaryKey: Array.isArray(def.primaryKey)
-      ? def.primaryKey.map((code) => columnLabel(code, def.columns.find((c) => c.code === code)!.label))
-      : columnLabel(def.primaryKey, def.columns.find((c) => c.code === def.primaryKey)!.label),
+    primaryKey,
     color: def.color,
-    columns: def.columns.map((col) => ({
+    columns: columns.map((col) => ({
       name: columnLabel(col.code, col.label),
       type: toDataType(col.sapType),
       foreignKeys: (col.foreignKeys ?? []).map((fk) => {
@@ -219,8 +230,22 @@ const FI_TABLES: SapTableDef[] = [
   },
 ];
 
-function schemasFromTables(tableNames: string[]): DatabaseSchemaInfo[] {
-  const tables = FI_TABLES.filter((t) => tableNames.includes(t.name)).map(buildTable);
+/** 仕訳日記帳演習②で SELECT / 結合に使う列だけ */
+const JOURNAL_LEDGER_COLUMNS: Record<string, string[]> = {
+  T001: ["BUKRS", "KTOPL", "WAERS"],
+  T003T: ["SPRAS", "BLART", "LTEXT"],
+  BKPF: ["BUKRS", "BELNR", "GJAHR", "BLART", "BUDAT", "BLDAT", "USNAM"],
+  BSEG: ["BUKRS", "BELNR", "GJAHR", "BUZEI", "HKONT", "SHKZG", "DMBTR", "SGTXT"],
+  SKAT: ["SPRAS", "KTOPL", "SAKNR", "TXT20"],
+};
+
+function schemasFromTables(
+  tableNames: string[],
+  columnFilter?: Record<string, string[]>,
+): DatabaseSchemaInfo[] {
+  const tables = FI_TABLES.filter((t) => tableNames.includes(t.name)).map((def) =>
+    buildTable(def, columnFilter?.[def.name]),
+  );
   const tableDisplayNames = new Set(tables.map((t) => t.name));
 
   const filteredTables = tables.map((table) => ({
@@ -250,14 +275,11 @@ export const sapFiBsegSchemas = schemasFromTables(["BSEG"]);
 export const sapFiAcDocaSchemas = schemasFromTables(["ACDOCA"]);
 export const sapFiMasterSchemas = schemasFromTables(["T001", "T003T", "SKA1"]);
 
-/** 仕訳日記帳演習② — T001 / T003T / BKPF / BSEG / SKAT の関連図 */
-export const sapFiJournalLedgerSchemas = schemasFromTables([
-  "T001",
-  "T003T",
-  "BKPF",
-  "BSEG",
-  "SKAT",
-]);
+/** 仕訳日記帳演習② — T001 / T003T / BKPF / BSEG / SKAT（演習で使う列のみ） */
+export const sapFiJournalLedgerSchemas = schemasFromTables(
+  ["T001", "T003T", "BKPF", "BSEG", "SKAT"],
+  JOURNAL_LEDGER_COLUMNS,
+);
 
 export const sapFiErdTableColors = [
   "#4f46e5",

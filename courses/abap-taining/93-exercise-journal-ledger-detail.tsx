@@ -2445,6 +2445,7 @@ TOP-OF-PAGE.
               <p>
                 この演習で読み書きする<strong>5テーブル</strong>のキー項目とつながりを、ER 図でまとめました。
                 各列は<strong>日本語名（列コード）</strong>で表示し、鍵アイコン付きの列が主キーです。
+                図に載せているのは<strong>演習の型・SELECT で使う列だけ</strong>です。
                 ドラッグ・ズームで全体をたどれます（
                 <a href="https://github.com/CNimmo16/react-erd" target="_blank" rel="noreferrer">
                   react-erd
