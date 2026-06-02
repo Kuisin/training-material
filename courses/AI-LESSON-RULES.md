@@ -25,7 +25,7 @@
 3. **1スライド = `slides` 配列の1要素。** `title`（ジャンプメニュー用）と `content`（JSX）と `**plainText`（必須・Copilot コピー用）** を必ず設定する。`plainText` は見出しの要約ではなく、スライド本文（対話・ブロック・図の説明を含む）をそのまま書く。
 4. **編集してはいけない部分:** `src/mount-lesson.tsx`、`src/components/deck.tsx`、`src/components/lesson.tsx` など共有エンジン。レッスン `.tsx` では `Lesson` の props（`chrome` / `slides`）だけを書く。
 5. **import は `src/lesson.tsx` から統一。** `Callout` なども同ファイルから import する（個別パス import は使わない）。見た目は共有コンポーネント（Tailwind）のみ。独自 CSS は書かない。
-6. **各レッスンに必ず含めるもの（4要素＋確認）:** 概要スライド、本文スライド、**blocks**、**image**（`Figure` 1枚以上。`MermaidDiagram` は補助）、**dialogs**（レッスン全体で `Dialog` を厚く。標準レッスンは **「対話で整理」** スライド＋確認テスト前の締め）、**plainText**（全スライド）、**確認テスト**（`Quiz` 1〜3 問。最後に `Dialog speaker="closing"` 推奨）。
+6. **各レッスンに必ず含めるもの（4要素＋確認）:** 概要スライド、本文スライド、**blocks**、**image**（`Figure` 1枚以上。`MermaidDiagram` は補助）、**dialogs**（レッスン全体で `Dialog` を厚く。標準レッスンは **「対話で整理」** スライド＋確認テスト前の締め）、**plainText**（全スライド）、**確認テスト**（`Quiz` 1〜3 問。最後に `Dialog speaker="closing"` 推奨）。**image** を足したら `courses/<slug>/image/list.md` にベース名・alt・生成プロンプトを追記し、原画は `image/originals/` → `pnpm run optimize:images` で `image/*.webp`（§5.1）。
 7. **ビルド前提。** 開発は `pnpm dev`、公開は `pnpm build`。
 8. **品質の基準は `courses/abap-training/` を手本にする。** 新規・改訂・**すべてのコース**で、上記4要素を満たす密度にすること。薄い箇条書きだけ・地の文だけのスライドにしない（§8・§9 を必ず確認）。
 
@@ -43,9 +43,9 @@ training-material/
 │     ├─ 00-introduction.tsx      # レッスン（1ファイル＝1章）
 │     ├─ …
 │     └─ image/
-│        ├─ list.md               # 画像インデックス＋生成プロンプト（必須）
-│        ├─ originals/*.png       # 原画
-│        └─ *.webp                # 配信用（optimize:images で生成）
+│        ├─ list.md               # 必要画像の一覧＋生成プロンプト（必須・§5.1）
+│        ├─ originals/            # 原画（.png / .jpg / .jpeg）。サイトには出さない
+│        └─ *.webp                # 配信用（originals から optimize:images で生成）
 ├─ template/
 │  ├─ lesson-template.tsx
 │  └─ course.json
@@ -196,25 +196,49 @@ mountLesson(MyLesson);
 />
 ```
 
-- `src` は必ず `image/ファイル名.webp`（レッスンと同じ `courses/<slug>/image/` に置く）。
-- `alt` は**具体的に**書く。これがそのまま「どんな絵を用意すべきか」の発注書になる。
+- `src` は必ず `image/ファイル名.webp`（`courses/<slug>/image/` 直下。`originals/` は参照しない）。
+- `alt` は**具体的に**書く。`list.md` の「内容（alt）」列と揃える。
 - 抽象概念は `kind="concept"`（例え話のイラスト）、画面・構成・対応は `kind="diagram"`。
-- 画像作成手順は `README.md`「レッスン用画像」を参照（`originals/*.png` → `pnpm run optimize:images` で `*.webp` 生成）。
+- 原画・変換・`list.md` の手順は **§5.1**（詳細コマンドは `README.md`「レッスン用画像」）。
 
-`**image/list.md`（コースごとに必須）:** 各コースの `courses/<slug>/image/` フォルダには必ず `list.md` を置く。手本は `courses/abap-training/image/list.md`。
+### 5.1 レッスン用画像（`image/list.md` → `originals/` → `.webp`）
 
-`list.md` に含める内容:
+コースごとに `courses/<slug>/image/list.md` を**必ず**用意する（レッスン図の手本: `courses/abap-training/image/list.md` の章セクション。キャラクター節は古い例で、新規コースでは省略）。レッスン TSX を書く段階から、`<Figure>` 用の図だけを列挙し、**画像生成用プロンプト**まで書いておく。
 
-1. **使い方・ルール**（originals/webp/pnpm コマンドの説明）
-2. **共通キャラクター**（teacher/student-a/student-b の説明＋生成プロンプト）
-3. **各レッスンのセクション**（章ごとに以下を記載）:
-  - テーブル: `ファイル名 / 種別(concept|diagram) / 使用スライド / 内容（alt）`
-  - 各ファイルに対応した **英語の画像生成プロンプト**をコードブロックで記載
-    - `concept` 画像 → AI 生成可。`flat vector, light background, no text, 16:9` を基本に具体的に書く
-    - `diagram` 画像 → Figma/draw.io 推奨の注記を入れる。AI 生成可能な場合はプロンプトも添える
-    - プロンプトは**発注書として機能する精度**で書く（左右に何がある・矢印の向き・パレット・縦横比まで）
+**制作フロー（AI・人間とも同じ）**
 
-`list.md` の目的: ①画像インデックス（揃っているか確認）、②**発注書**（プロンプトをそのままコピーして生成AIに投げられる状態）。
+1. レッスンに `<Figure src="image/<ベース名>.webp" alt="…" … />` を置く（原画が無くてもプレースホルダが出る）。
+2. `image/list.md` にその `<ベース名>` を追記する（一覧表＋下記プロンプト）。
+3. `list.md` のプロンプトで画像を生成し、原画を **`courses/<slug>/image/originals/<ベース名>.png`**（推奨）または **`.jpg` / `.jpeg`** で保存する。
+4. リポジトリルートで **`pnpm run optimize:images`** を実行する → **`courses/<slug>/image/<ベース名>.webp`** が生成される（幅最大 1400px）。再生成は `pnpm run optimize:images -- --force`。
+5. ブラウザ・ビルドが参照するのは **`image/*.webp` のみ**。`originals/` は配信されない（マスター保持用）。
+
+**フォルダの役割**
+
+| パス | 形式 | 用途 |
+| --- | --- | --- |
+| `image/list.md` | Markdown | 必要画像のインデックス＋**発注書**（生成プロンプト） |
+| `image/originals/<name>.{png,jpg,jpeg}` | 原画 | 生成AI・Figma 等の出力を置く。Git に残す |
+| `image/<name>.webp` | WebP | `Figure` の `src`。`optimize:images` の出力 |
+
+ベース名は `list.md` の表・プロンプト見出し・`originals` のファイル名・TSX の `src`（`.webp`）で**一致**させる（例: `03-screen-map` → `originals/03-screen-map.png` → `03-screen-map.webp` → `src="image/03-screen-map.webp"`）。
+
+**会話キャラクター（`list.md` に書かない）**
+
+`<Dialog>` / `<CharacterIntro>` のアバターはリポジトリ共通の **`public/characters/*.webp`**（原画は `assets/characters/originals/`）を常に使用する。**コースの `image/list.md` にキャラクター用の表・生成プロンプトは載せない**（レッスン図だけを列挙する）。
+
+**`list.md` に含める内容**
+
+1. **使い方・ルール** — `originals/` に原画、`pnpm run optimize:images` で `image/*.webp`、`Figure` は `.webp` のみ参照、など §5.1 と同趣旨の短い説明
+2. **章ごとのセクション**（`00`…に対応）:
+   - 表: `ファイル名（ベース名） / 種別(concept\|diagram) / 使用スライド / 内容（alt）`
+   - 各ベース名の直下に **英語の画像生成プロンプト**（ fenced code block ）。そのまま生成AIにコピペできる粒度で書く
+     - `concept` — AI 生成可。`flat vector, light background, no text, 16:9` を基本に、被写体・左右配置・配色まで具体化
+     - `diagram` — Figma / draw.io 推奨の注記を入れる。AI で作る場合も同様にプロンプトを書く
+
+**`list.md` の目的:** ①揃っているかのチェックリスト、②**発注書**（プロンプトコピーで画像生成）、③ `alt` と原画の対応表。
+
+**レッスン作成時の義務:** 新しい `Figure` を TSX に足したら、**同じコミット／同じ作業単位で** `image/list.md` に行とプロンプトを追加する。原画は後追いでもよいが、**list に無い図は作らない**（インデックスがソースオブトゥルース）。
 
 **コード:**
 
@@ -313,9 +337,10 @@ mountLesson(MyLesson);
 
 ### image
 
-- レッスンあたり `**Figure` 1 枚以上**（典型 **2 枚**）。先に JSX を置き、画像は `image/list.md` のプロンプトで後追い可。
+- レッスンあたり `**Figure` 1 枚以上**（典型 **2 枚**）。先に JSX を置き、原画は `image/list.md` のプロンプトに沿って `originals/` へ後追い可（§5.1）。
 - 比喩・たとえ → `kind="concept"`。テーブル対応・画面・すき間図 → `kind="diagram"`。
 - 処理フロー → タイトル `**図解：…`** のスライドで `MermaidDiagram`（`Figure` と併用可）。
+- コースに `image/list.md` があり、各 `Figure` のベース名が表とプロンプトに載っていること。
 
 ### dialogs
 
@@ -362,6 +387,8 @@ mountLesson(MyLesson);
 - `export default function …()` + `mountLesson(…)`。import は `../../src/lesson`
 - `Quiz` 1〜3 問、`explanation` 手厚い
 - **§8・§10** を満たす（4要素・8〜18スライド目安）
-- `Figure` の `alt` 具体・`src="image/….webp"`・`courses/<slug>/image/list.md` にプロンプト追記
+- `Figure` の `alt` 具体・`src="image/<ベース名>.webp"`（`originals/` ではない）
+- `courses/<slug>/image/list.md` に全 `Figure` を列挙し、各ベース名に**生成プロンプト**あり（§5.1）
+- 原画を `image/originals/<ベース名>.png`（または `.jpg` / `.jpeg`）に置き、`pnpm run optimize:images` で対応する `image/<ベース名>.webp` を生成済み（または原画未着でも list と TSX は揃っている）
 - `pnpm typecheck` と `pnpm build` が通る
 

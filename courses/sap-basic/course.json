@@ -1,0 +1,23 @@
+{
+  "title": "ゼロから完全理解！ERPの全体像と「SAP S/4HANA」徹底解剖",
+  "active": true,
+  "description": "ERPとは何か？から始まり、SAP S/4HANAの仕組み・モジュール・導入戦略・クリーンコアまで、ビジネスとテクノロジーの両面で徹底解説する入門コースです。",
+  "lessons": [
+    { "file": "00-introduction", "title": "はじめに — コース概要と登場人物", "meta": "初学者 · 10分" },
+    { "file": "01-why-erp", "title": "第1章 — なぜERPが必要か：データのサイロ化と統合の価値", "meta": "初学者 · 20分" },
+    { "file": "02-hana-database", "title": "第2章 — SAPの進化とHANAデータベースの革新", "meta": "初学者 · 20分" },
+    { "file": "03-core-modules", "title": "第3章 — コアモジュールとデータ連動の仕組み", "meta": "初学者 · 25分" },
+    { "file": "04-architecture-comparison", "title": "第4章 — 全体最適 vs 個別最適：SaaSとERPのアーキテクチャ比較", "meta": "初学者 · 20分" },
+    { "file": "05-implementation-migration", "title": "第5章 — ERP導入・移行プロジェクトの実態", "meta": "初学者 · 20分" },
+    { "file": "06-clean-core", "title": "第6章 — クリーンコア戦略と次世代拡張開発", "meta": "初学者 · 20分" },
+    { "file": "07-fiori-analytics", "title": "第7章 — SAP FioriとEmbedded Analyticsの世界", "meta": "初学者 · 15分" }
+  ],
+  "courseTest": [],
+  "additionalContent": [
+    { "file": "50-it-glossary", "title": "補足① — ERPを理解するためのIT用語集", "meta": "補足 · 15分" },
+    { "file": "51-cloud-basics", "title": "補足② — クラウドとオンプレミス：エンタープライズシステムの基礎", "meta": "補足 · 15分" },
+    { "file": "52-external-saas", "title": "補足③ — コース中に登場する主要外部SaaSツール解説（Salesforce・Workday・NetSuite等）", "meta": "補足 · 20分" },
+    { "file": "53-database-and-bi-tools", "title": "補足④ — データベースとBI/分析ツールの世界（Oracle・PostgreSQL・Tableau・Power BI等）", "meta": "補足 · 20分" }
+  ],
+  "specialContent": []
+}

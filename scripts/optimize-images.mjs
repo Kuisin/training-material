@@ -1,5 +1,5 @@
 /**
- * Resize PNG masters and emit WebP for site delivery.
+ * Resize PNG/JPEG masters and emit WebP for site delivery.
  * Masters live in `originals/` (kept in git); WebP siblings are what the app loads.
  *
  * Usage: node scripts/optimize-images.mjs [--dry-run] [--force]
@@ -29,14 +29,16 @@ const TARGETS = [
   },
 ];
 
-function walkPng(dir, files = []) {
+const MASTER_EXT = new Set([".png", ".jpg", ".jpeg"]);
+
+function walkMasters(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
   for (const name of fs.readdirSync(dir)) {
     const abs = path.join(dir, name);
     if (fs.statSync(abs).isDirectory()) {
       if (name === "node_modules") continue;
-      walkPng(abs, files);
-    } else if (name.toLowerCase().endsWith(".png")) {
+      walkMasters(abs, files);
+    } else if (MASTER_EXT.has(path.extname(name).toLowerCase())) {
       files.push(abs);
     }
   }
@@ -53,7 +55,7 @@ function courseImageJobs(coursesRoot) {
     const outDir = path.join(coursesRoot, slug, "image");
     if (!fs.existsSync(originalsDir)) continue;
 
-    for (const master of walkPng(originalsDir)) {
+    for (const master of walkMasters(originalsDir)) {
       const base = path.basename(master, path.extname(master));
       jobs.push({
         master,
@@ -67,7 +69,7 @@ function courseImageJobs(coursesRoot) {
 }
 
 function characterImageJobs(originalsDir, outDir) {
-  return walkPng(originalsDir).map((master) => ({
+  return walkMasters(originalsDir).map((master) => ({
     master,
     out: path.join(outDir, `${path.basename(master, path.extname(master))}.webp`),
     maxWidth: TARGETS[1].maxWidth,

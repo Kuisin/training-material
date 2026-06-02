@@ -1,0 +1,20 @@
+{
+  "title": "主要ERP比較とデータアーキテクチャの変遷",
+  "active": true,
+  "description": "SAP S/4HANA・Oracle・Microsoftの出自と構造的強みを比較し、ハードウェア史からデータアーキテクチャの設計思想を読み解く。SoR/SoI の切り分け、ETL/ELT/CDC、Snowflake/Databricks との連携設計まで、現代のハイブリッドERP構成を体系的に学ぶコース。前提コース「ゼロから完全理解！ERPの全体像とSAP S/4HANA徹底解剖」修了者向け。",
+  "lessons": [
+    { "file": "00-introduction", "title": "第1章 — コース概要：なぜ「歴史とインフラ」からERPを見るのか", "meta": "中級 · 20分" },
+    { "file": "01-hardware-evolution", "title": "第2章 — ハードウェア進化がもたらした「優先事項の逆転」", "meta": "中級 · 25分" },
+    { "file": "02-erp-vendors", "title": "第3章 — メガベンダーERPの「出自」が紐解く構造的強みと課題", "meta": "中級 · 30分" },
+    { "file": "03-hybrid-architecture", "title": "第4章 — 現代の最適解「ハイブリッド・データアーキテクチャ」", "meta": "中級 · 25分" },
+    { "file": "04-integration-design", "title": "第5章 — ERPとデータプラットフォームの連携設計", "meta": "中級 · 30分" },
+    { "file": "05-governance-cost", "title": "第6章 — アーキテクチャ選定・ガバナンス・コストの観点", "meta": "中級 · 30分" }
+  ],
+  "courseTest": [],
+  "additionalContent": [
+    { "file": "50-modern-data-platforms", "title": "補足A — Snowflake・Databricks入門：コンピュート分離の革命", "meta": "補足 · 20分" },
+    { "file": "51-integration-tools", "title": "補足B — iPaaS・ETLツール入門：MuleSoft・Boomi・データパイプライン", "meta": "補足 · 20分" },
+    { "file": "52-data-governance-terms", "title": "補足C — データガバナンス・MDM用語集", "meta": "補足 · 15分" }
+  ],
+  "specialContent": []
+}

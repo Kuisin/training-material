@@ -64,7 +64,7 @@ pnpm run preview:pages  # Pages と同じ URL で確認
 
 | 場所 | 用途 |
 |------|------|
-| `courses/<slug>/image/originals/*.png` | 原画（リポジトリに保持、サイトには出さない） |
+| `courses/<slug>/image/originals/*.{png,jpg,jpeg}` | 原画（リポジトリに保持、サイトには出さない） |
 | `courses/<slug>/image/*.webp` | 配信用（`Figure` の `src` で参照） |
 | `assets/characters/originals/*.png` | キャラ原画 |
 | `public/characters/*.webp` | キャラ配信用 |
@@ -72,7 +72,7 @@ pnpm run preview:pages  # Pages と同じ URL で確認
 原画を `originals/` に置いたあと、WebP を生成します（幅最大 1400px / アバター 256px）。
 
 ```bash
-pnpm run optimize:images        # 新規・更新された PNG だけ変換
+pnpm run optimize:images        # 新規・更新された原画（PNG/JPEG）だけ変換
 pnpm run optimize:images -- --force   # すべて再生成
 ```
 
