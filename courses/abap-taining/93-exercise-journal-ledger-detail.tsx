@@ -1067,7 +1067,7 @@ START-OF-SELECTION.
         {
           title: "① マスタ取得",
           plainText:
-            "① マスタ取得 — SELECT SINGLE FROM t001（ktopl, waers）。SELECT FROM t003t WHERE spras = c_spras。",
+            "① マスタ取得 — T001は1件。T003Tはspras='J'で全伝票タイプ（帳票に出ない型も含む＝研修用簡略化）。\nB：出ない伝票タイプまで取るの？→ 件数少・BKPF前・READ TABLEで足りる。絞るならBKPF後にFAE。\nWHERE IN：s_budatはSELECT-OPTIONS用。複合キーはFOR ALL ENTRIESが定番。",
           content: (
             <>
               <h2>① マスタ取得 — T001 と T003T</h2>
@@ -1101,6 +1101,39 @@ START-OF-SELECTION.
                 T003T も SKAT も「辞書」を先に内部テーブルへ載せ、LOOP 内は <code>READ TABLE</code> だけ、ですね。
                 第8章の型と同じです。
               </Dialog>
+              <InfoPanel
+                title="補足：T003T は「必要以上」に見える取得"
+                variant="reference"
+                lead={
+                  <>
+                    この演習では T003T を <code>WHERE spras = c_spras</code> だけで取り、
+                    <strong>帳票に1件も出ない伝票タイプ</strong>の文言も含めます——意図的な簡略化です。
+                  </>
+                }
+              >
+                <ul>
+                  <li>
+                    <strong>なぜ絞らない？</strong> … ① この時点では BKPF 未取得で、必要な <code>blart</code> 一覧がまだ分からない
+                    ② 伝票タイプマスタは<strong>件数が少ない</strong>（数十行程度）③ LOOP 内 <code>READ TABLE</code> はメモリ照合で軽い
+                    ④ 研修コードを読みやすく保つ
+                  </li>
+                  <li>
+                    <strong>より絞る書き方</strong> … BKPF 取得<strong>後</strong>に、
+                    <code>FOR ALL ENTRIES IN gt_bkpf WHERE blart = gt_bkpf-blart</code> で T003T だけ取る（第8章の型）
+                  </li>
+                  <li>
+                    T001 は <code>SELECT SINGLE</code> で会社1件だけ——必要以上ではありません
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="b">
+                <code>WHERE blart IN ( &apos;SA&apos;, &apos;KR&apos;, ... )</code> みたいに書けば、
+                出てくるタイプだけ取れませんか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                少数なら可能ですが、<strong>実行前に blart 一覧が分からない</strong>ので IN リストを手で書けません。
+                BKPF を先に取れば FAE で自動絞り込みできます——順番の問題です。
+              </Dialog>
               <BreakPointCheck
                 insert={`  SELECT blart ltext INTO TABLE gt_t003t FROM t003t WHERE spras = c_spras.
   BREAK-POINT.        " ★確認用`}
@@ -1127,7 +1160,7 @@ START-OF-SELECTION.
         {
           title: "② BKPF取得",
           plainText:
-            "② BKPF取得 — 条件 bukrs + budat IN s_budat。gt_bkpf IS INITIAL なら MESSAGE + LEAVE LIST-PROCESSING。",
+            "② BKPF取得 — bukrs + budat IN s_budat（ユーザー指定範囲＝帳票対象。必要以上ではない）。0件ならMESSAGE+LEAVE。",
           content: (
             <>
               <h2>② BKPF取得と0件チェック</h2>
@@ -1135,19 +1168,22 @@ START-OF-SELECTION.
                 いよいよ「表紙」の一覧を取ります。条件は、入力した<strong>会社コード</strong>と
                 <strong>転記日付の範囲</strong>です。
               </p>
-              <InfoPanel title="取得する主な項目" variant="breakdown">
+              <InfoPanel title="② BKPF取得 — 主な項目（論理名・物理名）" variant="breakdown">
                 <ul>
                   <li>
-                    <code>belnr</code> … 伝票番号（明細とつなぐ鍵）
+                    伝票番号 … <code>belnr</code>（明細とつなぐ鍵）
                   </li>
                   <li>
-                    <code>gjahr</code> … 会計年度（明細とつなぐ鍵・忘れやすい）
+                    会計年度 … <code>gjahr</code>（明細とつなぐ鍵・忘れやすい）
                   </li>
                   <li>
-                    <code>blart</code> … 伝票タイプ（T003T でテキスト化）
+                    伝票タイプ … <code>blart</code>（T003T の <code>ltext</code> で名称化）
                   </li>
                   <li>
-                    <code>budat</code> … 転記日付（一覧に表示）
+                    転記日付 … <code>budat</code>（一覧に表示）
+                  </li>
+                  <li>
+                    会社コード … <code>bukrs</code>
                   </li>
                 </ul>
               </InfoPanel>
@@ -1173,6 +1209,16 @@ START-OF-SELECTION.
               <Callout variant="warning">
                 ヘッダが0件なら、その伝票にぶら下がる明細（BSEG）もありません。ここで止めれば、無駄なループや空の一覧を防げます。
               </Callout>
+              <InfoPanel title="BKPF は必要以上？" variant="reference">
+                <p>
+                  <code>budat IN s_budat</code> は第4章の <strong>SELECT-OPTIONS</strong> をそのまま使った絞り込みです。
+                  ユーザーが指定した会社・転記日付の範囲＝<strong>この帳票の対象</strong>なので、取得過多ではありません。
+                </p>
+                <p className="mt-2 text-sm">
+                  第8章では「明細を先に取り、伝票キーだけヘッダ取得」と順序を変えてさらに絞る例もありました。
+                  この演習は「日付範囲の伝票一覧」が目的なので、BKPF を先に範囲取得する設計です。
+                </p>
+              </InfoPanel>
               <Dialog speaker="b">
                 メッセージは出るのに、からっぽのリストが出ることがあったんですが…
               </Dialog>
@@ -1194,46 +1240,28 @@ START-OF-SELECTION.
           ),
         },
         {
-          title: "③ データ結合",
+          title: "③ BSEG・SKAT取得",
           plainText:
-            "③ データ結合 — FOR ALL ENTRIESでBSEG・SKATを一括取得。LOOP内はREAD TABLEで結合。gs_outへ代入してAPPEND。ループ後gt_out IS INITIALもチェック。",
+            "③ BSEG・SKAT取得 — FAE取得。論理名「勘定コード」＝物理名 hkont/saknr。\nB：WHERE INじゃダメ？→ 複合キーはFAE。次スライドで結合。",
           content: (
             <>
-              <h2>③ データ結合 — 内部テーブルで結合</h2>
+              <h2>③ BSEG・SKAT取得 — DB から内部テーブルへ</h2>
               <p>
-                ここが演習②の<strong>中心</strong>です。第8章と同じ型で、
-                <strong>DB からは LOOP の前にまとめて取得</strong>し、結合は内部テーブル上の{" "}
-                <code>READ TABLE</code> で行います。
+                BKPF（表紙）が取れたら、<strong>LOOP の前</strong>に明細（BSEG）と勘定名（SKAT）を DB から一括取得します。
+                ここは「<strong>取得</strong>」だけ——まだ <code>gt_out</code> には書きません。結合は次のスライドです。
               </p>
-              <InfoPanel title="処理の流れ（コメント 4-a〜4-⑤ に対応）" variant="reference">
+              <InfoPanel title="このスライドでやること（コメント 4-a・4-b）" variant="reference">
                 <ol>
                   <li>
-                    <strong>4-a</strong> … <code>gt_bkpf</code> に含まれる伝票キーだけ BSEG を{" "}
-                    <code>FOR ALL ENTRIES</code> で <code>gt_bseg</code> へ一括取得
+                    <strong>4-a</strong> … <code>gt_bkpf</code> の伝票キーに合う BSEG だけ <code>gt_bseg</code> へ（
+                    <code>FOR ALL ENTRIES</code>）
                   </li>
                   <li>
-                    <strong>4-b</strong> … <code>gt_bseg</code> に登場する勘定だけ SKAT を{" "}
-                    <code>gt_skat</code> へ一括取得（<code>IF gt_bseg IS NOT INITIAL</code> でガード）
-                  </li>
-                  <li>
-                    <strong>外側 LOOP</strong> … <code>gt_bkpf</code> の伝票を1件ずつ
-                  </li>
-                  <li>
-                    <strong>4-①</strong> … 伝票タイプ名を <code>gt_t003t</code> から <code>READ TABLE</code>
-                  </li>
-                  <li>
-                    <strong>内側 LOOP</strong> … 同じ伝票キーの明細だけ <code>gt_bseg</code> を処理（
-                    <code>WHERE</code> 付き <code>LOOP</code>）
-                  </li>
-                  <li>
-                    <strong>4-②</strong> … 勘定名を <code>gt_skat</code> から <code>READ TABLE</code>
-                  </li>
-                  <li>
-                    <strong>4-③④</strong> … <code>gs_out</code> に代入して <code>APPEND</code> → <code>CLEAR</code>
+                    <strong>4-b</strong> … <code>gt_bseg</code> に登場する勘定だけ SKAT を <code>gt_skat</code> へ（
+                    <code>IF gt_bseg IS NOT INITIAL</code> でガード）
                   </li>
                 </ol>
               </InfoPanel>
-              <h3>例：LOOP の前に一括取得</h3>
               <CodeBlock
                 language="ABAP"
                 code={`  IF gt_bkpf IS NOT INITIAL.
@@ -1254,7 +1282,239 @@ START-OF-SELECTION.
         AND saknr = gt_bseg-hkont.
   ENDIF.`}
               />
-              <h3>例：LOOP 内は READ TABLE で結合</h3>
+              <InfoPanel
+                title="論理名と物理名 — 表ごとに名前が違う（取得）"
+                variant="reference"
+                lead={
+                  <>
+                    <strong>論理名</strong>＝画面上・業務で使う意味（例：勘定コード）。
+                    <strong>物理名</strong>＝ABAP コードに書くフィールド名（例：<code>hkont</code>）。
+                    論理名が同じでも、テーブルによって物理名が異なることがあります。
+                  </>
+                }
+              >
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-left font-semibold">論理名</th>
+                      <th className="pb-2 text-left font-semibold">BSEG（明細）</th>
+                      <th className="pb-2 text-left font-semibold">SKAT（勘定マスタ）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-1">勘定コード</td>
+                      <td className="py-1">
+                        <code>hkont</code>
+                      </td>
+                      <td className="py-1">
+                        <code>saknr</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">勘定科目テキスト（名称）</td>
+                      <td className="py-1">—</td>
+                      <td className="py-1">
+                        <code>txt20</code>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="mt-2 text-sm">
+                  SKAT 取得の <code>WHERE saknr = gt_bseg-hkont</code> は、
+                  論理名どおり「<strong>勘定コード</strong>同士をつなぐ」式です。
+                  物理名は左 <code>saknr</code>（SKAT 側）・右 <code>hkont</code>（BSEG 側）と<strong>表ごとに違う</strong>——ここが初学者のつまずきどころです。
+                </p>
+                <p className="mt-2 text-sm">
+                  参考：伝票キー（会社コード <code>bukrs</code>・伝票番号 <code>belnr</code>・会計年度 <code>gjahr</code>）は
+                  BKPF と BSEG で<strong>論理名も物理名も同名</strong>——対照的にわかりやすい例です。
+                </p>
+              </InfoPanel>
+              <Dialog speaker="b">
+                論理名は同じ「勘定コード」なのに、なんで <code>hkont = hkont</code> じゃなくて <code>saknr = hkont</code> なんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                値は同じ「41000000」でも、<strong>どの表の列か</strong>で物理名が決まります。
+                論理名（意味）は同じ、物理名（コード上の名前）だけ BSEG が <code>hkont</code>、SKAT が <code>saknr</code>——DDIC の設計です。
+              </Dialog>
+              <InfoPanel title="取得量の整理" variant="reference">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-left font-semibold">テーブル</th>
+                      <th className="pb-2 text-left font-semibold">絞り方</th>
+                      <th className="pb-2 text-left font-semibold">必要以上？</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-1">BSEG</td>
+                      <td className="py-1">
+                        <code>FOR ALL ENTRIES IN gt_bkpf</code>（3キー）
+                      </td>
+                      <td className="py-1">× ヘッダに属する明細だけ</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">SKAT</td>
+                      <td className="py-1">
+                        <code>FOR ALL ENTRIES IN gt_bseg</code>（勘定コード：<code>saknr = hkont</code>）
+                      </td>
+                      <td className="py-1">× 明細に出る勘定だけ</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <InfoPanel
+                title="WHERE ... IN ... と FOR ALL ENTRIES"
+                variant="reference"
+                lead="BSEG の鍵は bukrs＋belnr＋gjahr の3項目——内部テーブルから絞る定番は FOR ALL ENTRIES です。"
+              >
+                <ul>
+                  <li>
+                    <code>budat IN s_budat</code> … ② で使った<strong>SELECT-OPTIONS 専用</strong>の <code>IN</code>（第4章）
+                  </li>
+                  <li>
+                    複合キーを内部テーブルから渡す … <code>FOR ALL ENTRIES IN gt_bkpf</code> ＋ 空チェック
+                  </li>
+                </ul>
+              </InfoPanel>
+              <BreakPointCheck
+                insert={`  " SELECT INTO TABLE gt_bseg / gt_skat の直後
+  BREAK-POINT.`}
+                ask={
+                  <>
+                    <code>gt_bseg</code> に明細行、<code>gt_skat</code> に勘定名が入っていますか？
+                    論理名「勘定コード」は、明細 <code>hkont</code> と SKAT <code>saknr</code> が対応していますか？
+                  </>
+                }
+                reveal={
+                  <ul>
+                    <li>
+                      <code>gt_bseg</code> … 対象伝票の明細行（0件なら結合後も空になりうる）
+                    </li>
+                    <li>
+                      <code>gt_skat</code> … 明細の勘定コード（<code>hkont</code>）に対応する <code>saknr</code> 行
+                    </li>
+                  </ul>
+                }
+              />
+              <Callout variant="tip">
+                取得が終わったら、次のスライド「④ データ結合」で <code>READ TABLE</code> により内部テーブル同士をつなぎます。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="08-combine-data"
+                slide={8}
+                label="第8章: 必要なデータだけ取得（FOR ALL ENTRIES）"
+                variant="back"
+                className="mb-4"
+              />
+            </>
+          ),
+        },
+        {
+          title: "④ データ結合",
+          plainText:
+            "④ データ結合 — 対応表で論理名→物理名を確認してREAD TABLE。勘定コード：hkont↔saknr。勘定名：txt20→hkont_txt。",
+          content: (
+            <>
+              <h2>④ データ結合 — 内部テーブル同士をつなぐ</h2>
+              <p>
+                ①②③ で DB から載せた内部テーブルを、<strong>メモリ上だけ</strong>でつなぎ、帳票1行（
+                <code>gs_out</code>）に組み立てます。ここから DB への <code>SELECT</code> は出てきません。
+              </p>
+              <InfoPanel title="結合の流れ（コメント 4-①〜4-⑤）" variant="reference">
+                <ol>
+                  <li>
+                    <strong>外側 LOOP</strong> … <code>gt_bkpf</code> の伝票を1件ずつ
+                  </li>
+                  <li>
+                    <strong>4-①</strong> … <code>READ TABLE gt_t003t</code> … <code>blart = blart</code>（名前が同じ）
+                  </li>
+                  <li>
+                    <strong>内側 LOOP</strong> … <code>gt_bseg</code> から同じ伝票キーの明細だけ（<code>WHERE</code>）
+                  </li>
+                  <li>
+                    <strong>4-②</strong> … <code>READ TABLE gt_skat</code> … 勘定コード（<code>saknr = hkont</code>、物理名が違う）
+                  </li>
+                  <li>
+                    <strong>4-③④</strong> … <code>gs_out</code> へ代入 → <code>APPEND</code> → <code>CLEAR</code>
+                  </li>
+                </ol>
+              </InfoPanel>
+              <InfoPanel
+                title="論理名と物理名 — 結合（READ TABLE）の対応表"
+                variant="reference"
+                lead={
+                  <>
+                    <strong>論理名</strong>で「何をつなぐか」を把握し、コードでは<strong>物理名</strong>を書きます。
+                    WITH KEY は「左＝探す側の物理名、右＝手元の物理名」です。
+                  </>
+                }
+              >
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-left font-semibold">論理名</th>
+                      <th className="pb-2 text-left font-semibold">コード</th>
+                      <th className="pb-2 text-left font-semibold">物理名（左 ↔ 右）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-1">伝票タイプ ↔ 伝票タイプ名</td>
+                      <td className="py-1">
+                        <code>READ TABLE gt_t003t</code> … <code>blart = gs_bkpf-blart</code>
+                      </td>
+                      <td className="py-1">
+                        <code>blart</code> ↔ <code>blart</code>（同名）→ 名称は <code>ltext</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">
+                        会社コード・伝票番号・会計年度
+                        <br />
+                        （伝票 ↔ 明細）
+                      </td>
+                      <td className="py-1">
+                        <code>LOOP AT gt_bseg WHERE</code> <code>bukrs belnr gjahr</code>
+                      </td>
+                      <td className="py-1">
+                        <code>bukrs</code>・<code>belnr</code>・<code>gjahr</code> とも<strong>同名</strong>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">勘定コード ↔ 勘定コード</td>
+                      <td className="py-1">
+                        <code>READ TABLE gt_skat</code> … <code>saknr = gs_bseg-hkont</code>
+                      </td>
+                      <td className="py-1">
+                        <code>saknr</code> ↔ <code>hkont</code>（<strong>論理名は同じ、物理名が違う</strong>）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">勘定名 → 帳票の勘定列</td>
+                      <td className="py-1">
+                        <code>gs_out-hkont_txt = gs_skat-txt20</code>
+                      </td>
+                      <td className="py-1">
+                        <code>txt20</code> → <code>hkont_txt</code>（出力用に物理名を載せ替え）
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                <code>READ TABLE gt_skat WITH KEY saknr = gs_bseg-hkont</code>——
+                論理名は「勘定コード同士」なのに、物理名が <code>saknr</code> と <code>hkont</code> で意味不明でした…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                対応表の「論理名」列を見てからコードを読むと楽です。
+                <strong>左辺</strong>＝探す表（SKAT）の物理名 <code>saknr</code>、
+                <strong>右辺</strong>＝手元（明細）の物理名 <code>hkont</code>。
+                ③ の SELECT でも同じ対応——取得も結合もルールは同じです。
+              </Dialog>
+              <h3>例：LOOP ＋ READ TABLE</h3>
               <CodeBlock
                 language="ABAP"
                 code={`  LOOP AT gt_bkpf INTO gs_bkpf.
@@ -1269,44 +1529,32 @@ START-OF-SELECTION.
       READ TABLE gt_skat INTO gs_skat WITH KEY saknr = gs_bseg-hkont.
       IF sy-subrc <> 0. CLEAR gs_skat. ENDIF.
 
-      " gs_out へ項目代入 → APPEND gt_out → CLEAR
+      gs_out-hkont     = gs_bseg-hkont.
+      gs_out-hkont_txt = gs_skat-txt20.
+      " … 他項目を代入 → APPEND gt_out → CLEAR
     ENDLOOP.
   ENDLOOP.`}
               />
               <h3>なぜ MOVE-CORRESPONDING ではなく、1項目ずつ代入？</h3>
               <p>
-                ヘッダ・明細・テキストは<strong>別テーブル</strong>から来ます。名前が一致する項目だけでは足りないので、
-                完成形の <code>gs_out</code> に「どの箱からどの項目を入れるか」をはっきり書いています。
-                初学者はこの方がデバッガで追いやすいです。
+                ヘッダ・明細・テキストは<strong>別テーブル</strong>から来ます。論理名が同じ「勘定名」でも
+                物理名は <code>txt20</code> → <code>hkont_txt</code> のように<strong>出力用に載せ替え</strong>が必要です。
+                初学者は1項目ずつ書いた方がデバッガで追いやすいです。
               </p>
               <h3>ループ後にもう一度 0件チェック</h3>
               <p>
-                ヘッダはあったが明細が1行も無い伝票だけ、などの場合 <code>gt_out</code> が空のままになることがあります。
-                そのときもメッセージ＋<code>LEAVE LIST-PROCESSING</code> で、空の帳票を出さないようにします。
+                ヘッダはあったが明細が1行も無い、などの場合 <code>gt_out</code> が空のままになります。
+                メッセージ＋<code>LEAVE LIST-PROCESSING</code> で空の帳票を出さないようにします。
               </p>
               <Callout variant="note">
-                <code>LOOP</code> 内の <code>SELECT</code> は避け、第8章と同じく<strong>先に内部テーブルへ載せてから</strong>{" "}
-                <code>READ TABLE</code> で結合します。内側の <code>LOOP AT gt_bseg WHERE ...</code> はメモリ上の照合です（DB 往復なし）。
+                内側の <code>LOOP AT gt_bseg WHERE ...</code> もメモリ上の照合です（DB 往復なし）。
+                テキストが見つからなくても <code>CLEAR</code> して続行——コードは出るが名称だけ空、という現場向けの動きです。
               </Callout>
-              <LessonLinkButton
-                courseSlug="abap-taining"
-                lessonFile="08-combine-data"
-                slide={8}
-                label="第8章: 必要なデータだけ取得（FOR ALL ENTRIES）"
-                variant="back"
-                className="mb-4"
-              />
               <Dialog speaker="stumble">
-                BSEG の WHERE で <code>gjahr</code>（会計年度）を忘れると、別の年度の明細が混ざったり、1件も取れないことがあります。
+                BSEG の <code>WHERE</code> で <code>gjahr</code> を忘れると、別年度の明細が混ざったり、1件も取れないことがあります。
               </Dialog>
               <Dialog speaker="a">
                 鍵は3つセット：<code>bukrs</code>・<code>belnr</code>・<code>gjahr</code>。ヘッダからコピーする癖をつけます。
-              </Dialog>
-              <Dialog speaker="b">
-                READ TABLE でテキストが見つからなくても、<code>CLEAR gs_t003t</code> して処理を続けるんですね。エラーにしないのが優しいです。
-              </Dialog>
-              <Dialog speaker="teacher">
-                テキストが空でも<strong>プログラムは止めない</strong>設計にしています。コードは出るが名称だけ空、という現場向けの動きです。
               </Dialog>
               <BreakPointCheck
                 insert={`      APPEND gs_out TO gt_out.
@@ -1610,7 +1858,7 @@ TOP-OF-PAGE.
         {
           title: "対話で整理",
           plainText:
-            "対話で整理（質問しながら）\nB：難しかった…全体の流れは？→ 取得→内部テーブル結合→gt_out→借方/貸方出力。\nB：伝票5件なのに行20？→ 明細1行＝リスト1行。\nB：LOOP内SELECTじゃダメ？→ FOR ALL ENTRIES＋READ TABLE（第8章の型）。\nB：借方/貸方が両方出る→ shkzg判定の前にCLEAR。\nA：入口・0件・gjahrが土台。B：列番号はデモ出力と並べて確認。",
+            "対話で整理（質問しながら）\nB：難しかった…→ ①②取得→③BSEG/SKAT→④結合→出力。\nB：saknr=hkont？→ 論理名は同じ勘定コード、物理名だけ表ごとに違う。\nB：伝票5件なのに行20？→ 明細1行＝リスト1行。\nB：借方/貸方が両方→ CLEARしてからshkzg判定。",
           content: (
             <>
               <h2>対話で整理 — 質問しながら情報を並べる</h2>
@@ -1630,11 +1878,9 @@ TOP-OF-PAGE.
               <Dialog speaker="teacher">
                 一言で言うと、<strong>複数テーブルの情報を1行ずつそろえて、仕訳日記帳を画面に出す</strong>ことです。
                 <br />
-                ① 会社・日付で<strong>伝票（BKPF）</strong>を取る<br />
-                ② 明細（BSEG）・勘定名（SKAT）などを<strong>内部テーブルに載せる</strong><br />
-                ③ 1明細＝1行の形（<code>gt_out</code>）に<strong>結合</strong><br />
-                ④ 借方/貸方に分けて<strong>WRITE</strong><br />
-                この4段階、と覚えてください。
+                ① マスタ（T001/T003T）→ ② 伝票（BKPF）→ ③ BSEG/SKAT<strong>取得</strong><br />
+                ④ 内部テーブル<strong>結合</strong>（<code>gt_out</code>）→ ⑤ 借方/貸方に分けて<strong>WRITE</strong><br />
+                取得（③）と結合（④）はスライドも分かれている、と覚えてください。
               </Dialog>
 
               <h3>② 行の数え方</h3>
@@ -1649,27 +1895,30 @@ TOP-OF-PAGE.
                 デバッガで <code>gt_out</code> を開き、同じ <code>belnr</code> が何行あるか見る——結合の確認の定番です。
               </Dialog>
 
-              <h3>③ データの取り方・結合</h3>
+              <h3>③ 取得と④ 結合（別スライド）</h3>
               <Dialog speaker="b">
                 伝票ループの<strong>中で</strong> BSEG を <code>SELECT</code> した方が、コードの流れは追いやすそうなんですけど…ダメなんですか？
               </Dialog>
               <Dialog speaker="teacher">
-                書くときは楽に感じますが、本番では<strong>DB 往復が件数分</strong>増えます（第8章・第13章の N+1 問題）。
-                この演習は第8章と同じ型——<strong>LOOP の前に</strong> <code>FOR ALL ENTRIES</code> で BSEG・SKAT を一括取得し、
-                LOOP 内は <code>READ TABLE</code> と <code>LOOP AT gt_bseg WHERE ...</code>（メモリ照合）だけ、です。
-              </Dialog>
-              <Dialog speaker="a">
-                外側 <code>LOOP AT gt_bkpf</code>、内側 <code>LOOP AT gt_bseg WHERE bukrs belnr gjahr</code>——
-                「表紙1枚 → その表紙に属する明細だけ」という<strong>領収書の束</strong>のイメージと一致します。
+                書くときは楽ですが、本番では DB 往復が件数分増えます。③ で <code>FOR ALL ENTRIES</code> 取得、④ で{" "}
+                <code>READ TABLE</code> 結合——<strong>取得と結合はスライドも分け</strong>たほうが頭の中が整理しやすいです。
               </Dialog>
               <Dialog speaker="b">
-                BSEG の <code>WHERE</code> で <code>gjahr</code> を忘れると、別年度の明細が混ざる、とつまずきポイントにも書いてありましたね…。
+                <code>READ TABLE gt_skat WITH KEY saknr = gs_bseg-hkont</code>——
+                論理名は同じ「勘定コード」なのに物理名が違うのに <code>=</code> でつなぐの、いちばん混乱しました。
               </Dialog>
               <Dialog speaker="teacher">
-                鍵は3つセット：<code>bukrs</code>・<code>belnr</code>・<code>gjahr</code>。ヘッダからコピーする癖をつけましょう。
+                値は同じ勘定コード（例 41000000）。論理名は同じ、物理名だけ BSEG が <code>hkont</code>、SKAT が <code>saknr</code>。
+                ④ の対応表（論理名・物理名）を見返してください。
+              </Dialog>
+              <Dialog speaker="b">
+                T003T だけ、帳票に出ない伝票タイプまで取ってるの、気になりました…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                件数が少なく、BKPF より先に取る簡略化——① の InfoPanel に整理してあります。
               </Dialog>
 
-              <h3>④ 出力・借方/貸方</h3>
+              <h3>⑤ 出力・借方/貸方</h3>
               <Dialog speaker="b">
                 借方と貸方、<strong>両方に金額</strong>が出ちゃったことがあって…。どこを見ればいいですか？
               </Dialog>
@@ -1686,7 +1935,7 @@ TOP-OF-PAGE.
                 見出しとデータの列がずれていないか確認しやすいです。
               </Dialog>
 
-              <h3>⑤ 品質の土台</h3>
+              <h3>⑥ 品質の土台</h3>
               <Dialog speaker="b">
                 0件のとき、メッセージは出るのに空のリストが残る、ってありましたよね…。
               </Dialog>
@@ -1702,11 +1951,14 @@ TOP-OF-PAGE.
                     <strong>入力</strong> … 会社・転記日付（<code>PARAMETERS</code> / <code>SELECT-OPTIONS</code>）
                   </li>
                   <li>
-                    <strong>取得</strong> … T001 / T003T → BKPF → BSEG・SKAT（<code>FOR ALL ENTRIES</code>、空チェック付き）
+                    <strong>①② 取得</strong> … T001 / T003T / BKPF
                   </li>
                   <li>
-                    <strong>結合</strong> … 伝票 LOOP → 明細 LOOP（WHERE）→ <code>READ TABLE</code> → <code>gs_out</code> へ代入 →{" "}
-                    <code>APPEND</code>
+                    <strong>③ 取得</strong> … BSEG・SKAT（<code>FOR ALL ENTRIES</code>。勘定コード：<code>saknr = hkont</code>）
+                  </li>
+                  <li>
+                    <strong>④ 結合</strong> … 伝票 LOOP → 明細 LOOP → <code>READ TABLE</code>（論理名→物理名の対応表）→{" "}
+                    <code>APPEND gt_out</code>
                   </li>
                   <li>
                     <strong>出力</strong> … <code>SORT</code> → <code>TOP-OF-PAGE</code> → 借方/貸方 CLEAR → <code>WRITE</code>
@@ -1930,7 +2182,7 @@ TOP-OF-PAGE.
                 <ol>
                   <li>先頭 … 型・変数・選択画面（いつもある「宣言」）</li>
                   <li>
-                    <code>START-OF-SELECTION</code> … 初期化 → マスタ → BKPF → BSEG/SKAT 一括取得 → 内部テーブル結合 → ソート
+                    <code>START-OF-SELECTION</code> … 初期化 → ①② マスタ/BKPF → ③ BSEG/SKAT 取得 → ④ 内部テーブル結合 → ソート
                   </li>
                   <li>
                     <code>TOP-OF-PAGE</code> … ページヘッダと列見出し
