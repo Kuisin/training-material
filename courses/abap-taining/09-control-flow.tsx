@@ -349,63 +349,17 @@ export default function ControlFlowLesson() {
         {
           title: "サプレスを複数列に適用",
           plainText:
-            "サプレスの最小ロジック\n基本は1行だけ：『前行と同じなら出さない、違えば出す』。\nその後テーブルで応用：①左の列からSORT ②前行を控える ③上位が同じときだけ下位をCLEAR ④明細は毎行出力。\n階層がポイント：上位の列が変われば下位の列は必ず出し直す（住所の都道府県／市区町村／番地と同じ）。\nBちゃん：都道府県が変わったら、市区町村も番地も出し直すんですね。\nAくん：まず1列で理解してから複数列に広げると分かりやすいです。",
+            "サプレスの最小ロジック\n基本：『前行と同じなら出さない、違えば出す』。\n表示イメージ（会社・年度・伝票タイプ）→ 手順4つ（SORT・コピーして見出しをCLEAR・AT NEW 列名で戻す・WRITE）。\nAT NEWなら前の行を自分で見比べる処理は不要。階層は自動。\nBちゃん：表がすっきり、コードは？先生：次スライドで部品ごとに書く。",
           content: (
             <>
               <h2>まずはサプレスの最小ロジック</h2>
               <p>
                 サプレスはシンプルです。<strong>「前行と同じなら出さない、違えば出す」</strong>。まず1列で理解してから、テーブルの複数列に広げます。
               </p>
-              <h3>この考え方をテーブルに適用する</h3>
-              <p>
-                列が増えても、やることは1列のときと同じ「前行と比べて、同じなら消す」です。違うのは<strong>列に上下関係（階層）がある</strong>ことだけ。会社 ＞ 年度 ＞ 伝票タイプ、の順で、上から見ていきます。
-              </p>
-              <ol>
-                <li>
-                  <code>SORT</code> … サプレス対象の列を左（上位）から順に並べる
-                </li>
-                <li>
-                  <code>ls_prev</code> に前行を控え、<code>ls_disp</code> に表示用コピーを作る
-                </li>
-                <li>上位の列がすべて同じときだけ、下位の列を <code>CLEAR</code></li>
-                <li>ループの最後で <code>ls_prev = ls_out.</code> を忘れない</li>
-              </ol>
-              <CodeBlock
-                language="ABAP"
-                code={`SORT lt_out BY bukrs gjahr blart belnr.
-
-DATA ls_prev TYPE ty_out.
-DATA ls_disp TYPE ty_out.
-
-LOOP AT lt_out INTO ls_out.
-  ls_disp = ls_out.
-
-  IF ls_prev-bukrs = ls_out-bukrs.
-    CLEAR ls_disp-bukrs.
-  ENDIF.
-  IF ls_prev-bukrs = ls_out-bukrs
-     AND ls_prev-gjahr = ls_out-gjahr.
-    CLEAR ls_disp-gjahr.
-  ENDIF.
-  IF ls_prev-bukrs = ls_out-bukrs
-     AND ls_prev-gjahr = ls_out-gjahr
-     AND ls_prev-blart = ls_out-blart.
-    CLEAR ls_disp-blart.
-  ENDIF.
-
-  WRITE: / ls_disp-bukrs, ls_disp-gjahr, ls_disp-blart,
-           ls_out-belnr, ls_out-amount.
-
-  ls_prev = ls_out.
-ENDLOOP.`}
-              />
-              <ul>
-                <li>
-                  <code>ls_prev</code> は「前の行の控え」、<code>ls_disp</code> は「画面に出す用のコピー」。元データ <code>ls_out</code> はそのまま残します。
-                </li>
-                <li>伝票番号・金額など明細列は毎行そのまま出力します。</li>
-              </ul>
               <h3>表示イメージ（複数列サプレス）</h3>
+              <p>
+                会社・年度・伝票タイプのように<strong>列に上下関係（階層）</strong>があるとき、左（上位）から順に「同じなら消す」と、次のような表になります。
+              </p>
               <SampleTable caption="✅ 会社・年度・伝票タイプを段階的にサプレス" variant="ok">
                 <thead>
                   <tr>
@@ -437,17 +391,165 @@ ENDLOOP.`}
                   })}
                 </tbody>
               </SampleTable>
-              <Dialog speaker="a">
-                先生、IF を3回も重ねていますが、なぜこんなに条件を足すんですか？
+              <Dialog speaker="b">
+                表の見た目、すごくすっきりしました。これをコードでどう作るんですか？
               </Dialog>
               <Dialog speaker="teacher">
-                列の<strong>階層</strong>を表すためです。会社が同じときだけ年度を消し、会社と年度が同じときだけ伝票タイプを消す。上の列が違えば、下の列は必ず出し直します。
+                いい流れです。まず<strong>見た目</strong>を押さえて、次のスライドで手順どおりにコードを<strong>部品ごと</strong>に書いていきます。
+              </Dialog>
+              <h3>この考え方をテーブルに適用する（手順）</h3>
+              <p>
+                ABAP には「列が変わった行」を自動で教えてくれる <code>AT NEW 列名</code> があります。これを使えば、前行を自分で覚える必要も、<code>IF</code> を重ねる必要もありません。次のスライドでは、この4ステップを順に書きます。
+              </p>
+              <ol>
+                <li>
+                  <code>SORT</code> … サプレス対象の列を左（上位）から順に並べる
+                </li>
+                <li>
+                  <code>ls_disp</code> に表示用コピーを作り、見出し列をいったんすべて <code>CLEAR</code>（消した状態から始める）
+                </li>
+                <li>
+                  <code>AT NEW 列名</code> … その列が変わった行だけ、値を戻して表示する
+                </li>
+                <li>
+                  <code>ls_disp</code> を <code>WRITE</code> で出力する
+                </li>
+              </ol>
+              <Callout variant="tip">
+                <code>AT NEW gjahr</code> は「年度が変わった行」だけでなく「<strong>会社が変わった行</strong>」でも発火します（並べ替えキーの左側が変われば、右側も一緒に変わるため）。この<strong>階層が自動</strong>なのが <code>AT NEW</code> の利点です。
+                なお、伝票番号・金額など<strong>明細列</strong>はサプレスせず、毎行そのまま出力します。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "サプレスのコード（部品ごと）",
+          plainText:
+            "サプレスのコード（部品ごと）\n①SORT ②ty_outを階層順で定義しコピー＆見出しCLEAR ③AT NEW bukrsで会社表示 ④AT NEW gjahrで年度 ⑤AT NEW blartで伝票タイプ ⑥WRITE。\nAくん：前の行と手で比べる処理が無いけど大丈夫？先生：AT NEWが変わり目を自動判定。\nBちゃん：AT NEW gjahrはなぜ会社が変わっただけでも発火？先生：AT NEW fは構造でfより左の項目が変わっても発火。4→5行目で年度2026のままでも会社1000→2000で再表示。\nBちゃん：ty_outの並び順もそろえる？先生：その通り。構造の定義順とSORTの順を一致させるのが鉄則。\nBちゃん：住所の比喩。",
+          content: (
+            <>
+              <h2>サプレスのコード（部品ごと）</h2>
+              <p>
+                前のスライドの表と手順4つを、次のとおり<strong>小さな塊</strong>に分けて書きます。上から順に読んでください。
+              </p>
+
+              <h3>① 並べ替え（SORT）</h3>
+              <p>
+                同じ会社・年度が連続しないと <code>AT NEW</code> の「変わり目」判定が狂います。サプレスする列を<strong>左（上位）から</strong>並べます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`SORT lt_out BY bukrs gjahr blart belnr.`}
+              />
+
+              <h3>② 表示用コピーを作り見出し列を消す</h3>
+              <p>
+                <code>ls_disp</code> は画面に出す用のコピー。毎周、まず <code>ls_out</code> をコピーし、見出し列（会社・年度・伝票タイプ）を<strong>いったんすべて消した</strong>状態から始めます。
+              </p>
+              <p>
+                行の型 <code>ty_out</code> は、サプレスの<strong>階層と同じ順（会社→年度→伝票タイプ→…）</strong>で項目を並べておきます。後述のとおり <code>AT NEW</code> はこの<strong>定義順</strong>を見て「上位／下位」を判断します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`TYPES: BEGIN OF ty_out,
+         bukrs TYPE bukrs,     " 上位
+         gjahr TYPE gjahr,     " 中位
+         blart TYPE blart,     " 下位
+         belnr TYPE belnr_d,
+         amount TYPE dmbtr,
+       END OF ty_out.
+
+DATA ls_disp TYPE ty_out.
+
+LOOP AT lt_out INTO ls_out.
+  ls_disp = ls_out.
+  CLEAR: ls_disp-bukrs, ls_disp-gjahr, ls_disp-blart.`}
+              />
+
+              <h3>③ 会社が変わった行だけ表示</h3>
+              <p>
+                <code>AT NEW bukrs</code> は会社が変わった行で発火。そのときだけ会社を戻します（表の「—」でない第1段）。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`  AT NEW bukrs.
+    ls_disp-bukrs = ls_out-bukrs.
+  ENDAT.`}
+              />
+
+              <h3>④ 年度が変わった行だけ表示</h3>
+              <p>
+                <code>AT NEW gjahr</code> は年度が変わった行で発火。<strong>会社が変わった行でも一緒に発火</strong>するので、階層は自動です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`  AT NEW gjahr.
+    ls_disp-gjahr = ls_out-gjahr.
+  ENDAT.`}
+              />
+              <Dialog speaker="b">
+                先生、<code>AT NEW gjahr</code> は「年度が変わったとき」ですよね？ なのに、なぜ<strong>会社が変わっただけ</strong>でも発火するんですか？ 年度が同じ（2026のまま）なら、スキップされそうな気がします……。
+              </Dialog>
+              <Dialog speaker="teacher">
+                とても大事な点です。<code>AT NEW f</code> は、その項目 <code>f</code> 自身だけでなく、<strong>構造（行の型）で <code>f</code> より左にある項目が変わったとき</strong>にも発火します。
+                ここでは <code>ty_out</code> が <code>bukrs → gjahr → blart …</code> の順で定義されているので、<code>gjahr</code> から見て <code>bukrs</code> は左＝上位。会社が変われば「年度も新しいグループの先頭」とみなされ、<code>AT NEW gjahr</code> も発火します。
+              </Dialog>
+              <Dialog speaker="b">
+                具体的にはどの行で起きるんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                前スライドの表の<strong>4行目→5行目</strong>を見てください。年度はどちらも <code>2026</code> ですが、会社が <code>1000 → 2000</code> に変わります。
+                このとき <code>AT NEW gjahr</code> は「上位（会社）が変わった」ので発火し、<strong>同じ <code>2026</code> でも表示し直し</strong>ます。会社2000の固まりの先頭なので、年度を省くと「いつの2026か」が読み取れなくなるからです。
+              </Dialog>
+              <Dialog speaker="b">
+                ということは、<code>SORT</code> の順番だけでなく、<code>ty_out</code> の<strong>項目の並び順</strong>も <code>bukrs → gjahr → blart</code> にそろえないといけないんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。<code>AT NEW</code> が「左の項目」と見るのは<strong>構造の定義順</strong>です。だから<strong>構造の並び順</strong>と <code>SORT</code> の順を一致させるのが鉄則。
+                たとえば <code>ty_out</code> で <code>gjahr</code> を <code>bukrs</code> より前に置いたり、別キーで <code>SORT</code> したりすると、変わり目の判定がずれて見出しが正しく出ません。
+              </Dialog>
+              <Callout variant="note">
+                <strong>ルール</strong>：<code>AT NEW f</code> は「<code>f</code> が変わった行」＋「構造で <code>f</code> より<strong>左にある項目</strong>が変わった行」で発火します。
+                「左」を決めるのは<strong>構造（行の型）の定義順</strong>。<code>SORT</code> の順番もこれにそろえること。両方が一致して初めて、上位が切り替わるたびに下位の見出しが<strong>もれなく出し直され</strong>ます。
+              </Callout>
+
+              <h3>⑤ 伝票タイプが変わった行だけ表示</h3>
+              <p>
+                <code>AT NEW blart</code> は会社・年度・伝票タイプのどれかが変わった行で発火（階層の3段目）。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`  AT NEW blart.
+    ls_disp-blart = ls_out-blart.
+  ENDAT.`}
+              />
+
+              <h3>⑥ 出力する</h3>
+              <p>
+                見出し列は <code>ls_disp</code>（消されたか・戻されたか）、明細列は元の <code>ls_out</code> から出力します。これで <code>LOOP</code> は完成です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`  WRITE: / ls_disp-bukrs, ls_disp-gjahr, ls_disp-blart,
+           ls_out-belnr, ls_out-amount.
+ENDLOOP.`}
+              />
+
+              <Callout variant="note">
+                <strong>つなげると</strong>：①の直後に②〜⑥を入れた <code>LOOP</code> が、前スライドの表全体を再現します。<code>AT NEW</code> が「変わった行」を自動で判定するので、自分で前の行と見比べる処理を書く必要はありません。
+              </Callout>
+
+              <Dialog speaker="a">
+                先生、このコードには「前の行と同じか手で比べる処理」が見当たりませんが、なくて大丈夫なんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                大丈夫です。<code>AT NEW</code> が「列が変わった行」を自動で見つけてくれるので、自分で前の行と比べる必要はありません。③④⑤を上から並べるだけで、列の<strong>階層</strong>がそのまま表現できます。
               </Dialog>
               <Dialog speaker="b">
                 住所みたいですね。「東京都／渋谷区／1-2-3」で、都道府県が同じなら省く。でも都道府県が変わったら、市区町村も番地も全部出し直す？
               </Dialog>
               <Dialog speaker="teacher">
-                まさにその感覚です。コードでは「上の列がすべて同じときだけ下を消す」と書くことで、その上下関係をそのまま表現しています。まず1列で「同じなら消す」を覚えれば、増えるのは比較条件だけです。
+                まさにその感覚です。<code>AT NEW gjahr</code> は会社が変わった行でも発火するので、<strong>上位が変われば下位も自動で出し直され</strong>ます。
               </Dialog>
             </>
           ),
@@ -455,13 +557,26 @@ ENDLOOP.`}
         {
           title: "行ごと：どの命令が動くか",
           plainText:
-            "行ごと：どの命令が動くか\nAT制御＝変わり目で見出し・小計を足す。AT NEW＝前と違う、AT END OF＝次と違う。\nSORT済み5行をLOOPすると各行で実行命令が違う。\n1周目：AT FIRST, AT NEW, WRITE明細 … 5周目：WRITE, AT END OF, AT LAST\n次スライドでコード、その次で帳票11行の並び。",
+            "行ごと：どの命令が動くか\n【テーマ切替】サプレス（消す）の章は終了。ここから②AT制御（足す）。\nAT制御＝変わり目で見出し・小計を足す。まずLOOP1周ごとにどの命令が動くかを追う。\nAくん：サプレスと混同しないで。先生：SORTは共通の前提。",
           content: (
             <>
+              <Callout variant="tip">
+                <strong>ここからテーマが変わります。</strong>
+                これまで学んだのは<strong>① サプレス</strong>（同じ見出しを<strong>消す</strong>）でした。
+                このスライド以降は<strong>② AT制御</strong>（変わり目で見出し・小計・総合計の行を<strong>足す</strong>）です。
+                どちらも <code>SORT</code> 済みのデータが前提ですが、やることは別物なので、混同しないよう注意してください。
+              </Callout>
+              <Dialog speaker="b">
+                先生、サプレスの続きですか？ また前行と比べるんですよね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                比べる点は似ていますが、目的が違います。サプレスは「同じ表示を出さない」、AT制御は「変わり目だけ別の行を追加する」。
+                概要スライドの②の話に入ります。まずコードより、<strong>どの命令がいつ動くか</strong>を表で追いましょう。
+              </Dialog>
               <h2>行ごと：どの命令が動くか</h2>
               <p>
-                並べ替えたデータの<strong>変わり目</strong>で、見出し・小計・総合計を差し込むのが AT制御です。
-                まず「入力の1行（LOOP 1周）」ごとに、<strong>どの命令が実行されるか</strong>を追います。
+                並べ替えたデータの<strong>変わり目</strong>で、見出し・小計・総合計を差し込むのが <strong>AT制御</strong>です。
+                まず「入力の1行（LOOP 1周）」ごとに、<strong>どの命令が実行されるか</strong>を追います（帳票の見た目やコードは、このあと順に見ます）。
               </p>
               <ul className="text-sm">
                 <li><code>AT FIRST</code> … LOOPの1行目だけ</li>
@@ -531,7 +646,10 @@ ENDLOOP.`}
                 前の行とも次の行とも会社が同じだからです。境界ではないので、明細の <code>WRITE</code> だけが動きます。
               </Dialog>
               <Dialog speaker="a">
-                なるほど。入力は5行なのに、帳票には見出しや小計が<strong>足されて</strong>11行になるんですね。命令の数と入力行の数は一致しない。
+                なるほど。入力は5行なのに、境界の行では命令がいくつも動きますね。LOOPの回数と、画面上の行数は一致しそうもない……。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その違和感が大事です。次のスライドで、これらの命令が帳票に<strong>どう並ぶか</strong>（11行になる理由）を表で見ましょう。
               </Dialog>
               <h3>4イベントの早見表</h3>
               <SampleTable caption="いつ発火するか・何を出すか（会社コード bukrs）" variant="default">
@@ -554,121 +672,20 @@ ENDLOOP.`}
                   ))}
                 </tbody>
               </SampleTable>
-              <Dialog speaker="teacher">
-                次のスライドで実際のコード、そのあとで帳票に並ぶ11行の表を見ます。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "コードの読み方",
-          plainText:
-            "コードの読み方\nSORT → LOOP → 上から順に AT FIRST / AT NEW / WRITE / AT END OF / AT LAST。\nWRITE明細は毎行。ATブロックは境界行だけ。\n迷ったら：先頭？会社切替？会社末尾？最終行？の4問で追う。",
-          content: (
-            <>
-              <h2>コードの読み方</h2>
-              <p>前のスライドの「実行される命令」は、次の LOOP の<strong>上からの並び</strong>どおりに評価されます。</p>
-              <CodeBlock
-                language="ABAP"
-                code={`SORT lt_out BY bukrs belnr.
-
-LOOP AT lt_out INTO ls_out.
-  AT FIRST.                              " ① 先頭行だけ
-    WRITE: / '会社別 一覧'.
-  ENDAT.
-
-  AT NEW bukrs.                          " ② 前行と会社が違う行
-    WRITE: / '■ 会社:', ls_out-bukrs.
-  ENDAT.
-
-  WRITE: / ls_out-belnr, ls_out-amount.  " ③ 毎行（明細）
-
-  AT END OF bukrs.                       " ④ 次行と会社が違う行
-    WRITE: / '  小計 ...'.
-  ENDAT.
-
-  AT LAST.                               " ⑤ 最終行だけ
-    WRITE: / '== 総合計 =='.
-  ENDAT.
-ENDLOOP.`}
-              />
-              <h3>命令と発火条件の対応</h3>
-              <SampleTable caption="コードの各行が動く条件" variant="default">
-                <thead>
-                  <tr>
-                    <Th>コード上の位置</Th>
-                    <Th>動く条件</Th>
-                    <Th>前スライドの例</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <Td>
-                      <code>AT FIRST</code>
-                    </Td>
-                    <Td>LOOPの1行目</Td>
-                    <Td>1周目のみ</Td>
-                  </tr>
-                  <tr>
-                    <Td>
-                      <code>AT NEW bukrs</code>
-                    </Td>
-                    <Td>先頭行、または前行と会社が違う</Td>
-                    <Td>1周目・4周目</Td>
-                  </tr>
-                  <tr>
-                    <Td>
-                      <code>WRITE</code>（明細）
-                    </Td>
-                    <Td>毎周</Td>
-                    <Td>1〜5周目すべて</Td>
-                  </tr>
-                  <tr>
-                    <Td>
-                      <code>AT END OF bukrs</code>
-                    </Td>
-                    <Td>最終行、または次行と会社が違う</Td>
-                    <Td>3周目・5周目</Td>
-                  </tr>
-                  <tr>
-                    <Td>
-                      <code>AT LAST</code>
-                    </Td>
-                    <Td>LOOPの最終行</Td>
-                    <Td>5周目のみ</Td>
-                  </tr>
-                </tbody>
-              </SampleTable>
-              <ul>
-                <li>
-                  <code>SORT lt_out BY bukrs belnr.</code> … 同じ会社を連続させないと ②④ の判定が狂います
-                </li>
-                <li>
-                  明細の <code>WRITE</code> は毎行、<code>AT … ENDAT.</code> は境界行だけ。役割を分けて読む
-                </li>
-                <li>
-                  迷ったら「先頭？会社が切り替わった？会社の最後？データの最終行？」の4問で追う
-                </li>
-              </ul>
-              <Dialog speaker="b">
-                先生、<code>AT FIRST</code> と <code>AT NEW</code> が同じ1周目に両方動くことってありますか？
-              </Dialog>
-              <Dialog speaker="teacher">
-                あります。先頭行は「最初の行」でもあり「最初の会社の始まり」でもあるからです。前スライドの表でも、1周目は <code>AT FIRST</code> と <code>AT NEW</code> が両方立っていますね。
-              </Dialog>
             </>
           ),
         },
         {
           title: "出力の並び（帳票イメージ）",
           plainText:
-            "出力の並び（帳票イメージ）\n入力5行→帳票11行。ATが挿入する行は行種別列で区別。\n上から：全体見出し→会社見出し→明細×n→小計→…→総合計。\n列：行種別・会社・伝票・金額・発火条件。明細行だけ伝票・金額が埋まる。",
+            "出力の並び（帳票イメージ）\n入力5行→帳票11行。Aくん：5行が11行になる理由。先生：前スライドのWRITEの並び。\nBちゃん：小計の合計は？先生：次スライドのコードで足し込み。運動会の比喩。次でLOOPのコード。",
           content: (
             <>
               <h2>出力の並び（帳票イメージ）</h2>
               <p>
-                LOOP は入力を<strong>5行</strong>読みますが、<code>AT …</code> の <code>WRITE</code> が<strong>追加の行</strong>を差し込むため、
-                帳票には<strong>11行</strong>並びます。下表は、画面に出る順番です（上から読む）。
+                前のスライドでは、入力<strong>5行</strong>を LOOP するとき<strong>どの命令が動くか</strong>を追いました。
+                ここでは、それらの <code>WRITE</code> が帳票に<strong>どう並ぶか</strong>を先に見ます。
+                <code>AT …</code> が<strong>追加の行</strong>を差し込むため、画面には<strong>11行</strong>並びます（上から読む）。
               </p>
               <h3>表の見方</h3>
               <ul>
@@ -714,10 +731,16 @@ ENDLOOP.`}
                 明細だけが入力データ1行＝帳票1行、それ以外は境界で<strong>足される行</strong>です。
               </Callout>
               <Dialog speaker="a">
-                先生、小計の金額はどこで合計しているんですか？コードには見当たりませんでした。
+                先生、さっきの「5行の入力」が、帳票では<strong>11行</strong>になっているんですね。見出しや小計が足されているからですか？
               </Dialog>
               <Dialog speaker="teacher">
-                いい着眼点です。明細を出すたびに合計用の変数へ足し込み、<code>AT END OF</code> で出して 0 に戻します。集計の作法は応用編でくわしく扱いますよ。
+                その理解で合っています。前のスライドで追った「実行される命令」の <code>WRITE</code> が、この順番で並んだものです。
+              </Dialog>
+              <Dialog speaker="b">
+                小計の金額は、この表だけだとどこで足しているか分かりません……。
+              </Dialog>
+              <Dialog speaker="teacher">
+                いい着眼点です。<strong>次のスライドのコード</strong>では、明細を出すたびに合計用の変数へ足し込み、<code>AT END OF</code> で出して 0 に戻します。集計の作法は応用編でくわしく扱いますよ。
               </Dialog>
               <Dialog speaker="b">
                 運動会みたいですね。開会式→各組の入場→選手が走る→組の結果→閉会式。決まった場面でだけ式が差し込まれる、と考えればいいですか？
@@ -725,13 +748,130 @@ ENDLOOP.`}
               <Dialog speaker="teacher">
                 その理解でぴったりです。明細（走る人）は毎回、見出しや小計（式典）は変わり目だけ、と覚えてください。
               </Dialog>
+              <Dialog speaker="teacher">
+                この並びが頭に入ったら、次のスライドでそれを作る LOOP のコードを読みましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "コードの読み方",
+          plainText:
+            "コードの読み方\nBちゃん：見た目と命令がつながった。LOOPを帳票どおりに読む。\nSORT → AT FIRST / AT NEW / WRITE / AT END OF / AT LAST。\nBちゃん：1周目にAT FIRSTとAT NEWが両方？Aくん：SORTは次スライドで確認。\n迷ったら4問で追う。",
+          content: (
+            <>
+              <h2>コードの読み方</h2>
+              <p>
+                前のスライドの<strong>帳票11行</strong>と、その前の「実行される命令」の表を思い出しながら、次の LOOP を読みます。
+                ブロックは<strong>上からの並び</strong>どおりに評価されます。
+              </p>
+              <Dialog speaker="b">
+                先生、いまやっと「見た目」と「命令」がつながりました。コードはこの並びどおりに書けばいいんですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。帳票の行種別と、LOOP 内の <code>AT …</code> / <code>WRITE</code> を対応づけながら読んでください。
+              </Dialog>
+              <CodeBlock
+                language="ABAP"
+                code={`SORT lt_out BY bukrs belnr.
+
+LOOP AT lt_out INTO ls_out.
+  AT FIRST.                              " ① 先頭行だけ
+    WRITE: / '会社別 一覧'.
+  ENDAT.
+
+  AT NEW bukrs.                          " ② 前行と会社が違う行
+    WRITE: / '■ 会社:', ls_out-bukrs.
+  ENDAT.
+
+  WRITE: / ls_out-belnr, ls_out-amount.  " ③ 毎行（明細）
+
+  AT END OF bukrs.                       " ④ 次行と会社が違う行
+    WRITE: / '  小計 ...'.
+  ENDAT.
+
+  AT LAST.                               " ⑤ 最終行だけ
+    WRITE: / '== 総合計 =='.
+  ENDAT.
+ENDLOOP.`}
+              />
+              <h3>命令と発火条件の対応</h3>
+              <SampleTable caption="コードの各行が動く条件（帳票の行種別と対応）" variant="default">
+                <thead>
+                  <tr>
+                    <Th>コード上の位置</Th>
+                    <Th>動く条件</Th>
+                    <Th>帳票での例</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <Td>
+                      <code>AT FIRST</code>
+                    </Td>
+                    <Td>LOOPの1行目</Td>
+                    <Td>「会社別 一覧」（1行目）</Td>
+                  </tr>
+                  <tr>
+                    <Td>
+                      <code>AT NEW bukrs</code>
+                    </Td>
+                    <Td>先頭行、または前行と会社が違う</Td>
+                    <Td>「■ 会社: 1000」など</Td>
+                  </tr>
+                  <tr>
+                    <Td>
+                      <code>WRITE</code>（明細）
+                    </Td>
+                    <Td>毎周</Td>
+                    <Td>伝票・金額の行（5行）</Td>
+                  </tr>
+                  <tr>
+                    <Td>
+                      <code>AT END OF bukrs</code>
+                    </Td>
+                    <Td>最終行、または次行と会社が違う</Td>
+                    <Td>「小計」行</Td>
+                  </tr>
+                  <tr>
+                    <Td>
+                      <code>AT LAST</code>
+                    </Td>
+                    <Td>LOOPの最終行</Td>
+                    <Td>「== 総合計 ==」（最終行）</Td>
+                  </tr>
+                </tbody>
+              </SampleTable>
+              <ul>
+                <li>
+                  <code>SORT lt_out BY bukrs belnr.</code> … 同じ会社を連続させないと ②④ の判定が狂います
+                </li>
+                <li>
+                  明細の <code>WRITE</code> は毎行、<code>AT … ENDAT.</code> は境界行だけ。役割を分けて読む
+                </li>
+                <li>
+                  迷ったら「先頭？会社が切り替わった？会社の最後？データの最終行？」の4問で追う
+                </li>
+              </ul>
+              <Dialog speaker="b">
+                先生、<code>AT FIRST</code> と <code>AT NEW</code> が同じ1周目に両方動くことってありますか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                あります。先頭行は「最初の行」でもあり「最初の会社の始まり」でもあるからです。前のスライドの帳票でも1・2行目に全体見出しと会社見出しが続き、命令の表でも1周目は両方立っていますね。
+              </Dialog>
+              <Dialog speaker="a">
+                先生、コードの先頭の <code>SORT</code> は、さっきの表でも暗に前提になっていましたよね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                鋭いです。次のスライドで、並んでいないと何が起きるかをはっきり見ます。
+              </Dialog>
             </>
           ),
         },
         {
           title: "SORTが前提",
           plainText:
-            "SORTが前提\nAT制御は事前にSORTしてグループを連続させることが必須。\nSORT前は会社が飛び飛び→小計が狂う（黄色行）。\nSORT後は変わり目列にAT NEW/END OFが正しく並ぶ。",
+            "SORTが前提\nBちゃん：これまでの例はSORT済み前提？先生：並んでいないと変わり目が狂う。\n黄色行＝グループ分割。Aくん：11行の並びも崩れる。実装はSORTしてからLOOP。",
           content: (
             <>
               <h2>SORT が前提</h2>
@@ -781,14 +921,20 @@ ENDLOOP.`}
                   </tbody>
                 </SampleTable>
               </div>
-              <Dialog speaker="stumble">
-                これらは<strong>事前に SORT してある</strong>ことが前提。並んでいないと「変わり目」が正しく取れません。
-              </Dialog>
               <Dialog speaker="b">
-                先に並べておかないと、同じ会社が飛び飛びになって小計がぐちゃぐちゃになる、ということですか？
+                先生、さっきまでの命令表や帳票の例は、全部 SORT 済みが前提でしたよね？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。だから「SORT してから制御」。行ごとの命令表も、帳票の並びも、この順番が崩れると意味を失います。
+                その通りです。ここでは<strong>並んでいないと何が起きるか</strong>を見ます。並んでいないと「変わり目」が正しく取れず、小計の位置が狂います。
+              </Dialog>
+              <Dialog speaker="stumble">
+                黄色の行は、同じ会社なのにグループが<strong>途中で切れている</strong>状態です。AT制御の前に必ず SORT しましょう。
+              </Dialog>
+              <Dialog speaker="a">
+                先に並べておかないと、同じ会社が飛び飛びになって、さっき見た11行の並びも意味をなくす、ということですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解で十分です。だから実装では「<code>SORT</code> してから LOOP」と覚えてください。
               </Dialog>
             </>
           ),
@@ -796,7 +942,7 @@ ENDLOOP.`}
         {
           title: "図解：キーの変わり目",
           plainText:
-            "図で見る：キーが変わると分岐する\nflowchart：次の行を読む → 最初の行?(AT FIRST全体見出し) → 会社が変わった?(AT NEWグループ見出し) → 明細出力 → 会社の最終行?(AT END OF小計) → 繰り返し\nこの並びの判定を、SORT済みの前提で行う。",
+            "図で見る：キーが変わると分岐する\nflowchart：次の行を読む → AT FIRST → AT NEW → 明細 → AT END OF → 繰り返し。\n先生：帳票の表と同じ並び。Bちゃん：見た目→命令→帳票→コード→SORTの順がよい？先生：その通り。応用編へ。",
           content: (
             <>
               <h2>図で見る：キーが変わると分岐する</h2>
@@ -827,11 +973,13 @@ ENDLOOP.`}
                 先生、<code>AT NEW</code> の見出しが境界の「上」、<code>AT END OF</code> の小計が「下」に来るのはなぜですか？
               </Dialog>
               <Dialog speaker="teacher">
-                グループの<strong>始まり</strong>で見出し、<strong>終わり</strong>で小計、と考えると自然です。図のとおり、変わり目をはさんで上に見出し・下に小計が差し込まれます。
+                グループの<strong>始まり</strong>で見出し、<strong>終わり</strong>で小計、と考えると自然です。図のとおり、変わり目をはさんで上に見出し・下に小計が差し込まれます。帳票の表でも同じ並びでしたね。
+              </Dialog>
+              <Dialog speaker="b">
+                先生、基本編は「まず見た目 → 命令の追い方 → 帳票 → コード → SORT」の順でしたが、現場でもこの順で読むとよいですか？
               </Dialog>
               <Dialog speaker="teacher">
-                基本編はここまで。サプレスと <code>AT</code> 制御、そして <code>SORT</code> の前提を押さえました。
-                確認テストのあと、続けて<strong>応用編</strong>でフラグや設計のコツに進みましょう。
+                はい。出力イメージを先に持ってからコードを読むと、<code>AT …</code> の意味がぶれにくいです。基本編はここまで。確認テストのあと、<strong>応用編</strong>でフラグや設計のコツに進みましょう。
               </Dialog>
             </>
           ),
@@ -852,7 +1000,7 @@ ENDLOOP.`}
                   <strong>目的を選ぶ</strong> … 見出しを消すだけならサプレス、見出し・小計を差し込むならAT制御
                 </li>
                 <li>
-                  <strong>LOOP</strong> … 明細は毎行、境界処理は <code>AT … ENDAT.</code> または前行比較の IF
+                  <strong>LOOP</strong> … 明細は毎行、見出し・小計やサプレスは <code>AT … ENDAT.</code> のブロックで処理
                 </li>
               </ol>
               <SampleTable caption="サプレスとAT制御の違い（混同しやすい点）" variant="default">
@@ -870,17 +1018,28 @@ ENDLOOP.`}
                     <Td>変わり目で行を追加する（見出し・小計）</Td>
                   </tr>
                   <tr>
-                    <Td>比べる相手</Td>
-                    <Td>直前の行（<code>ls_prev</code>）</Td>
-                    <Td>前行・次行（ランタイムが内部判定）</Td>
+                    <Td>変わり目の見つけ方</Td>
+                    <Td>
+                      <code>AT NEW</code>（ランタイムが自動判定）
+                    </Td>
+                    <Td>
+                      <code>AT NEW</code> / <code>AT END OF</code> など（自動判定）
+                    </Td>
+                  </tr>
+                  <tr>
+                    <Td>
+                      <code>AT</code> ブロックの中身
+                    </Td>
+                    <Td>表示用の値を戻す（行数は変わらない）</Td>
+                    <Td>見出し・小計を <code>WRITE</code> で足す（行が増える）</Td>
                   </tr>
                   <tr>
                     <Td>典型コード</Td>
                     <Td>
-                      <code>IF ls_prev-bukrs = ls_out-bukrs. CLEAR … ENDIF.</code>
+                      <code>AT NEW bukrs. ls_disp-bukrs = ls_out-bukrs. ENDAT.</code>
                     </Td>
                     <Td>
-                      <code>AT NEW bukrs. … ENDAT.</code>
+                      <code>AT NEW bukrs. WRITE: / &apos;■&apos;, ls_out-bukrs. ENDAT.</code>
                     </Td>
                   </tr>
                 </tbody>

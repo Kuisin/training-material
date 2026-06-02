@@ -7,13 +7,8 @@ import { SlideMenu } from "./slide-menu";
 import { AiAskButton } from "./ai-ask-button";
 import { CourseSearchDialog } from "./course-search";
 import { Slide } from "./slide";
-import { courseSlugFromPathname } from "../lib/course-search";
+import { courseSlugFromPathname, lessonFileFromPathname } from "../lib/course-search";
 import { isLessonComplete, markLessonComplete, useCompletion } from "../lib/completion-store";
-
-function lessonFileFromPath(pathname: string): string {
-  const last = pathname.split("/").filter(Boolean).pop() ?? "";
-  return last.replace(/\.html$/i, "");
-}
 
 interface DeckProps {
   chrome: LessonChrome;
@@ -42,7 +37,7 @@ export function Deck({ chrome, slides }: DeckProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const courseSlug = courseSlugFromPathname(window.location.pathname);
-  const lessonFile = lessonFileFromPath(window.location.pathname);
+  const lessonFile = lessonFileFromPathname(window.location.pathname);
   const canComplete = Boolean(courseSlug && lessonFile);
 
   useCompletion();

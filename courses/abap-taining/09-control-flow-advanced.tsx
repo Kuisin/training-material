@@ -14,6 +14,25 @@ import {
 } from "../../src/lesson";
 import type { ReactNode } from "react";
 import { cn } from "../../src/lib/cn";
+import { lessonChapterLabel, lessonLinkChapterLabel } from "../../src/lib/courses";
+
+const COURSE_SLUG = "abap-taining";
+
+/** 一覧・ヘッダーと同じ course.json 採番で「第{n}章」 */
+function ch(lessonFile: string, suffix = "") {
+  return lessonChapterLabel(COURSE_SLUG, lessonFile, { suffix });
+}
+
+function linkLabel(lessonFile: string, description: string) {
+  return lessonLinkChapterLabel(COURSE_SLUG, lessonFile, description);
+}
+
+const CH = {
+  controlBasic: ch("09-control-flow"),
+  controlAdv: ch("09-control-flow-advanced"),
+  select: ch("06-select-from-db"),
+  modularization: ch("10-modularization"),
+} as const;
 
 export const lessonMeta = {
   title: "レポート制御（応用）— 仕組み・フラグ・設計",
@@ -129,12 +148,13 @@ function SampleTable({
   );
 }
 
-function Th({ children }: { children: ReactNode }) {
+function Th({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <th
       className={cn(
         horizontalLineClasses("strong"),
-        "bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+        "bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+        className
       )}
     >
       {children}
@@ -142,14 +162,19 @@ function Th({ children }: { children: ReactNode }) {
   );
 }
 
+const TRACE_SECTION_DIVIDER =
+  "border-r-2 border-slate-200 dark:border-slate-600";
+
 function Td({
   children,
   highlight = false,
   muted = false,
+  className,
 }: {
   children: ReactNode;
   highlight?: boolean;
   muted?: boolean;
+  className?: string;
 }) {
   return (
     <td
@@ -157,11 +182,97 @@ function Td({
         horizontalLineClasses("normal"),
         "px-3 py-2",
         highlight && "bg-emerald-100/80 font-medium text-emerald-950 dark:bg-emerald-500/15 dark:text-emerald-100",
-        muted && "text-slate-400 dark:text-slate-500"
+        muted && "text-slate-400 dark:text-slate-500",
+        className
       )}
     >
       {children}
     </td>
+  );
+}
+
+/** 入力データと IF 判定を1表にまとめたトレース（行高を自然に揃える） */
+function IfDetectionTracePair() {
+  return (
+    <figure className="not-prose my-4">
+      <div
+        className={cn(
+          "overflow-x-auto rounded-lg border shadow-sm",
+          horizontalLineBorderColor
+        )}
+      >
+        <table className="w-full min-w-176 border-collapse text-left text-sm">
+          <thead>
+            <tr>
+              <th
+                colSpan={4}
+                className={cn(
+                  horizontalLineClasses("normal"),
+                  TRACE_SECTION_DIVIDER,
+                  "bg-slate-100 px-3 py-2 text-center text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                )}
+              >
+                入力データ（SORT済み）
+              </th>
+              <th
+                colSpan={7}
+                className={cn(
+                  horizontalLineClasses("normal"),
+                  "bg-emerald-50 px-3 py-2 text-center text-sm font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+                )}
+              >
+                IF判定で見える ATイベント
+              </th>
+            </tr>
+            <tr>
+              <Th className="w-10">行</Th>
+              <Th className="w-14">会社</Th>
+              <Th>伝票</Th>
+              <Th className={TRACE_SECTION_DIVIDER}>金額</Th>
+              <Th className="w-10">行</Th>
+              <Th className="w-14">会社</Th>
+              <Th className="w-14 text-center">FIRST</Th>
+              <Th className="w-14 text-center">NEW</Th>
+              <Th className="w-16 text-center">END OF</Th>
+              <Th className="w-14 text-center">LAST</Th>
+              <Th>判定理由</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {CONTROL_IF_TRACE_ROWS.map((trace, index) => {
+              const input = SORT_SORTED_ROWS[index];
+              return (
+                <tr key={trace.row}>
+                  <Td className="tabular-nums">{trace.row}</Td>
+                  <Td>{input.bukrs}</Td>
+                  <Td className="whitespace-nowrap">{input.belnr}</Td>
+                  <Td className={cn(TRACE_SECTION_DIVIDER, "whitespace-nowrap")}>{input.amount}</Td>
+                  <Td className="tabular-nums">{trace.row}</Td>
+                  <Td>{trace.bukrs}</Td>
+                  <Td className="text-center" highlight={trace.first} muted={!trace.first}>
+                    {trace.first ? "true" : "false"}
+                  </Td>
+                  <Td className="text-center" highlight={trace.isNewBukrs} muted={!trace.isNewBukrs}>
+                    {trace.isNewBukrs ? "true" : "false"}
+                  </Td>
+                  <Td
+                    className="text-center"
+                    highlight={trace.isEndOfBukrs}
+                    muted={!trace.isEndOfBukrs}
+                  >
+                    {trace.isEndOfBukrs ? "true" : "false"}
+                  </Td>
+                  <Td className="text-center" highlight={trace.isLast} muted={!trace.isLast}>
+                    {trace.isLast ? "true" : "false"}
+                  </Td>
+                  <Td className="min-w-40 leading-snug">{trace.reason}</Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </figure>
   );
 }
 
@@ -172,7 +283,7 @@ function BasicLink() {
       <LessonLinkButton
         courseSlug="abap-taining"
         lessonFile="09-control-flow"
-        label="基本編（サプレス・AT制御）に戻る"
+        label={`${CH.controlBasic}（基本編）に戻る`}
         variant="back"
       />
     </div>
@@ -239,7 +350,8 @@ export default function ControlFlowAdvancedLesson() {
                 </tbody>
               </SampleTable>
               <Callout variant="note">
-                このレッスンは基本編（サプレス・<code>AT</code> 制御・<code>SORT</code> の前提）を学んだ前提で進みます。
+                このレッスンは<strong>{CH.controlAdv}（応用編）</strong>です（一覧のレッスン番号と同じ採番）。
+                {CH.controlBasic}（基本編）のサプレス・<code>AT</code> 制御・<code>SORT</code> を学んだ前提で進みます。
                 あいまいな箇所があれば、下のボタンから基本編に戻って確認してください。
               </Callout>
               <BasicLink />
@@ -317,62 +429,7 @@ ENDLOOP.`}
                 </li>
               </ul>
               <h3>検知結果トレース（5行サンプル）</h3>
-              <div className="not-prose my-4 grid grid-cols-2 gap-4 [&>figure]:my-0">
-                <SampleTable caption="入力データ（SORT済み）" variant="default">
-                  <thead>
-                    <tr>
-                      <Th>行</Th>
-                      <Th>会社</Th>
-                      <Th>伝票</Th>
-                      <Th>金額</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {SORT_SORTED_ROWS.map((row, index) => (
-                      <tr key={row.belnr}>
-                        <Td>{index + 1}</Td>
-                        <Td>{row.bukrs}</Td>
-                        <Td>{row.belnr}</Td>
-                        <Td>{row.amount}</Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </SampleTable>
-                <SampleTable caption="IF判定で見える ATイベント" variant="ok">
-                  <thead>
-                    <tr>
-                      <Th>行</Th>
-                      <Th>会社</Th>
-                      <Th>FIRST</Th>
-                      <Th>NEW</Th>
-                      <Th>END OF</Th>
-                      <Th>LAST</Th>
-                      <Th>判定理由</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {CONTROL_IF_TRACE_ROWS.map((row) => (
-                      <tr key={row.row}>
-                        <Td>{row.row}</Td>
-                        <Td>{row.bukrs}</Td>
-                        <Td highlight={row.first} muted={!row.first}>
-                          {row.first ? "true" : "false"}
-                        </Td>
-                        <Td highlight={row.isNewBukrs} muted={!row.isNewBukrs}>
-                          {row.isNewBukrs ? "true" : "false"}
-                        </Td>
-                        <Td highlight={row.isEndOfBukrs} muted={!row.isEndOfBukrs}>
-                          {row.isEndOfBukrs ? "true" : "false"}
-                        </Td>
-                        <Td highlight={row.isLast} muted={!row.isLast}>
-                          {row.isLast ? "true" : "false"}
-                        </Td>
-                        <Td>{row.reason}</Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </SampleTable>
-              </div>
+              <IfDetectionTracePair />
               <Dialog speaker="b">
                 先生、AT制御って内部では結局、何を見ているんですか？魔法みたいに感じます。
               </Dialog>
@@ -469,12 +526,82 @@ ENDIF.`}
           ),
         },
         {
+          title: "表示フラグについて",
+          plainText: `表示フラグのさわり（${CH.controlAdv}応用編）。${CH.controlBasic}基本編でAT NEW内で見出しを戻した。AT NEWの中は旗だけ・値はENDATの外。中でgs_outを読むと*が混ざるため。詳細は特別演習③。`,
+          content: (
+            <>
+              <h2>表示フラグ</h2>
+              <p>
+                <strong>{CH.controlBasic}（基本編）</strong>では、<code>AT NEW</code> の<strong>中で</strong>見出し列を戻しました。
+                伝票見出しのように<strong>列が多い帳票</strong>や<strong>改ページで見出しを出し直す</strong>場面では、
+                もう一段の書き方<strong>表示フラグ</strong>に進むことがあります。
+                ここでは役割だけ押さえます。
+              </p>
+              <InfoPanel
+                title="表示フラグとは"
+                variant="reference"
+                lead="「この行で、どの見出し列を出すか」を覚える小さなスイッチです。"
+              >
+                <ul>
+                  <li>
+                    <code>AT NEW</code> の<strong>中</strong> … 値は読まず、<strong>旗（表示フラグ）だけ立てる</strong>
+                  </li>
+                  <li>
+                    <code>ENDAT</code> の<strong>外</strong> … 旗が立った列だけ、作業領域に値をセットして <code>WRITE</code>
+                  </li>
+                  <li>
+                    ループの先頭で旗をいったん消す → 変わり目で必要な旗だけ立てる → 帳票の「—」と同じ考え方
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="warning">
+                <strong>なぜ中で「値」を読まないのか</strong>：<code>AT NEW … ENDAT</code> の<strong>内側</strong>では、
+                制御項目より<strong>右側</strong>の作業領域が <code>*</code> で埋まる ABAP の仕様があります。
+                中で <code>gs_out</code> の項目を読むと、<strong>本当の値ではない</strong>ことがあります。
+                だから「中は旗だけ・値は <code>ENDAT</code> の外」が帳票サプレスの定石です。
+              </Callout>
+              <Callout variant="note">
+                <strong>{CH.controlAdv}（応用編）の「フラグ」とは別物</strong>：さきほどの <code>TYPE flag</code>（<code>&apos;X&apos;</code>）は、
+                ループ<strong>後</strong>に「1件でも起きたか」を覚える旗です。
+                表示フラグは<strong>行ごと</strong>に「どの列を出すか」を決める旗。名前は同じでも用途が違います。
+              </Callout>
+              <Dialog speaker="b">
+                {CH.controlBasic}（基本編）の「<code>AT NEW</code> でその場で戻す」と、表示フラグ版はどう違うんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                考え方は同じ「変わり目だけ出す」です。書き方が、<strong>その場で1列戻す</strong>から、
+                <strong>先に「出す列」を決めてからまとめてセット</strong>に変わるイメージです。
+                列が増えたり、改ページで全部出し直したりするときに効きます。
+              </Dialog>
+              <Dialog speaker="a">
+                じゃあ応用編では触らず、演習で手を動かす感じですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。手順とコードは<strong>特別演習③</strong>で扱います。
+                今日は「そういう第二段がある」と分かっていれば十分です。
+              </Dialog>
+              <div className="mt-4">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="94-exercise-journal-ledger-control-break"
+                  label="特別演習③で詳しく学ぶ"
+                  variant="forward"
+                />
+              </div>
+            </>
+          ),
+        },
+        {
           title: "SY-SUBRCだけでは足りない時",
           plainText:
             "「取れた／取れない」だけでは足りない場面\nSY-SUBRC は直前の1回の処理の成否。READ TABLEで見つからなければ4、見つかれば0。\nループで100件読んでも、最後のSY-SUBRCは最後の1回分だけ。1件でも見つからなかったかはフラグで覚える。\n先生：1回ごとの成否＝SY-SUBRC、流れ全体の状態＝フラグ。役割が違うので両方使う。",
           content: (
             <>
               <h2>「取れた／取れない」だけでは足りない場面</h2>
+              <p>
+                <code>SY-SUBRC</code> の基本は<strong>{CH.select}</strong>（<code>SELECT</code> のあとで確認）で学びました。
+                ここでは、ループの<strong>あと</strong>まで状態を覚えておく話を足します。
+              </p>
               <p>
                 <code>SY-SUBRC</code> は<strong>直前の1回の処理</strong>の成否だけを表します。
                 ループの中で何度も <code>READ TABLE</code> しても、ループを抜けたあとの <code>SY-SUBRC</code> は<strong>最後に実行した1回分</strong>の結果です。
@@ -527,6 +654,14 @@ ENDIF.`}
               <Dialog speaker="b">
                 なるほど。1回ごとの成否は <code>SY-SUBRC</code>、流れ全体の状態はフラグ、と役割が違うんですね。
               </Dialog>
+              <div className="mt-4">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="06-select-from-db"
+                  label={linkLabel("06-select-from-db", "SY-SUBRC の基本を復習する")}
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },
@@ -594,7 +729,8 @@ ENDLOOP.`}
                 ネストの深さは“複雑さのメーター”だと思えば良いんですね。浅いほど健全。
               </Dialog>
               <Dialog speaker="teacher">
-                いいまとめです。深くなってきたら、条件を先に判定して抜ける／処理を FORM やメソッドに分ける、を検討してください。次章の「分かりやすくする」にもつながります。
+                いいまとめです。深くなってきたら、条件を先に判定して抜ける／処理を FORM やメソッドに分ける、を検討してください。
+                <strong>{CH.modularization}</strong>（モジュール化 — 分かりやすくする）にもつながります。
               </Dialog>
             </>
           ),
@@ -607,7 +743,7 @@ ENDLOOP.`}
             <>
               <h2>対話で整理（質問でおさらい）</h2>
               <Dialog speaker="b">
-                先生、この章を一言でまとめると何ですか？
+                先生、{CH.controlBasic}・{CH.controlAdv}を合わせて一言でまとめると何ですか？
               </Dialog>
               <Dialog speaker="teacher">
                 「変わり目を捕まえて、表示や集計を制御する」。ただし <code>AT FIRST</code> / <code>AT NEW</code> / <code>AT END OF</code> / <code>AT LAST</code> は、並び順が正しいときだけ意味を持ちます。
@@ -671,9 +807,15 @@ ENDLOOP.`}
                 ]}
               />
               <Callout variant="tip">
-                演習で手を動かすなら、特別演習③（伝票見出しをまとめる）がこの章の内容と直結しています。
+                演習で手を動かすなら、特別演習③（伝票見出しをまとめる）が{CH.controlBasic}・{CH.controlAdv}の内容と直結しています。
               </Callout>
               <div className="mt-4 flex flex-wrap gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="10-modularization"
+                  label={linkLabel("10-modularization", "モジュール化へ進む")}
+                  variant="forward"
+                />
                 <LessonLinkButton
                   courseSlug="abap-taining"
                   lessonFile="94-exercise-journal-ledger-control-break"
@@ -683,7 +825,7 @@ ENDLOOP.`}
                 <BasicLink />
               </div>
               <Dialog speaker="closing">
-                応用編は「なぜそう動くのか」と「どう設計するか」。基本編（サプレス・<code>AT</code> 制御）と往復すると、制御の理解がぐっと定着します。
+                {CH.controlAdv}（応用編）は「なぜそう動くのか」と「どう設計するか」。{CH.controlBasic}（基本編）と往復すると、制御の理解がぐっと定着します。
               </Dialog>
             </>
           ),

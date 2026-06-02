@@ -305,6 +305,11 @@ export function groupSearchHits(hits: SearchHit[]): Array<{ key: string; lessonN
   return [...groups.entries()].map(([key, group]) => ({ key, ...group }));
 }
 
+export function lessonFileFromPathname(pathname: string): string {
+  const last = pathname.split("/").filter(Boolean).pop() ?? "";
+  return last.replace(/\.html$/i, "");
+}
+
 export function courseSlugFromPathname(pathname: string): string | undefined {
   const segments = pathname.replace(/\/$/, "").split("/").filter(Boolean);
   if (segments.length < 2) return undefined;

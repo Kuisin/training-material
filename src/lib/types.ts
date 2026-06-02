@@ -36,6 +36,8 @@ export interface CourseLesson {
   file: string;
   title: string;
   meta: string;
+  /** 省略時は無条件で解放 */
+  lock?: ContentLock;
 }
 
 /**
@@ -70,10 +72,8 @@ export interface ContentLock {
   mode?: "all" | "any";
 }
 
-export interface SpecialContentEntry extends CourseLesson {
-  /** 省略時は無条件で解放（通常コンテンツと同じ扱い） */
-  lock?: ContentLock;
-}
+/** 特別コンテンツ（course.json の specialContent） */
+export type SpecialContentEntry = CourseLesson;
 
 export interface Course {
   slug: string;
