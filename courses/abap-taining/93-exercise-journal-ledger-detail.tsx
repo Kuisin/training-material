@@ -1610,24 +1610,130 @@ TOP-OF-PAGE.
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：gt_outに明細1行ずつ詰め、出力で借方/貸方に振り分ける。Aくん：入口の条件と0件チェックが品質の土台。Bちゃん：列番号とデバッガで追う習慣が大事。",
+            "対話で整理（質問しながら）\nB：難しかった…全体の流れは？→ 取得→内部テーブル結合→gt_out→借方/貸方出力。\nB：伝票5件なのに行20？→ 明細1行＝リスト1行。\nB：LOOP内SELECTじゃダメ？→ FOR ALL ENTRIES＋READ TABLE（第8章の型）。\nB：借方/貸方が両方出る→ shkzg判定の前にCLEAR。\nA：入口・0件・gjahrが土台。B：列番号はデモ出力と並べて確認。",
           content: (
             <>
-              <h2>対話で整理 — この演習で身につけること</h2>
+              <h2>対話で整理 — 質問しながら情報を並べる</h2>
+              <p>
+                演習②はステップが多く、最初は「何から手を付ければ…」と感じた方も多いはずです。
+                ここでは<strong>疑問をそのまま質問</strong>しながら、頭の中を整理します。
+              </p>
               <Dialog speaker="teacher">
-                演習②の流れは、「複数テーブルからデータを集め、帳票1行の形（
-                <code>gt_out</code>）にそろえ、借方/貸方に分けて出力する」ことです。
-                いちばん大切なのは、<strong>明細1行＝リスト1行</strong>という数え方です。
+                完璧に暗記できなくて大丈夫です。「なぜこの順番か」が言えることがゴール。
+                分からないところは、遠慮なく質問してください。
+              </Dialog>
+
+              <h3>① 全体像</h3>
+              <Dialog speaker="b">
+                正直、いちばん難しかったです…。この演習って、<strong>結局何をしている</strong>プログラムなんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                一言で言うと、<strong>複数テーブルの情報を1行ずつそろえて、仕訳日記帳を画面に出す</strong>ことです。
+                <br />
+                ① 会社・日付で<strong>伝票（BKPF）</strong>を取る<br />
+                ② 明細（BSEG）・勘定名（SKAT）などを<strong>内部テーブルに載せる</strong><br />
+                ③ 1明細＝1行の形（<code>gt_out</code>）に<strong>結合</strong><br />
+                ④ 借方/貸方に分けて<strong>WRITE</strong><br />
+                この4段階、と覚えてください。
+              </Dialog>
+
+              <h3>② 行の数え方</h3>
+              <Dialog speaker="b">
+                <code>gt_bkpf</code> が5件なのに、帳票は20行くらい出ました。バグ…ですか？
               </Dialog>
               <Dialog speaker="a">
-                入口の会社・日付、BKPF/BSEG の0件チェック、ループ内の <code>gjahr</code>——ここが崩れると後ろが全部おかしくなるので、ブレークポイントは前半にも置いた方がいいですね。
-              </Dialog>
-              <Dialog speaker="b">
-                WRITE の数字は「列の開始位置」だと分かったので、デモ出力を見ながらコードを書くと安心でした。借方/貸方は毎回 CLEAR する、も忘れないようにします。
+                それは正常です。演習①は「伝票1件＝1行」でしたが、演習②は<strong>明細1行＝リスト1行</strong>。
+                同じ伝票番号が複数行並ぶ＝表紙の情報を明細の数だけ繰り返し写している、と理解すると安心です。
               </Dialog>
               <Dialog speaker="teacher">
-                完璧に一発で書けなくても大丈夫です。動く完成形を見ながら、「なぜこの順番か」を理解できれば、この演習の目的は達成です。
+                デバッガで <code>gt_out</code> を開き、同じ <code>belnr</code> が何行あるか見る——結合の確認の定番です。
               </Dialog>
+
+              <h3>③ データの取り方・結合</h3>
+              <Dialog speaker="b">
+                伝票ループの<strong>中で</strong> BSEG を <code>SELECT</code> した方が、コードの流れは追いやすそうなんですけど…ダメなんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                書くときは楽に感じますが、本番では<strong>DB 往復が件数分</strong>増えます（第8章・第13章の N+1 問題）。
+                この演習は第8章と同じ型——<strong>LOOP の前に</strong> <code>FOR ALL ENTRIES</code> で BSEG・SKAT を一括取得し、
+                LOOP 内は <code>READ TABLE</code> と <code>LOOP AT gt_bseg WHERE ...</code>（メモリ照合）だけ、です。
+              </Dialog>
+              <Dialog speaker="a">
+                外側 <code>LOOP AT gt_bkpf</code>、内側 <code>LOOP AT gt_bseg WHERE bukrs belnr gjahr</code>——
+                「表紙1枚 → その表紙に属する明細だけ」という<strong>領収書の束</strong>のイメージと一致します。
+              </Dialog>
+              <Dialog speaker="b">
+                BSEG の <code>WHERE</code> で <code>gjahr</code> を忘れると、別年度の明細が混ざる、とつまずきポイントにも書いてありましたね…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                鍵は3つセット：<code>bukrs</code>・<code>belnr</code>・<code>gjahr</code>。ヘッダからコピーする癖をつけましょう。
+              </Dialog>
+
+              <h3>④ 出力・借方/貸方</h3>
+              <Dialog speaker="b">
+                借方と貸方、<strong>両方に金額</strong>が出ちゃったことがあって…。どこを見ればいいですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                出力の直前で <code>gv_debit</code> / <code>gv_credit</code> を<strong>毎回 CLEAR</strong> してから、
+                <code>shkzg = &apos;S&apos;</code> なら借方だけ、<code>&apos;H&apos;</code> なら貸方だけに入れる——この順番を固定してください。
+                ブレークポイントで <code>gs_out-shkzg</code> と列106・122を見比べると早いです。
+              </Dialog>
+              <Dialog speaker="b">
+                <code>WRITE</code> の 1, 18, 106… という数字、最初は魔法みたいでした。
+              </Dialog>
+              <Dialog speaker="a">
+                「<strong>何文字目から書くか</strong>」です。デモ出力（ReportPreview）とコードを<strong>横に並べて</strong>見ると、
+                見出しとデータの列がずれていないか確認しやすいです。
+              </Dialog>
+
+              <h3>⑤ 品質の土台</h3>
+              <Dialog speaker="b">
+                0件のとき、メッセージは出るのに空のリストが残る、ってありましたよね…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>MESSAGE</code> だけでは不十分で、<code>LEAVE LIST-PROCESSING.</code> がセット——
+                <code>gt_bkpf IS INITIAL</code> と <code>gt_out IS INITIAL</code> の<strong>2か所</strong>で同じ対応を書きます。
+                あわせて <code>FOR ALL ENTRIES</code> の前の <code>IS NOT INITIAL</code> も、第8章で習った空チェックです。
+              </Dialog>
+
+              <InfoPanel title="この演習で覚えておく流れ（質問の答えを1枚に）" variant="reference">
+                <ol>
+                  <li>
+                    <strong>入力</strong> … 会社・転記日付（<code>PARAMETERS</code> / <code>SELECT-OPTIONS</code>）
+                  </li>
+                  <li>
+                    <strong>取得</strong> … T001 / T003T → BKPF → BSEG・SKAT（<code>FOR ALL ENTRIES</code>、空チェック付き）
+                  </li>
+                  <li>
+                    <strong>結合</strong> … 伝票 LOOP → 明細 LOOP（WHERE）→ <code>READ TABLE</code> → <code>gs_out</code> へ代入 →{" "}
+                    <code>APPEND</code>
+                  </li>
+                  <li>
+                    <strong>出力</strong> … <code>SORT</code> → <code>TOP-OF-PAGE</code> → 借方/貸方 CLEAR → <code>WRITE</code>
+                  </li>
+                  <li>
+                    <strong>数え方</strong> … <code>gt_out</code> の行数 ＝ 明細の合計（≠ 伝票件数）
+                  </li>
+                  <li>
+                    <strong>仕上げ（任意）</strong> … 列見出しを <code>TEXT-c01</code> などに（多言語も同じ ID）
+                  </li>
+                </ol>
+              </InfoPanel>
+
+              <Dialog speaker="b">
+                全部を一発で書けなかった自分でも、質問しながら整理すると「部品」に分けて見えてきました。
+                完成コードは<strong>地図</strong>として見返せばいい、ですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解で十分です。入口の条件・0件チェック・<code>gjahr</code>・借方/貸方の CLEAR——
+                ここが崩れると後ろが全部おかしくなるので、つまずいたら<strong>前半から</strong>デバッガを当ててください。
+                演習①と並べて「どこから明細が増えたか」を見るのもおすすめです。
+              </Dialog>
+              <Callout variant="tip">
+                <strong>難しく感じたら、次の3つだけ口に出してみてください</strong>
+                <br />
+                ① 明細1行＝リスト1行　② 取得は LOOP の前、結合は内部テーブル　③ 出力前に借方/貸方を CLEAR
+              </Callout>
             </>
           ),
         },
