@@ -86,7 +86,7 @@ const PREVIEW_HEADER_ROWS: ReportRow[] = [
     kind: "cells",
     cells: [
       { col: 1, text: "PGMID:" },
-      { col: 9, text: "Z_TR077_TGLR0100" },
+      { col: 9, text: "COMBINE_REPORTS_2" },
       { col: 155, text: "DATE:" },
       { col: 160, text: "2026/06/01", width: 9, align: "right" },
     ],
@@ -189,7 +189,7 @@ const PREVIEW_DETAIL_ROWS: ReportRow[] = [
   },
 ];
 
-const FINAL_PROGRAM = `REPORT z_tr077_tglr0100
+const FINAL_PROGRAM = `REPORT combine_reports_2
   NO STANDARD PAGE HEADING
   LINE-SIZE 200
   LINE-COUNT 58.
@@ -228,6 +228,11 @@ TYPES: BEGIN OF g_typ_t003t,
          ltext TYPE t003t-ltext,
        END OF g_typ_t003t.
 
+TYPES: BEGIN OF g_typ_skat,
+         saknr TYPE skat-saknr,
+         txt20 TYPE skat-txt20,
+       END OF g_typ_skat.
+
 TYPES: BEGIN OF g_typ_out,
          bukrs     TYPE bkpf-bukrs,
          blart     TYPE bkpf-blart,
@@ -256,13 +261,14 @@ DATA: gt_bkpf  TYPE STANDARD TABLE OF g_typ_bkpf,
       gs_t001  TYPE g_typ_t001,
       gt_t003t TYPE STANDARD TABLE OF g_typ_t003t,
       gs_t003t TYPE g_typ_t003t,
+      gt_skat  TYPE STANDARD TABLE OF g_typ_skat,
+      gs_skat  TYPE g_typ_skat,
       gt_out   TYPE STANDARD TABLE OF g_typ_out,
       gs_out   TYPE g_typ_out.
 
 DATA: g_wrk_budat  TYPE bkpf-budat,
       g_start_date TYPE bkpf-budat,
-      g_end_date   TYPE bkpf-budat,
-      g_hkont_txt  TYPE skat-txt20.
+      g_end_date   TYPE bkpf-budat.
 
 DATA: gv_debit  TYPE bseg-dmbtr,
       gv_credit TYPE bseg-dmbtr.
@@ -292,14 +298,15 @@ START-OF-SELECTION.
   gs_bseg,
   gs_t001,
   gs_t003t,
+  gs_skat,
   gs_out,
   g_start_date,
-  g_end_date,
-  g_hkont_txt.
+  g_end_date.
 
   REFRESH: gt_bkpf,
   gt_bseg,
   gt_t003t,
+  gt_skat,
   gt_out.
 
 *---------------------------------------------------------------------*
@@ -348,20 +355,8 @@ START-OF-SELECTION.
     LEAVE LIST-PROCESSING.
   ENDIF.
 
-* (4) 帳票出力用内部テーブルへの格納
-  LOOP AT gt_bkpf INTO gs_bkpf.
-
-*   4-① 伝票タイプテキストの格納
-    READ TABLE gt_t003t INTO gs_t003t
-    WITH KEY blart = gs_bkpf-blart.
-    IF sy-subrc <> 0.
-      CLEAR gs_t003t.
-    ENDIF.
-
-*   4-② 会計伝票明細情報の取得
-    CLEAR gs_bseg.
-    REFRESH gt_bseg.
-
+* (4a) ヘッダに属する明細を一括取得（内部テーブル）
+  IF gt_bkpf IS NOT INITIAL.
     SELECT bukrs
     belnr
     gjahr
@@ -372,27 +367,47 @@ START-OF-SELECTION.
     sgtxt
     INTO TABLE gt_bseg
     FROM bseg
-    WHERE bukrs = gs_bkpf-bukrs
-    AND belnr = gs_bkpf-belnr
-    AND gjahr = gs_bkpf-gjahr.
+    FOR ALL ENTRIES IN gt_bkpf
+    WHERE bukrs = gt_bkpf-bukrs
+    AND belnr = gt_bkpf-belnr
+    AND gjahr = gt_bkpf-gjahr.
+  ENDIF.
 
-    LOOP AT gt_bseg INTO gs_bseg.
+* (4b) 明細に登場する勘定名を一括取得（内部テーブル）
+  IF gt_bseg IS NOT INITIAL.
+    SELECT saknr
+    txt20
+    INTO TABLE gt_skat
+    FROM skat
+    FOR ALL ENTRIES IN gt_bseg
+    WHERE spras = c_spras
+    AND ktopl = gs_t001-ktopl
+    AND saknr = gt_bseg-hkont.
+  ENDIF.
 
-*     4-③ 勘定コードテキストの取得
-      CLEAR g_hkont_txt.
+* (4) 帳票出力用内部テーブルへの格納
+  LOOP AT gt_bkpf INTO gs_bkpf.
 
-      SELECT SINGLE txt20
-      INTO g_hkont_txt
-      FROM skat
-      WHERE spras = c_spras
-      AND ktopl = gs_t001-ktopl
-      AND saknr = gs_bseg-hkont.
+*   4-① 伝票タイプテキストの格納
+    READ TABLE gt_t003t INTO gs_t003t
+    WITH KEY blart = gs_bkpf-blart.
+    IF sy-subrc <> 0.
+      CLEAR gs_t003t.
+    ENDIF.
 
+    LOOP AT gt_bseg INTO gs_bseg
+      WHERE bukrs = gs_bkpf-bukrs
+        AND belnr = gs_bkpf-belnr
+        AND gjahr = gs_bkpf-gjahr.
+
+*     4-② 勘定コードテキストの格納（内部テーブルから）
+      READ TABLE gt_skat INTO gs_skat
+        WITH KEY saknr = gs_bseg-hkont.
       IF sy-subrc <> 0.
-        CLEAR g_hkont_txt.
+        CLEAR gs_skat.
       ENDIF.
 
-*     4-④ 帳票出力用内部テーブルへの格納
+*     4-③ 帳票出力用内部テーブルへの格納
       CLEAR gs_out.
 
       gs_out-bukrs     = gs_bkpf-bukrs.
@@ -405,7 +420,7 @@ START-OF-SELECTION.
       gs_out-gjahr     = gs_bkpf-gjahr.
       gs_out-buzei     = gs_bseg-buzei.
       gs_out-hkont     = gs_bseg-hkont.
-      gs_out-hkont_txt = g_hkont_txt.
+      gs_out-hkont_txt = gs_skat-txt20.
       gs_out-shkzg     = gs_bseg-shkzg.
       gs_out-dmbtr     = gs_bseg-dmbtr.
       gs_out-sgtxt     = gs_bseg-sgtxt.
@@ -413,16 +428,16 @@ START-OF-SELECTION.
 
       APPEND gs_out TO gt_out.
 
-*     4-⑤ 作業領域の初期化
+*     4-④ 作業領域の初期化
       CLEAR: gs_bseg,
-      gs_out.
+      gs_out,
+      gs_skat.
 
     ENDLOOP.
 
-*   4-⑥ 作業領域・内部テーブルの初期化
+*   4-⑤ 作業領域の初期化
     CLEAR: gs_bkpf,
     gs_t003t.
-    REFRESH gt_bseg.
 
   ENDLOOP.
 
@@ -697,17 +712,19 @@ export default function ExerciseJournalLedgerDetailLesson() {
     stop1["メッセージして終了"]
     loopHead["伝票を1件ずつ処理"]
     stepA["伝票タイプの日本語名を当てる"]
-    stepB["その伝票の明細を読む<br/>BSEG"]
-    stepC["明細1行ずつ<br/>勘定名 SKAT → gt_out に1行追加"]
+    stepB["明細を一括取得<br/>BSEG → gt_bseg"]
+    stepC["勘定名を一括取得<br/>SKAT → gt_skat"]
+    stepD["伝票LOOP→明細LOOP<br/>READ TABLE で結合"]
     zero2{"明細は0件?"}
     stop2["メッセージして終了"]
     sort["一覧の並び順を整える<br/>SORT gt_out"]
     ready --> bkpf
     bkpf --> zero1
     zero1 -->|はい| stop1
-    zero1 -->|いいえ| loopHead
-    loopHead --> stepA --> stepB --> stepC
-    stepC --> zero2
+    zero1 -->|いいえ| stepB
+    stepB --> stepC --> loopHead
+    loopHead --> stepA --> stepD
+    stepD --> zero2
     zero2 -->|はい| stop2
     zero2 -->|いいえ| sort
   end
@@ -777,9 +794,10 @@ export default function ExerciseJournalLedgerDetailLesson() {
                     <tr>
                       <td>伝票→明細→勘定名→1行追加</td>
                       <td>
-                        入れ子 <code>LOOP</code> と <code>APPEND gt_out</code>
+                        <code>FOR ALL ENTRIES</code> で一括取得 → 入れ子 <code>LOOP</code> と{" "}
+                        <code>READ TABLE</code>
                       </td>
-                      <td>順番どおり（中を入れ替えると壊れる）</td>
+                      <td>順番どおり（結合の型を崩さない）</td>
                     </tr>
                     <tr>
                       <td>並べ替え→画面</td>
@@ -799,7 +817,9 @@ export default function ExerciseJournalLedgerDetailLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 プログラムは<strong>上から1行ずつ</strong>動きます。「並列OK」は、T001 のブロックと T003T
-                のブロックを、ソース上で入れ替えてもよい、という意味です。LOOP の中（表紙→明細→勘定名）は絶対に順番を変えないでください。
+                のブロックを、ソース上で入れ替えてもよい、という意味です。
+                結合は<strong>先に BSEG・SKAT を内部テーブルへ</strong>載せ、LOOP 内は <code>READ TABLE</code> だけ——
+                この順番を崩さないでください。
               </Dialog>
               <h3>たとえ話：伝票＝領収書の束</h3>
               <Dialog speaker="teacher">
@@ -847,14 +867,18 @@ export default function ExerciseJournalLedgerDetailLesson() {
                         <strong>BSEG</strong>
                       </td>
                       <td>会計伝票明細（中身の行）</td>
-                      <td>伝票（表紙）1件ごとに取得</td>
+                      <td>
+                        <code>FOR ALL ENTRIES</code> で一括取得 → <code>gt_bseg</code>
+                      </td>
                     </tr>
                     <tr>
                       <td>
                         <strong>SKAT</strong>
                       </td>
                       <td>勘定科目の名称</td>
-                      <td>明細行1件ごとに名称を取得</td>
+                      <td>
+                        <code>FOR ALL ENTRIES</code> で一括取得 → <code>READ TABLE</code>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -906,7 +930,10 @@ export default function ExerciseJournalLedgerDetailLesson() {
                     <code>g_typ_bkpf</code> … BKPF から取ったヘッダ項目だけ（作業用）
                   </li>
                   <li>
-                    <code>g_typ_bseg</code> … BSEG から取った明細項目だけ（作業用）
+                    <code>g_typ_bseg</code> … BSEG から取った明細項目だけ（<code>gt_bseg</code>）
+                  </li>
+                  <li>
+                    <code>g_typ_skat</code> … SKAT から取った勘定コードと名称（<code>gt_skat</code>）
                   </li>
                   <li>
                     <code>g_typ_t001</code> … 会社マスタ（勘定表・通貨）1件分
@@ -992,8 +1019,8 @@ SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
 
 START-OF-SELECTION.
   CLEAR: gs_bkpf, gs_bseg, gs_t001, gs_t003t, gs_out,
-         g_start_date, g_end_date, g_hkont_txt.
-  REFRESH: gt_bkpf, gt_bseg, gt_t003t, gt_out.
+         g_start_date, g_end_date.
+  REFRESH: gt_bkpf, gt_bseg, gt_t003t, gt_skat, gt_out.
 
   READ TABLE s_budat INDEX 1.
   IF sy-subrc = 0.
@@ -1071,7 +1098,8 @@ START-OF-SELECTION.
     WHERE spras = c_spras.`}
               />
               <Dialog speaker="a">
-                T003T は「辞書」、SKAT は明細のたびに引く「単語帳1ページ」、というイメージです。
+                T003T も SKAT も「辞書」を先に内部テーブルへ載せ、LOOP 内は <code>READ TABLE</code> だけ、ですね。
+                第8章の型と同じです。
               </Dialog>
               <BreakPointCheck
                 insert={`  SELECT blart ltext INTO TABLE gt_t003t FROM t003t WHERE spras = c_spras.
@@ -1168,59 +1196,81 @@ START-OF-SELECTION.
         {
           title: "③ データ結合",
           plainText:
-            "③ データ結合 — LOOP AT gt_bkpf。伝票ごとに BSEG SELECT。明細ごとに SKAT SELECT SINGLE。gs_out へ項目代入して APPEND。ループ後 gt_out IS INITIAL もチェック。",
+            "③ データ結合 — FOR ALL ENTRIESでBSEG・SKATを一括取得。LOOP内はREAD TABLEで結合。gs_outへ代入してAPPEND。ループ後gt_out IS INITIALもチェック。",
           content: (
             <>
-              <h2>③ データ結合 — 入れ子ループ</h2>
+              <h2>③ データ結合 — 内部テーブルで結合</h2>
               <p>
-                ここが演習②の<strong>中心</strong>です。「表紙1枚」を取り出し、その表紙に属する「明細行」をすべて読み、
-                帳票用の1行（<code>gs_out</code>）に詰めて <code>gt_out</code> に積み上げます。
+                ここが演習②の<strong>中心</strong>です。第8章と同じ型で、
+                <strong>DB からは LOOP の前にまとめて取得</strong>し、結合は内部テーブル上の{" "}
+                <code>READ TABLE</code> で行います。
               </p>
-              <InfoPanel title="処理の流れ（コメント 4-①〜4-⑥ に対応）" variant="reference">
+              <InfoPanel title="処理の流れ（コメント 4-a〜4-⑤ に対応）" variant="reference">
                 <ol>
                   <li>
-                    <strong>外側の LOOP</strong> … <code>gt_bkpf</code> の伝票を1件ずつ処理
+                    <strong>4-a</strong> … <code>gt_bkpf</code> に含まれる伝票キーだけ BSEG を{" "}
+                    <code>FOR ALL ENTRIES</code> で <code>gt_bseg</code> へ一括取得
                   </li>
                   <li>
-                    <strong>4-①</strong> … 伝票タイプの日本語名を <code>gt_t003t</code> から探す（
-                    <code>READ TABLE</code>）
+                    <strong>4-b</strong> … <code>gt_bseg</code> に登場する勘定だけ SKAT を{" "}
+                    <code>gt_skat</code> へ一括取得（<code>IF gt_bseg IS NOT INITIAL</code> でガード）
                   </li>
                   <li>
-                    <strong>4-②</strong> … その伝票の明細を BSEG から取得（<code>bukrs + belnr + gjahr</code>）
+                    <strong>外側 LOOP</strong> … <code>gt_bkpf</code> の伝票を1件ずつ
                   </li>
                   <li>
-                    <strong>4-③</strong> … 明細行ごとに勘定名を SKAT から取得
+                    <strong>4-①</strong> … 伝票タイプ名を <code>gt_t003t</code> から <code>READ TABLE</code>
                   </li>
                   <li>
-                    <strong>4-④</strong> … <code>gs_out</code> にヘッダ項目・明細項目・テキスト・通貨を<strong>1項目ずつ代入</strong>して{" "}
-                    <code>APPEND</code>
+                    <strong>内側 LOOP</strong> … 同じ伝票キーの明細だけ <code>gt_bseg</code> を処理（
+                    <code>WHERE</code> 付き <code>LOOP</code>）
                   </li>
                   <li>
-                    <strong>4-⑤⑥</strong> … 次の行のために作業領域を <code>CLEAR</code> / 明細表を{" "}
-                    <code>REFRESH</code>
+                    <strong>4-②</strong> … 勘定名を <code>gt_skat</code> から <code>READ TABLE</code>
+                  </li>
+                  <li>
+                    <strong>4-③④</strong> … <code>gs_out</code> に代入して <code>APPEND</code> → <code>CLEAR</code>
                   </li>
                 </ol>
               </InfoPanel>
+              <h3>例：LOOP の前に一括取得</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`  IF gt_bkpf IS NOT INITIAL.
+    SELECT bukrs belnr gjahr buzei hkont shkzg dmbtr sgtxt
+      INTO TABLE gt_bseg FROM bseg
+      FOR ALL ENTRIES IN gt_bkpf
+      WHERE bukrs = gt_bkpf-bukrs
+        AND belnr = gt_bkpf-belnr
+        AND gjahr = gt_bkpf-gjahr.
+  ENDIF.
+
+  IF gt_bseg IS NOT INITIAL.
+    SELECT saknr txt20
+      INTO TABLE gt_skat FROM skat
+      FOR ALL ENTRIES IN gt_bseg
+      WHERE spras = c_spras
+        AND ktopl = gs_t001-ktopl
+        AND saknr = gt_bseg-hkont.
+  ENDIF.`}
+              />
+              <h3>例：LOOP 内は READ TABLE で結合</h3>
               <CodeBlock
                 language="ABAP"
                 code={`  LOOP AT gt_bkpf INTO gs_bkpf.
     READ TABLE gt_t003t INTO gs_t003t WITH KEY blart = gs_bkpf-blart.
     IF sy-subrc <> 0. CLEAR gs_t003t. ENDIF.
 
-    CLEAR gs_bseg.
-    REFRESH gt_bseg.
-    SELECT bukrs belnr gjahr buzei hkont shkzg dmbtr sgtxt
-      INTO TABLE gt_bseg FROM bseg
+    LOOP AT gt_bseg INTO gs_bseg
       WHERE bukrs = gs_bkpf-bukrs
         AND belnr = gs_bkpf-belnr
         AND gjahr = gs_bkpf-gjahr.
 
-    LOOP AT gt_bseg INTO gs_bseg.
-      SELECT SINGLE txt20 INTO g_hkont_txt FROM skat
-        WHERE spras = c_spras AND ktopl = gs_t001-ktopl AND saknr = gs_bseg-hkont.
-      " gs_out へ項目代入 → APPEND gt_out
+      READ TABLE gt_skat INTO gs_skat WITH KEY saknr = gs_bseg-hkont.
+      IF sy-subrc <> 0. CLEAR gs_skat. ENDIF.
+
+      " gs_out へ項目代入 → APPEND gt_out → CLEAR
     ENDLOOP.
-    REFRESH gt_bseg.
   ENDLOOP.`}
               />
               <h3>なぜ MOVE-CORRESPONDING ではなく、1項目ずつ代入？</h3>
@@ -1235,9 +1285,17 @@ START-OF-SELECTION.
                 そのときもメッセージ＋<code>LEAVE LIST-PROCESSING</code> で、空の帳票を出さないようにします。
               </p>
               <Callout variant="note">
-                この演習では理解のため、BSEG・SKAT を<strong>ループの中で SELECT</strong>
-                しています。件数が膨大になる本番では、第13章のようにまとめて取得する書き方が望ましいです。
+                <code>LOOP</code> 内の <code>SELECT</code> は避け、第8章と同じく<strong>先に内部テーブルへ載せてから</strong>{" "}
+                <code>READ TABLE</code> で結合します。内側の <code>LOOP AT gt_bseg WHERE ...</code> はメモリ上の照合です（DB 往復なし）。
               </Callout>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="08-combine-data"
+                slide={8}
+                label="第8章: 必要なデータだけ取得（FOR ALL ENTRIES）"
+                variant="back"
+                className="mb-4"
+              />
               <Dialog speaker="stumble">
                 BSEG の WHERE で <code>gjahr</code>（会計年度）を忘れると、別の年度の明細が混ざったり、1件も取れないことがあります。
               </Dialog>
@@ -1474,8 +1532,9 @@ TOP-OF-PAGE.
                 <code>belnr</code> だけ同じだと足りないんですね。年度もセットで覚えます。
               </Dialog>
               <Dialog speaker="teacher">
-                BSEG の SELECT をコピーするときは、<code>gs_bkpf-bukrs</code>・<code>gs_bkpf-belnr</code>・
-                <code>gs_bkpf-gjahr</code> の3つをセットで写すと安全です。
+                <code>gt_bseg</code> の <code>WHERE</code> には <code>gs_bkpf-bukrs</code>・<code>gs_bkpf-belnr</code>・
+                <code>gs_bkpf-gjahr</code> の3つをセットで写すと安全です。SKAT は <code>gt_skat</code> から{" "}
+                <code>READ TABLE</code> します。
               </Dialog>
 
               <h3>③ 借方・貸方の列がおかしい</h3>
@@ -1764,7 +1823,7 @@ TOP-OF-PAGE.
                 <ol>
                   <li>先頭 … 型・変数・選択画面（いつもある「宣言」）</li>
                   <li>
-                    <code>START-OF-SELECTION</code> … 初期化 → マスタ → BKPF → 結合ループ → ソート
+                    <code>START-OF-SELECTION</code> … 初期化 → マスタ → BKPF → BSEG/SKAT 一括取得 → 内部テーブル結合 → ソート
                   </li>
                   <li>
                     <code>TOP-OF-PAGE</code> … ページヘッダと列見出し
