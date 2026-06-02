@@ -1,23 +1,26 @@
 import { useLayoutEffect, useState } from "react";
+import { prepareContentAccessFromUrl } from "../lib/courses";
+import { readContentPasswordFromSearch } from "../lib/content-lock-url";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "../components/theme-toggle";
 import {
   courseEntryCount,
   courseIndexHref,
+  courseIndexHrefWithPassword,
   courses,
   coursesIndexHref,
-  evaluateSpecialAccess,
+  evaluateContentAccess,
   isCourseAccessible,
   isCourseComplete,
   lessonHref,
   navigableCourses,
-  verifySpecialPassword,
 } from "../lib/courses";
+import { LockedContentListRow } from "../components/content-lock-screen";
 import { isDevMode } from "../lib/dev-mode";
 import { isLessonComplete, useCompletion } from "../lib/completion-store";
 import { CourseSearch } from "../components/course-search";
 import { cn } from "../lib/cn";
-import type { Course, CourseLesson, SpecialContentEntry } from "../lib/types";
+import type { Course, CourseLesson } from "../lib/types";
 
 function PageShell({
   title,
@@ -94,11 +97,21 @@ function LessonRow({ course, lesson }: { course: Course; lesson: CourseLesson })
 }
 
 function LessonList({ course, lessons }: { course: Course; lessons: CourseLesson[] }) {
+  useCompletion();
   return (
     <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      {lessons.map((lesson) => (
-        <LessonRow key={lesson.file} course={course} lesson={lesson} />
-      ))}
+      {lessons.map((lesson) => {
+        if (!lesson.lock) {
+          return <LessonRow key={lesson.file} course={course} lesson={lesson} />;
+        }
+        const access = evaluateContentAccess(course, lesson);
+        if (access.unlocked) {
+          return <LessonRow key={lesson.file} course={course} lesson={lesson} />;
+        }
+        return (
+          <LockedContentListRow key={lesson.file} course={course} entry={lesson} access={access} />
+        );
+      })}
     </ol>
   );
 }
@@ -131,95 +144,6 @@ function CourseSection({
   );
 }
 
-function LockedSpecialRow({
-  course,
-  entry,
-  requirementLabel,
-  requirementMet,
-  needsPassword,
-  mode,
-}: {
-  course: Course;
-  entry: SpecialContentEntry;
-  requirementLabel?: string;
-  requirementMet: boolean;
-  needsPassword: boolean;
-  mode: "all" | "any";
-}) {
-  const [input, setInput] = useState("");
-  const [error, setError] = useState(false);
-  const bothRequired = mode === "all" && Boolean(requirementLabel) && needsPassword;
-
-  function handleUnlock(event: React.FormEvent) {
-    event.preventDefault();
-    if (verifySpecialPassword(course, entry, input)) {
-      setError(false);
-      setInput("");
-      // useCompletion の購読により親が再描画され、解放後の行に切り替わる。
-    } else {
-      setError(true);
-    }
-  }
-
-  return (
-    <li className="border-b border-slate-100 px-4 py-3.5 last:border-0 dark:border-slate-800">
-      <div className="flex items-center gap-3">
-        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-sm text-slate-400 dark:bg-slate-800 dark:text-slate-500" aria-hidden>
-          🔒
-        </span>
-        <span className="min-w-0 flex-1 font-medium text-slate-500 dark:text-slate-400">
-          {entry.title}
-        </span>
-        <span className="hidden shrink-0 text-xs text-slate-400 sm:inline">{entry.meta}</span>
-      </div>
-      {bothRequired ? (
-        <p className="mt-2 pl-11 text-xs font-semibold text-amber-600 dark:text-amber-400">
-          完了条件とパスワードの両方が必要です
-        </p>
-      ) : null}
-      {requirementLabel ? (
-        <p
-          className={cn(
-            "mt-2 pl-11 text-xs",
-            requirementMet
-              ? "font-medium text-emerald-600 dark:text-emerald-400"
-              : "text-slate-500 dark:text-slate-400"
-          )}
-        >
-          <span aria-hidden>{requirementMet ? "✓ " : "・"}</span>
-          {requirementLabel}
-        </p>
-      ) : null}
-      {needsPassword ? (
-        <form onSubmit={handleUnlock} className="mt-2 flex flex-wrap items-center gap-2 pl-11">
-          <input
-            type="password"
-            value={input}
-            onChange={(event) => {
-              setInput(event.target.value);
-              setError(false);
-            }}
-            placeholder="パスワードを入力"
-            aria-label={`${entry.title} のパスワード`}
-            className="w-44 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700 dark:bg-slate-900"
-          />
-          <button
-            type="submit"
-            className="rounded-lg border border-brand/40 bg-brand/5 px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/10 dark:border-brand/30 dark:bg-brand/10 dark:hover:bg-brand/20"
-          >
-            解放する
-          </button>
-          {error ? (
-            <span className="text-xs font-medium text-red-600 dark:text-red-400">
-              パスワードが違います
-            </span>
-          ) : null}
-        </form>
-      ) : null}
-    </li>
-  );
-}
-
 function SpecialContentSection({ course }: { course: Course }) {
   useCompletion();
   if (course.specialContent.length === 0) return null;
@@ -234,20 +158,12 @@ function SpecialContentSection({ course }: { course: Course }) {
       </p>
       <ol className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {course.specialContent.map((entry) => {
-          const access = evaluateSpecialAccess(course, entry);
+          const access = evaluateContentAccess(course, entry);
           if (access.unlocked) {
             return <LessonRow key={entry.file} course={course} lesson={entry} />;
           }
           return (
-            <LockedSpecialRow
-              key={entry.file}
-              course={course}
-              entry={entry}
-              requirementLabel={access.requirementLabel}
-              requirementMet={access.requirementMet}
-              needsPassword={access.needsPassword}
-              mode={access.mode}
-            />
+            <LockedContentListRow key={entry.file} course={course} entry={entry} access={access} />
           );
         })}
       </ol>
@@ -387,6 +303,11 @@ function CoursePickerPage() {
 function CourseLessonsPage({ course, showBack }: { course: Course; showBack: boolean }) {
   // 完了状態の変化（別タブ・レッスン完了後の遷移）で進捗・チェックを再描画する。
   useCompletion();
+
+  useLayoutEffect(() => {
+    prepareContentAccessFromUrl(course);
+  }, [course.slug]);
+
   return (
     <PageShell
       title={course.title}
@@ -419,13 +340,15 @@ export function IndexPage() {
   useLayoutEffect(() => {
     if (navigableCourses.length !== 1) return;
     const slug = navigableCourses[0]!.slug;
+    const pw = readContentPasswordFromSearch();
+    const indexHref = pw ? courseIndexHrefWithPassword(slug, pw) : courseIndexHref(slug);
     if (courseSlug !== slug) {
-      window.history.replaceState(null, "", courseIndexHref(slug));
+      window.history.replaceState(null, "", indexHref);
       setCourseSlug(slug);
       return;
     }
     if (new URLSearchParams(window.location.search).get("course") !== slug) {
-      window.history.replaceState(null, "", courseIndexHref(slug));
+      window.history.replaceState(null, "", indexHref);
     }
   }, [courseSlug]);
 

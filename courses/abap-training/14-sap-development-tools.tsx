@@ -149,7 +149,7 @@ export default function SapDevelopmentToolsLesson() {
         {
           title: "エディタとショートカット",
           plainText:
-            "エディタとショートカット\nABAPエディタには新旧2種類あり、新版が推奨。切替は SE38 → ユーティリティ → 設定。\nGUI: F1ヘルプ F3戻る F4検索 F8実行\nエディタ: Ctrl+S保存 Ctrl+F2構文チェック Ctrl+F3有効化",
+            "エディタとショートカット\nABAPエディタには新旧2種類あり、新版が推奨。切替は SE38 → ユーティリティ → 設定。\nGUI: F1ヘルプ F3戻る F4検索 F8実行\nエディタ: Ctrl+S保存 Ctrl+F2構文チェック Ctrl+F3有効化\n複数行コメントアウト: 行を選択→Ctrl+<（各行に\"付与）／解除はCtrl+>\nABAPにブロックコメントはなく、一時的な無効化に使う",
           content: (
             <>
               <h2>エディタとショートカット</h2>
@@ -220,9 +220,44 @@ export default function SapDevelopmentToolsLesson() {
                       </td>
                       <td>有効化</td>
                     </tr>
+                    <tr>
+                      <td>
+                        <code>Ctrl + &lt;</code>
+                      </td>
+                      <td>
+                        選択行をコメントアウト（各行の先頭に <code>&quot;</code> を付ける）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>Ctrl + &gt;</code>
+                      </td>
+                      <td>コメント解除</td>
+                    </tr>
                   </tbody>
                 </table>
               </InfoPanel>
+              <h3>複数行のコメントアウト</h3>
+              <p>
+                ABAP には <code>/* … */</code> のようなブロックコメントはありません。
+                デバッグで一時的に処理を止めたいときは、<strong>複数行を選択</strong>して{" "}
+                <code>Ctrl + &lt;</code> を押すと、各行の先頭に <code>&quot;</code> が付き、実行されなくなります（第3章の行末コメントと同じ記号）。
+                元に戻すときは <code>Ctrl + &gt;</code> です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" Ctrl+< でコメントアウトした例（各行の先頭に " が付く）
+" SELECT * FROM bkpf INTO TABLE lt_bkpf.
+" LOOP AT lt_bkpf INTO ls_bkpf.
+"   WRITE: / ls_bkpf-belnr.
+" ENDLOOP.`}
+              />
+              <Callout variant="tip">
+                キーが効かない場合は、エディタ右下（<code>NUM</code> の横）の設定ボタン →{" "}
+                <strong>Keyboard</strong> で <code>Edit.LineComment</code> /{" "}
+                <code>Edit.LineUncomment</code> の割り当てを確認してください。キーボード配列によっては{" "}
+                <code>Ctrl + ,</code> になっていることもあります。
+              </Callout>
               <Dialog speaker="b">
                 ショートカットは最初は覚えきれなくても、<code>F1</code> と <code>F8</code> だけでもかなり助かりそうです。
               </Dialog>

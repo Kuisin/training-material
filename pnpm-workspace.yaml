@@ -1,0 +1,2 @@
+patchedDependencies:
+  react-erd@1.0.15: patches/react-erd@1.0.15.patch

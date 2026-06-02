@@ -7,9 +7,14 @@ import type {
 } from "./types";
 import { appHref, lessonPageHref } from "./app-href";
 import {
+  CONTENT_PASSWORD_SEARCH_PARAM,
+  applyContentPasswordFromUrl,
+  allPasswordLockedEntries,
+} from "./content-lock-url";
+import {
   getCompletedLessons,
-  isSpecialUnlocked,
-  markSpecialUnlocked,
+  isContentUnlocked,
+  markContentUnlocked,
 } from "./completion-store";
 import { isDevMode } from "./dev-mode";
 
@@ -56,6 +61,7 @@ function mapLessonEntries(
     file: lesson.file,
     title: lesson.title,
     meta: lesson.meta ?? "",
+    lock: lesson.lock,
   }));
 }
 
@@ -112,6 +118,38 @@ export function findCourseEntry(course: Course, lessonFile: string): CourseLesso
     course.additionalContent.find((l) => l.file === lessonFile) ??
     course.specialContent.find((l) => l.file === lessonFile)
   );
+}
+
+/** course.json の並び順で付与されたレッスン番号（一覧・ヘッダーと同じ） */
+export function getLessonNum(courseSlug: string, lessonFile: string): string | undefined {
+  const course = courses.find((c) => c.slug === courseSlug);
+  if (!course) return undefined;
+  return findCourseEntry(course, lessonFile)?.num;
+}
+
+/**
+ * レッスン番号から「第{n}章」ラベルを生成（num が数字のときのみ）。
+ * 教材本文の章番号表記はファイル名ではなくこの採番に合わせる。
+ */
+export function lessonChapterLabel(
+  courseSlug: string,
+  lessonFile: string,
+  options?: { suffix?: string }
+): string {
+  const num = getLessonNum(courseSlug, lessonFile);
+  if (!num || !/^\d+$/.test(num)) return "";
+  const suffix = options?.suffix ?? "";
+  return `第${num}章${suffix}`;
+}
+
+/** LessonLinkButton 用: 「第{n}章: 説明」 */
+export function lessonLinkChapterLabel(
+  courseSlug: string,
+  lessonFile: string,
+  description: string
+): string {
+  const chapter = lessonChapterLabel(courseSlug, lessonFile);
+  return chapter ? `${chapter}: ${description}` : description;
 }
 
 /** コース内の全エントリ数（一覧・カード表示用） */
@@ -209,7 +247,7 @@ function requirementSatisfied(course: Course, requires: ContentRequirement): boo
  * - 両方 + mode "any"（既定）: どちらかで解放
  * - 両方 + mode "all": 完了条件とパスワードの両方が必要
  */
-export function evaluateSpecialAccess(course: Course, entry: SpecialContentEntry): SpecialAccess {
+export function evaluateContentAccess(course: Course, entry: CourseLesson): SpecialAccess {
   const lock = entry.lock;
   const mode = lock?.mode ?? "any";
 
@@ -221,10 +259,23 @@ export function evaluateSpecialAccess(course: Course, entry: SpecialContentEntry
     return { unlocked: true, needsPassword: false, requirementMet: true, mode, passwordEntered: false };
   }
 
+  if (isContentUnlocked(course.slug, entry.file)) {
+    return {
+      unlocked: true,
+      needsPassword: false,
+      requirementMet: true,
+      requirementLabel: lock.requires
+        ? requirementLabel(course, lock.requires)
+        : undefined,
+      mode,
+      passwordEntered: true,
+    };
+  }
+
   const hasRequires = lock.requires !== undefined;
   const hasPassword = Boolean(lock.password);
   const requirementMet = hasRequires ? requirementSatisfied(course, lock.requires!) : false;
-  const passwordEntered = hasPassword ? isSpecialUnlocked(course.slug, entry.file) : false;
+  const passwordEntered = hasPassword ? isContentUnlocked(course.slug, entry.file) : false;
 
   let unlocked: boolean;
   if (hasRequires && hasPassword) {
@@ -235,29 +286,35 @@ export function evaluateSpecialAccess(course: Course, entry: SpecialContentEntry
     unlocked = passwordEntered;
   }
 
+  if (unlocked) {
+    markContentUnlocked(course.slug, entry.file);
+  }
+
   return {
     unlocked,
     needsPassword: hasPassword && !passwordEntered && !unlocked,
     requirementMet,
     requirementLabel: hasRequires ? requirementLabel(course, lock.requires!) : undefined,
     mode,
-    passwordEntered,
+    passwordEntered: passwordEntered || unlocked,
   };
 }
 
+/** @deprecated Use {@link evaluateContentAccess} */
+export const evaluateSpecialAccess = evaluateContentAccess;
+
 /** パスワードを検証し、一致すれば解放を記録する。 */
-export function verifySpecialPassword(
-  course: Course,
-  entry: SpecialContentEntry,
-  input: string
-): boolean {
+export function verifyContentPassword(course: Course, entry: CourseLesson, input: string): boolean {
   const password = entry.lock?.password;
   if (password && input === password) {
-    markSpecialUnlocked(course.slug, entry.file);
+    markContentUnlocked(course.slug, entry.file);
     return true;
   }
   return false;
 }
+
+/** @deprecated Use {@link verifyContentPassword} */
+export const verifySpecialPassword = verifyContentPassword;
 
 /** トップのコース一覧ページ */
 export function coursesIndexHref(): string {
@@ -272,6 +329,31 @@ export function courseIndexHref(courseSlug: string): string {
 /** コース内レッスンの URL（BASE_URL 込み） */
 export function lessonHref(course: Course, lesson: CourseLesson): string {
   return lessonPageHref(course.slug, lesson.file);
+}
+
+/** ロック済みコンテンツ共有用（`?pw=` で開くと自動解放） */
+export function lessonHrefWithPassword(
+  course: Course,
+  lesson: CourseLesson,
+  password: string
+): string {
+  return `${lessonPageHref(course.slug, lesson.file)}?${CONTENT_PASSWORD_SEARCH_PARAM}=${encodeURIComponent(password)}`;
+}
+
+/** コース一覧共有用（特別コンテンツの `pw` 付きリンク） */
+export function courseIndexHrefWithPassword(courseSlug: string, password: string): string {
+  return `${courseIndexHref(courseSlug)}&${CONTENT_PASSWORD_SEARCH_PARAM}=${encodeURIComponent(password)}`;
+}
+
+/** 現在の URL の `pw` を適用（コース一覧・レッスン起動時に呼ぶ） */
+export function prepareContentAccessFromUrl(course: Course, lessonFile?: string): void {
+  const entries = lessonFile
+    ? (() => {
+        const entry = findCourseEntry(course, lessonFile);
+        return entry?.lock?.password ? [entry] : [];
+      })()
+    : allPasswordLockedEntries(course);
+  if (entries.length > 0) applyContentPasswordFromUrl(course, entries);
 }
 
 /** レッスン chrome 用: 前後のレッスン href を course.json から生成 */

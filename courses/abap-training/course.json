@@ -12,7 +12,8 @@
     { "file": "06-select-from-db", "title": "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）", "meta": "初学者 · 25分" },
     { "file": "07-output-report", "title": "帳票出力 — WRITE・改行・見やすいレポートの整え方", "meta": "初学者 · 20分" },
     { "file": "08-combine-data", "title": "データ結合 — ヘッダと明細をMOVEで一覧に組み立てる", "meta": "初学者 · 25分" },
-    { "file": "09-control-flow", "title": "レポート制御 — サプレス・AT NEW/END OF・フラグ", "meta": "初学者 · 30分" },
+    { "file": "09-control-flow", "title": "レポート制御（基本）— サプレスとAT NEW/END OF", "meta": "初学者 · 20分" },
+    { "file": "09-control-flow-advanced", "title": "レポート制御（応用）— 仕組み・フラグ・設計", "meta": "初学者 · 20分" },
     { "file": "10-modularization", "title": "モジュール化 — FORM/PERFORM・引数（USING/CHANGING）・スコープ", "meta": "初学者 · 25分" },
     { "file": "11-document-posting", "title": "会計伝票登録 — BAPI・ロック・検証から登録までのフロー", "meta": "初学者 · 30分" },
     { "file": "12-real-world", "title": "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣", "meta": "初学者 · 20分" },
@@ -23,7 +24,8 @@
   ],
   "additionalContent": [
     { "file": "14-sap-development-tools", "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション", "meta": "初学者 · 35分" },
-    { "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" }
+    { "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" },
+    { "file": "17-frequently-used-tables", "title": "よく使うテーブルと項目（列）早見表 — BKPF・BSEG・ACDOCAほか", "meta": "初学者 · 30分" }
   ],
   "specialContent": [
     {
@@ -34,8 +36,13 @@
     {
       "file": "93-exercise-journal-ledger-detail",
       "title": "特別演習② — 明細・金額つき仕訳日記帳を作る",
-      "meta": "特別 · 60分",
-      "lock": { "requires": "course", "password": "shiwake-acd", "mode": "any" }
+      "meta": "特別 · 60分"
+    },
+    {
+      "file": "94-exercise-journal-ledger-control-break",
+      "title": "特別演習③ — 伝票見出しをまとめる",
+      "meta": "特別 · 45分",
+      "lock": { "requires": "course", "password": "abap-report-435", "mode": "any" }
     }
   ]
 }

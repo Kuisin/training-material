@@ -77,6 +77,55 @@ const T001_MASTER_ROWS = [
   { bukrs: "2000", name: "名古屋商事" },
 ] as const;
 
+/** 3テーブル結合のたとえ用：LOOP 1回目・2回目 */
+const LOOP_THREE_TABLE_STEPS = [
+  {
+    round: 1,
+    detailLabel: "明細 1行目",
+    detail: "② 明細 … 伝票 100001 · 行 1 · ノート PC · 158,000",
+    voucherLookup: "① 伝票 … belnr=100001 → 日付 2025-04-01 · 会社 1000",
+    masterLookup: "③ 会社マスタ … bukrs=1000 → 大阪製作所",
+    output: "100001 · 2025-04-01 · 大阪製作所 · ノート PC · 158,000",
+  },
+  {
+    round: 2,
+    detailLabel: "明細 2行目",
+    detail: "② 明細 … 伝票 100001 · 行 2 · マウス · 2,480",
+    voucherLookup: "① 伝票 … 同じ 100001（1回目と同じ表紙）",
+    masterLookup: "③ 会社マスタ … 同じ 1000 → 大阪製作所",
+    output: "100001 · 2025-04-01 · 大阪製作所 · マウス · 2,480",
+  },
+] as const;
+
+/** 例え話：レシート → 注文品目 → 品目マスタ */
+const RECEIPT_ORDER_ROWS = [
+  { orderId: "A001", orderDate: "2025-04-01", storeCode: "S001" },
+  { orderId: "A002", orderDate: "2025-04-03", storeCode: "S002" },
+] as const;
+
+const RECEIPT_LINE_ROWS = [
+  { orderId: "A001", line: "1", productCode: "P100", qty: "1", amount: "158,000" },
+  { orderId: "A001", line: "2", productCode: "P200", qty: "2", amount: "2,480" },
+  { orderId: "A002", line: "1", productCode: "P300", qty: "5", amount: "4,200" },
+] as const;
+
+const RECEIPT_ITEM_MASTER_ROWS = [
+  { productCode: "P100", productName: "ノート PC", unitPrice: "158,000" },
+  { productCode: "P200", productName: "マウス", unitPrice: "1,240" },
+  { productCode: "P300", productName: "コピー用紙", unitPrice: "840" },
+] as const;
+
+const RECEIPT_OUTPUT_ROWS = [
+  { orderId: "A001", orderDate: "2025-04-01", productName: "ノート PC", qty: "1", amount: "158,000" },
+  { orderId: "A001", orderDate: "2025-04-01", productName: "マウス", qty: "2", amount: "2,480" },
+] as const;
+
+/** 明細から抽出するユニークな伝票（取得イメージ用） */
+const UNIQUE_VOUCHER_FROM_DETAIL = [
+  { belnr: "100001", detailCount: 3, budat: "2025-04-01" },
+  { belnr: "100002", detailCount: 2, budat: "2025-04-03" },
+] as const;
+
 /** 3NF 前：ヘッダに会社名を載せると、伝票が増えるほど同じ名称が繰り返される */
 const NF3_HEADER_REPEAT_ROWS = [
   { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所" },
@@ -150,6 +199,569 @@ function Td({
   );
 }
 
+/** 例え話：3つのバラバラなメモ（レシート・注文品目・品目マスタ） */
+function ReceiptAnalogySourcesDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        図：バラバラの3つ — レシート（注文）→ 注文品目 → 品目マスタ
+      </figcaption>
+      <div
+        className={cn(
+          "overflow-x-auto rounded-xl border p-4 shadow-sm",
+          horizontalLineBorderColor,
+          "bg-white dark:bg-slate-900/50"
+        )}
+      >
+        <div className="mb-4 flex min-w-[520px] flex-col items-stretch gap-2 md:flex-row md:items-center">
+          {[
+            { num: "①", title: "レシート（注文）", desc: "注文番号・日付", color: "indigo" },
+            { num: "②", title: "注文品目", desc: "内容・個数・金額", color: "sky", highlight: true },
+            { num: "③", title: "品目マスタ", desc: "品目コード → 名称", color: "emerald" },
+          ].map((box, index) => (
+            <div key={box.num} className="flex flex-1 items-center gap-2">
+              <div
+                className={cn(
+                  "flex-1 rounded-lg border-2 p-3 text-center",
+                  box.color === "indigo" && "border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-500/10",
+                  box.color === "sky" && "border-sky-400 bg-sky-50 dark:border-sky-500 dark:bg-sky-500/10",
+                  box.color === "emerald" &&
+                    "border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-500/10",
+                  box.highlight && "ring-2 ring-sky-400 ring-offset-1 dark:ring-offset-slate-900"
+                )}
+              >
+                <div className="text-[10px] font-bold text-slate-500">{box.num}</div>
+                <div className="text-sm font-bold">{box.title}</div>
+                <div className="mt-1 text-[11px] text-slate-600 dark:text-slate-300">{box.desc}</div>
+                {box.highlight && (
+                  <div className="mt-2 rounded bg-sky-200 px-2 py-0.5 text-[10px] font-bold text-sky-900 dark:bg-sky-500/30 dark:text-sky-100">
+                    1行ずつめくる起点
+                  </div>
+                )}
+              </div>
+              {index < 2 && (
+                <span className="hidden shrink-0 text-xl text-slate-400 md:inline">→</span>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="grid min-w-[640px] grid-cols-1 gap-3 [&>figure]:my-0">
+          <SampleTable caption="① レシート（注文）" variant="default">
+            <thead>
+              <tr>
+                <Th>注文番号</Th>
+                <Th>日付</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {RECEIPT_ORDER_ROWS.map((row) => (
+                <tr key={row.orderId}>
+                  <Td>{row.orderId}</Td>
+                  <Td>{row.orderDate}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </SampleTable>
+          <SampleTable caption="② 注文品目" variant="default">
+            <thead>
+              <tr>
+                <Th>注文番号</Th>
+                <Th>明細番号</Th>
+                <Th>品目CD</Th>
+                <Th>個数</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {RECEIPT_LINE_ROWS.map((row, index) => (
+                <tr key={`${row.orderId}-${row.line}`}>
+                  <Td highlight={index === 0}>{row.orderId}</Td>
+                  <Td highlight={index === 0}>{row.line}</Td>
+                  <Td highlight={index === 0}>{row.productCode}</Td>
+                  <Td highlight={index === 0}>{row.qty}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </SampleTable>
+          <SampleTable caption="③ 品目マスタ" variant="default">
+            <thead>
+              <tr>
+                <Th>品目CD</Th>
+                <Th>名称</Th>
+                <Th>単価</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {RECEIPT_ITEM_MASTER_ROWS.map((row) => (
+                <tr key={row.productCode}>
+                  <Td>{row.productCode}</Td>
+                  <Td>{row.productName}</Td>
+                  <Td>{row.unitPrice}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </SampleTable>
+        </div>
+      </div>
+    </figure>
+  );
+}
+
+/** 例え話：3つをつなげたあとの一覧 */
+function ReceiptAnalogyResultDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-emerald-800 dark:text-emerald-200">
+        図：つなげたあと — 1品目＝1行の見やすい一覧
+      </figcaption>
+      <div
+        className={cn(
+          "rounded-xl border p-4 shadow-sm",
+          horizontalLineBorderColor,
+          "bg-emerald-50/50 dark:bg-emerald-500/5"
+        )}
+      >
+        <p className="mb-3 text-center text-sm text-slate-600 dark:text-slate-300">
+          注文品目1行ごとに → レシートから日付 → 品目マスタから商品名 → <strong>一覧の1行</strong>
+        </p>
+        <SampleTable caption="✅ 見やすい一覧（1品目＝1行）" variant="ok">
+          <thead>
+            <tr>
+              <Th>注文</Th>
+              <Th>日付</Th>
+              <Th>商品名</Th>
+              <Th>個数</Th>
+              <Th>金額</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {RECEIPT_OUTPUT_ROWS.map((row) => (
+              <tr key={`${row.orderId}-${row.productName}`}>
+                <Td>{row.orderId}</Td>
+                <Td>{row.orderDate}</Td>
+                <Td>{row.productName}</Td>
+                <Td>{row.qty}</Td>
+                <Td>{row.amount}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </SampleTable>
+      </div>
+    </figure>
+  );
+}
+
+/** DB から必要分だけ内部テーブルへ載せるイメージ */
+function SelectNecessaryDataDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        図：明細5行 → 伝票番号は<strong>2種類だけ</strong> → ヘッダも2行だけ取得
+      </figcaption>
+      <div className="grid grid-cols-1 gap-4">
+        <SampleTable caption="② 明細 lt_bseg（先に取得・5行）" variant="default">
+          <thead>
+            <tr>
+              <Th>伝票番号</Th>
+              <Th>行</Th>
+              <Th>品目</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {NORM_DETAIL_ROWS.map((row, index) => {
+              const isRepeat = index > 0 && row.belnr === NORM_DETAIL_ROWS[index - 1].belnr;
+              return (
+                <tr key={`${row.belnr}-${row.buzei}`}>
+                  <Td highlight={isRepeat}>{row.belnr}</Td>
+                  <Td>{row.buzei}</Td>
+                  <Td>{row.item}</Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </SampleTable>
+        <div className="flex flex-col items-center gap-1 px-2 text-center text-xs font-semibold text-slate-500">
+          <span>ユニークな</span>
+          <span>伝票番号</span>
+          <span className="rounded bg-indigo-100 px-2 py-0.5 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-100">
+            2件
+          </span>
+          <span className="text-lg text-indigo-500">↓</span>
+        </div>
+        <SampleTable caption="① 伝票 lt_bkpf（必要な2行だけ）" variant="ok">
+          <thead>
+            <tr>
+              <Th>伝票番号</Th>
+              <Th>日付</Th>
+              <Th>明細行数</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {UNIQUE_VOUCHER_FROM_DETAIL.map((row) => (
+              <tr key={row.belnr}>
+                <Td>{row.belnr}</Td>
+                <Td>{row.budat}</Td>
+                <Td>{row.detailCount} 行</Td>
+              </tr>
+            ))}
+          </tbody>
+        </SampleTable>
+      </div>
+      <p className="mt-3 text-center text-[11px] text-slate-600 dark:text-slate-400">
+        同じ伝票番号が明細に何行あっても、ヘッダは<strong>1伝票1行</strong>——DB から取るのもその分だけ
+      </p>
+    </figure>
+  );
+}
+
+/** 3テーブル結合：伝票→明細→会社マスタのつながり */
+function ThreeTableChainDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        図：3テーブル結合 — 伝票 → 明細 → 会社マスタ
+      </figcaption>
+      <div
+        className={cn(
+          "overflow-x-auto rounded-xl border p-4 shadow-sm",
+          horizontalLineBorderColor,
+          "bg-white dark:bg-slate-900/50"
+        )}
+      >
+        <div className="flex min-w-[560px] flex-col items-stretch gap-3 md:flex-row md:items-center">
+          <div className="flex-1 rounded-xl border-2 border-indigo-400 bg-indigo-50 p-4 dark:border-indigo-500 dark:bg-indigo-500/10">
+            <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-300">
+              ① 伝票
+            </div>
+            <div className="text-sm font-bold text-indigo-950 dark:text-indigo-100">BKPF · lt_bkpf</div>
+            <p className="mt-2 text-[11px] text-indigo-900/80 dark:text-indigo-200/80">
+              表紙（日付・会社コード）。1枚の伝票に…
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col items-center gap-0.5 px-1 text-center text-[10px] font-semibold text-slate-500">
+            <span className="text-lg text-indigo-500">→</span>
+            <span>1 : N</span>
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 dark:bg-slate-800">belnr</span>
+          </div>
+          <div className="flex-1 rounded-xl border-2 border-sky-400 bg-sky-50 p-4 dark:border-sky-500 dark:bg-sky-500/10">
+            <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 dark:text-sky-300">
+              ② 明細
+            </div>
+            <div className="text-sm font-bold text-sky-950 dark:text-sky-100">BSEG · lt_bseg</div>
+            <p className="mt-2 text-[11px] text-sky-900/80 dark:text-sky-200/80">
+              品目・金額の行。<strong>LOOP はここ</strong>（1行＝出力1行）
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col items-center gap-0.5 px-1 text-center text-[10px] font-semibold text-slate-500">
+            <span className="text-lg text-emerald-500">→</span>
+            <span>経由</span>
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 dark:bg-slate-800">bukrs</span>
+          </div>
+          <div className="flex-1 rounded-xl border-2 border-emerald-400 bg-emerald-50 p-4 dark:border-emerald-500 dark:bg-emerald-500/10">
+            <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">
+              ③ 会社マスタ
+            </div>
+            <div className="text-sm font-bold text-emerald-950 dark:text-emerald-100">T001 · lt_t001</div>
+            <p className="mt-2 text-[11px] text-emerald-900/80 dark:text-emerald-200/80">
+              会社コード → 会社名（3NF で分けたマスタ）
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 rounded-lg border border-dashed border-amber-400 bg-amber-50/80 px-3 py-2 text-center text-[11px] text-amber-950 dark:border-amber-500 dark:bg-amber-500/10 dark:text-amber-100">
+          <strong>LOOP 1回の結合順：</strong>② 明細1行を机へ →{" "}
+          <code>READ TABLE</code> で ① 伝票 → <code>READ TABLE</code> で ③ 会社マスタ → 1行組み立て
+        </div>
+      </div>
+    </figure>
+  );
+}
+
+/** 3テーブル結合のビジュアル図（伝票→明細→会社マスタ → 机 → 家計簿） */
+function JoinFlowDiagram({
+  activeDetailIndex = 0,
+  loopRound,
+  caption,
+}: {
+  activeDetailIndex?: number;
+  loopRound?: number;
+  caption: string;
+}) {
+  const detailRows = NORM_DETAIL_ROWS.slice(0, 3);
+  const safeIndex = Math.min(activeDetailIndex, detailRows.length - 1);
+  const activeDetail = detailRows[safeIndex];
+  const activeHeader = NORM3_HEADER_ROWS.find((row) => row.belnr === activeDetail.belnr);
+  const activeMaster = T001_MASTER_ROWS.find((row) => row.bukrs === activeHeader?.bukrs);
+  const outputPreview = [
+    activeDetail.belnr,
+    activeHeader?.budat ?? "—",
+    activeMaster?.name ?? "—",
+    activeDetail.item,
+    activeDetail.amount,
+  ].join(" · ");
+
+  const priorOutputRows = detailRows.slice(0, safeIndex).map((row) => {
+    const header = NORM3_HEADER_ROWS.find((h) => h.belnr === row.belnr);
+    const master = T001_MASTER_ROWS.find((m) => m.bukrs === header?.bukrs);
+    return `${row.belnr} · ${header?.budat ?? "—"} · ${master?.name ?? "—"} · ${row.item} · ${row.amount}`;
+  });
+
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        {loopRound != null ? `🔄 LOOP ${loopRound} 回目 — ` : ""}
+        {caption}
+      </figcaption>
+      <div
+        className={cn(
+          "overflow-x-auto rounded-xl border p-4 shadow-sm",
+          horizontalLineBorderColor,
+          "bg-slate-50/80 dark:bg-slate-900/40"
+        )}
+      >
+        <div className="mb-4 grid grid-cols-1 gap-2 text-center text-[11px] font-semibold sm:grid-cols-3">
+          <span className="rounded-md bg-sky-100 px-2 py-1.5 text-sky-900 dark:bg-sky-500/20 dark:text-sky-100">
+            ① 取得用フォルダ（触らない）
+          </span>
+          <span className="rounded-md bg-amber-100 px-2 py-1.5 text-amber-950 dark:bg-amber-500/20 dark:text-amber-100">
+            ② 机で1行組み立て
+          </span>
+          <span className="rounded-md bg-emerald-100 px-2 py-1.5 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-100">
+            ③ 家計簿へ追加
+          </span>
+        </div>
+
+        <div className="mb-3 rounded-md bg-slate-100 px-3 py-2 text-center text-[11px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+          結合の流れ：① 伝票 ← ② 明細（LOOP） → ③ 会社マスタ（伝票の bukrs 経由）
+        </div>
+
+        <div className="grid min-w-[720px] grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-2">
+          {/* ① 伝票 */}
+          <div className="rounded-lg border-2 border-indigo-400 bg-white p-3 dark:border-indigo-500 dark:bg-slate-800">
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <span className="text-xs font-bold text-indigo-800 dark:text-indigo-200">① 伝票</span>
+              <code className="text-[10px] text-slate-500">lt_bkpf</code>
+            </div>
+            <div className="mb-2 rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-900 dark:bg-indigo-500/25 dark:text-indigo-100">
+              READ TABLE ①
+            </div>
+            {NORM3_HEADER_ROWS.map((row) => {
+              const isMatch = row.belnr === activeDetail.belnr;
+              return (
+                <div
+                  key={row.belnr}
+                  className={cn(
+                    "mb-1 rounded border px-2 py-1 text-[10px] last:mb-0",
+                    isMatch
+                      ? "border-indigo-500 bg-indigo-100 font-semibold ring-2 ring-indigo-400 dark:border-indigo-400 dark:bg-indigo-500/20"
+                      : "border-slate-200 bg-slate-50 opacity-50 dark:border-slate-600 dark:bg-slate-900"
+                  )}
+                >
+                  {row.belnr} · {row.budat} · {row.bukrs}
+                </div>
+              );
+            })}
+            <div className="mt-2 text-[10px] font-bold text-indigo-800 dark:text-indigo-200">鍵：belnr</div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-0.5 px-0.5 text-[10px] font-semibold text-indigo-600 dark:text-indigo-300">
+            <span className="text-base">←</span>
+            <span>belnr</span>
+          </div>
+
+          {/* ② 明細 */}
+          <div className="rounded-lg border-2 border-sky-400 bg-white p-3 dark:border-sky-500 dark:bg-slate-800">
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <span className="text-xs font-bold text-sky-800 dark:text-sky-200">② 明細</span>
+              <code className="text-[10px] text-slate-500">lt_bseg</code>
+            </div>
+            <div className="mb-2 rounded bg-sky-100 px-2 py-0.5 text-[10px] font-bold text-sky-900 dark:bg-sky-500/25 dark:text-sky-100">
+              LOOP（起点）
+            </div>
+            {detailRows.map((row, index) => (
+              <div
+                key={`${row.belnr}-${row.buzei}`}
+                className={cn(
+                  "mb-1 rounded border px-2 py-1 text-[10px] leading-snug last:mb-0",
+                  index === safeIndex
+                    ? "border-sky-500 bg-sky-100 font-semibold ring-2 ring-sky-400 dark:border-sky-400 dark:bg-sky-500/20"
+                    : index < safeIndex
+                      ? "border-slate-200 bg-slate-100 text-slate-400 line-through dark:border-slate-600 dark:bg-slate-900"
+                      : "border-slate-200 bg-slate-50 opacity-50 dark:border-slate-600 dark:bg-slate-900"
+                )}
+              >
+                {row.belnr}-{row.buzei} {row.item}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-0.5 px-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-300">
+            <span className="text-base">→</span>
+            <span>bukrs</span>
+          </div>
+
+          {/* ③ 会社マスタ */}
+          <div className="rounded-lg border-2 border-emerald-400 bg-white p-3 dark:border-emerald-500 dark:bg-slate-800">
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-200">③ 会社マスタ</span>
+              <code className="text-[10px] text-slate-500">lt_t001</code>
+            </div>
+            <div className="mb-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-900 dark:bg-emerald-500/25 dark:text-emerald-100">
+              READ TABLE ②
+            </div>
+            {T001_MASTER_ROWS.map((row) => {
+              const isMatch = row.bukrs === activeHeader?.bukrs;
+              return (
+                <div
+                  key={row.bukrs}
+                  className={cn(
+                    "mb-1 rounded border px-2 py-1 text-[10px] last:mb-0",
+                    isMatch
+                      ? "border-emerald-500 bg-emerald-100 font-semibold ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-500/20"
+                      : "border-slate-200 bg-slate-50 opacity-50 dark:border-slate-600 dark:bg-slate-900"
+                  )}
+                >
+                  {row.bukrs} · {row.name}
+                </div>
+              );
+            })}
+            <div className="mt-2 text-[10px] font-bold text-emerald-800 dark:text-emerald-200">鍵：bukrs</div>
+          </div>
+        </div>
+
+        <div className="my-3 flex flex-col items-center gap-0.5 text-center text-[11px] text-slate-600 dark:text-slate-400">
+          <span className="text-base leading-none text-slate-400">↓</span>
+          <span>3テーブル分を机に並べ、MOVE で1行にまとめる</span>
+        </div>
+
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/80 p-3 dark:border-amber-500 dark:bg-amber-500/10">
+          <div className="mb-2 text-xs font-bold text-amber-900 dark:text-amber-100">🗃️ 机（作業領域）</div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded border border-indigo-300 bg-white p-2 text-[10px] dark:bg-slate-800">
+              <code className="text-[9px] text-indigo-700">ls_bkpf</code>
+              <div className="mt-0.5 text-[9px] text-indigo-600">① 伝票</div>
+              <div className="mt-1 font-medium">{activeHeader?.budat ?? "—"}</div>
+              <div>{activeHeader?.bukrs ?? "—"}</div>
+            </div>
+            <div className="rounded border border-sky-300 bg-white p-2 text-[10px] dark:bg-slate-800">
+              <code className="text-[9px] text-sky-700">ls_bseg</code>
+              <div className="mt-0.5 text-[9px] text-sky-600">② 明細</div>
+              <div className="mt-1 font-medium">{activeDetail.item}</div>
+              <div>{activeDetail.amount}</div>
+            </div>
+            <div className="rounded border border-emerald-300 bg-white p-2 text-[10px] dark:bg-slate-800">
+              <code className="text-[9px] text-emerald-700">ls_t001</code>
+              <div className="mt-0.5 text-[9px] text-emerald-600">③ 会社マスタ</div>
+              <div className="mt-1 font-medium">{activeMaster?.name ?? "—"}</div>
+            </div>
+          </div>
+          <div className="my-2 text-center text-sm text-amber-700 dark:text-amber-300">↓ 組み立て</div>
+          <div className="rounded border-2 border-amber-500 bg-white px-3 py-2 text-center text-[11px] font-semibold dark:bg-slate-800">
+            <code className="text-[10px]">ls_out</code> → {outputPreview}
+          </div>
+        </div>
+
+        <div className="my-3 text-center text-[11px] text-slate-600 dark:text-slate-400">
+          <span className="text-base leading-none text-emerald-600">↓</span>{" "}
+          <strong>APPEND</strong> で家計簿へ1行追加 → <strong>CLEAR</strong> で机を空に → 次の明細へ
+        </div>
+
+        <div className="rounded-lg border-2 border-emerald-500 bg-emerald-50/80 p-3 dark:border-emerald-600 dark:bg-emerald-500/10">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-100">📒 家計簿（出力用）</span>
+            <code className="text-[10px] text-slate-500">lt_out</code>
+          </div>
+          {[...priorOutputRows, outputPreview].map((line, index) => (
+            <div
+              key={line}
+              className={cn(
+                "mb-1 rounded border px-2 py-1 text-[10px] last:mb-0",
+                index === priorOutputRows.length
+                  ? "border-emerald-500 bg-emerald-100 font-semibold dark:border-emerald-400 dark:bg-emerald-500/20"
+                  : "border-emerald-200 bg-white dark:border-emerald-700 dark:bg-slate-800"
+              )}
+            >
+              {index + 1}. {line}
+            </div>
+          ))}
+        </div>
+      </div>
+    </figure>
+  );
+}
+
+/** 3テーブル結合の処理順（LOOP + READ×2） */
+function ThreeTableJoinOverviewDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        図：LOOP 1回あたり — ②明細 → ①伝票 → ③会社マスタ
+      </figcaption>
+      <div className="space-y-3">
+        {[
+          {
+            step: "LOOP",
+            table: "② 明細 lt_bseg",
+            action: "1行ずつ机へ（ls_bseg）",
+            color: "sky",
+          },
+          {
+            step: "READ ①",
+            table: "① 伝票 lt_bkpf",
+            action: "明細の belnr で1枚 → ls_bkpf",
+            color: "indigo",
+          },
+          {
+            step: "READ ②",
+            table: "③ 会社マスタ lt_t001",
+            action: "伝票の bukrs で1枚 → ls_t001",
+            color: "emerald",
+          },
+          {
+            step: "組み立て",
+            table: "①＋②＋③ → ls_out",
+            action: "MOVE → APPEND → CLEAR",
+            color: "amber",
+          },
+        ].map((item, index) => (
+          <div key={item.step} className="flex items-stretch gap-3">
+            <div
+              className={cn(
+                "flex w-14 shrink-0 flex-col items-center",
+                index < 3 && "pb-1"
+              )}
+            >
+              <span
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white",
+                  item.color === "sky" && "bg-sky-500",
+                  item.color === "indigo" && "bg-indigo-500",
+                  item.color === "emerald" && "bg-emerald-500",
+                  item.color === "amber" && "bg-amber-500"
+                )}
+              >
+                {index + 1}
+              </span>
+              {index < 3 && <div className="mt-1 w-0.5 flex-1 bg-slate-300 dark:bg-slate-600" />}
+            </div>
+            <div
+              className={cn(
+                "flex-1 rounded-lg border p-3 text-xs",
+                item.color === "sky" && "border-sky-300 bg-sky-50 dark:border-sky-600 dark:bg-sky-500/10",
+                item.color === "indigo" && "border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-500/10",
+                item.color === "emerald" &&
+                  "border-emerald-300 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-500/10",
+                item.color === "amber" && "border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-500/10"
+              )}
+            >
+              <div className="font-bold">{item.table}</div>
+              <div className="mt-1 text-slate-600 dark:text-slate-300">{item.action}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </figure>
+  );
+}
+
 export default function CombineDataLesson() {
   return (
     <Lesson
@@ -158,7 +770,7 @@ export default function CombineDataLesson() {
         {
           title: "概要",
           plainText:
-            "複数データをまとめる\nバラバラの情報（ヘッダと明細）を、1行ずつ見やすい一覧に整える章です。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・取得用と出力用の「棚」を分ける\n・データを移す命令（MOVE / MOVE-CORRESPONDING）\n・1行ずつ追加・片付け（APPEND / CLEAR / REFRESH）\nBちゃん：前の章まででなんとかついてきたけど…今回は難しそう。\n先生：難しい章です。でも覚えることは3つだけ。棚を分ける→1行を組み立てる→追加して片付ける。\nBちゃん：3つだけなら、深呼吸して挑戦します。",
+            "複数データをまとめる\nバラバラの情報を1行ずつ見やすい一覧に整える章。\n⏱ 25分 / 初学者\n・取得用と出力用の棚を分ける\n・MOVE / APPEND / CLEAR\n・3テーブル結合（伝票→明細→会社マスタ）\nBちゃん：今回は難しそう。\n先生：3つ＋3テーブル結合。棚を分ける→組み立て→追加→片付け。",
           content: (
             <>
               <hgroup>
@@ -180,6 +792,9 @@ export default function CombineDataLesson() {
                 <li>取得用と出力用の「棚」を分ける</li>
                 <li>データを移す命令（<code>MOVE</code> / <code>MOVE-CORRESPONDING</code>）</li>
                 <li>1行ずつ追加・片付け（<code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code>）</li>
+                <li>
+                  <strong>3テーブル結合</strong>（伝票 → 明細 → 会社マスタ）を <code>LOOP</code> で組み立てる
+                </li>
               </ul>
               <Dialog speaker="b">
                 前の章まででなんとかついてきたけど…「ヘッダと明細を合体」とか、今回は難しそうです。
@@ -1028,6 +1643,8 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               </Dialog>
               <Dialog speaker="teacher">
                 その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
+                次のスライドでは、<strong>DB から必要な行だけ</strong>内部テーブルへ載せる方法（明細の伝票番号で絞る）を見てから、
+                例えと3テーブル結合に進みます。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
@@ -1040,107 +1657,541 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
           ),
         },
         {
-          title: "LOOPの中で組み立てる",
+          title: "必要なデータだけ取得",
           plainText:
-            "実際の流れ：LOOPの中で1行ずつ\nLOOP AT lt_bseg INTO ls_bseg. READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ... MOVE-CORRESPONDING ls_bkpf TO ls_out. ls_out-amount = ls_bseg-dmbtr. APPEND ls_out TO lt_out. CLEAR ls_out. ENDLOOP.\nBちゃん：明細1行ずつ、対応ヘッダを探して出力1行を作る？\n先生：その通り。明細1行につき出力1行。これがこの章の実務パターン。\nBちゃん：中身は長いけど、やってることは「組み立て→追加→クリア」の繰り返しだけ？\n先生：まさに。コードが長く見えても中身は同じリズム。",
+            "必要なデータだけDB→内部テーブル\n①明細を先にSELECT ②明細のユニークな伝票番号で伝票だけ取得 ③会社マスタも同様\nFOR ALL ENTRIES＝明細に出てくるキーだけ。空のときはIFでガード。\nBちゃん：明細5行でも伝票2件なら、ヘッダ2行だけ？\n先生：その通り。全部取らないのがポイント。",
           content: (
             <>
-              <h2>実際の流れ：<code>LOOP</code> の中で1行ずつ</h2>
-
-              <h3>解説</h3>
+              <h2>DB から<strong>必要な分だけ</strong>内部テーブルへ</h2>
               <p>
-                ここまでの命令が、<code>LOOP</code> の中で<strong>1行ずつ繰り返されます</strong>。
-                明細を1行ずつ取り出し、対応するヘッダを <code>READ TABLE</code> で探し、
-                出力行を組み立てて <code>lt_out</code> へ <code>APPEND</code>——このリズムが実務パターンです。
+                3テーブル結合の前に、<strong>何を DB から取るか</strong>を整理します。
+                伝票テーブル（BKPF）を<strong>丸ごと</strong>取る必要はありません——
+                明細（BSEG）に登場する<strong>伝票番号だけ</strong>に絞ります。
+              </p>
+              <Callout variant="note">
+                <strong>取得の順番（この章の型）</strong>
+                <br />
+                ① <strong>明細</strong>を先に <code>SELECT</code>（帳票の本体・LOOP の起点）<br />
+                ② 明細に登場する<strong>ユニークな伝票キー</strong>で <strong>伝票</strong>だけ取得<br />
+                ③ 伝票に登場する会社コードで <strong>会社マスタ</strong>だけ取得
+              </Callout>
+              <SelectNecessaryDataDiagram />
+              <p>
+                例では明細が<strong>5行</strong>あっても、伝票番号は <code>100001</code> と <code>100002</code> の
+                <strong>2種類</strong>だけ。ヘッダ（伝票）も DB から<strong>2行だけ</strong>取れば足ります。
               </p>
               <Dialog speaker="b">
-                明細を1行ずつめくりながら、対応するヘッダを探す——
-                トランプをめくりながら、ペアのカードを探す感じ？
+                明細の各行に同じ伝票番号が並んでても、ヘッダは1回分でいい——
+                黄色の行は「同じ伝票の2行目以降」、ですね？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。明細1行につき、出力も1行。
-                ヘッダは <code>READ TABLE</code> で「この明細の親」を1行だけ取り出します。
+                その理解で OK です。SAP では伝票を特定するキーは
+                <code>bukrs</code>（会社）＋ <code>belnr</code>（伝票番号）＋ <code>gjahr</code>（年度）の3つセットです。
+                明細の<strong>各行</strong>からこのキーを読み取り、<strong>重複を除いた分だけ</strong>ヘッダを取ります。
               </Dialog>
-              <Dialog speaker="b">
-                コードは長く見えますけど、やってることは「組み立て → 追加 → クリア」の繰り返しだけ、ですね？
-              </Dialog>
-              <Dialog speaker="teacher">
-                まさにそれです。命令が増えて見えても、<strong>リズムは1つ</strong>。
-                怖がらず、1ブロックずつ「何をしているか」を声に出して読んでみてください。
-              </Dialog>
-
-              <h3>例：LOOP のコード</h3>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph step1 ["① 明細を先に取得"]
+    S1["SELECT FROM bseg<br/>INTO lt_bseg"]
+  end
+  subgraph step2 ["② 明細の伝票キーでヘッダだけ"]
+    S2["FOR ALL ENTRIES IN lt_bseg<br/>SELECT FROM bkpf → lt_bkpf"]
+  end
+  subgraph step3 ["③ 伝票の会社コードでマスタだけ"]
+    S3["FOR ALL ENTRIES IN lt_bkpf<br/>SELECT FROM t001 → lt_t001"]
+  end
+  step1 --> step2 --> step3
+  step3 --> M["メモリ上で LOOP + READ TABLE 結合"]`}
+              />
+              <h3>例：<code>FOR ALL ENTRIES</code> で必要分だけ</h3>
               <CodeBlock
                 language="ABAP"
-                code={`LOOP AT lt_bseg INTO ls_bseg.          " 明細を1行ずつ作業領域へ
+                code={`" ① 明細を先に取得（選択条件で絞る）
+SELECT bukrs belnr gjahr buzei dmbtr
+  FROM bseg
+  INTO TABLE lt_bseg
+  WHERE bukrs = p_bukrs
+    AND budat IN s_budat.
 
-  READ TABLE lt_bkpf INTO ls_bkpf         " 対応するヘッダを1行取得
-    WITH KEY bukrs = ls_bseg-bukrs
-             belnr = ls_bseg-belnr
-             gjahr = ls_bseg-gjahr.
-  IF sy-subrc <> 0. CONTINUE. ENDIF.      " 見つからなければ次の明細へ
+" ② 明細に登場する伝票だけヘッダ取得（全伝票は取らない）
+IF lt_bseg IS NOT INITIAL.
+  SELECT bukrs belnr gjahr budat
+    FROM bkpf
+    INTO TABLE lt_bkpf
+    FOR ALL ENTRIES IN lt_bseg
+    WHERE bukrs = lt_bseg-bukrs
+      AND belnr = lt_bseg-belnr
+      AND gjahr = lt_bseg-gjahr.
+ENDIF.
 
-  MOVE-CORRESPONDING ls_bkpf TO ls_out.   " ヘッダの同名項目をコピー
-  ls_out-amount = ls_bseg-dmbtr.          " 金額は手動で移す
-
-  APPEND ls_out TO lt_out.                " 出力テーブルへ追加
-  CLEAR ls_out.                           " 作業領域を空にして次の行へ
-
-ENDLOOP.`}
+" ③ ヘッダに登場する会社だけマスタ取得
+IF lt_bkpf IS NOT INITIAL.
+  SELECT bukrs butxt
+    FROM t001
+    INTO TABLE lt_t001
+    FOR ALL ENTRIES IN lt_bkpf
+    WHERE bukrs = lt_bkpf-bukrs.
+ENDIF.`}
               />
               <ul>
                 <li>
-                  <code>LOOP AT lt_bseg INTO ls_bseg.</code> … 明細取得用から1行ずつ <code>ls_bseg</code> へ
+                  <code>FOR ALL ENTRIES IN lt_bseg</code> … 明細内部テーブルに含まれる<strong>伝票キーの組み合わせだけ</strong>を
+                  <code>WHERE</code> に使ってヘッダを取得（同じキーの重複行は SAP 側で整理）
                 </li>
                 <li>
-                  <code>READ TABLE ... WITH KEY ...</code> … いまの明細に対応するヘッダを1行だけ取得
+                  <code>IF lt_bseg IS NOT INITIAL.</code> … 明細が0件のときにマスタ全件を取ってしまう<strong>罠</strong>を防ぐ（必須）
                 </li>
                 <li>
-                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 … <code>ls_out</code> で1行を組み立て
-                </li>
-                <li>
-                  <code>APPEND</code> → <code>CLEAR</code> … <code>lt_out</code> へ追加して、<code>ls_out</code> を片付け
+                  必要な<strong>列だけ</strong> <code>SELECT</code>（<code>SELECT *</code> は避ける）——第6章の復習
                 </li>
               </ul>
+              <Dialog speaker="stumble">
+                明細が0件なのに <code>FOR ALL ENTRIES</code> だけ書くと、条件が効かず<strong>伝票やマスタを全件取得</strong>してしまう——
+                開発環境では気づきにくい重大バグです。
+              </Dialog>
+              <Dialog speaker="a">
+                取得用内部テーブル（<code>lt_bseg</code> / <code>lt_bkpf</code> / <code>lt_t001</code>）に
+                <strong>必要最小限</strong>だけ載せてから LOOP 結合に入る——
+                この順番が実務の定番ですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。次のスライドは<strong>性能の補足</strong>（分からなければスキップ可）です。
+                そのあと例え話で結合のイメージを掴みます。
+              </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="06-select-from-db"
+                slide={5}
+                label="第6章: SELECT の基本を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
         {
-          title: "図解：取得→対応付け→蓄積",
+          title: "LOOP内SELECTを避ける理由",
           plainText:
-            "図で見る：まとめる流れ\nflowchart：ヘッダ取得＋明細取得 → 1行を組み立て → APPENDで蓄積 → CLEARして次の行へ → 繰り返し\nBちゃん：フォルダから1枚→家計簿の1行を組み立て→追加→机を空に、を繰り返すだけ？\n先生：その通り。通帳コピーと家計簿のたとえで、このリズムが核心。\nBちゃん：図とコード、両方見ると頭の中でつながりました。",
+            "LOOP内SELECTを避ける理由（補足・スキップ可）\n本コース必須ではない。難しければ次の例えへ進んでOK。口ぐせ：取得はLOOP前、結合はREAD TABLE。\nBちゃん：LOOP内SELECTのほうが書きやすくて楽だと思ってた…その場で取れるし。\n先生：書くときは楽。本番では往復が件数分。楽な近道がN+1問題。\nBちゃん：楽そうな書き方がトラップだった。n²n³は後回しで型だけ守ってもいい？\n先生：その通り。詳しくは第13章。",
           content: (
             <>
-              <h2>図で見る：まとめる流れ</h2>
+              <h2>
+                <code>LOOP</code> の<strong>中</strong>で <code>SELECT</code> しない理由
+              </h2>
+              <InfoPanel
+                title="このスライドについて"
+                variant="reference"
+                lead={
+                  <>
+                    <strong>本コースの必須内容ではありません。</strong>
+                    性能の背景を理解したい人向けの補足です。
+                  </>
+                }
+              >
+                <ul>
+                  <li>
+                    往復コスト・N+1問題・テーブル結合での<strong>ネスト LOOP</strong>（参考）
+                  </li>
+                  <li>
+                    <strong>分からない・難しければスキップして大丈夫</strong>です。次の「例え」「3テーブル結合」へ進んでください
+                  </li>
+                  <li>
+                    最低限覚える型：<strong>取得は LOOP の前</strong>、<strong>結合は READ TABLE</strong>、
+                    <strong>LOOP は② 明細だけ</strong>（3テーブル結合スライドで実践）
+                  </li>
+                  <li>詳しくは第13章（良いABAP）で扱います</li>
+                </ul>
+              </InfoPanel>
+              <p>
+                前のスライドでは、<code>FOR ALL ENTRIES</code> で<strong>LOOP の前</strong>に必要分だけ DB から取得しました。
+                結合は <code>READ TABLE</code> で行う——この順番には、性能上の理由があります。
+              </p>
+              <Dialog speaker="b">
+                正直、前まで <code>LOOP</code> の中で <code>SELECT</code> したほうが<strong>楽</strong>だと思ってました。
+                「いまの明細に合う伝票が欲しい」→ その場で <code>SELECT SINGLE</code>——
+                流れが1行ずつ追いやすいし、<code>FOR ALL ENTRIES</code> を先に書かなくていいですよね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                書く直感としては、そう感じる人がとても多いです。
+                でも DB への<strong>往復</strong>という観点で見ると、楽な書き方が本番で一番困るパターンになります。
+              </Dialog>
+              <Callout variant="note">
+                <strong>DB への問い合わせは「往復」が重い</strong>
+                <br />
+                プログラム（事務所）と DB（倉庫）は別の場所にあります。
+                1回 <code>SELECT</code> するたびに<strong>往復の旅</strong>が1回発生し、時間がかかります。
+              </Callout>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph bad ["❌ LOOP 内 SELECT"]
+    L["LOOP 明細 N行"] --> S["毎回 SELECT"]
+    S --> DB1[("DB 往復 × N")]
+    DB1 --> L
+  end
+  subgraph good ["✅ この章の型"]
+    Q["LOOP 前: FOR ALL ENTRIES 等"] --> DB2[("DB 往復 少数")]
+    DB2 --> M["LOOP 内: READ TABLE"]
+    M --> R["メモリ照合（往復なし）"]
+  end`}
+              />
+              <ul>
+                <li>
+                  <strong>LOOP 内 SELECT</strong> … 明細100行なら DB へ<strong>100回往復</strong>。
+                  業界では「<strong>N+1問題</strong>」と呼ばれる代表的なアンチパターンです
+                </li>
+                <li>
+                  <strong>開発環境では気づきにくい</strong> … 件数が少ないと速く見えますが、
+                  本番の大量データでは処理が止まる原因になります
+                </li>
+                <li>
+                  <strong>正しい型</strong> … <code>FOR ALL ENTRIES</code> などで LOOP の前に必要分だけ取得し、
+                  LOOP 内はメモリ上の <code>READ TABLE</code> で照合する
+                </li>
+              </ul>
+              <Dialog speaker="b">
+                え、私が「楽」だと思ってた <code>LOOP</code> 内 <code>SELECT</code> が、明細100行で DB へ<strong>100回往復</strong>…？
+                研修データではサクッと動いたから、問題ないと思ってました…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                件数が少ないと「楽な書き方」でも動きます。
+                本番で明細が増えると往復が件数分膨らむ——<strong>N+1問題</strong>です。
+                だから先にまとめて取り、LOOP 内は <code>READ TABLE</code> で机の上だけ照合します。
+              </Dialog>
+
+              <h3>テーブル結合で LOOP を重ねると、件数の累乗で遅くなる</h3>
+              <p>
+                結合のために<strong>表ごとに LOOP をネスト</strong>すると、突き合わせの回数が件数の累乗オーダーに近づきます。
+                （細かい計算量の話は第13章でも触れますが、<strong>イメージだけ</strong>押さえれば十分です。）
+              </p>
+              <ul>
+                <li>
+                  <strong>2表を二重 LOOP</strong>（例：伝票 LOOP × 明細 LOOP）… おおむね <strong>n × m</strong>。
+                  両方100件なら最大<strong>1万回</strong>の突き合わせ（<strong>n²</strong> オーダー）
+                </li>
+                <li>
+                  <strong>3表を三重 LOOP</strong> … さらに1段重なると <strong>n³</strong> オーダーに近づく
+                </li>
+                <li>
+                  <strong>この章の型</strong> … <strong>LOOP は② 明細だけ</strong>（n回）、①③ は <code>READ TABLE</code> で1行取得。
+                  明細100行なら<strong>100回の1周</strong>——ネスト LOOP や LOOP 内 SELECT よりはるかに軽い
+                </li>
+              </ul>
               <MermaidDiagram
                 chart={`flowchart LR
-  A[ヘッダ取得] --> C[1行を組み立て]
-  B[明細取得] --> C
-  C --> D[APPEND で蓄積]
-  D --> E[CLEAR して次の行へ]
-  E --> C`}
+  subgraph nest ["❌ 表ごとに LOOP を重ねる"]
+    L1["LOOP ①"] --> L2["LOOP ②"]
+    L2 --> L3["LOOP ③"]
+    L3 --> X["比較 ≈ n³"]
+  end
+  subgraph ok ["✅ この章"]
+    D["LOOP ② 明細 n回"] --> R1["READ ①"]
+    R1 --> R2["READ ③"]
+    R2 --> Y["≈ n 回の1周"]
+  end`}
+              />
+              <Dialog speaker="b">
+                表ごとに <code>LOOP</code> を重ねるのも、コードの並びはわかりやすそう…でも <strong>n³</strong> は怖いです。
+                結局、<strong>楽そうな</strong> <code>SELECT</code> やネスト LOOP より、
+                口ぐせの型（LOOP 前に取得・明細だけ LOOP）のほうが正解、ですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その整理で大丈夫です。<strong>読みやすさだけ</strong>で選ぶと、性能のトラップに入りがちです。
+                結合で3表全部 <code>LOOP</code> にすると n³ オーダー——この章は<strong>LOOP は明細1本</strong>＋ <code>READ TABLE</code> です。
+                第13章でも、同じ「楽な近道」の話を深掘りします。
+              </Dialog>
+              <Dialog speaker="b">
+                <strong>n²</strong> や <strong>n³</strong> はまだふわっとだけど…
+                「楽だから LOOP 内 <code>SELECT</code>」はやめて、スキップして口ぐせだけ守ってもいいですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                大丈夫です。<strong>取得は LOOP の前、結合は READ TABLE、LOOP は明細だけ</strong>——この3つが身につけば、
+                この章の実習は進められます。性能の深掘りは第13章でまた会いましょう。
+              </Dialog>
+              <Dialog speaker="a">
+                Bちゃんの「その場で <code>SELECT</code>」は、確かに読みやすいですが、
+                前のスライドの「①②③ を LOOP 前に取得 → LOOP 内は <code>READ TABLE</code>」のほうが、
+                性能面では正しい設計、ということですね！
+              </Dialog>
+              <Callout variant="tip">
+                口ぐせ：<strong>取得は LOOP の前、結合は READ TABLE</strong>。
+                DB への往復を減らす——この章の型は、性能改善の第一歩でもあります。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="13-good-programming"
+                slide={3}
+                label="第13章: なぜ LOOP 内 SELECT が遅いか（詳しく）"
+                variant="back"
+                className="mb-4"
+              />
+            </>
+          ),
+        },
+        {
+          title: "例え：3つのメモ",
+          plainText:
+            "例え：3つのメモ\nレシート（注文）→注文品目→品目マスタ\n①表紙 ②品目行（めくる起点） ③商品名辞書\nBちゃん：ネット通販、3枚に分かれてる感じ？\n先生：その通り。次のスライドで1行ずつつなげる。",
+          content: (
+            <>
+              <h2>例えで理解する：<strong>3つのメモ</strong></h2>
+              <p>
+                テーブル結合の前に、<strong>日常の例え</strong>でイメージを掴みましょう。
+                ネット通販やレジのレシート——情報が<strong>3枚のメモ</strong>に分かれている、と想像してください。
+              </p>
+              <Callout variant="tip">
+                <strong>3つのメモの役割</strong>
+                <br />
+                ① <strong>レシート（注文）</strong> … 注文番号・日付（表紙）<br />
+                ② <strong>注文品目</strong> … 何を・いくつ買ったか（<strong>1行ずつめくる起点</strong>）<br />
+                ③ <strong>品目マスタ</strong> … 品目コード → 商品名（辞書）
+              </Callout>
+              <ReceiptAnalogySourcesDiagram />
+              <Dialog speaker="b">
+                注文 A001 に品目が2行ある——黄色の行から、1行ずつ処理するんですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。次のスライドでは、この3つを<strong>1行ずつつなげて</strong>、
+                見やすい一覧にしていきます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "例え：1行ずつつなぐ",
+          plainText:
+            "例え：1行ずつつなぐ\n②品目1行→①レシート→③品目マスタ→一覧1行\n例え→SAP：レシート=伝票、品目=明細、品目マスタ=会社マスタ\nBちゃん：コードから名前を辞書で引く——③の考え方は同じ。\n先生：次はSAP表で同じ型をコードに。",
+          content: (
+            <>
+              <h2>例えで理解する：<strong>1行ずつつなぐ</strong></h2>
+              <p>
+                前のスライドの3つのメモを、<strong>注文品目1行ごと</strong>にくっつけます。
+              </p>
+              <ReceiptAnalogyResultDiagram />
+              <h3>1行ずつやること（コードの前に）</h3>
+              <ol>
+                <li>
+                  <strong>② 注文品目</strong>を1行取り出す（注文 A001・1行目 …）
+                </li>
+                <li>
+                  同じ<strong>注文番号</strong>で ① レシートから日付などを探す
+                </li>
+                <li>
+                  品目コード（P100）で ③ 品目マスタから<strong>商品名</strong>を探す
+                </li>
+                <li>
+                  3つを並べて<strong>一覧の1行</strong>に書く → 次の注文品目行へ
+                </li>
+              </ol>
+              <Dialog speaker="b">
+                注文に商品が2つあれば、② を2回めくって、一覧も2行——「品目1行＝出力1行」、ですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。やっていることは「<strong>バラバラの3つを、1行ずつくっつける</strong>」だけ。
+                SAP でも同じ型です。
+              </Dialog>
+              <InfoPanel title="例え → SAP（この章）" variant="reference">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-left font-semibold">例え</th>
+                      <th className="pb-2 text-left font-semibold">SAP（この章で使う表）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-1">① レシート（注文）</td>
+                      <td className="py-1">伝票 <code>BKPF</code></td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">② 注文品目</td>
+                      <td className="py-1">明細 <code>BSEG</code></td>
+                    </tr>
+                    <tr>
+                      <td className="py-1">③ 品目マスタ（商品名）</td>
+                      <td className="py-1">
+                        会社マスタ <code>T001</code>（<strong>会社名</strong>を付ける——③ の「辞書」の役割は同じ）
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                品目マスタじゃなく会社マスタ、ですか。でも「コードから名前を辞書で引く」——③ の考え方は同じ、と。
+              </Dialog>
+              <Dialog speaker="teacher">
+                まさにそれです。次のスライドで、伝票・明細・会社マスタに置き換えて、同じ型をコードに落とし込みます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "3テーブル結合",
+          plainText:
+            "3テーブル結合：伝票→明細→会社マスタ\nLOOP②→READ①→READ③→組み立て→APPEND→CLEAR\nLOOPは明細だけ。①③はREAD TABLEで1行。\nBちゃん：レシートの例え、そのまま BKPF/BSEG/T001？\n先生：その通り。次のスライドでコード。",
+          content: (
+            <>
+              <h2>
+                3テーブル結合：<strong>伝票 → 明細 → 会社マスタ</strong>
+              </h2>
+              <p>
+                内部テーブルに載せた3表を、<strong>② 明細を起点</strong>に1行ずつつなげます。
+                テーブル名の並びは <strong>伝票 → 明細 → 会社マスタ</strong>、
+                処理の順は <strong>明細 → 伝票 → 会社マスタ</strong> です。
+              </p>
+              <ThreeTableChainDiagram />
+              <ThreeTableJoinOverviewDiagram />
+              <JoinFlowDiagram
+                activeDetailIndex={0}
+                loopRound={1}
+                caption="LOOP 1回目 — ②明細から①伝票・③会社マスタを結合"
+              />
+              <MermaidDiagram
+                chart={`sequenceDiagram
+  participant V as ① 伝票 lt_bkpf
+  participant D as ② 明細 lt_bseg
+  participant M as ③ 会社マスタ lt_t001
+  participant W as 机 ls_out
+  participant O as 家計簿 lt_out
+  Note over D: LOOP 開始
+  D->>D: 1行目 → ls_bseg
+  D->>V: belnr で READ ①
+  V->>M: bukrs で READ ③
+  V->>W: MOVE 日付など
+  M->>W: MOVE 会社名
+  D->>W: MOVE 金額
+  W->>O: APPEND
+  W->>W: CLEAR
+  Note over D: 次の明細行へ`}
+              />
+              <Dialog speaker="b">
+                「ネスト」ってループの中にループ…？ 3テーブル全部 LOOP するんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                いいえ。<strong>LOOP は② 明細だけ</strong>です。
+                ① 伝票と ③ 会社マスタは <code>READ TABLE</code> で合う1行だけ取り出します。
+                同じ伝票の2行目以降も、①③ の READ は毎回行いますが、取れる内容は同じ——変わるのは② の品目と金額だけです。
+              </Dialog>
+              {LOOP_THREE_TABLE_STEPS.map((step) => (
+                <SampleTable
+                  key={step.round}
+                  caption={`🔄 ${step.detailLabel}（LOOP ${step.round} 回目）`}
+                  variant="default"
+                >
+                  <tbody>
+                    <tr>
+                      <Th>LOOP ②</Th>
+                      <Td>{step.detail}</Td>
+                    </tr>
+                    <tr>
+                      <Th>READ ①</Th>
+                      <Td>{step.voucherLookup}</Td>
+                    </tr>
+                    <tr>
+                      <Th>READ ③</Th>
+                      <Td>{step.masterLookup}</Td>
+                    </tr>
+                    <tr>
+                      <Th>出力1行</Th>
+                      <Td>
+                        <strong>{step.output}</strong>
+                      </Td>
+                    </tr>
+                  </tbody>
+                </SampleTable>
+              ))}
+              <Callout variant="tip">
+                口ぐせ：<strong>LOOP ② → READ ① → READ ③ → 組み立て → APPEND → CLEAR</strong>。
+                次のスライドで、この流れを ABAP コードに落とし込みます。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "LOOPの中で組み立てる",
+          plainText:
+            "3テーブル結合のコード\nLOOP AT lt_bseg → READ lt_bkpf → READ lt_t001 → MOVE → APPEND → CLEAR\nBちゃん：前のスライドの図、そのままコード版？\n先生：その通り。声に出して読めば長さより意味が先に見える。",
+          content: (
+            <>
+              <h2>3テーブル結合の <code>LOOP</code> コード</h2>
+              <p>
+                前のスライドの流れが、そのまま次のコードです。
+                <code>READ TABLE</code> の鍵は <code>belnr</code>（① 伝票）と <code>bukrs</code>（③ 会社）です。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph selectPhase ["取得（章の前半）"]
+    S1[("DB")] -->|FOR ALL ENTRIES| F2["② lt_bseg"]
+    F2 --> F1["① lt_bkpf"]
+    F1 --> F3["③ lt_t001"]
+  end
+  subgraph loopPhase ["LOOP 1回"]
+    L["LOOP ②"] --> R1["READ ①"]
+    R1 --> R2["READ ③"]
+    R2 --> M["MOVE → APPEND → CLEAR"]
+  end
+  F1 --> loopPhase
+  F2 --> loopPhase
+  F3 --> loopPhase
+  M -.->|次の明細| L`}
+              />
+              <CodeBlock
+                language="ABAP"
+                code={`LOOP AT lt_bseg INTO ls_bseg.          " ② 明細
+
+  READ TABLE lt_bkpf INTO ls_bkpf         " ① 伝票
+    WITH KEY bukrs = ls_bseg-bukrs
+             belnr = ls_bseg-belnr
+             gjahr = ls_bseg-gjahr.
+  IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+  READ TABLE lt_t001 INTO ls_t001         " ③ 会社マスタ
+    WITH KEY bukrs = ls_bkpf-bukrs.
+  IF sy-subrc <> 0. CLEAR ls_t001. ENDIF.
+
+  MOVE-CORRESPONDING ls_bkpf TO ls_out.
+  ls_out-name   = ls_t001-butxt.
+  ls_out-amount = ls_bseg-dmbtr.
+
+  APPEND ls_out TO lt_out.
+  CLEAR ls_out.
+
+ENDLOOP.`}
               />
               <Figure
                 src="image/08-header-detail-join.webp"
-                alt="lt_bkpf（ヘッダ行）とlt_bseg（明細行）から、MOVE-CORRESPONDINGと個別代入で1行(ls_out)を組み立て、APPENDでlt_out（出力テーブル）に積み上げていく流れの図。"
-                caption="ヘッダ＋明細 → 1行を組み立て（MOVE-CORRESPONDING＋個別代入）→ APPENDで蓄積"
+                alt="lt_bkpf（伝票）とlt_bseg（明細）から1行(ls_out)を組み立て、APPENDでlt_outへ蓄積する流れ。"
+                caption="3テーブル → 1行組み立て → APPEND で lt_out へ"
                 kind="diagram"
               />
+              <ul>
+                <li>
+                  <code>LOOP AT lt_bseg</code> … ② 明細（1明細＝出力1行）
+                </li>
+                <li>
+                  <code>READ TABLE lt_bkpf</code> … ① 伝票（明細と同じ <code>belnr</code> キー）
+                </li>
+                <li>
+                  <code>READ TABLE lt_t001</code> … ③ 会社マスタ（伝票の <code>bukrs</code>）
+                </li>
+                <li>
+                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 → <code>APPEND</code> → <code>CLEAR</code>
+                </li>
+              </ul>
+              <InfoPanel
+                title="4つ目のマスタを結合するとき"
+                variant="reference"
+                lead="T003T（伝票タイプ名）など、READ TABLE がもう1段増えることもあります。"
+              >
+                <p>
+                  <strong>LOOP は② 明細のまま</strong>、<code>READ TABLE</code> を増やすだけ——3テーブル結合と同じ型です。
+                </p>
+              </InfoPanel>
               <Dialog speaker="b">
-                通帳コピーのフォルダから1枚取る → 家計簿の1行を組み立てる → 家計簿へ追加 → 机を空にする——
-                これを繰り返すだけ？
+                コードは長く見えますけど、やってることは前のスライドの口ぐせと同じ、ですね？
               </Dialog>
               <Dialog speaker="teacher">
-                その通り。このリズムがこの章の核心です。前のスライドのコードも、
-                この図の <code>C → D → E → C</code> を <code>LOOP</code> の中で回しているだけです。
+                その通りです。「LOOP ② → READ ① → READ ③ → 組み立て → APPEND → CLEAR」と声に出して読んでみてください。
               </Dialog>
-              <Dialog speaker="b">
-                図とコード、両方見ると頭の中でつながりました。単独だと難しかったです…。
-              </Dialog>
-              <Callout variant="tip">
-                この章のABAPキーワード：<code>MOVE</code> / <code>MOVE-CORRESPONDING</code> / <code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code>。
-                全部覚えなくてOK。まずは <strong>組み立て → APPEND → CLEAR</strong> だけ口ぐせに。
-              </Callout>
             </>
           ),
         },
@@ -1180,10 +2231,11 @@ ENDLOOP.`}
                 出力用へ「組み立て → 追加 → 片付け」——この流れなら、もう一度やれそうです。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。細かい点は3つだけ。<br />
-                ① 同名項目は <code>MOVE-CORRESPONDING</code>、違う名前は手動で移す。<br />
-                ② 取得用テーブルは触らない。<br />
-                ③ <code>APPEND</code> のあとは必ず <code>CLEAR</code>。
+                その通りです。細かい点は4つだけ。<br />
+                ① <strong>3テーブル結合</strong> … LOOP ②明細 → READ ①伝票 → READ ③会社マスタ。<br />
+                ② 同名項目は <code>MOVE-CORRESPONDING</code>、違う名前は手動で移す。<br />
+                ③ 取得用テーブルは触らない。<br />
+                ④ <code>APPEND</code> のあとは必ず <code>CLEAR</code>。
               </Dialog>
               <Dialog speaker="a">
                 取得用に載せておけば、加工中は DB へ何度も行かなくて済みます。
@@ -1200,13 +2252,15 @@ ENDLOOP.`}
         {
           title: "コード早見表",
           plainText:
-            "コード早見表（チートシート）\n出力行の型：TYPES BEGIN OF ty_out ... END OF ty_out.\n変数宣言：lt_bkpf / lt_bseg / lt_out と ls_bkpf / ls_bseg / ls_out\nMOVE-CORRESPONDING ls_bkpf TO ls_out. / ls_out-amount = ls_bseg-dmbtr.\nAPPEND ls_out TO lt_out. / CLEAR ls_out.\nLOOP：明細LOOP→READ TABLEヘッダ→組み立て→APPEND→CLEAR\nリズム：組み立て → APPEND → CLEAR\n先生：テスト前にこの一覧を見返してください。",
+            "コード早見表\n3テーブル：①伝票 lt_bkpf ②明細 lt_bseg ③会社マスタ lt_t001\nLOOP ② → READ ① → READ ③ → 組み立て → APPEND → CLEAR",
           content: (
             <>
               <h2>コード早見表</h2>
               <p>
-                この章で使うコードを一覧にまとめました。チートシートとして見返してください。
+                この章で使うコードを一覧にまとめました。
+                <strong>3テーブル結合（伝票 → 明細 → 会社マスタ）</strong>の対応を意識して読みましょう。
               </p>
+              <ThreeTableChainDiagram />
 
               <h3>出力行の型（<code>ty_out</code>）</h3>
               <p>
@@ -1220,6 +2274,7 @@ ENDLOOP.`}
     belnr  TYPE bkpf-belnr,   " 伝票番号（ヘッダと同名 → MOVE-CORRESPONDING）
     budat  TYPE bkpf-budat,   " 日付（同上）
     bukrs  TYPE bkpf-bukrs,   " 会社コード（同上）
+    name   TYPE t001-butxt,   " 会社名（T001 から手動で移す）
     amount TYPE bseg-dmbtr,   " 金額（明細の dmbtr を手動で移す）
   END OF ty_out.`}
               />
@@ -1242,10 +2297,12 @@ ENDLOOP.`}
                 code={`" ty_out の型が定義済みであること
 DATA lt_bkpf TYPE TABLE OF bkpf.   " ヘッダ取得用
 DATA lt_bseg TYPE TABLE OF bseg.   " 明細取得用
+DATA lt_t001 TYPE TABLE OF t001.   " 会社名取得用（3NF）
 DATA lt_out  TYPE TABLE OF ty_out. " 出力用（ty_out 型の行を複数）
 
 DATA ls_bkpf TYPE bkpf.            " ヘッダ1行（作業領域）
 DATA ls_bseg TYPE bseg.            " 明細1行（作業領域）
+DATA ls_t001 TYPE t001.            " 会社1行（作業領域）
 DATA ls_out  TYPE ty_out.          " 出力1行（作業領域）`}
               />
 
@@ -1276,27 +2333,36 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域）`}
                     <code>REFRESH lt_out.</code> … 出力用テーブル全体を空にする（ループ外・やり直し用）
                   </li>
                   <li>
-                    <code>LOOP AT lt_bseg INTO ls_bseg.</code> … 明細を1行ずつ処理
+                    <code>LOOP AT lt_bseg INTO ls_bseg.</code> … <strong>② 明細</strong>：LOOP の起点
                   </li>
                   <li>
-                    <code>READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ...</code> … 対応ヘッダを1行取得{" "}
-                    <strong>⚠️ <code>sy-subrc</code> を確認</strong>
+                    <code>READ TABLE lt_bkpf INTO ls_bkpf WITH KEY ...</code> … <strong>① 伝票</strong>：{" "}
+                    <code>belnr</code> で1行取得 <strong>⚠️ <code>sy-subrc</code> を確認</strong>
+                  </li>
+                  <li>
+                    <code>READ TABLE lt_t001 INTO ls_t001 WITH KEY bukrs = ...</code> … <strong>③ 会社マスタ</strong>：{" "}
+                    <code>bukrs</code> で1行取得 <strong>⚠️ <code>sy-subrc</code> を確認</strong>
                   </li>
                 </ul>
               </InfoPanel>
 
-              <h3>LOOP の型（この章の核心）</h3>
+              <h3>LOOP の型（3テーブル結合・この章の核心）</h3>
               <CodeBlock
                 language="ABAP"
-                code={`LOOP AT lt_bseg INTO ls_bseg.
+                code={`LOOP AT lt_bseg INTO ls_bseg.          " ② 明細
 
-  READ TABLE lt_bkpf INTO ls_bkpf
+  READ TABLE lt_bkpf INTO ls_bkpf           " ① 伝票
     WITH KEY bukrs = ls_bseg-bukrs
              belnr = ls_bseg-belnr
              gjahr = ls_bseg-gjahr.
   IF sy-subrc <> 0. CONTINUE. ENDIF.
 
+  READ TABLE lt_t001 INTO ls_t001           " ③ 会社マスタ
+    WITH KEY bukrs = ls_bkpf-bukrs.
+  IF sy-subrc <> 0. CLEAR ls_t001. ENDIF.
+
   MOVE-CORRESPONDING ls_bkpf TO ls_out.
+  ls_out-name   = ls_t001-butxt.
   ls_out-amount = ls_bseg-dmbtr.
 
   APPEND ls_out TO lt_out.
@@ -1306,8 +2372,8 @@ ENDLOOP.`}
               />
 
               <Callout variant="tip">
-                覚えるのはリズムだけ：<strong>組み立て → APPEND → CLEAR</strong>。
-                通帳コピーと家計簿のたとえで言えば、フォルダから1枚 → 家計簿へ1行追加 → 机を空にする、の繰り返しです。
+                口ぐせ：<strong>LOOP ②明細 → READ ①伝票 → READ ③会社マスタ → 組み立て → APPEND → CLEAR</strong>。
+                テーブル名の並びは <strong>伝票 → 明細 → 会社マスタ</strong>。
               </Callout>
               <Dialog speaker="teacher">
                 この一覧は復習用です。コードが長く見えても、中身はこの型の繰り返しだけ——次のスライドで理解度を確認しましょう。

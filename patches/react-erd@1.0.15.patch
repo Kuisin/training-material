@@ -1,0 +1,26 @@
+diff --git a/dist/RelationshipDiagram.cjs b/dist/RelationshipDiagram.cjs
+index 6b92dece36270e91a425702121dc9501a69599cc..efbe7e3978865e94a41fff189fd9baa45d3c90b3 100644
+--- a/dist/RelationshipDiagram.cjs
++++ b/dist/RelationshipDiagram.cjs
+@@ -83,7 +83,7 @@ function RelationshipDiagram({
+         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: table.columns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
+           (() => {
+             const foreignKey = column.foreignKeys.filter((key) => key.constrained).length >= 1;
+-            const isPrimary = table.primaryKey === column.name;
++            const isPrimary = Array.isArray(table.primaryKey) ? table.primaryKey.includes(column.name) : table.primaryKey === column.name;
+             if (foreignKey && isPrimary) {
+               return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.Icon, { path: import_js.mdiKeyLink, className: "column-icon" });
+             } else if (foreignKey) {
+diff --git a/dist/RelationshipDiagram.js b/dist/RelationshipDiagram.js
+index b78ec84b084fcfbc6a9fde4de812c48004ff67d9..1cfe2696243d4c7a372d4c6a9d40612e89c3433c 100644
+--- a/dist/RelationshipDiagram.js
++++ b/dist/RelationshipDiagram.js
+@@ -74,7 +74,7 @@ function RelationshipDiagram({
+         /* @__PURE__ */ jsx("ul", { children: table.columns.map((column) => /* @__PURE__ */ jsxs("li", { children: [
+           (() => {
+             const foreignKey = column.foreignKeys.filter((key) => key.constrained).length >= 1;
+-            const isPrimary = table.primaryKey === column.name;
++            const isPrimary = Array.isArray(table.primaryKey) ? table.primaryKey.includes(column.name) : table.primaryKey === column.name;
+             if (foreignKey && isPrimary) {
+               return /* @__PURE__ */ jsx(Icon, { path: mdiKeyLink, className: "column-icon" });
+             } else if (foreignKey) {
