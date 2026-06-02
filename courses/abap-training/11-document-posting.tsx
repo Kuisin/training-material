@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function DocumentPostingLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "11-document-posting", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "11-document-posting", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -139,13 +139,13 @@ export default function DocumentPostingLesson() {
               </Callout>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="15-files-jobs-and-batch"
                   slide={5}
                   label="第15章: ファイル読込の詳細へ"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="14-sap-development-tools"
                   slide={2}
                   label="第14章: 開発ツールへ"
@@ -217,7 +217,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 「公式の登録窓口を呼ぶ」と理解しました。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="10-modularization"
                 slide={4}
                 label="第10章: FORM/CALL FUNCTION を復習する"
@@ -589,7 +589,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
                 開発ではパーツごとに作ることもありますが、本番はこの図のように<strong>つながった1本</strong>なんですね。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="15-files-jobs-and-batch"
                 slide={5}
                 label="第15章: ファイル読込（①②）の詳細へ"

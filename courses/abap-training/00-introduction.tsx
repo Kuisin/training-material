@@ -19,7 +19,7 @@ export const lessonMeta = {
 export default function IntroductionLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "00-introduction", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "00-introduction", lessonMeta.title)}
       slides={[
         {
           title: "概要",

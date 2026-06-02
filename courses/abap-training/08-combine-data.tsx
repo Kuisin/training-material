@@ -153,7 +153,7 @@ function Td({
 export default function CombineDataLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "08-combine-data", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "08-combine-data", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -784,7 +784,7 @@ export default function CombineDataLesson() {
                 加工中に DB アクセスが増えない点も、性能面で大きいです。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="06-select-from-db"
                 slide={5}
                 label="第6章: SELECT の基本を復習する"
@@ -857,7 +857,7 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
                 <code>ls_out</code> で出力行を組み立て、<code>APPEND</code> で <code>lt_out</code> へ追加します。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="05-internal-tables"
                 slide={5}
                 label="第5章: 内部テーブルを復習する"
@@ -1030,7 +1030,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
                 その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="09-control-flow"
                 slide={2}
                 label="第9章: サプレス・出力制御へ進む"

@@ -22,7 +22,7 @@ export const lessonMeta = {
 export default function SelectionScreenLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "04-selection-screen", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "04-selection-screen", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -277,14 +277,14 @@ SELECTION-SCREEN END OF BLOCK b1.`}
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="14-sap-development-tools"
                   slide={2}
                   label="第14章: SE38の開発サイクル"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="14-sap-development-tools"
                   slide={3}
                   label="第14章: テキストエレメント画面"

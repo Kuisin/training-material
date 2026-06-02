@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function RealWorldLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "12-real-world", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "12-real-world", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -386,7 +386,7 @@ lv_tax = lv_subtotal / 10.`}
                 ここまでの地図と習慣があれば、きっと乗り越えられます。自信を持って進みましょう。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="13-good-programming"
                 slide={4}
                 label="第13章: 性能と保守性へ進む"

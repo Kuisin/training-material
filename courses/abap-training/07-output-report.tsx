@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function OutputReportLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "07-output-report", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "07-output-report", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -306,13 +306,13 @@ TOP-OF-PAGE.
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="08-combine-data"
                   slide={7}
                   label="第8章: データ結合へ進む"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="09-control-flow"
                   slide={2}
                   label="第9章: 出力制御へ進む"

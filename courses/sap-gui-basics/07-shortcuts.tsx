@@ -244,7 +244,7 @@ export default function ShortcutsLesson() {
                 保存 → 構文チェック → 有効化 → 実行、この順番を体に入れると開発がスムーズになります。保存だけでは古いプログラムが動くことがあるので、<strong>有効化まで</strong>が大事です。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="14-sap-development-tools"
                 slide={3}
                 label="ABAP研修: エディタとショートカットの詳細"

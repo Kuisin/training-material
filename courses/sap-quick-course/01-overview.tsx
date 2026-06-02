@@ -129,7 +129,7 @@ export default function OverviewLesson() {
                 variant="back"
               />
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="00-introduction"
                 label="ABAP 研修: はじめに"
                 variant="forward"

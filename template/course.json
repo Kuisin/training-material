@@ -6,7 +6,8 @@
     {
       "file": "00-intro",
       "title": "はじめに",
-      "meta": "初学者 · 10分"
+      "meta": "初学者 · 10分",
+      "lock": false
     }
   ],
   "courseTest": [],

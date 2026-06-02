@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function InternalTablesLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "05-internal-tables", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "05-internal-tables", lessonMeta.title)}
       slides={[
         {
           title: "概要",

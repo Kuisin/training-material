@@ -129,7 +129,7 @@ function Td({
 export default function ControlFlowLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "09-control-flow", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "09-control-flow", lessonMeta.title)}
       slides={[
         {
           title: "概要",

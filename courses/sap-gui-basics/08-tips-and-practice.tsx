@@ -171,7 +171,7 @@ export default function TipsAndPracticeLesson() {
                 SAP GUI の基本はこれで一通りです。迷ったら第1章・第7章に戻ってください。操作に慣れるほど、後の学習が楽になります。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="00-introduction"
                 slide={0}
                 label="ABAP研修を始める"

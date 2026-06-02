@@ -31,12 +31,12 @@
 
 ## 2. ファイル構成（成果物）
 
-トラックフォルダは既存の `abap-taining/` を使用する。
+トラックフォルダは既存の `abap-training/` を使用する。
 
 ```
 training-material/
 ├─ index.html                         # ルートに1回コピーし、全レッスンを登録
-└─ abap-taining/
+└─ abap-training/
    ├─ plan.md                         # 本ファイル
    ├─ 00-introduction.html            # 章0 導入
    ├─ 01-overview.html                # 章1 全体像
@@ -154,7 +154,7 @@ training-material/
 `template/index-template.html` をルートに `index.html` としてコピーし、トラック「ABAP研修（仕訳日記帳・会計伝票登録）」を作って 00〜13 を番号順に列挙する。例：
 
 ```html
-<li><a href="abap-taining/00-introduction.html">0. なぜABAPを学ぶのか</a>
+<li><a href="abap-training/00-introduction.html">0. なぜABAPを学ぶのか</a>
     <small>· 初学者 · 15分</small></li>
 ```
 

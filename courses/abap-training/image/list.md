@@ -1,12 +1,12 @@
 # 画像リスト（ABAP研修）
 
-このフォルダ（`courses/abap-taining/image/`）に、下記のファイル名で画像を置くと、各レッスンの該当スライドに自動で表示されます。
+このフォルダ（`courses/abap-training/image/`）に、下記のファイル名で画像を置くと、各レッスンの該当スライドに自動で表示されます。
 画像が無い間は、スライド上に「準備中」のプレースホルダ（ファイル名＋説明）が出ます。
 
 ## 使い方・ルール
 
-- **原画（保持用）**: `courses/abap-taining/image/originals/<ファイル名>.png` — リポジトリに残す。サイトには出さない。
-- **配信用**: `courses/abap-taining/image/<ファイル名>.webp` — `pnpm run optimize:images` で原画から生成。
+- **原画（保持用）**: `courses/abap-training/image/originals/<ファイル名>.png` — リポジトリに残す。サイトには出さない。
+- **配信用**: `courses/abap-training/image/<ファイル名>.webp` — `pnpm run optimize:images` で原画から生成。
 - **参照**: スライドは `<Figure src="image/<ファイル名>.webp" … />`（拡張子 `.webp`）
 - **推奨形式（原画）**: PNG（透過可）/ 横長 16:9〜4:3。SVG も可。
 - **文字**: 図中に日本語ラベルを入れる場合、画像生成AIは日本語が苦手なため、

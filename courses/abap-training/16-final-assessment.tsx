@@ -154,7 +154,7 @@ export default function FinalAssessmentLesson() {
   return (
     <Lesson
       key={attemptId}
-      chrome={lessonChrome("abap-taining", "16-final-assessment", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "16-final-assessment", lessonMeta.title)}
       slides={[
         {
           title: "概要",

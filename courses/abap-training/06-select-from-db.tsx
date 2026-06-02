@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function SelectFromDbLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "06-select-from-db", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "06-select-from-db", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -107,7 +107,7 @@ export default function SelectFromDbLesson() {
                 第2章の「ヘッダと明細」が BKPF / BSEG になっているんですね。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="02-business-basics"
                 slide={5}
                 label="第2章: ヘッダと明細を復習する"
@@ -250,7 +250,7 @@ export default function SelectFromDbLesson() {
                 性能の話は第13章で深掘りします。今は「まとめて運ぶのが基本形」と覚えてください。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="05-internal-tables"
                 slide={7}
                 label="第5章: 内部テーブル操作を復習する"
@@ -452,7 +452,7 @@ ENDIF.`}
                 見えないときはタブを切り替えて探す癖をつけると、調査が速くなります。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="14-sap-development-tools"
                 slide={6}
                 label="もっと知りたい？　第14章（デバッグ詳細）で理解を深める"

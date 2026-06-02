@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function SapDevelopmentToolsLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "14-sap-development-tools", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "14-sap-development-tools", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -103,7 +103,7 @@ export default function SapDevelopmentToolsLesson() {
                 「保存したのに動かない」は、多くの場合<strong>有効化を忘れた</strong>パターンです。実行の直前に構文チェックと有効化をセットで覚えましょう。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="03-abap-minimum-unit"
                 slide={4}
                 label="第3章: SE38の手順を復習する"
@@ -129,14 +129,14 @@ export default function SapDevelopmentToolsLesson() {
               </Callout>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="04-selection-screen"
                   slide={5}
                   label="第4章: テキストシンボルの概念"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="04-selection-screen"
                   slide={6}
                   label="第4章: メンテ画面の手順"
@@ -679,14 +679,14 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="11-document-posting"
                   slide={4}
                   label="第11章: 登録フローを復習する"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="06-select-from-db"
                   slide={4}
                   label="第6章: BKPF/BSEG を復習する"
@@ -957,7 +957,7 @@ ROLLBACK WORK.`}
                 「登録結果が分かってから」と第11章で整理しました。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="11-document-posting"
                 slide={6}
                 label="第11章: BAPI 登録フローを復習する"

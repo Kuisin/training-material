@@ -20,7 +20,7 @@ export const lessonMeta = {
 export default function FilesJobsAndBatchLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "15-files-jobs-and-batch", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "15-files-jobs-and-batch", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -195,7 +195,7 @@ CLOSE DATASET lv_path.`}
                 開発・本番の切り替えが楽になります。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="11-document-posting"
                 slide={10}
                 label="第11章: 登録フロー（③以降）へ進む"
@@ -438,7 +438,7 @@ ENDIF.`}
                 設計書を読むときは「ファイルか・ジョブか・登録か」を意識すると迷いません。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="11-document-posting"
                 slide={4}
                 label="第11章: 会計伝票登録を復習する"

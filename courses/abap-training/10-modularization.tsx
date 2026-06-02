@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function ModularizationLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "10-modularization", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "10-modularization", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -420,7 +420,7 @@ CALL FUNCTION 'GUI_DOWNLOAD'
                 詳しい書き方は使うときに深めていきましょう。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="11-document-posting"
                 slide={6}
                 label="第11章: 会計伝票登録（BAPI）へ進む"

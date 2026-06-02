@@ -8,7 +8,7 @@ export function appHref(path: string): string {
   return `${base}${normalized}`;
 }
 
-/** レッスン HTML（例: abap-taining/00-introduction.html） */
+/** レッスン HTML（例: abap-training/00-introduction.html） */
 export function lessonPageHref(courseSlug: string, lessonFile: string): string {
   const file = lessonFile.replace(/\.html$/i, "");
   return appHref(`${courseSlug}/${file}.html`);

@@ -19,7 +19,7 @@ export const lessonMeta = {
 export default function OverviewLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "01-overview", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "01-overview", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -102,19 +102,19 @@ export default function OverviewLesson() {
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="03-abap-minimum-unit"
                   slide={2}
                   label="第3章: 最初のABAPから始める"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="11-document-posting"
                   slide={4}
                   label="第11章: 会計伝票登録へ進む"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="16-final-assessment"
                   slide={1}
                   label="第16章: 総仕上げテスト"
@@ -232,7 +232,7 @@ export default function OverviewLesson() {
                 その理解で完璧です。今は「あとで登録という重い処理が出てくる」とだけ覚えておけば十分。第11章でじっくり扱います。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="11-document-posting"
                 slide={6}
                 label="第11章: 会計伝票登録の詳細へ"

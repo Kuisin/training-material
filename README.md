@@ -19,7 +19,7 @@ pnpm dev
 | URL | 内容 |
 |-----|------|
 | `/index.html` | コース／レッスン一覧 |
-| `/abap-taining/00-introduction.html` | 各レッスン |
+| `/abap-training/00-introduction.html` | 各レッスン |
 
 ポート 5173 が他プロセスで使われている場合、Vite は別ポート（5174 など）を使います。**表示されたポートを必ず確認してください。**
 
@@ -54,7 +54,7 @@ pnpm run preview:pages  # Pages と同じ URL で確認
 | パス | 役割 |
 |------|------|
 | `index.html` + `index.tsx` | レッスン一覧 |
-| `abap-taining/*.tsx` | 各レッスンのスライド本文 |
+| `abap-training/*.tsx` | 各レッスンのスライド本文 |
 | `src/render-lesson.tsx` | レッスン用スライドショーエンジン |
 | `vite-mpa-plugin.js` | レッスン用 HTML をビルド／dev で生成 |
 

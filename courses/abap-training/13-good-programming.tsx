@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function GoodProgrammingLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "13-good-programming", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "13-good-programming", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -228,7 +228,7 @@ ENDSELECT.`}
                 <code>SELECT</code> ～ <code>ENDSELECT</code> は行数分だけ倉庫へ往復します。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="06-select-from-db"
                 slide={5}
                 label="第6章: SELECT の基本を復習する"
@@ -566,7 +566,7 @@ APPEND LINES OF lt_src TO lt_dest.`}
                 <strong>ソートと追加を分けて</strong>書くと、意図が明確になりバグも減ります。
               </Callout>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="05-internal-tables"
                 slide={2}
                 label="第5章: 内部テーブルの基本を復習する"

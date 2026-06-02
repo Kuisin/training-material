@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function AbapMinimumUnitLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "03-abap-minimum-unit", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "03-abap-minimum-unit", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -256,13 +256,13 @@ WRITE 'こんにちは、ABAP'.`}
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="04-selection-screen"
                   slide={2}
                   label="第4章: 選択画面へ進む"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="06-select-from-db"
                   slide={9}
                   label="第6章: SY-SUBRC の詳細へ"

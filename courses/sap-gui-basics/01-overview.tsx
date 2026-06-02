@@ -108,7 +108,7 @@ export default function OverviewLesson() {
             <>
               <h2>ABAP 研修とのつながり</h2>
               <p>
-                社内で ABAP 研修（<code>abap-taining</code>）に進む場合も、画面は同じ SAP GUI です。
+                社内で ABAP 研修（<code>abap-training</code>）に進む場合も、画面は同じ SAP GUI です。
                 特に <kbd>F1</kbd>・<kbd>F4</kbd>・<kbd>F8</kbd>・コマンド欄の使い方は、そのまま開発で活きます。
               </p>
               <Callout variant="tip">
@@ -121,7 +121,7 @@ export default function OverviewLesson() {
                 そうです。第7章のショートカットは開発環境でもそのまま使えます。ここで体に入れておくと、ABAP 研修が格段にスムーズになります。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="14-sap-development-tools"
                 slide={3}
                 label="ABAP研修: 開発ツールとショートカット"

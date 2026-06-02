@@ -1,5 +1,5 @@
 /**
- * abap-taining/*.html → abap-taining/*.tsx へ一括変換する。
+ * abap-training/*.html → abap-training/*.tsx へ一括変換する。
  * 実行: node scripts/convert-html-lessons.mjs
  */
 import fs from "node:fs";
@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { parse, HTMLElement, TextNode } from "node-html-parser";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const lessonsDir = path.join(root, "abap-taining");
+const lessonsDir = path.join(root, "abap-training");
 
 function jsString(s) {
   return JSON.stringify(s);

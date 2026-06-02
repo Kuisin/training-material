@@ -18,7 +18,7 @@ export const lessonMeta = {
 export default function BusinessBasicsLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "02-business-basics", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "02-business-basics", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -210,7 +210,7 @@ export default function BusinessBasicsLesson() {
                 第2章で学んだヘッダ／明細が、そのままテーブル構造になっているんですね。
               </Dialog>
               <LessonLinkButton
-                courseSlug="abap-taining"
+                courseSlug="abap-training"
                 lessonFile="06-select-from-db"
                 slide={4}
                 label="第6章: BKPF/BSEG の SELECT へ進む"

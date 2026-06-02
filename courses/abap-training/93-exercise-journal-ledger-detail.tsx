@@ -547,7 +547,7 @@ export default function ExerciseJournalLedgerDetailLesson() {
   return (
     <Lesson
       chrome={lessonChrome(
-        "abap-taining",
+        "abap-training",
         "93-exercise-journal-ledger-detail",
         lessonMeta.title
       )}
@@ -1939,28 +1939,28 @@ TOP-OF-PAGE.
               </Callout>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="04-selection-screen"
                   slide={5}
                   label="第4章: テキストシンボルの概念"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="04-selection-screen"
                   slide={6}
                   label="第4章: メンテ画面の手順"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="14-sap-development-tools"
                   slide={3}
                   label="追加: テキストエレメント画面"
                   variant="back"
                 />
                 <LessonLinkButton
-                  courseSlug="abap-taining"
+                  courseSlug="abap-training"
                   lessonFile="14-sap-development-tools"
                   slide={2}
                   label="追加: SE38の開発サイクル"

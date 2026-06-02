@@ -49,7 +49,7 @@ export default function ExerciseJournalLedgerLesson() {
   return (
     <Lesson
       chrome={lessonChrome(
-        "abap-taining",
+        "abap-training",
         "92-exercise-journal-ledger",
         lessonMeta.title
       )}
