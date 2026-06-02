@@ -35,8 +35,7 @@
     {
       "file": "93-exercise-journal-ledger-detail",
       "title": "特別演習② — 明細・金額つき仕訳日記帳を作る",
-      "meta": "特別 · 60分",
-      "lock": { "requires": "course", "password": "shiwake-acd", "mode": "any" }
+      "meta": "特別 · 60分"
     }
   ]
 }
