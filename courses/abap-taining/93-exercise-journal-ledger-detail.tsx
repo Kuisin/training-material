@@ -87,7 +87,7 @@ const PREVIEW_HEADER_ROWS: ReportRow[] = [
     kind: "cells",
     cells: [
       { col: 1, text: "PGMID:" },
-      { col: 9, text: "COMBINE_REPORTS_2" },
+      { col: 9, text: "CREATE_REPORT_2" },
       { col: 155, text: "DATE:" },
       { col: 160, text: "2026/06/01", width: 9, align: "right" },
     ],
@@ -190,7 +190,7 @@ const PREVIEW_DETAIL_ROWS: ReportRow[] = [
   },
 ];
 
-const FINAL_PROGRAM = `REPORT combine_reports_2
+const FINAL_PROGRAM = `REPORT create_report_2
   NO STANDARD PAGE HEADING
   LINE-SIZE 200
   LINE-COUNT 58.
@@ -579,7 +579,7 @@ export default function ExerciseJournalLedgerDetailLesson() {
                 <p>
                   会計伝票の<strong>ヘッダ（BKPF）</strong>と<strong>明細（BSEG）</strong>をつなぎ、
                   会計担当者が読みやすい<strong>仕訳日記帳</strong>を画面に出すレポートを作ります。
-                  プログラム名の例は <code>z_tr077_tglr0100</code> です（SE38 で任意の Z 名を付けて構いません）。
+                  プログラム名の例は <code>create_report_2</code> です（SE38 で任意の Z 名を付けて構いません）。
                 </p>
               </hgroup>
               <LessonMeta
@@ -2176,7 +2176,7 @@ TOP-OF-PAGE.
         {
           title: "完成コード",
           plainText:
-            "完成コード — z_tr077_tglr0100 全文。ReportPreview でレイアウト確認。クイズ: 借方/貸方の判定。",
+            "完成コード — create_report_2 全文。ReportPreview でレイアウト確認。クイズ: 借方/貸方の判定。",
           content: (
             <>
               <h2>完成コードと理解度チェック</h2>
