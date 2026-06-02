@@ -653,6 +653,11 @@ export default function ExerciseJournalLedgerDetailLesson() {
                 最後まで一人で完璧に書けなくても問題ありません。
                 完成コードは資料に載せてあるので、<strong>動くものを見ながら</strong>「なぜこの順番か」を理解するのが目的です。
               </Dialog>
+              <Callout variant="note">
+                今回の演習は<strong>データの構造を理解する</strong>ことが主目的です。
+                そのため <code>SELECT</code> で表ごとに取得し、<code>LOOP</code> と <code>READ TABLE</code> でキー結合する型を使います（
+                SQL <code>JOIN</code> は最後の発展スライドで紹介します）。
+              </Callout>
             </>
           ),
         },
@@ -2524,9 +2529,195 @@ TOP-OF-PAGE.
                 <code>FOR ALL ENTRIES</code> は図の線に沿って一括取得し、
                 <code>READ TABLE</code> はループ内で辞書（T003T / SKAT）を当てはめる——この2パターンが演習の核心です。
               </Dialog>
+              <Callout variant="tip">
+                今回の演習は<strong>データの構造を理解する</strong>ことが目的のため、
+                <code>SELECT</code> で表ごとに取得し、<code>LOOP</code> と <code>READ TABLE</code> で結合する型を採用しています。
+                次のスライドの <code>JOIN</code> は<strong>任意の発展</strong>です。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "【発展】SQL JOIN で結合する",
+          plainText:
+            "【発展】SQL JOIN で結合する\n今回の演習は構造理解が目的のため SELECT＋LOOP＋READ TABLE を採用。JOIN は提出不要の発展。INNER JOIN で BKPF＋BSEG を1回にまとめる例。T003T・SKAT は LEFT OUTER JOIN または別取得。\nA：JOIN の方が短くない？→ 構造が見えにくくなる。まず表ごとの箱とキー、余力で JOIN を読めるように。",
+          content: (
+            <>
+              <h2>【発展】SQL <code>JOIN</code> で結合する</h2>
+              <p>
+                今回の演習②は、帳票を最短で作ることより<strong>データの構造を理解する</strong>ことを目的にしています。
+                そのため <code>SELECT</code> で<strong>表ごと</strong>に内部テーブルへ載せ、
+                <code>LOOP</code> と <code>READ TABLE</code> で<strong>どのキーでつながるか</strong>を追える型を正解ルートにしました。
+              </p>
+              <Callout variant="note">
+                <strong>演習では JOIN を使いません。</strong>
+                ヘッダ・明細・マスタが別の「箱」であること、伝票キーと勘定コードの対応が、
+                デバッガと ER 図で見えることがゴールです。以下は<strong>提出不要の発展</strong>——既存コードを読むときの参考です。
+              </Callout>
+              <h3>BKPF ＋ BSEG を 1 回の SELECT にまとめる</h3>
+              <p>
+                ER 図の <code>BKPF</code> → <code>BSEG</code>（<code>bukrs</code> / <code>belnr</code> / <code>gjahr</code>
+                ）は、<code>INNER JOIN</code> で次のように書けます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 発展例：ヘッダ＋明細を DB 側で結合（研修用の簡略イメージ）
+TYPES: BEGIN OF g_typ_join,
+         bukrs TYPE bkpf-bukrs,
+         blart TYPE bkpf-blart,
+         budat TYPE bkpf-budat,
+         bldat TYPE bkpf-bldat,
+         belnr TYPE bkpf-belnr,
+         usnam TYPE bkpf-usnam,
+         gjahr TYPE bkpf-gjahr,
+         buzei TYPE bseg-buzei,
+         hkont TYPE bseg-hkont,
+         shkzg TYPE bseg-shkzg,
+         dmbtr TYPE bseg-dmbtr,
+         sgtxt TYPE bseg-sgtxt,
+       END OF g_typ_join.
+
+DATA: gt_join TYPE STANDARD TABLE OF g_typ_join.
+
+SELECT bkpf~bukrs
+       bkpf~blart
+       bkpf~budat
+       bkpf~bldat
+       bkpf~belnr
+       bkpf~usnam
+       bkpf~gjahr
+       bseg~buzei
+       bseg~hkont
+       bseg~shkzg
+       bseg~dmbtr
+       bseg~sgtxt
+  FROM bkpf
+  INNER JOIN bseg ON bkpf~bukrs = bseg~bukrs
+                 AND bkpf~belnr = bseg~belnr
+                 AND bkpf~gjahr = bseg~gjahr
+  INTO TABLE gt_join
+  WHERE bkpf~bukrs = p_bukrs
+    AND bkpf~budat IN s_budat.`}
+              />
+              <InfoPanel title="演習の型との対応" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>演習でやったこと</th>
+                      <th>JOIN でのイメージ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        BKPF を <code>SELECT</code> → BSEG を <code>FOR ALL ENTRIES IN gt_bkpf</code>
+                      </td>
+                      <td>
+                        <code>INNER JOIN bseg ON</code> 3キー（会社・伝票番号・年度）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        入れ子 <code>LOOP AT gt_bseg WHERE</code> 伝票キー一致
+                      </td>
+                      <td>
+                        JOIN 済みの <code>gt_join</code> は<strong>明細1行＝1行</strong>（ループは1段で済む）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        T003T / SKAT は <code>READ TABLE</code>
+                      </td>
+                      <td>
+                        別 <code>SELECT</code> のまま、または <code>LEFT OUTER JOIN</code> で名称列を同時取得（下記）
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <h3>マスタ名称を JOIN に含める場合</h3>
+              <p>
+                伝票タイプ名（T003T）や勘定名（SKAT）は、キーが揃っていれば <code>LEFT OUTER JOIN</code> で付けられます。
+                マスタに行がないときも明細は残したいので <strong>LEFT</strong>（内部結合だけだと行が落ちる）にします。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 発展例：名称まで含める（列は必要分だけ。型定義は別途）
+SELECT bkpf~blart
+       t003t~ltext
+       bseg~hkont
+       skat~txt20
+       ...
+  FROM bkpf
+  INNER JOIN bseg ON bkpf~bukrs = bseg~bukrs
+                 AND bkpf~belnr = bseg~belnr
+                 AND bkpf~gjahr = bseg~gjahr
+  LEFT OUTER JOIN t003t ON t003t~blart = bkpf~blart
+                       AND t003t~spras = c_spras
+  LEFT OUTER JOIN skat ON skat~saknr = bseg~hkont
+                      AND skat~ktopl = gs_t001-ktopl
+                      AND skat~spras = c_spras
+  INTO TABLE ...
+  WHERE bkpf~bukrs = p_bukrs
+    AND bkpf~budat IN s_budat.`}
+              />
+              <InfoPanel
+                title="なぜ演習では LOOP と SELECT か"
+                variant="reference"
+                lead="今回は「構造を理解する」研修。JOIN で一括取得すると、表の境目とキーの対応がコード上で見えにくくなります。"
+              >
+                <ul>
+                  <li>
+                    <strong>表ごとの箱が見える</strong> … <code>gt_bkpf</code>（表紙）・<code>gt_bseg</code>（明細）・
+                    <code>gt_skat</code>（名称）が別々——ER 図のブロックと1対1で対応する
+                  </li>
+                  <li>
+                    <strong>キーでつなぐ体験</strong> … <code>FOR ALL ENTRIES</code> と入れ子 <code>LOOP</code>、
+                    <code>READ TABLE WITH KEY</code> で「どの列が線になるか」を手で追える
+                  </li>
+                  <li>
+                    <strong>段階的にデバッグできる</strong> … 各 <code>SELECT</code> の直後に{" "}
+                    <code>BREAK-POINT</code> し、取得→結合→出力の順で中身を確認できる（この演習の進め方）
+                  </li>
+                  <li>
+                    <strong>JOIN はあとで</strong> … 構造が身についたあと、発展として{" "}
+                    <code>INNER JOIN</code> が「同じ線を SQL で書いたもの」と読めると十分（第13章）
+                  </li>
+                  <li>
+                    <strong>実務でも似た型は多い</strong> … 帳票の借方・貸方振り分けなどは、
+                    <code>gt_out</code> を <code>LOOP</code> で組み立てる方が追いやすい（第8章）
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="a">
+                <code>JOIN</code> 1本の方がコードは短そうですが、なんでわざわざ <code>LOOP</code> なんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                今回の目的は<strong>帳票を最短で出すこと</strong>ではなく、
+                <strong>ヘッダ・明細・マスタの構造とキー</strong>を理解することです。
+                <code>SELECT</code> と <code>LOOP</code> なら、表ごとの箱と ER 図の線が対応して見えます。
+                <code>JOIN</code> はあとで「同じ結合の別写法」として読めれば OK です。
+              </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="08-combine-data"
+                  slide={8}
+                  label="第8章: 結合の流れ（LOOP + READ TABLE）"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="13-good-programming"
+                  slide={9}
+                  label="第13章: SELECT の JOIN 技法"
+                  variant="back"
+                />
+              </div>
               <Dialog speaker="closing">
-                お疲れさまでした。仕訳日記帳演習②は、<strong>伝票＋明細＋辞書の結合</strong>と
-                <strong>借方・貸方の出力</strong>まで一通り体験できました。次の演習でも同じ「表紙→明細→名称」の型を意識してください。
+                お疲れさまでした。演習②では <code>SELECT</code> と <code>LOOP</code> で、
+                <strong>伝票・明細・マスタの構造</strong>と<strong>借方・貸方の出力</strong>を体験しました。
+                発展の <code>JOIN</code> は構造が固まってからで十分です。次も「表ごとの箱→キーでつなぐ」を意識してください。
               </Dialog>
             </>
           ),
