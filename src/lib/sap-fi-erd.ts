@@ -281,6 +281,17 @@ export const sapFiJournalLedgerSchemas = schemasFromTables(
   JOURNAL_LEDGER_COLUMNS,
 );
 
+/** 仕訳日記帳演習① — T001 / BKPF（ヘッダのみ・演習で使う列） */
+const JOURNAL_LEDGER_HEADER_COLUMNS: Record<string, string[]> = {
+  T001: ["BUKRS"],
+  BKPF: ["BUKRS", "BELNR", "GJAHR", "BLART", "BUDAT", "BLDAT", "USNAM"],
+};
+
+export const sapFiJournalLedgerHeaderSchemas = schemasFromTables(
+  ["T001", "BKPF"],
+  JOURNAL_LEDGER_HEADER_COLUMNS,
+);
+
 export const sapFiErdTableColors = [
   "#4f46e5",
   "#0ea5e9",

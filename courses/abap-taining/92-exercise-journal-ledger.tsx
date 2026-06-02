@@ -8,6 +8,8 @@ import {
   LessonQuiz,
   MermaidDiagram,
   LessonMeta,
+  LessonLinkButton,
+  SapErdDiagram,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -884,6 +886,97 @@ END-OF-SELECTION.
                   "SORT で並べ替える",
                 ]}
               />
+            </>
+          ),
+        },
+        {
+          title: "テーブル関連図（ERD）",
+          plainText:
+            "テーブル関連図（ERD）\n演習で使う BKPF（伝票ヘッダ）と T001（会社コード・選択画面の型）のキーと関連。各列は『日本語名（列コード）』。GJAHR は SELECT していないが伝票を一意にする主キーの一部。\n関連：T001 1―多 BKPF（BUKRS）。WHERE bukrs = p_bukrs AND budat IN s_budat でヘッダを取得。",
+          content: (
+            <>
+              <h2>テーブル関連図（ERD）</h2>
+              <p>
+                この演習では<strong>会計伝票ヘッダ（BKPF）だけ</strong>を読み、1伝票＝リスト1行で仕訳日記帳を出します。
+                選択画面の会社コード（<code>p_bukrs</code>）は <code>T001-BUKRS</code> 型です。
+                各列は<strong>日本語名（列コード）</strong>で表示し、鍵アイコン付きの列が主キーです。
+                図に載せているのは<strong>演習の型・SELECT で使う列</strong>と、主キーに必要な <code>GJAHR</code> です。
+              </p>
+              <SapErdDiagram variant="journalLedgerHeader" height={400} />
+              <InfoPanel title="演習コードとの対応" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>項目</th>
+                      <th>プログラムでの使い方</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>BUKRS</code>
+                      </td>
+                      <td>
+                        <code>PARAMETERS p_bukrs</code>（型は <code>t001-bukrs</code>）／{" "}
+                        <code>WHERE bukrs = p_bukrs</code>／一覧の「会社」列
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>BUDAT</code>
+                      </td>
+                      <td>
+                        <code>SELECT-OPTIONS s_budat</code>／<code>WHERE budat IN s_budat</code>／「転記日付」列
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>BLART</code> / <code>BLDAT</code> / <code>BELNR</code> / <code>USNAM</code>
+                      </td>
+                      <td>
+                        <code>SELECT</code> リストに含め、<code>WRITE</code> で出力
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>GJAHR</code>
+                      </td>
+                      <td>
+                        本演習の <code>SELECT</code> には含めないが、実務では伝票番号と合わせて主キー。
+                        演習②（明細つき）では必須になる
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>T001</code> → <code>BKPF</code>
+                      </td>
+                      <td>
+                        会社コードで BKPF を絞る（T001 自体は <code>SELECT</code> しない）
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Callout variant="tip">
+                図の右上「全画面」で拡大表示できます。明細（BSEG）や名称テーブルまで含む関連図は{" "}
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="93-exercise-journal-ledger-detail"
+                  slide={17}
+                  label="特別演習②: テーブル関連図"
+                  variant="back"
+                  className="inline-flex"
+                />{" "}
+                を参照してください。
+              </Callout>
+              <Dialog speaker="teacher">
+                演習①は<strong>「表紙（BKPF）だけ読む」</strong>段階です。
+                1伝票1行の一覧に慣れたら、演習②で BSEG・辞書テーブルを足して「明細1行＝リスト1行」へ進みます。
+              </Dialog>
+              <Dialog speaker="closing">
+                お疲れさまでした。SELECT → SY-SUBRC → SORT → WRITE の流れと、BKPF
+                の項目の役割を押さえられれば、この演習の目的は達成です。
+              </Dialog>
             </>
           ),
         },

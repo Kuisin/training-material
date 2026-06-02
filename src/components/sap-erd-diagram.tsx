@@ -5,6 +5,7 @@ import {
   sapFiBkpfSchemas,
   sapFiBsegSchemas,
   sapFiErdTableColors,
+  sapFiJournalLedgerHeaderSchemas,
   sapFiJournalLedgerSchemas,
   sapFiMasterSchemas,
   sapFiOverviewSchemas,
@@ -18,7 +19,8 @@ export type SapErdDiagramVariant =
   | "bseg"
   | "acdoca"
   | "master"
-  | "journalLedger";
+  | "journalLedger"
+  | "journalLedgerHeader";
 
 const SCHEMAS_BY_VARIANT = {
   overview: sapFiOverviewSchemas,
@@ -27,6 +29,7 @@ const SCHEMAS_BY_VARIANT = {
   acdoca: sapFiAcDocaSchemas,
   master: sapFiMasterSchemas,
   journalLedger: sapFiJournalLedgerSchemas,
+  journalLedgerHeader: sapFiJournalLedgerHeaderSchemas,
 } as const;
 
 const TITLE_BY_VARIANT: Record<SapErdDiagramVariant, string> = {
@@ -36,6 +39,7 @@ const TITLE_BY_VARIANT: Record<SapErdDiagramVariant, string> = {
   acdoca: "ACDOCA — Universal Journal",
   master: "マスタ・辞書テーブル（T001 / T003T / SKA1）",
   journalLedger: "仕訳日記帳演習② — テーブル関連図",
+  journalLedgerHeader: "仕訳日記帳演習① — テーブル関連図",
 };
 
 interface SapErdDiagramProps {
