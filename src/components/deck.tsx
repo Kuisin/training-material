@@ -126,7 +126,7 @@ export function Deck({ chrome, slides }: DeckProps) {
       />
       <AiAskButton title={chrome.title} slides={slides} />
 
-      <main className="mx-auto w-full max-w-3xl px-5 py-8">
+      <main className="mx-auto w-full max-w-4xl px-5 py-8">
         <Slide slide={slides[idx]} />
       </main>
 

@@ -120,6 +120,12 @@ const RECEIPT_OUTPUT_ROWS = [
   { orderId: "A001", orderDate: "2025-04-01", productName: "マウス", qty: "2", amount: "2,480" },
 ] as const;
 
+/** 明細から抽出するユニークな伝票（取得イメージ用） */
+const UNIQUE_VOUCHER_FROM_DETAIL = [
+  { belnr: "100001", detailCount: 3, budat: "2025-04-01" },
+  { belnr: "100002", detailCount: 2, budat: "2025-04-03" },
+] as const;
+
 /** 3NF 前：ヘッダに会社名を載せると、伝票が増えるほど同じ名称が繰り返される */
 const NF3_HEADER_REPEAT_ROWS = [
   { belnr: "100001", budat: "2025-04-01", bukrs: "1000", name: "大阪製作所" },
@@ -340,6 +346,69 @@ function ReceiptAnalogyResultDiagram() {
           </tbody>
         </SampleTable>
       </div>
+    </figure>
+  );
+}
+
+/** DB から必要分だけ内部テーブルへ載せるイメージ */
+function SelectNecessaryDataDiagram() {
+  return (
+    <figure className="not-prose my-6">
+      <figcaption className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+        図：明細5行 → 伝票番号は<strong>2種類だけ</strong> → ヘッダも2行だけ取得
+      </figcaption>
+      <div className="grid grid-cols-1 gap-4">
+        <SampleTable caption="② 明細 lt_bseg（先に取得・5行）" variant="default">
+          <thead>
+            <tr>
+              <Th>伝票番号</Th>
+              <Th>行</Th>
+              <Th>品目</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {NORM_DETAIL_ROWS.map((row, index) => {
+              const isRepeat = index > 0 && row.belnr === NORM_DETAIL_ROWS[index - 1].belnr;
+              return (
+                <tr key={`${row.belnr}-${row.buzei}`}>
+                  <Td highlight={isRepeat}>{row.belnr}</Td>
+                  <Td>{row.buzei}</Td>
+                  <Td>{row.item}</Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </SampleTable>
+        <div className="flex flex-col items-center gap-1 px-2 text-center text-xs font-semibold text-slate-500">
+          <span>ユニークな</span>
+          <span>伝票番号</span>
+          <span className="rounded bg-indigo-100 px-2 py-0.5 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-100">
+            2件
+          </span>
+          <span className="text-lg text-indigo-500">↓</span>
+        </div>
+        <SampleTable caption="① 伝票 lt_bkpf（必要な2行だけ）" variant="ok">
+          <thead>
+            <tr>
+              <Th>伝票番号</Th>
+              <Th>日付</Th>
+              <Th>明細行数</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {UNIQUE_VOUCHER_FROM_DETAIL.map((row) => (
+              <tr key={row.belnr}>
+                <Td>{row.belnr}</Td>
+                <Td>{row.budat}</Td>
+                <Td>{row.detailCount} 行</Td>
+              </tr>
+            ))}
+          </tbody>
+        </SampleTable>
+      </div>
+      <p className="mt-3 text-center text-[11px] text-slate-600 dark:text-slate-400">
+        同じ伝票番号が明細に何行あっても、ヘッダは<strong>1伝票1行</strong>——DB から取るのもその分だけ
+      </p>
     </figure>
   );
 }
@@ -1574,14 +1643,126 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               </Dialog>
               <Dialog speaker="teacher">
                 その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
-                次の2スライドでは、<strong>例え</strong>（レシート → 注文品目 → 品目マスタ）で3つをつなぐイメージを掴み、
-                そのあと SAP の3テーブル結合に進みます。
+                次のスライドでは、<strong>DB から必要な行だけ</strong>内部テーブルへ載せる方法（明細の伝票番号で絞る）を見てから、
+                例えと3テーブル結合に進みます。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="09-control-flow"
                 slide={2}
                 label="第9章: サプレス・出力制御へ進む"
+                className="mb-4"
+              />
+            </>
+          ),
+        },
+        {
+          title: "必要なデータだけ取得",
+          plainText:
+            "必要なデータだけDB→内部テーブル\n①明細を先にSELECT ②明細のユニークな伝票番号で伝票だけ取得 ③会社マスタも同様\nFOR ALL ENTRIES＝明細に出てくるキーだけ。空のときはIFでガード。\nBちゃん：明細5行でも伝票2件なら、ヘッダ2行だけ？\n先生：その通り。全部取らないのがポイント。",
+          content: (
+            <>
+              <h2>DB から<strong>必要な分だけ</strong>内部テーブルへ</h2>
+              <p>
+                3テーブル結合の前に、<strong>何を DB から取るか</strong>を整理します。
+                伝票テーブル（BKPF）を<strong>丸ごと</strong>取る必要はありません——
+                明細（BSEG）に登場する<strong>伝票番号だけ</strong>に絞ります。
+              </p>
+              <Callout variant="note">
+                <strong>取得の順番（この章の型）</strong>
+                <br />
+                ① <strong>明細</strong>を先に <code>SELECT</code>（帳票の本体・LOOP の起点）<br />
+                ② 明細に登場する<strong>ユニークな伝票キー</strong>で <strong>伝票</strong>だけ取得<br />
+                ③ 伝票に登場する会社コードで <strong>会社マスタ</strong>だけ取得
+              </Callout>
+              <SelectNecessaryDataDiagram />
+              <p>
+                例では明細が<strong>5行</strong>あっても、伝票番号は <code>100001</code> と <code>100002</code> の
+                <strong>2種類</strong>だけ。ヘッダ（伝票）も DB から<strong>2行だけ</strong>取れば足ります。
+              </p>
+              <Dialog speaker="b">
+                明細の各行に同じ伝票番号が並んでても、ヘッダは1回分でいい——
+                黄色の行は「同じ伝票の2行目以降」、ですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解で OK です。SAP では伝票を特定するキーは
+                <code>bukrs</code>（会社）＋ <code>belnr</code>（伝票番号）＋ <code>gjahr</code>（年度）の3つセットです。
+                明細の<strong>各行</strong>からこのキーを読み取り、<strong>重複を除いた分だけ</strong>ヘッダを取ります。
+              </Dialog>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph step1 ["① 明細を先に取得"]
+    S1["SELECT FROM bseg<br/>INTO lt_bseg"]
+  end
+  subgraph step2 ["② 明細の伝票キーでヘッダだけ"]
+    S2["FOR ALL ENTRIES IN lt_bseg<br/>SELECT FROM bkpf → lt_bkpf"]
+  end
+  subgraph step3 ["③ 伝票の会社コードでマスタだけ"]
+    S3["FOR ALL ENTRIES IN lt_bkpf<br/>SELECT FROM t001 → lt_t001"]
+  end
+  step1 --> step2 --> step3
+  step3 --> M["メモリ上で LOOP + READ TABLE 結合"]`}
+              />
+              <h3>例：<code>FOR ALL ENTRIES</code> で必要分だけ</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" ① 明細を先に取得（選択条件で絞る）
+SELECT bukrs belnr gjahr buzei dmbtr
+  FROM bseg
+  INTO TABLE lt_bseg
+  WHERE bukrs = p_bukrs
+    AND budat IN s_budat.
+
+" ② 明細に登場する伝票だけヘッダ取得（全伝票は取らない）
+IF lt_bseg IS NOT INITIAL.
+  SELECT bukrs belnr gjahr budat
+    FROM bkpf
+    INTO TABLE lt_bkpf
+    FOR ALL ENTRIES IN lt_bseg
+    WHERE bukrs = lt_bseg-bukrs
+      AND belnr = lt_bseg-belnr
+      AND gjahr = lt_bseg-gjahr.
+ENDIF.
+
+" ③ ヘッダに登場する会社だけマスタ取得
+IF lt_bkpf IS NOT INITIAL.
+  SELECT bukrs butxt
+    FROM t001
+    INTO TABLE lt_t001
+    FOR ALL ENTRIES IN lt_bkpf
+    WHERE bukrs = lt_bkpf-bukrs.
+ENDIF.`}
+              />
+              <ul>
+                <li>
+                  <code>FOR ALL ENTRIES IN lt_bseg</code> … 明細内部テーブルに含まれる<strong>伝票キーの組み合わせだけ</strong>を
+                  <code>WHERE</code> に使ってヘッダを取得（同じキーの重複行は SAP 側で整理）
+                </li>
+                <li>
+                  <code>IF lt_bseg IS NOT INITIAL.</code> … 明細が0件のときにマスタ全件を取ってしまう<strong>罠</strong>を防ぐ（必須）
+                </li>
+                <li>
+                  必要な<strong>列だけ</strong> <code>SELECT</code>（<code>SELECT *</code> は避ける）——第6章の復習
+                </li>
+              </ul>
+              <Dialog speaker="stumble">
+                明細が0件なのに <code>FOR ALL ENTRIES</code> だけ書くと、条件が効かず<strong>伝票やマスタを全件取得</strong>してしまう——
+                開発環境では気づきにくい重大バグです。
+              </Dialog>
+              <Dialog speaker="a">
+                取得用内部テーブル（<code>lt_bseg</code> / <code>lt_bkpf</code> / <code>lt_t001</code>）に
+                <strong>必要最小限</strong>だけ載せてから、次のスライド以降の LOOP 結合に入る——
+                この順番が実務の定番ですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。次は例え話で結合のイメージを掴み、そのあと同じ型を SAP 表名でコードに落とします。
+              </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="06-select-from-db"
+                slide={5}
+                label="第6章: SELECT の基本を復習する"
+                variant="back"
                 className="mb-4"
               />
             </>
@@ -1687,53 +1868,23 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
         {
           title: "3テーブル結合",
           plainText:
-            "3テーブル結合：伝票→明細→会社マスタ\n前スライドの例えをSAP表に置き換え\n①伝票 ②明細（LOOP） ③会社マスタ\nBちゃん：レシートの例え、そのまま BKPF/BSEG/T001 版？\n先生：その通り。",
+            "3テーブル結合：伝票→明細→会社マスタ\nLOOP②→READ①→READ③→組み立て→APPEND→CLEAR\nLOOPは明細だけ。①③はREAD TABLEで1行。\nBちゃん：レシートの例え、そのまま BKPF/BSEG/T001？\n先生：その通り。次のスライドでコード。",
           content: (
             <>
               <h2>
                 3テーブル結合：<strong>伝票 → 明細 → 会社マスタ</strong>
               </h2>
               <p>
-                前の2スライドの<strong>レシート → 注文品目 → 品目マスタ</strong>を、SAP の表に置き換えたものです。
-                やり方は同じ——<strong>3つの表を1行ずつつなげる</strong>だけです。
+                内部テーブルに載せた3表を、<strong>② 明細を起点</strong>に1行ずつつなげます。
+                テーブル名の並びは <strong>伝票 → 明細 → 会社マスタ</strong>、
+                処理の順は <strong>明細 → 伝票 → 会社マスタ</strong> です。
               </p>
               <ThreeTableChainDiagram />
-              <Callout variant="note">
-                <strong>3テーブルの役割</strong>
-                <br />
-                ① <strong>伝票</strong>（<code>lt_bkpf</code>）… 表紙（日付・会社コード）<br />
-                ② <strong>明細</strong>（<code>lt_bseg</code>）… 品目・金額。<strong>LOOP はここ</strong>（1明細＝出力1行）<br />
-                ③ <strong>会社マスタ</strong>（<code>lt_t001</code>）… 会社コード → 会社名（3NF）
-              </Callout>
-
-              <h3>LOOP 1回の結合順</h3>
-              <p>
-                データのつながりは「伝票 → 明細 → 会社マスタ」ですが、
-                プログラムは<strong>② 明細を起点</strong>に、① 伝票 → ③ 会社マスタ の順で <code>READ TABLE</code> します。
-              </p>
               <ThreeTableJoinOverviewDiagram />
-              <MermaidDiagram
-                chart={`flowchart LR
-  subgraph tables["3テーブル結合"]
-    direction LR
-    T1["① 伝票<br/>lt_bkpf"] 
-    T2["② 明細<br/>lt_bseg"]
-    T3["③ 会社マスタ<br/>lt_t001"]
-    T1 -->|"1:N belnr"| T2
-    T1 -->|"bukrs"| T3
-  end
-  subgraph loop["LOOP 1回"]
-    direction TB
-    L["LOOP ②明細1行"] --> R1["READ ①伝票"]
-    R1 --> R2["READ ③会社マスタ"]
-    R2 --> B["組み立て APPEND CLEAR"]
-  end
-  T2 -.-> L`}
-              />
               <JoinFlowDiagram
                 activeDetailIndex={0}
                 loopRound={1}
-                caption="1回目 — ②明細から①伝票・③会社マスタを結合して家計簿へ"
+                caption="LOOP 1回目 — ②明細から①伝票・③会社マスタを結合"
               />
               <MermaidDiagram
                 chart={`sequenceDiagram
@@ -1754,70 +1905,44 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
   Note over D: 次の明細行へ`}
               />
               <Dialog speaker="b">
-                「ネスト」って、ループの中にループ…？ 3テーブル全部ループするんですか？
+                「ネスト」ってループの中にループ…？ 3テーブル全部 LOOP するんですか？
               </Dialog>
               <Dialog speaker="teacher">
                 いいえ。<strong>LOOP は② 明細だけ</strong>です。
-                ① 伝票と ③ 会社マスタは <code>READ TABLE</code> で「合う1行だけ」取り出す——
-                ループの中にループは不要です。
+                ① 伝票と ③ 会社マスタは <code>READ TABLE</code> で合う1行だけ取り出します。
+                同じ伝票の2行目以降も、①③ の READ は毎回行いますが、取れる内容は同じ——変わるのは② の品目と金額だけです。
               </Dialog>
-
-              <h3>1回目・2回目：机の上で何が起きるか</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                同じ伝票 <code>100001</code> の明細を2行処理すると、① 伝票と ③ 会社マスタの<strong>取り出しは毎回行います</strong>が、
-                内容は同じ——<strong>② 明細の商品と金額だけが変わる</strong>——という点に注目してください。
-              </p>
               {LOOP_THREE_TABLE_STEPS.map((step) => (
                 <SampleTable
                   key={step.round}
-                  caption={`🔄 ${step.detailLabel}（LOOP の ${step.round} 回目）`}
+                  caption={`🔄 ${step.detailLabel}（LOOP ${step.round} 回目）`}
                   variant="default"
                 >
                   <tbody>
                     <tr>
-                      <Th>LOOP ② 明細</Th>
+                      <Th>LOOP ②</Th>
                       <Td>{step.detail}</Td>
                     </tr>
                     <tr>
-                      <Th>READ ① 伝票</Th>
+                      <Th>READ ①</Th>
                       <Td>{step.voucherLookup}</Td>
                     </tr>
                     <tr>
-                      <Th>READ ③ 会社マスタ</Th>
+                      <Th>READ ③</Th>
                       <Td>{step.masterLookup}</Td>
                     </tr>
                     <tr>
-                      <Th>組み立て → 追加</Th>
+                      <Th>出力1行</Th>
                       <Td>
                         <strong>{step.output}</strong>
-                      </Td>
-                    </tr>
-                    <tr>
-                      <Th>片付け</Th>
-                      <Td>
-                        家計簿（<code>lt_out</code>）に1行追加 → 机（<code>ls_out</code>）を空に → 次の明細へ
                       </Td>
                     </tr>
                   </tbody>
                 </SampleTable>
               ))}
-              <JoinFlowDiagram
-                activeDetailIndex={1}
-                loopRound={2}
-                caption="2回目 — ①③は同じ、②明細だけ変わる"
-              />
-              <Dialog speaker="b">
-                2回目も① 伝票と③ 会社マスタを探し直すんですね。面倒に見えるけど、
-                机の上は常に「いまの② 明細1行」だけ——だから毎回取り出す、ですか？
-              </Dialog>
-              <Dialog speaker="teacher">
-                その理解でバッチリです。3テーブル結合でも、人間の作業は
-                <strong>② 明細をめくる → ①③ を1枚ずつ → 1行書く → 机を空にする</strong>の繰り返しです。
-              </Dialog>
               <Callout variant="tip">
-                覚える順番：<strong>LOOP ②明細</strong> → <strong>READ ①伝票</strong> → <strong>READ ③会社マスタ</strong> →{" "}
-                <strong>組み立て → APPEND → CLEAR</strong>。
-                テーブル名は <strong>伝票 → 明細 → 会社マスタ</strong>、処理は <strong>明細 → 伝票 → 会社マスタ</strong>——この2つをセットで覚えてください。
+                口ぐせ：<strong>LOOP ② → READ ① → READ ③ → 組み立て → APPEND → CLEAR</strong>。
+                次のスライドで、この流れを ABAP コードに落とし込みます。
               </Callout>
             </>
           ),
@@ -1825,164 +1950,89 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
         {
           title: "LOOPの中で組み立てる",
           plainText:
-            "実際の流れ：3テーブル結合のコード\nLOOP ②明細 → READ ①伝票 → READ ③会社マスタ → 組み立て → APPEND → CLEAR\nBちゃん：さっきの3テーブル結合が、そのままコード？\n先生：その通り。LOOP=②、READ×2=①と③。\nBちゃん：明細1行につき出力1行。中身は組み立て→追加→クリアだけ。",
+            "3テーブル結合のコード\nLOOP AT lt_bseg → READ lt_bkpf → READ lt_t001 → MOVE → APPEND → CLEAR\nBちゃん：前のスライドの図、そのままコード版？\n先生：その通り。声に出して読めば長さより意味が先に見える。",
           content: (
             <>
-              <h2>実際の流れ：3テーブル結合の <code>LOOP</code></h2>
-
-              <h3>解説</h3>
+              <h2>3テーブル結合の <code>LOOP</code> コード</h2>
               <p>
-                前のスライドの<strong>伝票 → 明細 → 会社マスタ</strong>が、そのまま次のコードになります。
-                <code>LOOP</code> は ② 明細、<code>READ TABLE</code> は ① 伝票 → ③ 会社マスタ の順。
-                そのあとはいつも通り、<strong>組み立て → 追加 → 片付け</strong>です。
+                前のスライドの流れが、そのまま次のコードです。
+                <code>READ TABLE</code> の鍵は <code>belnr</code>（① 伝票）と <code>bukrs</code>（③ 会社）です。
               </p>
-              <Dialog speaker="b">
-                ② 明細を1行ずつめくりながら、① 伝票と ③ 会社マスタを順番に READ——
-                前のスライドの図、そのままコード版、ですね？
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通りです。明細1行につき、出力も1行。
-                <code>READ TABLE</code> の「鍵」は <code>belnr</code>（伝票）と <code>bukrs</code>（会社）の2つだけです。
-              </Dialog>
-              <Dialog speaker="b">
-                コードは長く見えますけど、やってることは「3テーブル結合 → 追加 → クリア」の繰り返しだけ、ですね？
-              </Dialog>
-              <Dialog speaker="teacher">
-                まさにそれです。1行ずつ「LOOP ② → READ ① → READ ③ → 組み立て」と声に出して読んでみてください。
-              </Dialog>
-
-              <JoinFlowDiagram
-                activeDetailIndex={0}
-                caption="コードと図の対応 — LOOP ②明細 → READ ①伝票 → READ ③会社マスタ"
-              />
               <MermaidDiagram
                 chart={`flowchart TB
-  subgraph code["ABAP コード"]
-    direction TB
-    C1["LOOP AT lt_bseg<br/>② 明細"] --> C2["READ TABLE lt_bkpf<br/>① 伝票"]
-    C2 --> C3["READ TABLE lt_t001<br/>③ 会社マスタ"]
-    C3 --> C4["MOVE / APPEND / CLEAR"]
+  subgraph selectPhase ["取得（章の前半）"]
+    S1[("DB")] -->|FOR ALL ENTRIES| F2["② lt_bseg"]
+    F2 --> F1["① lt_bkpf"]
+    F1 --> F3["③ lt_t001"]
   end
-  subgraph tables["3テーブル"]
-    direction LR
-    T1["① 伝票"] --- T2["② 明細"] --- T3["③ 会社マスタ"]
+  subgraph loopPhase ["LOOP 1回"]
+    L["LOOP ②"] --> R1["READ ①"]
+    R1 --> R2["READ ③"]
+    R2 --> M["MOVE → APPEND → CLEAR"]
   end
-  C1 -.-> T2
-  C2 -.-> T1
-  C3 -.-> T3`}
+  F1 --> loopPhase
+  F2 --> loopPhase
+  F3 --> loopPhase
+  M -.->|次の明細| L`}
               />
-
-              <h3>例：3テーブル結合の LOOP コード</h3>
               <CodeBlock
                 language="ABAP"
-                code={`LOOP AT lt_bseg INTO ls_bseg.          " ② 明細：1行ずつ机へ
+                code={`LOOP AT lt_bseg INTO ls_bseg.          " ② 明細
 
-  READ TABLE lt_bkpf INTO ls_bkpf         " ① 伝票：belnr で1枚
+  READ TABLE lt_bkpf INTO ls_bkpf         " ① 伝票
     WITH KEY bukrs = ls_bseg-bukrs
              belnr = ls_bseg-belnr
              gjahr = ls_bseg-gjahr.
   IF sy-subrc <> 0. CONTINUE. ENDIF.
 
-  READ TABLE lt_t001 INTO ls_t001         " ③ 会社マスタ：bukrs で1枚
+  READ TABLE lt_t001 INTO ls_t001         " ③ 会社マスタ
     WITH KEY bukrs = ls_bkpf-bukrs.
   IF sy-subrc <> 0. CLEAR ls_t001. ENDIF.
 
-  MOVE-CORRESPONDING ls_bkpf TO ls_out.   " ① 伝票の同名項目
-  ls_out-name   = ls_t001-butxt.          " ③ 会社名
-  ls_out-amount = ls_bseg-dmbtr.          " ② 金額
+  MOVE-CORRESPONDING ls_bkpf TO ls_out.
+  ls_out-name   = ls_t001-butxt.
+  ls_out-amount = ls_bseg-dmbtr.
 
   APPEND ls_out TO lt_out.
   CLEAR ls_out.
 
 ENDLOOP.`}
               />
+              <Figure
+                src="image/08-header-detail-join.webp"
+                alt="lt_bkpf（伝票）とlt_bseg（明細）から1行(ls_out)を組み立て、APPENDでlt_outへ蓄積する流れ。"
+                caption="3テーブル → 1行組み立て → APPEND で lt_out へ"
+                kind="diagram"
+              />
               <ul>
                 <li>
-                  <code>LOOP AT lt_bseg</code> … <strong>② 明細</strong>。LOOP の起点（1明細＝出力1行）
+                  <code>LOOP AT lt_bseg</code> … ② 明細（1明細＝出力1行）
                 </li>
                 <li>
-                  <code>READ TABLE lt_bkpf</code> … <strong>① 伝票</strong>。明細の <code>belnr</code> で1枚
+                  <code>READ TABLE lt_bkpf</code> … ① 伝票（明細と同じ <code>belnr</code> キー）
                 </li>
                 <li>
-                  <code>READ TABLE lt_t001</code> … <strong>③ 会社マスタ</strong>。伝票の <code>bukrs</code> で1枚
+                  <code>READ TABLE lt_t001</code> … ③ 会社マスタ（伝票の <code>bukrs</code>）
                 </li>
                 <li>
-                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 … 3テーブル分を <code>ls_out</code> に組み立て
-                </li>
-                <li>
-                  <code>APPEND</code> → <code>CLEAR</code> … 家計簿へ追加 → 机を片付け
+                  <code>MOVE-CORRESPONDING</code> ＋ 個別代入 → <code>APPEND</code> → <code>CLEAR</code>
                 </li>
               </ul>
               <InfoPanel
                 title="4つ目のマスタを結合するとき"
                 variant="reference"
-                lead="実務では T003T（伝票タイプ名）など、READ TABLE がもう1段増えることもあります。"
+                lead="T003T（伝票タイプ名）など、READ TABLE がもう1段増えることもあります。"
               >
                 <p>
-                  やり方は同じです。<strong>LOOP は② 明細のまま</strong>、<code>READ TABLE</code> を
-                  「合う1行を取る」分だけ増やすだけ——3テーブル結合の延長です。
+                  <strong>LOOP は② 明細のまま</strong>、<code>READ TABLE</code> を増やすだけ——3テーブル結合と同じ型です。
                 </p>
               </InfoPanel>
-            </>
-          ),
-        },
-        {
-          title: "図解：3テーブル結合",
-          plainText:
-            "図で見る：3テーブル結合\n伝票→明細→会社マスタ。LOOP②→READ①→READ③→組み立て→APPEND→CLEAR\nBちゃん：3テーブルから毎回1行分だけ取り出して家計簿へ？\n先生：その通り。",
-          content: (
-            <>
-              <h2>図で見る：3テーブル結合の全体像</h2>
-              <p>
-                <strong>伝票 → 明細 → 会社マスタ</strong>の3テーブルを、
-                <code>LOOP</code>（② 明細）＋ <code>READ TABLE</code>×2（① 伝票 → ③ 会社マスタ）で結合する流れを俯瞰します。
-              </p>
-              <ThreeTableChainDiagram />
-              <MermaidDiagram
-                chart={`flowchart TB
-  subgraph selectPhase ["最初に1回だけ SELECT"]
-    S1[("DB")] -->|取得| F1["① lt_bkpf 伝票"]
-    S1 -->|取得| F2["② lt_bseg 明細"]
-    S1 -->|取得| F3["③ lt_t001 会社マスタ"]
-  end
-  subgraph loopPhase ["LOOP 1回（②明細1行ごと）"]
-    direction TB
-    L["LOOP ②明細"] --> R1["READ ①伝票<br/>belnr"]
-    R1 --> R2["READ ③会社マスタ<br/>bukrs"]
-    R2 --> M["MOVE → ls_out"]
-    M --> A["APPEND → lt_out"]
-    A --> CL["CLEAR"]
-  end
-  F1 --> loopPhase
-  F2 --> loopPhase
-  F3 --> loopPhase
-  CL -.->|次の明細| L`}
-              />
-              <JoinFlowDiagram
-                activeDetailIndex={0}
-                caption="LOOP 1回分 — ①伝票 ← ②明細 → ③会社マスタ を結合"
-              />
-              <Figure
-                src="image/08-header-detail-join.webp"
-                alt="lt_bkpf（伝票）とlt_bseg（明細）から、MOVE-CORRESPONDINGと個別代入で1行(ls_out)を組み立て、APPENDでlt_out（出力テーブル）に積み上げていく流れの図。"
-                caption="3テーブル（伝票＋明細＋会社マスタ）→ 1行組み立て → APPENDで蓄積"
-                kind="diagram"
-              />
               <Dialog speaker="b">
-                ② 明細を1枚めくるたびに、① 伝票と ③ 会社マスタからも1枚ずつ——
-                3テーブルから「いまの1行分」だけ取り出して、家計簿へ追加 → 机を空にする、ですね？
+                コードは長く見えますけど、やってることは前のスライドの口ぐせと同じ、ですね？
               </Dialog>
               <Dialog speaker="teacher">
-                その通り。このリズムがこの章の核心です。
-                <strong>LOOP 1回 ＝ ② → ① → ③ → 組み立て → APPEND → CLEAR</strong> の1周です。
+                その通りです。「LOOP ② → READ ① → READ ③ → 組み立て → APPEND → CLEAR」と声に出して読んでみてください。
               </Dialog>
-              <Dialog speaker="b">
-                3テーブルの図とコード、両方見ると頭の中でつながりました。単独だと難しかったです…。
-              </Dialog>
-              <Callout variant="tip">
-                口ぐせ：<strong>LOOP ②明細 → READ ①伝票 → READ ③会社マスタ → 組み立て → APPEND → CLEAR</strong>。
-                テーブルの並びは <strong>伝票 → 明細 → 会社マスタ</strong>、処理は <strong>明細 → 伝票 → 会社マスタ</strong>。
-              </Callout>
             </>
           ),
         },
