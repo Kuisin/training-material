@@ -1751,17 +1751,176 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="a">
                 取得用内部テーブル（<code>lt_bseg</code> / <code>lt_bkpf</code> / <code>lt_t001</code>）に
-                <strong>必要最小限</strong>だけ載せてから、次のスライド以降の LOOP 結合に入る——
+                <strong>必要最小限</strong>だけ載せてから LOOP 結合に入る——
                 この順番が実務の定番ですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。次は例え話で結合のイメージを掴み、そのあと同じ型を SAP 表名でコードに落とします。
+                その通りです。次のスライドは<strong>性能の補足</strong>（分からなければスキップ可）です。
+                そのあと例え話で結合のイメージを掴みます。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-taining"
                 lessonFile="06-select-from-db"
                 slide={5}
                 label="第6章: SELECT の基本を復習する"
+                variant="back"
+                className="mb-4"
+              />
+            </>
+          ),
+        },
+        {
+          title: "LOOP内SELECTを避ける理由",
+          plainText:
+            "LOOP内SELECTを避ける理由（補足・スキップ可）\n本コース必須ではない。難しければ次の例えへ進んでOK。口ぐせ：取得はLOOP前、結合はREAD TABLE。\nBちゃん：LOOP内SELECTのほうが書きやすくて楽だと思ってた…その場で取れるし。\n先生：書くときは楽。本番では往復が件数分。楽な近道がN+1問題。\nBちゃん：楽そうな書き方がトラップだった。n²n³は後回しで型だけ守ってもいい？\n先生：その通り。詳しくは第13章。",
+          content: (
+            <>
+              <h2>
+                <code>LOOP</code> の<strong>中</strong>で <code>SELECT</code> しない理由
+              </h2>
+              <InfoPanel
+                title="このスライドについて"
+                variant="reference"
+                lead={
+                  <>
+                    <strong>本コースの必須内容ではありません。</strong>
+                    性能の背景を理解したい人向けの補足です。
+                  </>
+                }
+              >
+                <ul>
+                  <li>
+                    往復コスト・N+1問題・テーブル結合での<strong>ネスト LOOP</strong>（参考）
+                  </li>
+                  <li>
+                    <strong>分からない・難しければスキップして大丈夫</strong>です。次の「例え」「3テーブル結合」へ進んでください
+                  </li>
+                  <li>
+                    最低限覚える型：<strong>取得は LOOP の前</strong>、<strong>結合は READ TABLE</strong>、
+                    <strong>LOOP は② 明細だけ</strong>（3テーブル結合スライドで実践）
+                  </li>
+                  <li>詳しくは第13章（良いABAP）で扱います</li>
+                </ul>
+              </InfoPanel>
+              <p>
+                前のスライドでは、<code>FOR ALL ENTRIES</code> で<strong>LOOP の前</strong>に必要分だけ DB から取得しました。
+                結合は <code>READ TABLE</code> で行う——この順番には、性能上の理由があります。
+              </p>
+              <Dialog speaker="b">
+                正直、前まで <code>LOOP</code> の中で <code>SELECT</code> したほうが<strong>楽</strong>だと思ってました。
+                「いまの明細に合う伝票が欲しい」→ その場で <code>SELECT SINGLE</code>——
+                流れが1行ずつ追いやすいし、<code>FOR ALL ENTRIES</code> を先に書かなくていいですよね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                書く直感としては、そう感じる人がとても多いです。
+                でも DB への<strong>往復</strong>という観点で見ると、楽な書き方が本番で一番困るパターンになります。
+              </Dialog>
+              <Callout variant="note">
+                <strong>DB への問い合わせは「往復」が重い</strong>
+                <br />
+                プログラム（事務所）と DB（倉庫）は別の場所にあります。
+                1回 <code>SELECT</code> するたびに<strong>往復の旅</strong>が1回発生し、時間がかかります。
+              </Callout>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph bad ["❌ LOOP 内 SELECT"]
+    L["LOOP 明細 N行"] --> S["毎回 SELECT"]
+    S --> DB1[("DB 往復 × N")]
+    DB1 --> L
+  end
+  subgraph good ["✅ この章の型"]
+    Q["LOOP 前: FOR ALL ENTRIES 等"] --> DB2[("DB 往復 少数")]
+    DB2 --> M["LOOP 内: READ TABLE"]
+    M --> R["メモリ照合（往復なし）"]
+  end`}
+              />
+              <ul>
+                <li>
+                  <strong>LOOP 内 SELECT</strong> … 明細100行なら DB へ<strong>100回往復</strong>。
+                  業界では「<strong>N+1問題</strong>」と呼ばれる代表的なアンチパターンです
+                </li>
+                <li>
+                  <strong>開発環境では気づきにくい</strong> … 件数が少ないと速く見えますが、
+                  本番の大量データでは処理が止まる原因になります
+                </li>
+                <li>
+                  <strong>正しい型</strong> … <code>FOR ALL ENTRIES</code> などで LOOP の前に必要分だけ取得し、
+                  LOOP 内はメモリ上の <code>READ TABLE</code> で照合する
+                </li>
+              </ul>
+              <Dialog speaker="b">
+                え、私が「楽」だと思ってた <code>LOOP</code> 内 <code>SELECT</code> が、明細100行で DB へ<strong>100回往復</strong>…？
+                研修データではサクッと動いたから、問題ないと思ってました…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                件数が少ないと「楽な書き方」でも動きます。
+                本番で明細が増えると往復が件数分膨らむ——<strong>N+1問題</strong>です。
+                だから先にまとめて取り、LOOP 内は <code>READ TABLE</code> で机の上だけ照合します。
+              </Dialog>
+
+              <h3>テーブル結合で LOOP を重ねると、件数の累乗で遅くなる</h3>
+              <p>
+                結合のために<strong>表ごとに LOOP をネスト</strong>すると、突き合わせの回数が件数の累乗オーダーに近づきます。
+                （細かい計算量の話は第13章でも触れますが、<strong>イメージだけ</strong>押さえれば十分です。）
+              </p>
+              <ul>
+                <li>
+                  <strong>2表を二重 LOOP</strong>（例：伝票 LOOP × 明細 LOOP）… おおむね <strong>n × m</strong>。
+                  両方100件なら最大<strong>1万回</strong>の突き合わせ（<strong>n²</strong> オーダー）
+                </li>
+                <li>
+                  <strong>3表を三重 LOOP</strong> … さらに1段重なると <strong>n³</strong> オーダーに近づく
+                </li>
+                <li>
+                  <strong>この章の型</strong> … <strong>LOOP は② 明細だけ</strong>（n回）、①③ は <code>READ TABLE</code> で1行取得。
+                  明細100行なら<strong>100回の1周</strong>——ネスト LOOP や LOOP 内 SELECT よりはるかに軽い
+                </li>
+              </ul>
+              <MermaidDiagram
+                chart={`flowchart LR
+  subgraph nest ["❌ 表ごとに LOOP を重ねる"]
+    L1["LOOP ①"] --> L2["LOOP ②"]
+    L2 --> L3["LOOP ③"]
+    L3 --> X["比較 ≈ n³"]
+  end
+  subgraph ok ["✅ この章"]
+    D["LOOP ② 明細 n回"] --> R1["READ ①"]
+    R1 --> R2["READ ③"]
+    R2 --> Y["≈ n 回の1周"]
+  end`}
+              />
+              <Dialog speaker="b">
+                表ごとに <code>LOOP</code> を重ねるのも、コードの並びはわかりやすそう…でも <strong>n³</strong> は怖いです。
+                結局、<strong>楽そうな</strong> <code>SELECT</code> やネスト LOOP より、
+                口ぐせの型（LOOP 前に取得・明細だけ LOOP）のほうが正解、ですね？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その整理で大丈夫です。<strong>読みやすさだけ</strong>で選ぶと、性能のトラップに入りがちです。
+                結合で3表全部 <code>LOOP</code> にすると n³ オーダー——この章は<strong>LOOP は明細1本</strong>＋ <code>READ TABLE</code> です。
+                第13章でも、同じ「楽な近道」の話を深掘りします。
+              </Dialog>
+              <Dialog speaker="b">
+                <strong>n²</strong> や <strong>n³</strong> はまだふわっとだけど…
+                「楽だから LOOP 内 <code>SELECT</code>」はやめて、スキップして口ぐせだけ守ってもいいですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                大丈夫です。<strong>取得は LOOP の前、結合は READ TABLE、LOOP は明細だけ</strong>——この3つが身につけば、
+                この章の実習は進められます。性能の深掘りは第13章でまた会いましょう。
+              </Dialog>
+              <Dialog speaker="a">
+                Bちゃんの「その場で <code>SELECT</code>」は、確かに読みやすいですが、
+                前のスライドの「①②③ を LOOP 前に取得 → LOOP 内は <code>READ TABLE</code>」のほうが、
+                性能面でも正しい設計、ですね。
+              </Dialog>
+              <Callout variant="tip">
+                口ぐせ：<strong>取得は LOOP の前、結合は READ TABLE</strong>。
+                DB への往復を減らす——この章の型は、性能改善の第一歩でもあります。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-taining"
+                lessonFile="13-good-programming"
+                slide={3}
+                label="第13章: なぜ LOOP 内 SELECT が遅いか（詳しく）"
                 variant="back"
                 className="mb-4"
               />
