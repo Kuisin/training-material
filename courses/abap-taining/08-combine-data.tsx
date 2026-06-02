@@ -1910,7 +1910,7 @@ ENDIF.`}
               <Dialog speaker="a">
                 Bちゃんの「その場で <code>SELECT</code>」は、確かに読みやすいですが、
                 前のスライドの「①②③ を LOOP 前に取得 → LOOP 内は <code>READ TABLE</code>」のほうが、
-                性能面でも正しい設計、ですね。
+                性能面では正しい設計、ということですね！
               </Dialog>
               <Callout variant="tip">
                 口ぐせ：<strong>取得は LOOP の前、結合は READ TABLE</strong>。
