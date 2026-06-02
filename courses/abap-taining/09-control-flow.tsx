@@ -29,6 +29,14 @@ const SUPPRESS_SAMPLE_ROWS = [
   { prefecture: "大阪府", name: "伊藤" },
 ] as const;
 
+const SUPPRESS_MULTI_COLUMN_ROWS = [
+  { bukrs: "1000", gjahr: "2025", blart: "SA", belnr: "900001", amount: "150,000" },
+  { bukrs: "1000", gjahr: "2025", blart: "SA", belnr: "900002", amount: "28,000" },
+  { bukrs: "1000", gjahr: "2025", blart: "KR", belnr: "900003", amount: "12,500" },
+  { bukrs: "1000", gjahr: "2026", blart: "SA", belnr: "900004", amount: "9,800" },
+  { bukrs: "2000", gjahr: "2026", blart: "SA", belnr: "900005", amount: "18,300" },
+] as const;
+
 /** SORT 前後の対比：同じ5行、並び順だけ違う */
 const SORT_UNSORTED_ROWS = [
   { bukrs: "1000", belnr: "100001", amount: "158,000" },
@@ -44,6 +52,68 @@ const SORT_SORTED_ROWS = [
   { bukrs: "1000", belnr: "100005", amount: "2,480", control: "AT END OF" },
   { bukrs: "2000", belnr: "100002", amount: "6,750", control: "AT NEW" },
   { bukrs: "2000", belnr: "100004", amount: "4,200", control: "AT END OF" },
+] as const;
+
+const CONTROL_OUTPUT_ROWS = [
+  { line: "会社別 一覧", bukrs: "—", belnr: "—", amount: "—", trigger: "AT FIRST" },
+  { line: "■ 会社: 1000", bukrs: "1000", belnr: "—", amount: "—", trigger: "AT NEW bukrs" },
+  { line: "明細", bukrs: "1000", belnr: "100001", amount: "158,000", trigger: "通常行" },
+  { line: "明細", bukrs: "1000", belnr: "100003", amount: "8,900", trigger: "通常行" },
+  { line: "明細", bukrs: "1000", belnr: "100005", amount: "2,480", trigger: "通常行" },
+  { line: "小計", bukrs: "1000", belnr: "—", amount: "169,380", trigger: "AT END OF bukrs" },
+  { line: "■ 会社: 2000", bukrs: "2000", belnr: "—", amount: "—", trigger: "AT NEW bukrs" },
+  { line: "明細", bukrs: "2000", belnr: "100002", amount: "6,750", trigger: "通常行" },
+  { line: "明細", bukrs: "2000", belnr: "100004", amount: "4,200", trigger: "通常行" },
+  { line: "小計", bukrs: "2000", belnr: "—", amount: "10,950", trigger: "AT END OF bukrs" },
+  { line: "== 総合計 ==", bukrs: "—", belnr: "—", amount: "180,330", trigger: "AT LAST" },
+] as const;
+
+const CONTROL_IF_TRACE_ROWS = [
+  {
+    row: 1,
+    bukrs: "1000",
+    first: true,
+    isNewBukrs: true,
+    isEndOfBukrs: false,
+    isLast: false,
+    reason: "先頭行。前行なしなので NEW",
+  },
+  {
+    row: 2,
+    bukrs: "1000",
+    first: false,
+    isNewBukrs: false,
+    isEndOfBukrs: false,
+    isLast: false,
+    reason: "前後とも1000なので境界ではない",
+  },
+  {
+    row: 3,
+    bukrs: "1000",
+    first: false,
+    isNewBukrs: false,
+    isEndOfBukrs: true,
+    isLast: false,
+    reason: "次行が2000に変わるため END OF",
+  },
+  {
+    row: 4,
+    bukrs: "2000",
+    first: false,
+    isNewBukrs: true,
+    isEndOfBukrs: false,
+    isLast: false,
+    reason: "前行が1000なので NEW",
+  },
+  {
+    row: 5,
+    bukrs: "2000",
+    first: false,
+    isNewBukrs: false,
+    isEndOfBukrs: true,
+    isLast: true,
+    reason: "最終行。かつ2000グループ末尾",
+  },
 ] as const;
 
 function isSplitGroupRow(rows: readonly { bukrs: string }[], index: number): boolean {
@@ -232,7 +302,7 @@ export default function ControlFlowLesson() {
         {
           title: "変わり目で処理する",
           plainText:
-            "「変わり目」をきっかけに処理する\n並べ替えたデータを上から見ると、グループの変わり目がある。そこで小計や見出しを出す。\nAT FIRST：いちばん最初に1回（全体の見出しなど）\nAT NEW 項目：その項目が変わった最初の行（グループ見出し）\nAT END OF 項目：その項目が変わる直前の行（小計など）\nAT LAST：いちばん最後に1回（総合計など）\nつまずき：これらは事前に SORT してあることが前提。並んでいないと変わり目が正しく取れない。",
+            "「変わり目」をきっかけに処理する\n並べ替えたデータを上から見ると、グループの変わり目がある。そこで小計や見出しを出す。\nAT FIRST：いちばん最初に1回（全体の見出しなど）\nAT NEW 項目：その項目が変わった最初の行（グループ見出し）\nAT END OF 項目：その項目が変わる直前の行（小計など）\nAT LAST：いちばん最後に1回（総合計など）\n実践コード：SORTしてからLOOP内でAT制御を置く。明細は毎行、見出しと小計は境界行だけで出す。\nつまずき：これらは事前に SORT してあることが前提。並んでいないと変わり目が正しく取れない。",
           content: (
             <>
               <h2>「変わり目」をきっかけに処理する</h2>
@@ -242,6 +312,42 @@ export default function ControlFlowLesson() {
                 <li><code>AT NEW 項目</code>：その項目が変わった最初の行（グループ見出し）</li>
                 <li><code>AT END OF 項目</code>：その項目が変わる直前の行（小計など）</li>
                 <li><code>AT LAST</code>：いちばん最後に1回（総合計など）</li>
+              </ul>
+              <h3>最小の実践コード（会社コードで制御）</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`SORT lt_out BY bukrs belnr.
+
+LOOP AT lt_out INTO ls_out.
+  AT FIRST.
+    WRITE: / '会社別 一覧'.
+  ENDAT.
+
+  AT NEW bukrs.
+    WRITE: / '■ 会社:', ls_out-bukrs.
+  ENDAT.
+
+  WRITE: / ls_out-belnr, ls_out-amount.
+
+  AT END OF bukrs.
+    WRITE: / '  小計 ...'.
+  ENDAT.
+
+  AT LAST.
+    WRITE: / '== 総合計 =='.
+  ENDAT.
+ENDLOOP.`}
+              />
+              <ul>
+                <li>
+                  まず <code>SORT lt_out BY bukrs belnr.</code>。同じ会社を連続させないと、<code>AT NEW</code> と <code>AT END OF</code> が正しく動きません。
+                </li>
+                <li>
+                  明細の <code>WRITE</code> は毎行実行、<code>AT ... ENDAT.</code> ブロックは境界でだけ実行。役割を分けて読むと理解しやすいです。
+                </li>
+                <li>
+                  迷ったら「この行は先頭か？会社が切り替わったか？会社の最後か？最終行か？」の4つで追うと、発火位置を確認できます。
+                </li>
               </ul>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 会社コード（<code>bukrs</code>）で<strong>並べ替えていない</strong>と、同じ会社の行が離れ、
@@ -302,12 +408,120 @@ export default function ControlFlowLesson() {
           ),
         },
         {
+          title: "サプレスを複数列に適用",
+          plainText:
+            "サプレスの最小ロジック\n基本は1行だけ：『前行と同じなら出さない、違えば出す』。\nその後テーブルで応用：①左の列からSORT ②前行を控える ③上位が同じときだけ下位をCLEAR ④明細は毎行出力。\n階層がポイント：上位の列が変われば下位の列は必ず出し直す（住所の都道府県／市区町村／番地と同じ）。\nBちゃん：都道府県が変わったら、市区町村も番地も出し直すんですね。\nAくん：まず1列で理解してから複数列に広げると分かりやすいです。",
+          content: (
+            <>
+              <h2>まずはサプレスの最小ロジック</h2>
+              <p>
+                サプレスはシンプルです。<strong>「前行と同じなら出さない、違えば出す」</strong>。まず1列で理解してから、テーブルの複数列に広げます。
+              </p>
+              <h3>この考え方をテーブルに適用する</h3>
+              <p>
+                列が増えても、やることは1列のときと同じ「前行と比べて、同じなら消す」です。違うのは<strong>列に上下関係（階層）がある</strong>ことだけ。会社 ＞ 年度 ＞ 伝票タイプ、の順で、上から見ていきます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`SORT lt_out BY bukrs gjahr blart belnr.
+
+DATA ls_prev TYPE ty_out.
+DATA ls_disp TYPE ty_out.
+
+LOOP AT lt_out INTO ls_out.
+  ls_disp = ls_out.
+
+  IF ls_prev-bukrs = ls_out-bukrs.
+    CLEAR ls_disp-bukrs.
+  ENDIF.
+  IF ls_prev-bukrs = ls_out-bukrs
+     AND ls_prev-gjahr = ls_out-gjahr.
+    CLEAR ls_disp-gjahr.
+  ENDIF.
+  IF ls_prev-bukrs = ls_out-bukrs
+     AND ls_prev-gjahr = ls_out-gjahr
+     AND ls_prev-blart = ls_out-blart.
+    CLEAR ls_disp-blart.
+  ENDIF.
+
+  WRITE: / ls_disp-bukrs, ls_disp-gjahr, ls_disp-blart,
+           ls_out-belnr, ls_out-amount.
+
+  ls_prev = ls_out.
+ENDLOOP.`}
+              />
+              <ul>
+                <li>
+                  <code>SORT</code> は必須。サプレス対象の列を、左（上位）から順に並べてから比較します。
+                </li>
+                <li>
+                  <code>ls_prev</code> は「前の行の控え」、<code>ls_disp</code> は「画面に出す用のコピー」。元データ <code>ls_out</code> はそのまま残します。
+                </li>
+                <li>
+                  IFを入れ子のように条件で重ねているのは<strong>階層を表すため</strong>。会社が同じときだけ年度を消し、会社と年度が同じときだけ伝票タイプを消します。
+                </li>
+                <li>
+                  裏を返すと、<strong>上位の列が変われば下位の列は必ず表示</strong>されます（値がたまたま同じでも出し直す）。
+                </li>
+                <li>伝票番号・金額など明細列は毎行そのまま出力します。</li>
+              </ul>
+              <h3>表示イメージ（複数列サプレス）</h3>
+              <SampleTable caption="✅ 会社・年度・伝票タイプを段階的にサプレス" variant="ok">
+                <thead>
+                  <tr>
+                    <Th>会社</Th>
+                    <Th>年度</Th>
+                    <Th>伝票タイプ</Th>
+                    <Th>伝票</Th>
+                    <Th>金額</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {SUPPRESS_MULTI_COLUMN_ROWS.map((row, i) => {
+                    const previous = i > 0 ? SUPPRESS_MULTI_COLUMN_ROWS[i - 1] : null;
+                    const suppressBukrs = !!previous && previous.bukrs === row.bukrs;
+                    const suppressGjahr =
+                      !!previous && suppressBukrs && previous.gjahr === row.gjahr;
+                    const suppressBlart =
+                      !!previous && suppressGjahr && previous.blart === row.blart;
+
+                    return (
+                      <tr key={row.belnr}>
+                        <Td muted={suppressBukrs}>{suppressBukrs ? "—" : row.bukrs}</Td>
+                        <Td muted={suppressGjahr}>{suppressGjahr ? "—" : row.gjahr}</Td>
+                        <Td muted={suppressBlart}>{suppressBlart ? "—" : row.blart}</Td>
+                        <Td>{row.belnr}</Td>
+                        <Td>{row.amount}</Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </SampleTable>
+              <Dialog speaker="teacher">
+                まず1列で「同じなら出さない」を体で覚えると、複数列でも迷いません。増えるのは比較条件だけです。
+              </Dialog>
+              <Dialog speaker="b">
+                住所みたいですね。「東京都／渋谷区／1-2-3」で、都道府県が同じなら省く。でも都道府県が変わったら、市区町村も番地も全部出し直す。
+              </Dialog>
+              <Dialog speaker="teacher">
+                まさにその感覚です。上の列が違えば下の列は必ず出す。コードでは「上の列がすべて同じときだけ下を消す」と書くことで、その上下関係をそのまま表現しています。
+              </Dialog>
+              <Dialog speaker="a">
+                本質が1列のときと同じだから、最小ロジックを理解してからテーブル版に進むのが最短ですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "制御のコード例",
           plainText:
-            "LOOP の中に制御ブロックを置く\nSORT lt_out BY bukrs.\nLOOP AT lt_out INTO ls_out.\n  AT FIRST. WRITE: / '会社別 一覧'. ENDAT.\n  AT NEW bukrs. WRITE: / '■ 会社:', ls_out-bukrs. ENDAT.\n  WRITE: / ls_out-belnr, ls_out-amount.\n  AT END OF bukrs. WRITE: / '  小計 …'. ENDAT.\n  AT LAST. WRITE: / '== 総合計 ==' . ENDAT.\nENDLOOP.\nAくん：LOOPを回しながら最初／グループ頭／グループ末／最後にフックを掛けるんですね。構造がきれい。",
+            "LOOP の中に制御ブロックを置く\nサプレスは『見出しを消す』工夫。ここからは変わり目で別の処理を起こす制御。\nAT … を LOOP の中に書くだけで、対応するタイミングで自動で実行される。\nSORT lt_out BY bukrs.\nLOOP AT lt_out INTO ls_out.\n  AT FIRST. WRITE: / '会社別 一覧'. ENDAT.\n  AT NEW bukrs. WRITE: / '■ 会社:', ls_out-bukrs. ENDAT.\n  WRITE: / ls_out-belnr, ls_out-amount.\n  AT END OF bukrs. WRITE: / '  小計 …'. ENDAT.\n  AT LAST. WRITE: / '== 総合計 ==' . ENDAT.\nENDLOOP.\nAくん：LOOPを回しながら最初／グループ頭／グループ末／最後にフックを掛けるんですね。構造がきれい。\nBちゃん：運動会みたい。開会式→各組の入場→選手が走る→組の結果発表→閉会式。",
           content: (
             <>
               <h2>LOOP の中に制御ブロックを置く</h2>
+              <p>
+                サプレスは「同じ見出しを消す」工夫でした。ここからは<strong>変わり目で別の処理を起こす</strong>制御です。<code>AT …</code> を LOOP の中に書くと、対応するタイミングが来たときだけ自動で実行されます（自分で行番号を数える必要はありません）。
+              </p>
               <CodeBlock
                 language="ABAP"
                 code={`SORT lt_out BY bukrs.
@@ -342,11 +556,172 @@ ENDLOOP.`}
                   <code>AT LAST.</code> … 全データの最後の行だけで処理する → 総合計
                 </li>
               </ul>
+              <Callout variant="tip">
+                <code>AT FIRST</code> の使い方はこの形で正しいです。<strong>LOOP の中</strong>に置き、全体見出しや初期化など「最初の1回だけ」の処理に使います。
+              </Callout>
+              <h3>サンプル出力ビュー</h3>
+              <SampleTable caption="AT制御が動いたときの実際の出力順" variant="default">
+                <thead>
+                  <tr>
+                    <Th>行種別</Th>
+                    <Th>会社</Th>
+                    <Th>伝票</Th>
+                    <Th>金額</Th>
+                    <Th>発火条件</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CONTROL_OUTPUT_ROWS.map((row, index) => (
+                    <tr key={`${row.line}-${index}`}>
+                      <Td>{row.line}</Td>
+                      <Td muted={row.bukrs === "—"}>{row.bukrs}</Td>
+                      <Td muted={row.belnr === "—"}>{row.belnr}</Td>
+                      <Td muted={row.amount === "—"}>{row.amount}</Td>
+                      <Td>
+                        <code>{row.trigger}</code>
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </SampleTable>
               <Dialog speaker="a">
                 LOOP を回しながら「最初／グループ頭／グループ末／最後」にフックを掛けるんですね。構造がきれい。
               </Dialog>
               <Dialog speaker="teacher">
                 いい言葉です。まさに「フック（引っ掛け）」。明細の出力はいつも通り、その前後に見出しや小計のフックを差し込む、という読み方をしてください。
+              </Dialog>
+              <Dialog speaker="b">
+                運動会みたいですね。開会式（最初）→ 各組の入場（グループ頭）→ 選手が走る（明細）→ 組の結果発表（グループ末）→ 閉会式（最後）。決まった場面で式が差し込まれる。
+              </Dialog>
+              <Dialog speaker="teacher">
+                ぴったりの例えです。ポイントは、明細（走る人）は毎回起きて、見出しや小計（式典）は変わり目だけで起きること。<code>SORT</code> で組がまとまっているから、この順番が崩れません。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "上級：IFで検知してみる",
+          plainText:
+            "上級者向け：AT制御をIFで再現\nAT FIRST/NEW/END OF/LASTは、実質的に『先頭か・前行と違うか・次行と違うか・最終行か』の判定。\nつまりAT制御は、自分の行番号と前後の行を見比べているだけ。\nAT NEW＝前と違う、AT END OF＝次と違う。\n前行・次行を比較するIFで書くと、何を検知しているかが明確になる。\n用途：デバッグ時に境界判定を可視化したいとき。\nBちゃん：魔法じゃなく『前の人・次の人と違う?』をたずねているだけなんですね。",
+          content: (
+            <>
+              <h2>AT制御は何を検知しているか（IF版）</h2>
+              <p>
+                <code>AT FIRST</code> / <code>AT NEW</code> / <code>AT END OF</code> / <code>AT LAST</code>{" "}
+                は、実は特別な魔法ではありません。やっていることは<strong>「自分の行番号」と「前後の行」を見比べる</strong>だけです。<code>AT NEW</code> は前の行と違うとき、<code>AT END OF</code> は次の行と違うとき。デバッグ時はこれをIFで書くと、境界条件が目で追えるようになります。
+              </p>
+              <InfoPanel
+                title="上級者向けの補足"
+                variant="reference"
+                lead="このセクションは「AT制御の内部判定を理解したい人」向けです。"
+              >
+                <ul>
+                  <li>
+                    <strong>まずは通常の学習順</strong> … 実務では <code>AT FIRST</code> / <code>AT NEW</code> /{" "}
+                    <code>AT END OF</code> / <code>AT LAST</code> をそのまま使えば十分です。
+                  </li>
+                  <li>
+                    <strong>このページの目的</strong> … IF判定で「何を検知しているか」を可視化し、デバッグや設計レビューをしやすくすることです。
+                  </li>
+                </ul>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`DATA lv_lines TYPE i.
+lv_lines = lines( lt_out ).
+
+LOOP AT lt_out INTO ls_out INDEX DATA(lv_idx).
+  DATA(lv_is_first) = xsdbool( lv_idx = 1 ).
+  DATA(lv_is_last)  = xsdbool( lv_idx = lv_lines ).
+
+  DATA(lv_prev_bukrs) = VALUE bukrs( ).
+  DATA(lv_next_bukrs) = VALUE bukrs( ).
+
+  IF lv_idx > 1.
+    lv_prev_bukrs = lt_out[ lv_idx - 1 ]-bukrs.
+  ENDIF.
+  IF lv_idx < lv_lines.
+    lv_next_bukrs = lt_out[ lv_idx + 1 ]-bukrs.
+  ENDIF.
+
+  DATA(lv_is_new_bukrs)    = xsdbool( lv_idx = 1 OR lv_prev_bukrs <> ls_out-bukrs ).
+  DATA(lv_is_end_of_bukrs) = xsdbool( lv_idx = lv_lines OR lv_next_bukrs <> ls_out-bukrs ).
+
+  " ここでAT制御相当の処理を実行できる
+ENDLOOP.`}
+              />
+              <h3>IFの変数とAT制御の対応</h3>
+              <ul>
+                <li>
+                  <code>lv_is_first</code> … 行番号が1 → <code>AT FIRST</code> 相当
+                </li>
+                <li>
+                  <code>lv_is_new_bukrs</code> … 先頭、または前行と会社が違う → <code>AT NEW bukrs</code> 相当
+                </li>
+                <li>
+                  <code>lv_is_end_of_bukrs</code> … 最終行、または次行と会社が違う → <code>AT END OF bukrs</code> 相当
+                </li>
+                <li>
+                  <code>lv_is_last</code> … 行番号が最終 → <code>AT LAST</code> 相当
+                </li>
+              </ul>
+              <h3>検知結果トレース（5行サンプル）</h3>
+              <div className="not-prose my-4 grid grid-cols-2 gap-4 [&>figure]:my-0">
+                <SampleTable caption="入力データ（SORT済み）" variant="default">
+                  <thead>
+                    <tr>
+                      <Th>行</Th>
+                      <Th>会社</Th>
+                      <Th>伝票</Th>
+                      <Th>金額</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SORT_SORTED_ROWS.map((row, index) => (
+                      <tr key={row.belnr}>
+                        <Td>{index + 1}</Td>
+                        <Td>{row.bukrs}</Td>
+                        <Td>{row.belnr}</Td>
+                        <Td>{row.amount}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </SampleTable>
+                <SampleTable caption="IF判定で見える ATイベント" variant="ok">
+                  <thead>
+                    <tr>
+                      <Th>行</Th>
+                      <Th>会社</Th>
+                      <Th>FIRST</Th>
+                      <Th>NEW</Th>
+                      <Th>END OF</Th>
+                      <Th>LAST</Th>
+                      <Th>判定理由</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {CONTROL_IF_TRACE_ROWS.map((row) => (
+                      <tr key={row.row}>
+                        <Td>{row.row}</Td>
+                        <Td>{row.bukrs}</Td>
+                        <Td muted={!row.first}>{row.first ? "true" : "false"}</Td>
+                        <Td muted={!row.isNewBukrs}>{row.isNewBukrs ? "true" : "false"}</Td>
+                        <Td muted={!row.isEndOfBukrs}>{row.isEndOfBukrs ? "true" : "false"}</Td>
+                        <Td muted={!row.isLast}>{row.isLast ? "true" : "false"}</Td>
+                        <Td>{row.reason}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </SampleTable>
+              </div>
+              <Dialog speaker="b">
+                AT制御って魔法みたいに見えたけど、中身は「自分は先頭？」「前の人と会社が違う？」「次の人と違う？」「自分は最後？」をたずねているだけなんですね。
+              </Dialog>
+              <Dialog speaker="a">
+                だから前後の行をのぞいて比べている。<code>AT NEW</code> は「前と違う」、<code>AT END OF</code> は「次と違う」。仕組みが見えると、なぜ <code>SORT</code> が前提なのかも腑に落ちます。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通り。並んでいない＝前後がバラバラだと、この比較が意味を失います。実務ではAT制御を使い、設計確認や不具合調査ではこのIFトレースで判定根拠を可視化する、という使い分けが有効です。
               </Dialog>
             </>
           ),
