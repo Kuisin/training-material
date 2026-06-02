@@ -353,25 +353,28 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       {
         level: "basic",
         question: "SELECT の直後に sy-subrc = 0 が意味することは？",
-        options: ["取得に成功した", "必ず 0 件だった", "構文エラーが起きた"],
+        options: ["（少なくとも）処理が成功した", "必ず 0 件だった", "構文エラーが起きた"],
         answer: 0,
-        explanation: "sy-subrc = 0 は直前処理の成功を示します。",
+        explanation:
+          "sy-subrc = 0 は直前処理の成功を示します（例：構文として正しく実行された／該当データが取得できた等）。0 件かどうかは、パターンによっては件数（lines( )）でも確認します。",
       },
       {
         level: "intermediate",
-        question: "SELECT と SY-SUBRC について正しいものは？（複数選択）",
+        question: "SELECT と結果確認について正しいものは？（複数選択）",
         options: [
-          "sy-subrc = 0 は直前の処理が成功したことを示す",
+          "sy-subrc は直前処理の成否を表すので、条件分岐に使える",
           "INTO TABLE で内部テーブルに一括取得できる",
-          "sy-subrc は常に 1 になる",
+          "0 件のときに備えて、表示や後続処理を分岐させるのが安全",
           "BKPF は会計伝票ヘッダのテーブル",
         ],
-        answers: [0, 1, 3],
-        explanation: "INTO TABLE 一括取得、BKPF=ヘッダ、sy-subrc で結果確認が基本です。",
+        answers: [0, 1, 2, 3],
+        explanation:
+          "一括取得（INTO TABLE）と結果確認（sy-subrc／件数確認）をセットで考えるのが基本です。0 件時の扱いを決めておくと、空出力や後続エラーを避けられます。",
       },
       {
         level: "advanced",
-        question: "SELECT 文の設計で避けるべきことは？（複数選択）",
+        question:
+          "本番で大量データになり得るテーブルに対する SELECT 設計で、避けるべきことは？（複数選択）",
         options: [
           "SELECT * で不要列まで取得する",
           "必要列だけを指定する",
@@ -459,19 +462,21 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "intermediate",
-        question: "データ結合（ヘッダ＋明細）について正しいものは？（複数選択）",
+        question:
+          "「ヘッダ（BKPF）＋明細（BSEG）」を一覧用に結合する処理について正しいものは？（複数選択）",
         options: [
           "READ TABLE でヘッダを明細のキーで引ける",
           "MOVE-CORRESPONDING で同名項目をまとめて移送できる",
           "APPEND で結合結果を出力用テーブルに追加する",
-          "ヘッダと明細は必ず 1 行しか結合できない",
+          "明細行数ぶん、結合結果の行も増える",
         ],
-        answers: [0, 1, 2],
-        explanation: "明細行数ぶん結合できます。READ TABLE + MOVE + APPEND が基本パターンです。",
+        answers: [0, 1, 2, 3],
+        explanation:
+          "1 伝票に複数明細があるため、結合結果は「明細行数ぶん」増えるのが自然です。READ TABLE + CLEAR + MOVE + APPEND の流れを崩さないのがコツです。",
       },
       {
         level: "advanced",
-        question: "結合処理でバグりやすいポイントは？（複数選択）",
+        question: "結合処理で「表示は出るが中身が間違う」典型原因は？（複数選択）",
         options: [
           "READ TABLE 失敗（sy-subrc ≠ 0）を無視する",
           "ワークエリアを CLEAR せず前行の値が残る",
@@ -502,18 +507,19 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
     quizzes: [
       {
         level: "basic",
-        question: "AT NEW が正しく動くために LOOP の前に必要なのは？",
-        options: ["SORT（並べ替え）", "COMMIT", "DELETE"],
+        question: "AT NEW が正しく動くために LOOP の前に必要なことは？",
+        options: ["グループ項目を含めて SORT しておく", "COMMIT しておく", "DELETE で重複を消す"],
         answer: 0,
-        explanation: "AT NEW / END OF はソート済みデータでグループ境界を検出します。",
+        explanation:
+          "AT NEW / END OF は「並び順の変化」でグループ境界を検出します。つまり、グループ項目（例：BUKRS）でソートされていないと期待通りに動きません。",
       },
       {
         level: "intermediate",
-        question: "レポート制御について正しいものは？（複数選択）",
+        question: "グループ帳票（会社ごとの見出しなど）の作り方として正しいものは？（複数選択）",
         options: [
           "SORT で LOOP の前に並べ替えると AT NEW が効く",
           "AT NEW はグループの先頭で処理を実行する",
-          "SUPPRESS 関連の制御で不要な出力を抑えられる",
+          "サプレス出力で「同じ値を毎行出さない」などの整形ができる",
           "AT NEW はソートなしでも必ず正しく動く",
         ],
         answers: [0, 1, 2],
@@ -521,7 +527,8 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "advanced",
-        question: "グループ帳票で出力がおかしくなる原因として考えられるものは？（複数選択）",
+        question:
+          "「会社ごとの見出しが途中で何度も出る／出ない」など、グループ帳票が崩れる原因として考えられるものは？（複数選択）",
         options: [
           "SORT キーが AT NEW の項目と一致していない",
           "同じグループ内で順序がバラバラ",
@@ -611,19 +618,21 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "intermediate",
-        question: "会計伝票登録（BAPI）について正しいものは？（複数選択）",
+        question: "会計伝票登録（BAPI）の安全な進め方として正しいものは？（複数選択）",
         options: [
           "CHECK で登録前に検証できる",
           "POST で実際に登録する",
           "COMMIT で変更を確定する",
-          "エラー確認なしで COMMIT するのが安全",
+          "RETURN（lt_return）の内容を確認してから COMMIT する",
         ],
-        answers: [0, 1, 2],
-        explanation: "CHECK → POST → エラー確認 → COMMIT の順が安全です。",
+        answers: [0, 1, 2, 3],
+        explanation:
+          "CHECK → POST → RETURN 確認 → COMMIT の順が基本です。とくに RETURN（type='E' など）を見ずに COMMIT すると、失敗や不整合に気づけません。",
       },
       {
         level: "advanced",
-        question: "伝票登録フローでデータ不整合・事故を防ぐために必要なことは？（複数選択）",
+        question:
+          "「エラーが出ているのに登録された／されていないのに登録されたと思い込む」事故を防ぐために必要なことは？（複数選択）",
         options: [
           "lt_return の type = 'E' を確認する",
           "CHECK を省略して POST だけ実行する",
@@ -715,7 +724,7 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "intermediate",
-        question: "性能・保守性の良い ABAP について正しいものは？（複数選択）",
+        question: "性能・保守性の観点で「良い ABAP」になりやすい選択は？（複数選択）",
         options: [
           "必要な列だけ SELECT する",
           "LOOP 内で毎回 SELECT する（ネステッド SELECT）",
@@ -727,7 +736,7 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "advanced",
-        question: "大量データの照会レポートで総合的に検討すべきことは？（複数選択）",
+        question: "大量データの照会レポートで「やったつもり改善」を避けるために検討すべきことは？（複数選択）",
         options: [
           "WHERE 条件とインデックス（キー）の関係",
           "取得後の LOOP 内で再度 DB にアクセスしない",
@@ -737,107 +746,6 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
         answers: [0, 1, 3],
         explanation:
           "キー・DB アクセス回数・計測に基づく改善が重要です。SELECT * は性能・可読性の両面で避けます。",
-      },
-    ],
-  },
-  {
-    num: "14",
-    title: "SAP開発ツール",
-    summary: "SE38 の開発サイクル、デバッグ、ST22/SE16N による履歴確認、主要トランザクションと汎用モジュールの位置づけを確認します。",
-    arrangeKind: "flow",
-    codeInstruction: "プログラム異常終了後の調査手順が正しい順番になるよう組み立ててください",
-    codeLines: [
-      "ST22 でダンプの日時・プログラム・行番号を確認する。",
-      "SE38 で該当行にブレークポイントを置く。",
-      "/h でデバッガを起動して再実行する。",
-      "sy-subrc や変数の値をステップ実行で確認する。",
-      "修正後、SE16N で結果・履歴テーブルを確認する。",
-    ],
-    quizzes: [
-      {
-        level: "basic",
-        question: "保存後に実行しても動かないとき、最初に疑う操作は？",
-        options: ["有効化を忘れた", "テーブルを削除した", "選択画面を増やした"],
-        answer: 0,
-        explanation: "有効化しないと実行時オブジェクトが更新されません。構文チェックと有効化はセットで行います。",
-      },
-      {
-        level: "intermediate",
-        question: "デバッグや履歴確認で有用な操作・ツールとして正しいものは？（複数選択）",
-        options: [
-          "ブレークポイントを設定する",
-          "F1 でヘルプを見る",
-          "SE16N でテーブル内容を参照する",
-          "ST22 でダンプを確認する",
-        ],
-        answers: [0, 1, 2, 3],
-        explanation:
-          "ブレークポイント・F1 は開発調査、SE16N は結果確認、ST22 は異常終了の調査に使います。",
-      },
-      {
-        level: "advanced",
-        question: "汎用モジュールについて正しい説明は？（複数選択）",
-        options: [
-          "CALL FUNCTION で呼び出す",
-          "すべての処理をプログラム内に重複実装すべき",
-          "FILE_GET_NAME は論理ファイル名の解決に使える",
-          "REUSE_ALV_GRID_DISPLAY は一覧表示に使える",
-        ],
-        answers: [0, 2, 3],
-        explanation:
-          "汎用モジュールは共通処理の再利用です。FILE_GET_NAME・ALV 表示は代表例です。",
-      },
-    ],
-  },
-  {
-    num: "15",
-    title: "ファイル連携とバッチ",
-    summary: "論理ファイル、サーバファイル操作、バックグラウンドジョブ、BDC の関係を確認します。",
-    arrangeKind: "flow",
-    codeInstruction: "外部ファイルを取り込んで登録する流れの概略を組み立ててください",
-    codeLines: [
-      "外部ファイルをサーバの所定位置へ配置する。",
-      "ABAP が論理ファイル名でデータを読み込む。",
-      "内容を検証・変換する。",
-      "BAPI または BDC 等で登録する。",
-      "結果・履歴を確認する。",
-    ],
-    quizzes: [
-      {
-        level: "basic",
-        question: "論理ファイルを使う主な理由は？",
-        options: [
-          "環境ごとの物理パス差を設定側で吸収できる",
-          "プログラムに物理パスを直書きするため",
-          "GUI でファイル操作できなくするため",
-        ],
-        answer: 0,
-        explanation: "論理名はプログラムで固定し、物理パスは FILE 設定で切り替えます。",
-      },
-      {
-        level: "intermediate",
-        question: "ファイル連携・ジョブで正しい組み合わせは？（複数選択）",
-        options: [
-          "AL11 でサーバ上のファイルを参照できる",
-          "SM37 でジョブ結果を確認できる",
-          "CG3Z はサーバから PC へダウンロードする",
-          "FILE_GET_NAME で論理名から物理パスを得られる",
-        ],
-        answers: [0, 1, 3],
-        explanation: "AL11・SM37・FILE_GET_NAME は連携で頻出です。CG3Z はアップロード（PC→サーバ）です。",
-      },
-      {
-        level: "advanced",
-        question: "BDC と BAPI の位置づけとして適切なものは？（複数選択）",
-        options: [
-          "新規開発では BAPI が優先されることが多い",
-          "BDC は画面操作をデータ化して再生する",
-          "BDC は常にテーブルへ直接 INSERT するだけ",
-          "CALL TRANSACTION 実行後は SY-SUBRC 等で成否を確認する",
-        ],
-        answers: [0, 1, 3],
-        explanation:
-          "BAPI は公式登録窓口。BDC は画面再生方式。成否は SY-SUBRC とメッセージで確認します。",
       },
     ],
   },
