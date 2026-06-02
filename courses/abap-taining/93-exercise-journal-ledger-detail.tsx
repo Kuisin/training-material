@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   LessonMeta,
   LessonLinkButton,
+  SapErdDiagram,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -2431,6 +2432,101 @@ TOP-OF-PAGE.
                   </ul>
                 </InfoPanel>
               </div>
+            </>
+          ),
+        },
+        {
+          title: "テーブル関連図（ERD）",
+          plainText:
+            "テーブル関連図（ERD）\n演習で使う5テーブル（T001 / T003T / BKPF / BSEG / SKAT）のキー項目と外部キー線を1枚で確認。各列は『日本語名（列コード）』で表示。\n関連：BKPF 1―多 BSEG（BUKRS+BELNR+GJAHR）／T001 1―多 BKPF（BUKRS）・SKAT（KTOPL）／T003T 1―多 BKPF（BLART）／SKAT 1―多 BSEG（SAKNR=HKONT）\n先生：線を追うと FOR ALL ENTRIES と READ TABLE で結合するキーが分かる。",
+          content: (
+            <>
+              <h2>テーブル関連図（ERD）</h2>
+              <p>
+                この演習で読み書きする<strong>5テーブル</strong>のキー項目とつながりを、ER 図でまとめました。
+                各列は<strong>日本語名（列コード）</strong>で表示し、鍵アイコン付きの列が主キーです。
+                ドラッグ・ズームで全体をたどれます（
+                <a href="https://github.com/CNimmo16/react-erd" target="_blank" rel="noreferrer">
+                  react-erd
+                </a>
+                ）。
+              </p>
+              <SapErdDiagram variant="journalLedger" height={560} />
+              <InfoPanel title="演習コードとの対応" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ER 図の線</th>
+                      <th>プログラムでの結合</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>BKPF</code> → <code>BSEG</code>
+                      </td>
+                      <td>
+                        <code>FOR ALL ENTRIES IN gt_bkpf</code>（<code>BUKRS</code> / <code>BELNR</code> /{" "}
+                        <code>GJAHR</code>）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>T001</code> → <code>BKPF</code>
+                      </td>
+                      <td>
+                        選択画面の <code>p_bukrs</code> で <code>WHERE bukrs = p_bukrs</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>T003T</code> → <code>BKPF</code>
+                      </td>
+                      <td>
+                        ループ内 <code>READ TABLE gt_t003t WITH KEY blart = gs_bkpf-blart</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>SKAT</code> → <code>BSEG</code>
+                      </td>
+                      <td>
+                        <code>FOR ALL ENTRIES IN gt_bseg</code> ＋ <code>ktopl = gs_t001-ktopl</code> ／ ループ内{" "}
+                        <code>READ TABLE gt_skat WITH KEY saknr = gs_bseg-hkont</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>T001</code> → <code>SKAT</code>
+                      </td>
+                      <td>
+                        <code>gs_t001-ktopl</code> を SKAT 取得条件に使用（会社ごとの勘定表）
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Callout variant="tip">
+                図の右上「全画面」で拡大表示できます。詳しい項目の意味は{" "}
+                <LessonLinkButton
+                  courseSlug="abap-taining"
+                  lessonFile="17-frequently-used-tables"
+                  slide={3}
+                  label="第17章: よく使うテーブル早見表"
+                  variant="back"
+                  className="inline-flex"
+                />{" "}
+                も参照してください。
+              </Callout>
+              <Dialog speaker="teacher">
+                ER 図は<strong>「どのキーで結合するか」</strong>の地図です。
+                <code>FOR ALL ENTRIES</code> は図の線に沿って一括取得し、
+                <code>READ TABLE</code> はループ内で辞書（T003T / SKAT）を当てはめる——この2パターンが演習の核心です。
+              </Dialog>
+              <Dialog speaker="closing">
+                お疲れさまでした。仕訳日記帳演習②は、<strong>伝票＋明細＋辞書の結合</strong>と
+                <strong>借方・貸方の出力</strong>まで一通り体験できました。次の演習でも同じ「表紙→明細→名称」の型を意識してください。
+              </Dialog>
             </>
           ),
         },

@@ -59,3 +59,32 @@
   max-width: 100%;
   height: auto;
 }
+
+/* react-erd: 親の高さを確実に伝播（全画面ポータル内の fitView ずれ防止） */
+.sap-erd-diagram,
+.sap-erd-diagram .react-erd__container,
+.sap-erd-diagram .react-flow {
+  height: 100%;
+  min-height: 0;
+}
+
+/* 研修用 ER 図: 閲覧専用（テーブル移動・接続・エッジ編集を無効、パン・ズームのみ） */
+.sap-erd-diagram--view-only .react-flow__node {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+.sap-erd-diagram--view-only .react-flow__handle {
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.sap-erd-diagram--view-only .react-flow__edge,
+.sap-erd-diagram--view-only .react-flow__edgeupdater {
+  pointer-events: none !important;
+}
+.sap-erd-diagram--view-only .react-flow__pane {
+  cursor: grab;
+}
+.sap-erd-diagram--view-only .react-flow__pane.dragging {
+  cursor: grabbing;
+}
