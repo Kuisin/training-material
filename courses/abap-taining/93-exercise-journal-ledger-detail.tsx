@@ -1857,7 +1857,7 @@ TOP-OF-PAGE.
         {
           title: "テキストエレメント",
           plainText:
-            "任意の仕上げ — ラベルを TEXT-c** / '文言'(id) に切り替え。IDは c=列・p=ページヘッダ・t=タイトル・m=メッセージ。列位置とロジックは変えない。",
+            "任意の仕上げ — TEXT-c** / '文言'(id)。c=列・p=ページ・t=タイトル・m=メッセージ。\n多言語：IDは共通、文言だけ言語ごとにテキストプール登録。ログオン言語で自動切替。\nBちゃん：英語ユーザ用にプログラム複製しなくていい？\n先生：ソースは同じ。Text symbols を言語別にメンテするだけ。",
           content: (
             <>
               <h2>ラベルをテキストエレメントへ（任意の仕上げ）</h2>
@@ -1981,6 +1981,13 @@ TOP-OF-PAGE.
                   </li>
                 </ul>
               </InfoPanel>
+              <Dialog speaker="b">
+                英語でログオンするユーザ向けに、プログラムを複製しなくてもいいんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。ソースは <code>TEXT-c01</code> のまま、SE38 の Text symbols に英語行を追加するだけ。
+                第4章でも触れた「名前札（ID）は共通、中身（文言）だけ言語別」——実務の多言語対応の基本です。
+              </Dialog>
               <h3>Before → After（例）</h3>
               <CodeBlock
                 language="ABAP"
@@ -2034,6 +2041,37 @@ TOP-OF-PAGE.
                   label="追加: SE38の開発サイクル"
                   variant="back"
                 />
+                <InfoPanel
+                  title="複数言語対応も同じ仕組み"
+                  variant="reference"
+                  lead={
+                    <>
+                      <code>TEXT-c01</code> や <code>p01</code> などの<strong> ID は言語共通</strong>です。
+                      表示文言だけ、テキストプールに<strong>言語ごと</strong>登録します——プログラムのロジックは1本のままです。
+                    </>
+                  }
+                >
+                  <ul>
+                    <li>
+                      利用者の<strong>ログオン言語</strong>（<code>sy-langu</code>）に合った翻訳行が、実行時に自動で選ばれます
+                    </li>
+                    <li>
+                      例：<code>TEXT-c01</code> に 日本語「伝票タイプ」／英語「Document Type」を別々に登録——ソースは{" "}
+                      <code>TEXT-c01</code> の1行だけ
+                    </li>
+                    <li>
+                      帳票見出し … <strong>Text symbols</strong> タブ　／　選択画面ラベル …{" "}
+                      <strong>Selection texts</strong> タブ（どちらも言語別にメンテ）
+                    </li>
+                    <li>
+                      演習中の <code>c_spras = &apos;J&apos;</code>（T003T を日本語で取る）と同じ発想——
+                      <strong>「どの言語の文言を使うか」はキーで決める</strong>だけです
+                    </li>
+                    <li>
+                      文言修正・翻訳追加だけなら<strong>プログラム改修不要</strong>（テキストプールの更新＋有効化）
+                    </li>
+                  </ul>
+                </InfoPanel>
               </div>
             </>
           ),
