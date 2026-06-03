@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -67,7 +67,7 @@ export default function AbapMinimumUnitLesson() {
                 手順書なら家電の説明書みたいなものですね。順番に書けばいいなら、できそう。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。「上から順に実行される」——これだけ掴めば、最初のプログラムは読めます。
+                その通りです。「上から順に実行される」。これだけ掴めば、最初のプログラムは読めます。
               </Dialog>
             </>
           ),
@@ -477,7 +477,7 @@ lv_total = lv_price + lv_tax.   " ここで合算`}
                 コメントの2種類：<code>*</code> は行全体、<code>&quot;</code> は行末。どちらもコンパイラは無視するが、読む人への説明として残す。
               </Callout>
               <Dialog speaker="teacher">
-                全部覚える必要はありません。「文字なら <code>string</code>、整数なら <code>i</code>、金額なら <code>p</code>」——この3つが最初の柱です。SAPの項目をそのまま使うときは <code>TYPE [テーブル]-[項目]</code> と書けば型を自分で考えなくて済みます。
+                全部覚える必要はありません。「文字なら <code>string</code>、整数なら <code>i</code>、金額なら <code>p</code>」。この3つが最初の柱です。SAPの項目をそのまま使うときは <code>TYPE [テーブル]-[項目]</code> と書けば型を自分で考えなくて済みます。
               </Dialog>
               <Dialog speaker="stumble">
                 「自分が書いたコードは覚えている」と思いがち。でも3ヶ月後の自分は他人同然です。理由をメモしておきましょう。

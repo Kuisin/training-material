@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -119,7 +119,7 @@ export default function SelectFromDbLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 T001 のようなマスタは「コードの意味を引く辞書」です。番号だけでは伝わらないので、名前に変換するときに使います。
-                ACDOCA は第2章でも触れた統合版——<strong>まずは BKPF / BSEG を軸</strong>に覚え、環境に応じて ACDOCA を使う、と理解しておけば十分です。
+                ACDOCA は第2章でも触れた統合版。<strong>まずは BKPF / BSEG を軸</strong>に覚え、環境に応じて ACDOCA を使う、と理解しておけば十分です。
               </Dialog>
             </>
           ),
@@ -198,7 +198,7 @@ export default function SelectFromDbLesson() {
 
               <h3>1件だけ → 伝票キーが揃っているとき（<code>SELECT SINGLE</code>）</h3>
               <p>
-                「この会社の、この伝票番号の、この年度」——
+                「この会社の、この伝票番号の、この年度」。
                 伝票を<strong>1件に特定できる</strong>ときは、箱を1つだけ机に置きます。
                 受け取り先は<strong>作業領域</strong>（構造）で、内部テーブルには入れません。
               </p>
@@ -295,7 +295,7 @@ ENDCASE.`}
                 <code>IF</code> は二択、<code>CASE</code> は複数の値から選ぶ、という使い分けですね。
               </Dialog>
               <Dialog speaker="teacher">
-                <code>SELECT</code> のあとに <code>IF sy-subrc</code> で結果を確認する——これが安全なレポートの基本です。0件のときにそのまま <code>LOOP</code> や帳票出力へ進まないようにします。
+                <code>SELECT</code> のあとに <code>IF sy-subrc</code> で結果を確認する。これが安全なレポートの基本です。0件のときにそのまま <code>LOOP</code> や帳票出力へ進まないようにします。
               </Dialog>
             </>
           ),

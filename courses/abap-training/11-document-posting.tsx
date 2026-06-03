@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -185,7 +185,7 @@ export default function DocumentPostingLesson() {
               <Dialog speaker="teacher">
                 その通りです。BAPI は「公式の通り道」なので、標準の更新処理に加えて、
                 あらかじめ組み込んだ拡張（自社ルール）も通常は一緒に動きます。
-                直接 <code>INSERT</code> すると標準だけでなく<strong>自社のチェックもすっ飛ばす</strong>——
+                直接 <code>INSERT</code> すると標準だけでなく<strong>自社のチェックもすっ飛ばす</strong>。
                 これも BAPI を使う大きな理由です。
               </Dialog>
               <Callout variant="note">
@@ -325,7 +325,7 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="teacher">
                 待つ実装もありますが、この章の例では<strong>取れなければ諦める（<code>RETURN</code>）</strong>形にしています。
-                無理に二重登録しないことが優先です。終わったら必ず <code>DEQUEUE</code> で札を戻す——
+                無理に二重登録しないことが優先です。終わったら必ず <code>DEQUEUE</code> で札を戻す。
                 札を出したまま帰ると、ほかの人がずっと使えなくなります。
               </Dialog>
               <h3>コードで見る：ロックの取得と解放</h3>
@@ -451,7 +451,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
                 「BAPI だけ」より「ロック → BAPI → DEQUEUE」のセットが安全です。
               </Dialog>
               <Dialog speaker="a">
-                コードとたとえの対応はこうですね——
+                コードとたとえの対応はこうですね。
                 <code>ENQUEUE</code>＝試着室に使用中札、
                 <code>sy-subrc &lt;&gt; 0</code>＝札がかかっていたら入らない、
                 BAPI 登録＝中で着替える、
@@ -685,7 +685,7 @@ ENDLOOP.`}
               </InfoPanel>
               <Dialog speaker="b">
                 <code>DEQUEUE</code> は <code>IF</code> の外側ですね。
-                成功でも失敗でも、必ず札を戻す——<code>finally</code> で片付けるイメージです。
+                成功でも失敗でも、必ず札を戻す。<code>finally</code> で片付けるイメージです。
               </Dialog>
               <Dialog speaker="teacher">
                 その理解で OK です。ABAP には <code>finally</code> はありませんが、
@@ -733,32 +733,32 @@ ENDLOOP.`}
                 「照会＝下書き、登録＝清書」で、取込から<strong>履歴を残すまでが1セット</strong>、ですよね。
               </Dialog>
               <Dialog speaker="teacher">
-                いいまとめです。流れは次の5段階を順番に守る——
+                いいまとめです。流れは次の5段階を順番に守る。
                 <strong>検証 → ロック → BAPI → コミット → 履歴記録</strong>。
                 途中で飛ばすと、未チェック登録や未確定データにつながります。
               </Dialog>
               <Dialog speaker="a">
                 BAPI は SAP 公式の窓口なので、標準チェックと関連更新に加え、
                 会社の<strong>拡張</strong>も通ります。直接 <code>INSERT</code> は、
-                標準だけでなく自社ルールもすっ飛ばす——だから使わない、と理解しました。
+                標準だけでなく自社ルールもすっ飛ばす。だから使わない、と理解しました。
               </Dialog>
               <Dialog speaker="stumble">
                 「とりあえず INSERT」の近道は、一見ラクに見えて後から大事故になりやすい。
                 登録系は<strong>型から外れない</strong>のが安全策です。
               </Dialog>
               <Dialog speaker="b">
-                ロックは「使用中」札、コミットは「正式に押印」——たとえで言うとそうですよね。
+                ロックは「使用中」札、コミットは「正式に押印」。たとえで言うとそうですよね。
                 もし<strong>コミットを忘れたら</strong>どうなりますか？ あと、<code>DEQUEUE</code> を忘れると？
               </Dialog>
               <Dialog speaker="teacher">
                 コミット前は、まだ「確定していない」状態です。成功メッセージが出ても、
                 確定前に止まると中途半端になり得ます。
-                <code>DEQUEUE</code> 忘れは、使用中札を出したまま帰るのと同じ——
+                <code>DEQUEUE</code> 忘れは、使用中札を出したまま帰るのと同じ。
                 他の処理がずっと待たされます。どちらも<strong>終了処理まで含めて1セット</strong>です。
               </Dialog>
               <Dialog speaker="a">
                 アドオンテーブル（例：<code>ZIFLOG</code>）は、取込の成功/失敗やファイル名を残す<strong>管理用</strong>。
-                伝票本体は BKPF/BSEG 側で、BAPI 経由で更新される——保存場所の役割が違いますね。
+                伝票本体は BKPF/BSEG 側で、BAPI 経由で更新される。保存場所の役割が違いますね。
               </Dialog>
               <Dialog speaker="b">
                 名前はまだ全部覚えられませんが、

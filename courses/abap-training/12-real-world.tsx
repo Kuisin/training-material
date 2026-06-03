@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -315,7 +315,7 @@ lv_tax = lv_subtotal / 10.`}
               <Dialog speaker="teacher">
                 ここまで「新しいプログラムを書く」より、
                 <strong>「既にあるものを、安全に直す」</strong>話が中心でした。
-                実務ではこちらの方が圧倒的に多い——だから、この章の内容は
+                実務ではこちらの方が圧倒的に多い。だから、この章の内容は
                 <strong>明日からそのまま使える</strong>と思ってください。
               </Dialog>
               <Dialog speaker="b">
@@ -326,7 +326,7 @@ lv_tax = lv_subtotal / 10.`}
               <Dialog speaker="teacher">
                 その感覚、とても大事です。怖さを消すのは「才能」ではなく
                 <strong>調査の地図</strong>です。
-                第1章のパイプライン——<strong>入力 → 取得 → 出力</strong>——
+                第1章のパイプライン。<strong>入力 → 取得 → 出力</strong>。
                 に沿って見る場所を決めれば、迷子になりにくくなります。
               </Dialog>
               <Dialog speaker="a">
@@ -334,45 +334,45 @@ lv_tax = lv_subtotal / 10.`}
                 <code>PARAMETERS</code>（入力）→ <code>SELECT WHERE</code>（取得）→
                 <code>WRITE</code> / ALV（出力）の<strong>3か所をセット</strong>で確認する。
                 入力だけ直して <code>SELECT</code> を忘れると、
-                「欄はあるのに絞れない」——これ、よくある事故ですね。
+                「欄はあるのに絞れない」。これ、よくある事故ですね。
               </Dialog>
               <Dialog speaker="b">
                 あ、それ完全にやりそう…。1か所直したら満足しちゃダメで、
                 <strong>パイプライン全体</strong>を見る、ですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通り。修正の流れも型があります——
+                その通り。修正の流れも型があります。
                 <strong>仕様差分を理解 → 影響分析 → 修正 → 回帰テスト</strong>。
                 テストで問題が出たら、また影響分析に戻る。
                 「直した所だけ動けば OK」ではなく、
                 <strong>直す前と同じ動きが壊れていないか</strong>まで見るのがプロです。
               </Dialog>
               <Dialog speaker="stumble">
-                「とにかく全部書き直す」「テストは後でいい」——
+                「とにかく全部書き直す」「テストは後でいい」。
                 一見ラクに見えて、後から<strong>倍の時間</strong>を使う典型パターンです。
                 実務の近道は、地図を読んでから少しずつ直す方です。
               </Dialog>
               <Dialog speaker="a">
-                あと、地味だけど効く4つの習慣——
+                あと、地味だけど効く4つの習慣。
                 コメント（<strong>なぜ</strong>）、命名（<code>lv_subtotal</code> など役割が分かる名前）、
-                変更履歴（日付・担当・要件番号）、単体テスト（期待値を先に決める）——
+                変更履歴（日付・担当・要件番号）、単体テスト（期待値を先に決める）。
                 これは「今の自分」より<strong>次に直す人</strong>（未来の自分を含む）への配慮ですね。
               </Dialog>
               <Dialog speaker="b">
                 「動いたら終わり」じゃなくて、
                 <strong>次に直す人が困らない状態</strong>まで作るのが仕事、と分かりました。
                 丁寧に書いておくのは、未来の自分へのやさしさなんですね…。
-                地味な習慣が、チーム全体の安心につながる——それ、すごく大事だと思います。
+                地味な習慣が、チーム全体の安心につながる。それ、すごく大事だと思います。
               </Dialog>
               <Dialog speaker="a">
                 品質は「今動くか」だけじゃなく、
-                <strong>「これからも安全に変えられるか」</strong>で測る——
+                <strong>「これからも安全に変えられるか」</strong>で測る。
                 この章でいちばん心に残った言葉です。
               </Dialog>
               <Dialog speaker="teacher">
                 よくまとまりました。ABAP を学ぶ旅も、いよいよ「書く」から
                 「<strong>長く使われるものを、長く使える形で直す</strong>」段階に入ります。
-                覚えておいてほしいのは、この3つだけです——
+                覚えておいてほしいのは、この3つだけです。
               </Dialog>
               <Callout variant="tip">
                 <strong>① 触る前に地図を読む</strong>（入力 → 取得 → 出力）<br />
@@ -381,8 +381,8 @@ lv_tax = lv_subtotal / 10.`}
                 丁寧な仕事は、未来の自分とチームへの贈り物です。
               </Callout>
               <Dialog speaker="teacher">
-                次の章では「速さ」と「直しやすさ」のバランス——
-                10年後も使える書き方——に踏み込みます。
+                次の章では「速さ」と「直しやすさ」のバランス。
+                10年後も使える書き方。に踏み込みます。
                 ここまでの地図と習慣があれば、きっと乗り越えられます。自信を持って進みましょう。
               </Dialog>
               <LessonLinkButton

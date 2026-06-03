@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -100,7 +100,7 @@ export default function FrequentlyUsedTablesLesson() {
   BSEG -->|KUNNR / LIFNR| KNA1`}
               />
               <Dialog speaker="teacher">
-                まず<strong>伝票（BKPF / BSEG）</strong>を軸に覚え、コード値の意味は<strong>辞書（T001 / T003T / SKAT …）</strong>で引く——この2層のイメージを持つと、どのテーブルを見ればよいか迷いません。
+                まず<strong>伝票（BKPF / BSEG）</strong>を軸に覚え、コード値の意味は<strong>辞書（T001 / T003T / SKAT …）</strong>で引く。この2層のイメージを持つと、どのテーブルを見ればよいか迷いません。
               </Dialog>
               <Dialog speaker="b">
                 取引の記録が伝票、コードを名前に直すのが辞書、ですね。
@@ -507,7 +507,7 @@ SELECT SINGLE ltext
                 options={["BSEG", "ACDOCA", "BSID"]}
               />
               <Dialog speaker="closing">
-                項目名は<strong>「役割（会社・年度・伝票・明細・勘定・貸借・金額）」</strong>で覚え、コードの意味は辞書で引く——この2点を押さえれば、初見のテーブルでも読み解けます。
+                項目名は<strong>「役割（会社・年度・伝票・明細・勘定・貸借・金額）」</strong>で覚え、コードの意味は辞書で引く。この2点を押さえれば、初見のテーブルでも読み解けます。
               </Dialog>
             </>
           ),

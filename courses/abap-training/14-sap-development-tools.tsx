@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -286,7 +286,7 @@ export default function SapDevelopmentToolsLesson() {
                 </li>
               </ol>
               <Dialog speaker="teacher">
-                「エラーメッセージをそのままコピーして調べる」——地味ですが、実務でいちばん効く習慣です。最初は時間がかかっても、2回目以降が速くなります。
+                「エラーメッセージをそのままコピーして調べる」。地味ですが、実務でいちばん効く習慣です。最初は時間がかかっても、2回目以降が速くなります。
               </Dialog>
               <Callout variant="warning">
                 答えをそのまま探すのではなく、「<strong>なぜそのエラーか</strong>」を理解する調べ方を身につけましょう。
@@ -503,7 +503,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
 " → sy-subrc と lt_return の TYPE を確認`}
               />
               <Dialog speaker="teacher">
-                実務では「止まった行の前後3行」と「直前の <code>sy-subrc</code>」を最初に見る——
+                実務では「止まった行の前後3行」と「直前の <code>sy-subrc</code>」を最初に見る。
                 この習慣だけで、原因の8割はここで絞れます。
               </Dialog>
             </>
@@ -570,7 +570,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
               </InfoPanel>
               <Callout variant="warning">
                 ダンプは<strong>再現の手がかり</strong>です。ST22 で行番号を特定したら、同じ条件で
-                ブレークポイントを置いてデバッグする——この2段構えが定番の調査手順です。
+                ブレークポイントを置いてデバッグする。この2段構えが定番の調査手順です。
               </Callout>
               <Dialog speaker="teacher">
                 「プログラムが止まった」と連絡が来たら、まず <code>ST22</code> で自分のユーザー ID を絞り込み、
@@ -651,7 +651,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
               <p>
                 <code>SE16N</code> では、テーブル名を入力し、キー項目（ファイル ID・伝票番号など）で絞り込みます。
                 登録プログラムのテスト後は、<strong>履歴テーブルに1行増えているか</strong>、
-                成功時は <code>BKPF</code> に伝票が見えるか——この2点をセットで確認する習慣をつけましょう。
+                成功時は <code>BKPF</code> に伝票が見えるか。この2点をセットで確認する習慣をつけましょう。
               </p>
               <InfoPanel title="操作手順（SE16N … 取込履歴の確認）" variant="reference" lead="第11章の ZIFLOG 等を見る例。">
                 <ol>
@@ -1126,13 +1126,13 @@ DATA:
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：SE38のサイクル、F1、デバッガ、ST22/SE16Nでの履歴確認——道具の地図。\nBちゃん：トランザクション名は多いけど、用途で束ねると覚えやすい。\nAくん：止まったらST22、動いたかはSE16N、と用途で束ねる。",
+            "対話で整理\n先生：SE38のサイクル、F1、デバッガ、ST22/SE16Nでの履歴確認。道具の地図。\nBちゃん：トランザクション名は多いけど、用途で束ねると覚えやすい。\nAくん：止まったらST22、動いたかはSE16N、と用途で束ねる。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="teacher">
                 この章は「道具の地図」です。<code>SE38</code> のサイクル、ショートカット、<code>F1</code>、デバッガ、
-                <code>ST22</code> / <code>SE16N</code> での履歴確認——迷ったらここに戻ってください。
+                <code>ST22</code> / <code>SE16N</code> での履歴確認。迷ったらここに戻ってください。
               </Dialog>
               <Dialog speaker="b">
                 トランザクション名は多いですが、用途で束ねると辞書みたいに使えそうです。
@@ -1177,7 +1177,7 @@ DATA:
               />
               <Dialog speaker="closing">
                 道具は増えても、<code>SE38</code> のサイクルと <code>F1</code> があれば怖くない。
-                <strong>止まったら ST22、結果は SE16N、中身はデバッガ</strong>——この3つを手元に置いておきましょう。
+                <strong>止まったら ST22、結果は SE16N、中身はデバッガ</strong>。この3つを手元に置いておきましょう。
               </Dialog>
             </>
           ),

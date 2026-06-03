@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -407,7 +407,7 @@ function SelectNecessaryDataDiagram() {
         </SampleTable>
       </div>
       <p className="mt-3 text-center text-[11px] text-slate-600 dark:text-slate-400">
-        同じ伝票番号が明細に何行あっても、ヘッダは<strong>1伝票1行</strong>——DB から取るのもその分だけ
+        同じ伝票番号が明細に何行あっても、ヘッダは<strong>1伝票1行</strong>。DB から取るのもその分だけ
       </p>
     </figure>
   );
@@ -839,7 +839,7 @@ export default function CombineDataLesson() {
               <Dialog speaker="teacher">
                 データベースでは「見出し用」と「中身用」に<strong>役割ごとに分けて保存</strong>します。
                 会計では伝票ヘッダ（BKPF）と明細（BSEG）が別テーブルです。
-                見やすく整えるのは、プログラム側の仕事——今回学ぶことです。
+                見やすく整えるのは、プログラム側の仕事。今回学ぶことです。
               </Dialog>
               <Dialog speaker="b">
                 レシートの「日付・店名」と「商品名・金額」を1行に並べる感じ、ですか？
@@ -918,7 +918,7 @@ export default function CombineDataLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 同じデータを<strong>ヘッダ表</strong>と<strong>明細表</strong>に分けます。
-                日付・会社は伝票ごとに1回だけ。商品・金額は明細側だけ——こうするのが正規化です。
+                日付・会社は伝票ごとに1回だけ。商品・金額は明細側だけ。こうするのが正規化です。
               </Dialog>
               <SampleTable caption="✅ 正規化後：ヘッダ表（BKPF イメージ）" variant="ok">
                 <thead>
@@ -978,15 +978,15 @@ export default function CombineDataLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 ざっくり言うと<strong>第二正規形（2NF）</strong>です。
-                明細の行キー（伝票番号＋行）の<strong>一部だけ</strong>——伝票番号——で決まる情報（日付・会社）は、
+                明細の行キー（伝票番号＋行）の<strong>一部だけ</strong>。伝票番号。で決まる情報（日付・会社）は、
                 別のヘッダ表へ移します。「部分関数従属を解消する」という整理です。
               </Dialog>
               <Dialog speaker="b">
                 第1？第2？…数字はまだピンときませんけど、
-                「<strong>伝票番号だけで決まるものはヘッダへ</strong>」——これなら覚えられそうです。
+                「<strong>伝票番号だけで決まるものはヘッダへ</strong>」。これなら覚えられそうです。
               </Dialog>
               <Dialog speaker="teacher">
-                その理解で十分です。DBは<strong>正規化して保存</strong>し、帳票ではプログラムで<strong>合体</strong>する——
+                その理解で十分です。DBは<strong>正規化して保存</strong>し、帳票ではプログラムで<strong>合体</strong>する。
                 今回学ぶのは後半です。第1〜第3正規形の定義は、<strong>次の参考スライド</strong>にまとめてあります。
               </Dialog>
               <Dialog speaker="b">
@@ -1036,7 +1036,7 @@ export default function CombineDataLesson() {
 
               <h3>第1正規形（1NF）</h3>
               <Dialog speaker="teacher">
-                第1正規形の条件は<strong>繰り返しグループがない</strong>こと——1セルに1値です。
+                第1正規形の条件は<strong>繰り返しグループがない</strong>こと。1セルに1値です。
                 操作は単純で、1セルに並べた複数値を<strong>行に展開</strong>します。
               </Dialog>
               <SampleTable caption="❌ 正規化前（0NF）：1行に繰り返しグループ" variant="warn">
@@ -1098,11 +1098,11 @@ export default function CombineDataLesson() {
               </SampleTable>
               <Dialog speaker="teacher">
                 展開後は1商品＝1行になり、1NF を満たします。ただし日付・会社は行ごとに
-                <strong>まだ重複</strong>しています——次の第2正規形で解消します。
+                <strong>まだ重複</strong>しています。次の第2正規形で解消します。
               </Dialog>
               <Dialog speaker="a">
                 1NF の判定はシンプルで、「1セルに複数値が入っていたら行にばらす」。
-                表の行数は増えますが、列の意味は1つに固定されます。重複列はまだ残る——
+                表の行数は増えますが、列の意味は1つに固定されます。重複列はまだ残る。
                 それは 2NF の問題、と切り分けられます。
               </Dialog>
 
@@ -1203,8 +1203,8 @@ export default function CombineDataLesson() {
               <h3>第3正規形（3NF）</h3>
               <Dialog speaker="teacher">
                 第3正規形は、2NF に加えて<strong>推移的関数従属がない</strong>状態です。
-                「A → B → C」と間接的に決まる項目（C）を、B を主キーとする別表——
-                マスタ——へ移します。
+                「A → B → C」と間接的に決まる項目（C）を、B を主キーとする別表。
+                マスタ。へ移します。
               </Dialog>
               <Dialog speaker="teacher">
                 ここで重要なのは<strong>「なぜ分けるのか」</strong>です。2NF 後のヘッダに
@@ -1235,7 +1235,7 @@ export default function CombineDataLesson() {
                 会社名（黄色）は、伝票番号ではなく<strong>会社コードだけ</strong>で決まります。
                 それなのにヘッダごとにコピーされるため、①<strong>同じ名称の無駄な繰り返し</strong>、
                 ②<strong>社名変更のたびに該当伝票を全部更新</strong>、
-                ③<strong>表記ゆれ（「大阪製作所」と「大阪製作所　」など）の混在</strong>——
+                ③<strong>表記ゆれ（「大阪製作所」と「大阪製作所　」など）の混在</strong>。
                 の3つが起きやすくなります。
               </Dialog>
               <Dialog speaker="teacher">
@@ -1352,7 +1352,7 @@ export default function CombineDataLesson() {
                 本研修で学ぶ「合体」は、この正規化を<strong>帳票用に一時的に戻す</strong>作業です。
               </Dialog>
               <Dialog speaker="a">
-                保存時は「分ける」、帳票では「戻す」——方向が逆なだけで、どちらも同じキー（
+                保存時は「分ける」、帳票では「戻す」。方向が逆なだけで、どちらも同じキー（
                 <code>belnr</code> など）でつながります。次のスライド以降の MOVE / APPEND は、
                 この 3NF まで分けた表を<strong>読みやすい1行</strong>に再構成する処理、と捉えれば混乱しにくいです。
               </Dialog>
@@ -1378,7 +1378,7 @@ export default function CombineDataLesson() {
                 <strong>取得用（生データ）</strong>と<strong>出力用（整えた一覧）</strong>を分けると、
                 頭が整理されるうえ、<strong>DB への読み取り回数も減らせます</strong>。
                 第6章の <code>SELECT</code> は<strong>最初に必要な分だけ</strong>実行し、
-                そのあとは DB へ行かずメモリ上で読む——明細1件ごとに <code>SELECT</code> し直すより、
+                そのあとは DB へ行かずメモリ上で読む。明細1件ごとに <code>SELECT</code> し直すより、
                 はるかに効率的で安全です。
               </p>
               <Callout variant="note">
@@ -1387,11 +1387,11 @@ export default function CombineDataLesson() {
                 フォルダからは<strong>1枚ずつ</strong>机へ取り出し、家計簿へは<strong>1行ずつ</strong>追加します。
               </Callout>
               <Dialog speaker="b">
-                つまり、DB から一度取ってきて、読んで、加工して、新しい表に書き込む——
+                つまり、DB から一度取ってきて、読んで、加工して、新しい表に書き込む。
                 読みに行く回数を減らすのも、分ける目的のひとつですよね？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。取得用は<strong>読むだけ</strong>、出力用は<strong>作るだけ</strong>——
+                その通りです。取得用は<strong>読むだけ</strong>、出力用は<strong>作るだけ</strong>。
                 役割を混ぜないのがポイントです。
               </Dialog>
               <Dialog speaker="a">
@@ -1454,12 +1454,12 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
                 </li>
               </ul>
               <Dialog speaker="b">
-                変が6個も並んでて圧倒されます…。とくに <code>lt_</code> だけで3つ——
+                変が6個も並んでて圧倒されます…。とくに <code>lt_</code> だけで3つ。
                 なんでこんなにあるんですか？
               </Dialog>
               <Dialog speaker="teacher">
                 取得用が2つ（ヘッダ・明細）＋出力用が1つ、です。
-                <code>lt_bkpf</code> / <code>lt_bseg</code> は取得用、<code>lt_out</code> は出力用——
+                <code>lt_bkpf</code> / <code>lt_bseg</code> は取得用、<code>lt_out</code> は出力用。
                 合計3つの内部テーブル、と数えてください。
               </Dialog>
               <Dialog speaker="b">
@@ -1485,7 +1485,7 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
               <Dialog speaker="teacher">
                 <code>ty_out</code> は出力行の<strong>型</strong>（<code>TYPES</code> で定義）。
                 <code>lt_out</code> は、その型の行を載せる<strong>内部テーブル</strong>本体です。
-                型と実物——第5章の「設計図と実物」と同じ関係です。
+                型と実物。第5章の「設計図と実物」と同じ関係です。
               </Dialog>
               <Dialog speaker="a">
                 <code>ty_out</code> は BKPF/BSEG そのものではなく「一覧に載せたい項目だけ」を並べた設計、
@@ -1528,7 +1528,7 @@ DATA ls_out  TYPE ty_out.          " 出力1行（作業領域・構造）`}
               </Dialog>
               <Dialog speaker="teacher">
                 その気持ち、よく分かります。でも表ごとに項目名が違うのは日常です。
-                <code>amount</code> と <code>dmbtr</code> はどちらも「金額」——名前が違うだけ。
+                <code>amount</code> と <code>dmbtr</code> はどちらも「金額」。名前が違うだけ。
                 だから<strong>同名は自動、違う名前は手動</strong>の2段構えになります。
               </Dialog>
               <Dialog speaker="b">
@@ -1564,7 +1564,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
         {
           title: "蓄える・消す",
           plainText:
-            "蓄える・消す：APPEND / CLEAR / REFRESH\nAPPEND ls_out TO lt_out：作った1行を出力テーブルに追加\nCLEAR ls_out：作業領域（1行）を空にする\nREFRESH lt_out：出力テーブル全体を空にする\nBちゃん：CLEAR と REFRESH、どっちが何を消すのか混同しそう…\n先生：CLEAR＝ls_out、REFRESH＝lt_out全体。今回のループでは CLEAR が主役。\nつまずき：APPEND したあと CLEAR し忘れると前の行の値が次に残る。\nBちゃん：家計簿へ1行追加したら、机を空にして次の行——CLEAR、ですね。\n先生：その通り。組み立て→追加→クリアを口ぐせに。",
+            "蓄える・消す：APPEND / CLEAR / REFRESH\nAPPEND ls_out TO lt_out：作った1行を出力テーブルに追加\nCLEAR ls_out：作業領域（1行）を空にする\nREFRESH lt_out：出力テーブル全体を空にする\nBちゃん：CLEAR と REFRESH、どっちが何を消すのか混同しそう…\n先生：CLEAR＝ls_out、REFRESH＝lt_out全体。今回のループでは CLEAR が主役。\nつまずき：APPEND したあと CLEAR し忘れると前の行の値が次に残る。\nBちゃん：家計簿へ1行追加したら、机を空にして次の行。CLEAR、ですね。\n先生：その通り。組み立て→追加→クリアを口ぐせに。",
           content: (
             <>
               <h2>蓄える・消す：<code>APPEND</code> / <code>CLEAR</code> / <code>REFRESH</code></h2>
@@ -1588,7 +1588,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
                 原因が分かりにくいバグの代表例です。→ 「1行作る → 追加 → クリア」をワンセットに。
               </Dialog>
               <Dialog speaker="b">
-                家計簿へ1行追加したら、机（<code>ls_out</code>）を空にして次の行——
+                家計簿へ1行追加したら、机（<code>ls_out</code>）を空にして次の行。
                 <code>REFRESH lt_out</code> は家計簿ごと全部消す、最初からやり直すとき用、ですね。
               </Dialog>
               <Dialog speaker="teacher">
@@ -1642,7 +1642,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
                 SQL の JOIN でも書けそうですが、ABAP レポートでは <code>LOOP</code> ＋ <code>READ TABLE</code> が定番なんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う——これが実務の型です。
+                その理解で OK です。取得は <code>SELECT</code> でまとめ、結合は内部テーブル上で行う。これが実務の型です。
                 次のスライドでは、<strong>DB から必要な行だけ</strong>内部テーブルへ載せる方法（明細の伝票番号で絞る）を見てから、
                 例えと3テーブル結合に進みます。
               </Dialog>
@@ -1665,7 +1665,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
               <h2>DB から<strong>必要な分だけ</strong>内部テーブルへ</h2>
               <p>
                 3テーブル結合の前に、<strong>何を DB から取るか</strong>を整理します。
-                伝票テーブル（BKPF）を<strong>丸ごと</strong>取る必要はありません——
+                伝票テーブル（BKPF）を<strong>丸ごと</strong>取る必要はありません。
                 明細（BSEG）に登場する<strong>伝票番号だけ</strong>に絞ります。
               </p>
               <Callout variant="note">
@@ -1681,7 +1681,7 @@ ls_out-amount = ls_bseg-dmbtr.   " 出力側=amount、明細側=dmbtr`}
                 <strong>2種類</strong>だけ。ヘッダ（伝票）も DB から<strong>2行だけ</strong>取れば足ります。
               </p>
               <Dialog speaker="b">
-                明細の各行に同じ伝票番号が並んでても、ヘッダは1回分でいい——
+                明細の各行に同じ伝票番号が並んでても、ヘッダは1回分でいい。
                 黄色の行は「同じ伝票の2行目以降」、ですね？
               </Dialog>
               <Dialog speaker="teacher">
@@ -1742,16 +1742,16 @@ ENDIF.`}
                   <code>IF lt_bseg IS NOT INITIAL.</code> … 明細が0件のときにマスタ全件を取ってしまう<strong>罠</strong>を防ぐ（必須）
                 </li>
                 <li>
-                  必要な<strong>列だけ</strong> <code>SELECT</code>（<code>SELECT *</code> は避ける）——第6章の復習
+                  必要な<strong>列だけ</strong> <code>SELECT</code>（<code>SELECT *</code> は避ける）。第6章の復習
                 </li>
               </ul>
               <Dialog speaker="stumble">
-                明細が0件なのに <code>FOR ALL ENTRIES</code> だけ書くと、条件が効かず<strong>伝票やマスタを全件取得</strong>してしまう——
+                明細が0件なのに <code>FOR ALL ENTRIES</code> だけ書くと、条件が効かず<strong>伝票やマスタを全件取得</strong>してしまう。
                 開発環境では気づきにくい重大バグです。
               </Dialog>
               <Dialog speaker="a">
                 取得用内部テーブル（<code>lt_bseg</code> / <code>lt_bkpf</code> / <code>lt_t001</code>）に
-                <strong>必要最小限</strong>だけ載せてから LOOP 結合に入る——
+                <strong>必要最小限</strong>だけ載せてから LOOP 結合に入る。
                 この順番が実務の定番ですね。
               </Dialog>
               <Dialog speaker="teacher">
@@ -1804,11 +1804,11 @@ ENDIF.`}
               </InfoPanel>
               <p>
                 前のスライドでは、<code>FOR ALL ENTRIES</code> で<strong>LOOP の前</strong>に必要分だけ DB から取得しました。
-                結合は <code>READ TABLE</code> で行う——この順番には、性能上の理由があります。
+                結合は <code>READ TABLE</code> で行う。この順番には、性能上の理由があります。
               </p>
               <Dialog speaker="b">
                 正直、前まで <code>LOOP</code> の中で <code>SELECT</code> したほうが<strong>楽</strong>だと思ってました。
-                「いまの明細に合う伝票が欲しい」→ その場で <code>SELECT SINGLE</code>——
+                「いまの明細に合う伝票が欲しい」→ その場で <code>SELECT SINGLE</code>。
                 流れが1行ずつ追いやすいし、<code>FOR ALL ENTRIES</code> を先に書かなくていいですよね？
               </Dialog>
               <Dialog speaker="teacher">
@@ -1854,7 +1854,7 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="teacher">
                 件数が少ないと「楽な書き方」でも動きます。
-                本番で明細が増えると往復が件数分膨らむ——<strong>N+1問題</strong>です。
+                本番で明細が増えると往復が件数分膨らむ。<strong>N+1問題</strong>です。
                 だから先にまとめて取り、LOOP 内は <code>READ TABLE</code> で机の上だけ照合します。
               </Dialog>
 
@@ -1873,7 +1873,7 @@ ENDIF.`}
                 </li>
                 <li>
                   <strong>この章の型</strong> … <strong>LOOP は② 明細だけ</strong>（n回）、①③ は <code>READ TABLE</code> で1行取得。
-                  明細100行なら<strong>100回の1周</strong>——ネスト LOOP や LOOP 内 SELECT よりはるかに軽い
+                  明細100行なら<strong>100回の1周</strong>。ネスト LOOP や LOOP 内 SELECT よりはるかに軽い
                 </li>
               </ul>
               <MermaidDiagram
@@ -1896,7 +1896,7 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="teacher">
                 その整理で大丈夫です。<strong>読みやすさだけ</strong>で選ぶと、性能のトラップに入りがちです。
-                結合で3表全部 <code>LOOP</code> にすると n³ オーダー——この章は<strong>LOOP は明細1本</strong>＋ <code>READ TABLE</code> です。
+                結合で3表全部 <code>LOOP</code> にすると n³ オーダー。この章は<strong>LOOP は明細1本</strong>＋ <code>READ TABLE</code> です。
                 第13章でも、同じ「楽な近道」の話を深掘りします。
               </Dialog>
               <Dialog speaker="b">
@@ -1904,7 +1904,7 @@ ENDIF.`}
                 「楽だから LOOP 内 <code>SELECT</code>」はやめて、スキップして口ぐせだけ守ってもいいですか？
               </Dialog>
               <Dialog speaker="teacher">
-                大丈夫です。<strong>取得は LOOP の前、結合は READ TABLE、LOOP は明細だけ</strong>——この3つが身につけば、
+                大丈夫です。<strong>取得は LOOP の前、結合は READ TABLE、LOOP は明細だけ</strong>。この3つが身につけば、
                 この章の実習は進められます。性能の深掘りは第13章でまた会いましょう。
               </Dialog>
               <Dialog speaker="a">
@@ -1914,7 +1914,7 @@ ENDIF.`}
               </Dialog>
               <Callout variant="tip">
                 口ぐせ：<strong>取得は LOOP の前、結合は READ TABLE</strong>。
-                DB への往復を減らす——この章の型は、性能改善の第一歩でもあります。
+                DB への往復を減らす。この章の型は、性能改善の第一歩でもあります。
               </Callout>
               <LessonLinkButton
                 courseSlug="abap-taining"
@@ -1936,7 +1936,7 @@ ENDIF.`}
               <h2>例えで理解する：<strong>3つのメモ</strong></h2>
               <p>
                 テーブル結合の前に、<strong>日常の例え</strong>でイメージを掴みましょう。
-                ネット通販やレジのレシート——情報が<strong>3枚のメモ</strong>に分かれている、と想像してください。
+                ネット通販やレジのレシート。情報が<strong>3枚のメモ</strong>に分かれている、と想像してください。
               </p>
               <Callout variant="tip">
                 <strong>3つのメモの役割</strong>
@@ -1947,7 +1947,7 @@ ENDIF.`}
               </Callout>
               <ReceiptAnalogySourcesDiagram />
               <Dialog speaker="b">
-                注文 A001 に品目が2行ある——黄色の行から、1行ずつ処理するんですね？
+                注文 A001 に品目が2行ある。黄色の行から、1行ずつ処理するんですね？
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。次のスライドでは、この3つを<strong>1行ずつつなげて</strong>、
@@ -1959,7 +1959,7 @@ ENDIF.`}
         {
           title: "例え：1行ずつつなぐ",
           plainText:
-            "例え：1行ずつつなぐ\n②品目1行→①レシート→③品目マスタ→一覧1行\n例え→SAP：レシート=伝票、品目=明細、品目マスタ=会社マスタ\nBちゃん：コードから名前を辞書で引く——③の考え方は同じ。\n先生：次はSAP表で同じ型をコードに。",
+            "例え：1行ずつつなぐ\n②品目1行→①レシート→③品目マスタ→一覧1行\n例え→SAP：レシート=伝票、品目=明細、品目マスタ=会社マスタ\nBちゃん：コードから名前を辞書で引く。③の考え方は同じ。\n先生：次はSAP表で同じ型をコードに。",
           content: (
             <>
               <h2>例えで理解する：<strong>1行ずつつなぐ</strong></h2>
@@ -1983,7 +1983,7 @@ ENDIF.`}
                 </li>
               </ol>
               <Dialog speaker="b">
-                注文に商品が2つあれば、② を2回めくって、一覧も2行——「品目1行＝出力1行」、ですね。
+                注文に商品が2つあれば、② を2回めくって、一覧も2行。「品目1行＝出力1行」、ですね。
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。やっていることは「<strong>バラバラの3つを、1行ずつくっつける</strong>」だけ。
@@ -2009,14 +2009,14 @@ ENDIF.`}
                     <tr>
                       <td className="py-1">③ 品目マスタ（商品名）</td>
                       <td className="py-1">
-                        会社マスタ <code>T001</code>（<strong>会社名</strong>を付ける——③ の「辞書」の役割は同じ）
+                        会社マスタ <code>T001</code>（<strong>会社名</strong>を付ける。③ の「辞書」の役割は同じ）
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </InfoPanel>
               <Dialog speaker="b">
-                品目マスタじゃなく会社マスタ、ですか。でも「コードから名前を辞書で引く」——③ の考え方は同じ、と。
+                品目マスタじゃなく会社マスタ、ですか。でも「コードから名前を辞書で引く」。③ の考え方は同じ、と。
               </Dialog>
               <Dialog speaker="teacher">
                 まさにそれです。次のスライドで、伝票・明細・会社マスタに置き換えて、同じ型をコードに落とし込みます。
@@ -2069,7 +2069,7 @@ ENDIF.`}
               <Dialog speaker="teacher">
                 いいえ。<strong>LOOP は② 明細だけ</strong>です。
                 ① 伝票と ③ 会社マスタは <code>READ TABLE</code> で合う1行だけ取り出します。
-                同じ伝票の2行目以降も、①③ の READ は毎回行いますが、取れる内容は同じ——変わるのは② の品目と金額だけです。
+                同じ伝票の2行目以降も、①③ の READ は毎回行いますが、取れる内容は同じ。変わるのは② の品目と金額だけです。
               </Dialog>
               {LOOP_THREE_TABLE_STEPS.map((step) => (
                 <SampleTable
@@ -2183,7 +2183,7 @@ ENDLOOP.`}
                 lead="T003T（伝票タイプ名）など、READ TABLE がもう1段増えることもあります。"
               >
                 <p>
-                  <strong>LOOP は② 明細のまま</strong>、<code>READ TABLE</code> を増やすだけ——3テーブル結合と同じ型です。
+                  <strong>LOOP は② 明細のまま</strong>、<code>READ TABLE</code> を増やすだけ。3テーブル結合と同じ型です。
                 </p>
               </InfoPanel>
               <Dialog speaker="b">
@@ -2212,7 +2212,7 @@ ENDLOOP.`}
                 </Dialog>
                 <Dialog speaker="b">
                   最初は <code>APPEND</code> だけで終わっちゃいそうでした。
-                  「追加したら必ず片付け」——メモしておきます。
+                  「追加したら必ず片付け」。メモしておきます。
                 </Dialog>
               </Reveal>
             </>
@@ -2228,7 +2228,7 @@ ENDLOOP.`}
               <Dialog speaker="b">
                 最初は「ヘッダと明細を合体」と聞いて途方に暮れましたけど、
                 DB は<strong>最初に一度</strong>取って、取得用から1行ずつ読み、
-                出力用へ「組み立て → 追加 → 片付け」——この流れなら、もう一度やれそうです。
+                出力用へ「組み立て → 追加 → 片付け」。この流れなら、もう一度やれそうです。
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。細かい点は4つだけ。<br />
@@ -2239,7 +2239,7 @@ ENDLOOP.`}
               </Dialog>
               <Dialog speaker="a">
                 取得用に載せておけば、加工中は DB へ何度も行かなくて済みます。
-                出力用を別にしておけば、整形ロジックを変えても取得用はそのまま——
+                出力用を別にしておけば、整形ロジックを変えても取得用はそのまま。
                 性能と保守性、両方の理由でこの分け方が定番です。
               </Dialog>
               <Dialog speaker="b">
@@ -2376,7 +2376,7 @@ ENDLOOP.`}
                 テーブル名の並びは <strong>伝票 → 明細 → 会社マスタ</strong>。
               </Callout>
               <Dialog speaker="teacher">
-                この一覧は復習用です。コードが長く見えても、中身はこの型の繰り返しだけ——次のスライドで理解度を確認しましょう。
+                この一覧は復習用です。コードが長く見えても、中身はこの型の繰り返しだけ。次のスライドで理解度を確認しましょう。
               </Dialog>
             </>
           ),

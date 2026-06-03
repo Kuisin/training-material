@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -369,7 +369,7 @@ SELECT belnr budat
                 <code>WHERE ... IN s_date</code> と書けば、SAPが内部構造を解釈してくれるんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。初学者は画面の From/To を意識し、<code>IN</code> 句で渡す——この2点を押さえれば十分です。
+                その通りです。初学者は画面の From/To を意識し、<code>IN</code> 句で渡す。この2点を押さえれば十分です。
               </Dialog>
             </>
           ),

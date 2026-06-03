@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -188,7 +188,7 @@ WRITE: lv_amount NO-ZERO,      " 先頭の0を非表示
                 列幅と右寄せを指定すれば、数字が表らしく並びますね。
               </Dialog>
               <Dialog speaker="teacher">
-                まず <code>ULINE</code> で区切り線、次に <code>WRITE</code> の位置指定で列をそろえる——この2段が帳票の基本形です。
+                まず <code>ULINE</code> で区切り線、次に <code>WRITE</code> の位置指定で列をそろえる。この2段が帳票の基本形です。
               </Dialog>
             </>
           ),
@@ -244,7 +244,7 @@ TOP-OF-PAGE.
               </Dialog>
               <Dialog speaker="teacher">
                 取得・判定・出力は <code>START-OF-SELECTION</code> の中。
-                帳票ヘッダの出力は <code>TOP-OF-PAGE</code> に置く——この分担を覚えてください。
+                帳票ヘッダの出力は <code>TOP-OF-PAGE</code> に置く。この分担を覚えてください。
               </Dialog>
             </>
           ),

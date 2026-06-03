@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -306,7 +306,7 @@ ENDLOOP.                         " 次の行へ。なくなれば終了`}
                 つまり <code>INTO</code> の後ろ（<code>ls_bkpf</code>）が毎回、次の行で上書きされる。だから中では「今の1行」だけを見ればいい、という理解で合っていますか？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。棚全体ではなく「今の1枚」に集中する——これがループを読むコツです。
+                その通りです。棚全体ではなく「今の1枚」に集中する。これがループを読むコツです。
               </Dialog>
             </>
           ),
@@ -407,7 +407,7 @@ ENDIF.`}
               <Callout variant="tip">
                 たとえ：棚に100枚の書類があるとき、<code>LOOP</code> は1枚目から順に全部机へ出す。
                 <code>READ TABLE</code> は「番号0000000001の書類だけ」を指定して1枚だけ抜く。
-                見つからなければ机の中身は変わらない——だから <code>sy-subrc</code> の確認が欠かせません。
+                見つからなければ机の中身は変わらない。だから <code>sy-subrc</code> の確認が欠かせません。
               </Callout>
               <Dialog speaker="a">
                 目的が「全件処理」か「1件検索」かで命令を選ぶ、という整理ですね。100件ある表から1件だけ欲しいなら、わざわざ <code>LOOP</code> で全部回す必要はない。

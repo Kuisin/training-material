@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -244,7 +244,7 @@ ENDFORM.`}
                 「この変数は結果を受け取る場所ですよ」という<strong>看板</strong>なんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                いいまとめです。入口だけ（<code>USING</code>）か、入口かつ出口（<code>CHANGING</code>）か——
+                いいまとめです。入口だけ（<code>USING</code>）か、入口かつ出口（<code>CHANGING</code>）か。
                 矢印の向きをコード上で宣言しておく、と覚えてください。
               </Dialog>
               <Callout variant="note">
@@ -323,7 +323,7 @@ ENDFORM.
               </Dialog>
               <Dialog speaker="teacher">
                 動くことはあります。でも外に出すと「どの <code>FORM</code> 専用の作業変数か」が分かりにくくなります。
-                <strong>その <code>FORM</code> の中だけで使うものは、<code>FORM</code> の中で <code>DATA</code></strong>——
+                <strong>その <code>FORM</code> の中だけで使うものは、<code>FORM</code> の中で <code>DATA</code></strong>。
                 手元のメモで済むなら、掲示板に貼らない、です。
               </Dialog>
               <Dialog speaker="stumble">

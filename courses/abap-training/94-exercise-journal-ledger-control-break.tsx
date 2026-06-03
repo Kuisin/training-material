@@ -710,16 +710,22 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
               <ReferenceLinks />
               <Dialog speaker="teacher">
                 演習②までで「明細を1行ずつ並べた帳票」は作れました。今回はそこに<strong>1つだけ</strong>機能を足します。
+                <br />
                 伝票単位で同じ値（伝票タイプ・日付・伝票番号・ユーザ）を、毎行ベタ書きしないようにする工夫です。
               </Dialog>
               <Dialog speaker="b">
-                演習②の帳票、同じ伝票番号が縦にずらっと並んでいて、目が滑りました…。あれを整えるんですね。
+                演習②の帳票、同じ伝票番号が縦にずらっと並んでいて、目が滑りました…。
+                <br />
+                あれを整えるんですね。
               </Dialog>
               <Dialog speaker="a">
                 第9章でやった「サプレス」と「AT NEW」を、実際の帳票に当てはめる回、という理解で合っていますか？
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。新しい呪文は増えません。<strong>既に知っている部品の組み合わせ</strong>です。
+                その通りです。
+                <br />
+                新しい呪文は増えません。<strong>既に知っている部品の組み合わせ</strong>です。
+                <br />
                 まずは「何を直したいのか」を、Before / After で見てみましょう。
               </Dialog>
             </>
@@ -754,13 +760,16 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
                 逆に言えば「変わっていなければ出さない（空欄）」です。これが第9章の<strong>サプレス</strong>そのものです。
               </Callout>
               <Dialog speaker="b">
-                After の方、すっきり読めます！伝票のかたまりが目で追えますね。
+                After の方、すっきり読めます！
+                <br />
+                伝票のかたまりが目で追えますね。
               </Dialog>
               <Dialog speaker="a">
                 データ自体（<code>gt_out</code>）は同じで、<strong>出すか／空欄にするか</strong>だけを変えるんですね。
               </Dialog>
               <Dialog speaker="teacher">
                 そこが大事なポイント。元データは1行も削りません。<strong>表示の出し分け</strong>だけです。
+                <br />
                 では「変わり目をどう見つけるか」を次で。これも新顔ではありません。
               </Dialog>
             </>
@@ -811,6 +820,7 @@ ENDLOOP.`}
               </Dialog>
               <Dialog speaker="teacher">
                 鋭いです。実はそれが今回の「上位が変われば下位も出し直す」を<strong>自動で</strong>実現してくれます。
+                <br />
                 次のスライドで、その“並び順”の話をしましょう。ここが今回いちばんのキモです。
               </Dialog>
               <ReferenceLinks />
@@ -863,13 +873,18 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 <strong>SORT と構造体の並びは必ず一致</strong>させます。ずれると「左が変わったのに発火しない／しすぎる」が起き、見出しが歯抜けになります。
               </Callout>
               <Dialog speaker="b">
-                住所みたい…！都道府県が変わったら市区町村も番地も書き直す、というあの話ですね。
+                住所みたい…！
+                <br />
+                都道府県が変わったら市区町村も番地も書き直す、というあの話ですね。
               </Dialog>
               <Dialog speaker="a">
-                並び順を決めるだけで「上位が変われば下位も再表示」が自動になるのは気持ちいいですね。条件分岐を手書きしなくていい。
+                並び順を決めるだけで「上位が変われば下位も再表示」が自動になるのは気持ちいいですね。
+                <br />
+                条件分岐を手書きしなくていい。
               </Dialog>
               <Dialog speaker="teacher">
                 その代わり<strong>並び順がすべて</strong>。ここを間違えると静かに崩れます。
+                <br />
                 「構造体の順番＝SORTの順番＝見出しの左右」、この3つを必ずそろえる、と覚えてください。
               </Dialog>
             </>
@@ -922,8 +937,10 @@ ENDIF.`}
               <Dialog speaker="teacher">
                 <code>NEW-PAGE</code> 命令そのものは<strong>第7章</strong>で学びました（改ページして{" "}
                 <code>TOP-OF-PAGE</code> を出し直す、あの命令です）。
+                <br />
                 このスライドでは「<code>AT NEW blart</code> の中に入れる」と覚えてください。
-                改ページ全体の話——<code>RESERVE</code> や見出しの再表示との<strong>役割分担</strong>——は、
+                <br />
+                改ページ全体の話（<code>RESERVE</code> や見出しの再表示との<strong>役割分担</strong>）は、
                 このレッスンの<strong>後ろ（A-⑥）</strong>で詳しく説明します。ここでは深追いしません。
               </Dialog>
               <Callout variant="warning">
@@ -933,13 +950,16 @@ ENDIF.`}
                 だから「中では旗だけ」「値は外で」が定石です。<code>NEW-PAGE</code> のような出力命令は問題ありません。
               </Callout>
               <Dialog speaker="b">
-                <code>AT NEW</code> の中ってちょっと特別な空間なんですね。中では旗を立てるだけ、と覚えます。
+                <code>AT NEW</code> の中ってちょっと特別な空間なんですね。
+                <br />
+                中では旗を立てるだけ、と覚えます。
               </Dialog>
               <Dialog speaker="a">
                 旗にしておけば、後で「改ページなら全部立てる」みたいな上書きもしやすいですね。
               </Dialog>
               <Dialog speaker="teacher">
                 まさにそこへの布石です。旗（フラグ）にしておくと、別の理由でも「出す」に切り替えられる。
+                <br />
                 次はその代表例、<strong>改ページ</strong>の対応です。
               </Dialog>
             </>
@@ -987,6 +1007,7 @@ ENDIF.`}
               </Dialog>
               <Dialog speaker="teacher">
                 そうなんです。<code>USING EDIT MASK</code> と組み合わせると、整形済みの文字列を箱に入れられます。
+                <br />
                 伝票番号やユーザは元から文字なので、そのまま <code>lv_belnr</code> / <code>lv_usnam</code> に入れて、立たなければ空、で済みます。
               </Dialog>
             </>
@@ -1069,15 +1090,17 @@ gv_pageno = sy-pagno.`}
               </Callout>
               <Dialog speaker="b">
                 「変わり目だから出す」と「ページが変わったから出す」の2つの理由が、同じ旗に集まるんですね。
-              </Dialog>
-              <Dialog speaker="b">
+                <br />
                 それなら <code>NEW-PAGE</code> も <code>AT NEW</code> の外に出して、
                 <code>IF lv_show_blart = abap_true.</code> のときだけ実行すれば、旗の管理が1か所にまとまりませんか？
               </Dialog>
               <Dialog speaker="teacher">
                 惜しい発想ですが、<strong>それは避けましょう</strong>。
-                <code>lv_show_blart</code> は「見出しを<strong>出すか</strong>」の旗で、
-                <code>NEW-PAGE</code> は「タイプが<strong>変わったら区切る</strong>」命令——意味が違います。
+                <br />
+                <code>lv_show_blart</code> は「見出しを<strong>出すか</strong>」の旗です。
+                <br />
+                <code>NEW-PAGE</code> は「タイプが<strong>変わったら区切る</strong>」命令。意味が違います。
+                <br />
                 同じ <code>IF</code> にまとめると、意図しない改ページが起きます。
               </Dialog>
               <Callout variant="warning">
@@ -1120,10 +1143,13 @@ IF sy-pagno <> gv_pageno.  " 見出しを出し直すだけ（NEW-PAGE は呼ば
 ENDIF.`}
               />
               <Dialog speaker="a">
-                <code>RESERVE</code> を <code>WRITE</code> の前に置くのが効くんですね。先に改ページしておくから、ページ番号の比較が正しくなる。
+                <code>RESERVE</code> を <code>WRITE</code> の前に置くのが効くんですね。
+                <br />
+                先に改ページしておくから、ページ番号の比較が正しくなる。
               </Dialog>
               <Dialog speaker="teacher">
                 その順番が命です。<code>WRITE</code> の後に改ページが起きると、見出しの再表示が1行遅れてしまいます。
+                <br />
                 「<code>RESERVE</code> → 判定 → 値セット → <code>WRITE</code> → <code>gv_pageno</code> 保持」の順を固定しましょう。
               </Dialog>
             </>
@@ -1223,15 +1249,19 @@ ENDIF.`}
               </Callout>
               <Dialog speaker="b">
                 日記みたいですね。朝に「昨日の最後に書いた月と違う？」を確認して、夜に「今日の月」を記録しておく。
+                <br />
                 確認は書く前、記録は書いた後。
               </Dialog>
               <Dialog speaker="a">
                 もし記録（更新）を先にやると、比較相手が“今の行自身”になって、ページの変化を検出できないんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通り。比較は「前の行の記録」と、更新は「今の行の結果」を残す。役割が逆だからこそ、
+                その通り。
+                <br />
+                比較は「前の行の記録」と、更新は「今の行の結果」を残す。役割が逆だからこそ、
                 <strong>読む（先頭）→ 書く（WRITE）→ 更新（末尾）</strong>の順に分けて置きます。
-                「前と比べてから、自分が次の“前”になる」——これは前後比較の定石です。
+                <br />
+                「前と比べてから、自分が次の“前”になる」。これは前後比較の定石です。
               </Dialog>
             </>
           ),
@@ -1287,7 +1317,9 @@ ENDIF.`}
                 新しい難しい命令は出てこなかったです。知ってる部品の並べ方の問題だったんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                それが今日いちばん伝えたいことです。では B として、その組み立てを<strong>部品ごとに</strong>、コードを上から追って確認していきましょう。
+                それが今日いちばん伝えたいことです。
+                <br />
+                では B として、その組み立てを<strong>部品ごとに</strong>、コードを上から追って確認していきましょう。
               </Dialog>
             </>
           ),
@@ -1349,6 +1381,7 @@ ENDIF.`}
               </InfoPanel>
               <Dialog speaker="teacher">
                 足すのは大きく<strong>2か所だけ</strong>です。①宣言（型と変数）、②出力ループ（<code>END-OF-SELECTION</code>）。
+                <br />
                 それ以外は演習②のままだと分かると、ぐっと読みやすくなります。
               </Dialog>
               <Dialog speaker="b">
@@ -1429,10 +1462,14 @@ DATA: gv_pageno TYPE sy-pagno.`}
                 実務ではこうした使わない宣言は消して構いません（動作には影響しません）。
               </Callout>
               <Dialog speaker="a">
-                箱の名前を見ただけで役割が分かりますね。<code>lv_show_*</code> が旗、<code>_c</code> が文字の日付。
+                箱の名前を見ただけで役割が分かりますね。
+                <br />
+                <code>lv_show_*</code> が旗、<code>_c</code> が文字の日付。
               </Dialog>
               <Dialog speaker="teacher">
-                命名で意図が伝わるのは良いコードです。ここで宣言した箱を、後の出力ループで順番に使っていきます。
+                命名で意図が伝わるのは良いコードです。
+                <br />
+                ここで宣言した箱を、後の出力ループで順番に使っていきます。
               </Dialog>
             </>
           ),
@@ -1492,7 +1529,9 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 取り方はいくつかあるけど、サプレス的には「正しい順で並んでいること」が命なんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通り。<code>SORT</code> の順番が構造体の項目順とずれると、<code>AT NEW</code> が想定通りに発火しません。
+                その通り。
+                <br />
+                <code>SORT</code> の順番が構造体の項目順とずれると、<code>AT NEW</code> が想定通りに発火しません。
               </Dialog>
               <ReferenceLinks />
             </>
@@ -1540,7 +1579,9 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 列の「タイトル」は毎ページ出るけど、行の中の「伝票の見出し（値）」は別物なんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                そこが今回の肝です。タイトル行は <code>TOP-OF-PAGE</code>、行内の見出し値は{" "}
+                そこが今回の肝です。
+                <br />
+                タイトル行は <code>TOP-OF-PAGE</code>、行内の見出し値は{" "}
                 <code>END-OF-SELECTION</code> のサプレスが担当します。
               </Dialog>
             </>
@@ -1606,7 +1647,9 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 <code>AT NEW</code> を5つ並べるだけで「上位が変われば下位も」になるのが効いてますね（A-③）。
               </Dialog>
               <Dialog speaker="teacher">
-                並び順（B-②・B-③）が効くのはここです。旗は<strong>立てるだけ</strong>、値は後半でまとめて入れます。
+                並び順（B-②・B-③）が効くのはここです。
+                <br />
+                旗は<strong>立てるだけ</strong>、値は後半でまとめて入れます。
               </Dialog>
             </>
           ),
@@ -1713,7 +1756,9 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 デバッガで旗の立ち方を見ると、After の帳票がなぜああなるか腑に落ちます。
               </Dialog>
               <Dialog speaker="teacher">
-                旗 → 値 → 出力の流れを目で確認できれば完璧です。最後に全文を通して読みましょう。
+                旗 → 値 → 出力の流れを目で確認できれば完璧です。
+                <br />
+                最後に全文を通して読みましょう。
               </Dialog>
             </>
           ),
@@ -1816,7 +1861,9 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
               />
               <Dialog speaker="closing">
                 お疲れさまでした。演習③で足したのは「変わり目だけ見出しを出す」サプレスと、その<strong>改ページ対応</strong>だけ。
+                <br />
                 新しい命令ではなく、第9章の <code>AT NEW</code>・サプレスと、演習②の帳票を<strong>組み合わせた</strong>ものでした。
+                <br />
                 迷ったら「構造体の並び＝SORT＝見出しの左右」と「中では旗・値は外」を思い出してください。
               </Dialog>
             </>

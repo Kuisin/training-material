@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Dialog,
@@ -204,7 +204,7 @@ export default function BusinessBasicsLesson() {
               </ul>
               <Dialog speaker="teacher">
                 照会レポートでは、まず <strong>BKPF ＋ BSEG</strong> の組み合わせが基本です。
-                ACDOCA は新しい環境で登場する統合版——「環境によって使う表が違う」ことだけ覚えておけば十分です。
+                ACDOCA は新しい環境で登場する統合版。「環境によって使う表が違う」ことだけ覚えておけば十分です。
               </Dialog>
               <Dialog speaker="a">
                 第2章で学んだヘッダ／明細が、そのままテーブル構造になっているんですね。
@@ -239,7 +239,7 @@ export default function BusinessBasicsLesson() {
                 いきなり登録せず、必ず“チェック”の関所を通すんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。「汚れたデータを台帳に入れない」——これが登録処理のいちばんの肝です。だからチェックは省略できません。
+                その通りです。「汚れたデータを台帳に入れない」。これが登録処理のいちばんの肝です。だからチェックは省略できません。
               </Dialog>
             </>
           ),

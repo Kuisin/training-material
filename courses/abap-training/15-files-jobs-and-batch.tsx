@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -139,7 +139,7 @@ CALL FUNCTION 'FILE_GET_NAME'
 " lv_path を使って OPEN DATASET 等で読み書き`}
               />
               <Dialog speaker="a">
-                プログラムは論理名だけ持ち、パス解決は <code>FILE_GET_NAME</code> に任せる——環境差分をここで吸収する設計ですね。
+                プログラムは論理名だけ持ち、パス解決は <code>FILE_GET_NAME</code> に任せる。環境差分をここで吸収する設計ですね。
               </Dialog>
             </>
           ),
@@ -191,7 +191,7 @@ ENDDO.
 CLOSE DATASET lv_path.`}
               />
               <Dialog speaker="teacher">
-                物理パスをプログラムに直書きしない——<code>FILE_GET_NAME</code> とセットで覚えると、
+                物理パスをプログラムに直書きしない。<code>FILE_GET_NAME</code> とセットで覚えると、
                 開発・本番の切り替えが楽になります。
               </Dialog>
               <LessonLinkButton
