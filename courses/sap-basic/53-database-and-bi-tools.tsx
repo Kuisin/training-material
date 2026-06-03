@@ -7,6 +7,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -45,6 +46,22 @@ export default function DatabaseAndBiToolsLesson() {
                 <li>Amazon Redshift・Snowflake：DWHクラウドプラットフォーム</li>
                 <li>これらとSAP HANAとの違い・関係</li>
               </ul>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="02-hana-database"
+                  slide={3}
+                  label="本編第2章: 従来DBとの比較"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="07-fiori-analytics"
+                  slide={8}
+                  label="本編第7章: Embedded Analytics"
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },

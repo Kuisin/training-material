@@ -8,6 +8,7 @@ import {
   Quiz,
   MermaidDiagram,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -108,6 +109,13 @@ export default function ArchitectureComparisonLesson() {
               <Dialog speaker="teacher">
                 よいたとえです。ただしチームとして連携するには、別途コーディネーションが必要になります。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="52-external-saas"
+                slide={2}
+                label="補足③: Salesforce・Workday などの詳細"
+                className="mt-4"
+              />
             </>
           ),
         },

@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -52,6 +53,14 @@ export default function ModernDataPlatformsLesson() {
               <Callout variant="note">
                 この補足は第4章「ハイブリッド・データアーキテクチャ」の理解を深めるための追加コンテンツです。本編を先に読むことを推奨します。
               </Callout>
+              <LessonLinkButton
+                courseSlug="sap-history-compare"
+                lessonFile="03-hybrid-architecture"
+                slide={5}
+                label="本編第4章: Snowflake と Databricks"
+                variant="back"
+                className="mt-4"
+              />
             </>
           ),
         },

@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -194,6 +195,13 @@ export default function HybridArchitectureLesson() {
               <Dialog speaker="b">
                 SAPが「事実の記録係」で、SnowflakeかDatabricksが「その事実を分析して将来を予測する役割」、というチームワークですね。それぞれの得意分野を活かしている。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-history-compare"
+                lessonFile="50-modern-data-platforms"
+                slide={4}
+                label="補足A: Snowflake・Databricks の仕組み"
+                className="mt-4"
+              />
             </>
           ),
         },

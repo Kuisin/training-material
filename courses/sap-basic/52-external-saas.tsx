@@ -6,6 +6,7 @@ import {
   Quiz,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -44,6 +45,14 @@ export default function ExternalSaasLesson() {
                 <li>NetSuite（中堅向けクラウドERP）とは何か</li>
                 <li>ServiceNow・MuleSoftなどの統合ツール</li>
               </ul>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="04-architecture-comparison"
+                slide={2}
+                label="本編第4章: Best of Breed"
+                variant="back"
+                className="mt-4"
+              />
             </>
           ),
         },

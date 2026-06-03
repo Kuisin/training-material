@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -49,6 +50,17 @@ export default function IntegrationToolsLesson() {
                 <li>dbt（data build tool）：ELT変換の現代標準</li>
                 <li>Kafka：イベント駆動型連携の基盤</li>
               </ul>
+              <Callout variant="note">
+                この補足は第5章「ERPとデータプラットフォームの連携設計」の理解を深めるための追加コンテンツです。本編を先に読むことを推奨します。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="sap-history-compare"
+                lessonFile="04-integration-design"
+                slide={8}
+                label="本編第5章: API・メッセージング・iPaaS"
+                variant="back"
+                className="mt-4"
+              />
             </>
           ),
         },

@@ -8,6 +8,7 @@ import {
   Quiz,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -229,6 +230,12 @@ export default function IntroductionLesson() {
               <Dialog speaker="b">
                 戸籍（SoR、事実の記録）と分析レポート（SoI、意味の抽出）を分けるイメージかな。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-history-compare"
+                lessonFile="50-modern-data-platforms"
+                label="補足A: Snowflake・Databricks 入門"
+                className="mt-4"
+              />
             </>
           ),
         },
@@ -256,6 +263,21 @@ export default function IntroductionLesson() {
               <Dialog speaker="b">
                 歴史と比喩で積み上げていけば自然と身に付きそうです。楽しみにしています。
               </Dialog>
+              <Callout variant="note">
+                本編の範囲外の詳細資料は<strong>追加コンテンツ</strong>にまとめています。レッスン内のリンクからいつでも参照できます。
+              </Callout>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="sap-history-compare"
+                  lessonFile="50-modern-data-platforms"
+                  label="補足A: Snowflake・Databricks"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-history-compare"
+                  lessonFile="51-integration-tools"
+                  label="補足B: iPaaS・ETLツール"
+                />
+              </div>
             </>
           ),
         },

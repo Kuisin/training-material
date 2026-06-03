@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -338,6 +339,13 @@ export default function IntegrationDesignLesson() {
               <Dialog speaker="a">
                 iPaaSはERPのコアを汚さないための「境界」を担うという役割が重要ですね。ERPの外にマッピングロジックを持つことでクリーンコアを守れる。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-history-compare"
+                lessonFile="51-integration-tools"
+                slide={2}
+                label="補足B: MuleSoft・Boomi などの詳細"
+                className="mt-4"
+              />
             </>
           ),
         },

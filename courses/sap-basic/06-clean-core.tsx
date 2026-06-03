@@ -8,6 +8,7 @@ import {
   Quiz,
   MermaidDiagram,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -190,6 +191,20 @@ export default function CleanCoreLesson() {
                 その理解で十分です。サーバーを自社で用意する必要なく、SAP が用意したクラウド環境に
                 <strong>アプリをデプロイして動かせます</strong>。開発者はインフラ管理ではなくアプリ開発に集中できます。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="51-cloud-basics"
+                  slide={5}
+                  label="補足②: IaaS・PaaS・SaaS の3層"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="50-it-glossary"
+                  slide={6}
+                  label="補足①: API の用語解説"
+                />
+              </div>
             </>
           ),
         },

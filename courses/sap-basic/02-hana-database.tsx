@@ -7,6 +7,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -109,6 +110,13 @@ export default function HanaDatabaseLesson() {
               <Dialog speaker="a">
                 RAMはHDDより数十〜数百倍速いですから、理屈として速くなるのは当然ですね。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="53-database-and-bi-tools"
+                slide={3}
+                label="補足④: Oracle・PostgreSQL などの詳細"
+                className="mt-4"
+              />
             </>
           ),
         },

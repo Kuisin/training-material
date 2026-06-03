@@ -8,6 +8,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   lessonChrome,
   mountLesson,
 } from "../../src/lesson";
@@ -196,6 +197,31 @@ export default function IntroductionLesson() {
               <Dialog speaker="teacher">
                 その通りです。「なぜ」から始めて「どうやって」へ進む。まず問題を感じてから、解決策の技術を学ぶ順番です。
               </Dialog>
+              <Callout variant="note">
+                本編の範囲外の詳細資料は<strong>追加コンテンツ</strong>にまとめています。レッスン内のリンクからいつでも参照できます。
+              </Callout>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="50-it-glossary"
+                  label="補足①: IT用語集"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="51-cloud-basics"
+                  label="補足②: クラウド基礎"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="52-external-saas"
+                  label="補足③: 外部SaaS解説"
+                />
+                <LessonLinkButton
+                  courseSlug="sap-basic"
+                  lessonFile="53-database-and-bi-tools"
+                  label="補足④: DB・BIツール"
+                />
+              </div>
             </>
           ),
         },

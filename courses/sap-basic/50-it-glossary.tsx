@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -52,6 +53,14 @@ export default function ITGlossaryLesson() {
               <Callout variant="note">
                 この補足は「辞書」として設計されています。最初から順番に読む必要はありません。本編で分からない用語が出てきたときに該当スライドを参照してください。
               </Callout>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="00-introduction"
+                slide={7}
+                label="本編: コースのロードマップ"
+                variant="back"
+                className="mt-4"
+              />
             </>
           ),
         },

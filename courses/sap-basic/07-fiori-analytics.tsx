@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -221,6 +222,13 @@ export default function FioriAnalyticsLesson() {
               <Dialog speaker="a">
                 ERPと分析ツールが一体化しているから、タイムラグがゼロになるんですね。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="53-database-and-bi-tools"
+                slide={5}
+                label="補足④: Tableau・Power BI などの詳細"
+                className="mt-4"
+              />
             </>
           ),
         },

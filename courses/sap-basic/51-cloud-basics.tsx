@@ -9,6 +9,7 @@ import {
   MermaidDiagram,
   Figure,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -49,6 +50,14 @@ export default function CloudBasicsLesson() {
                 <li>ハイブリッドクラウドとは何か</li>
                 <li>CapEx（設備投資）とOpEx（運営費）のコスト比較</li>
               </ul>
+              <LessonLinkButton
+                courseSlug="sap-basic"
+                lessonFile="06-clean-core"
+                slide={5}
+                label="本編第6章: SAP BTP と PaaS"
+                variant="back"
+                className="mt-4"
+              />
             </>
           ),
         },
