@@ -200,13 +200,72 @@ lv_tax_c = lv_price_c / c_tax_divisor.`}
           ),
         },
         {
-          title: "FORMとPERFORM",
+          title: "まずは引数なしのFORM",
           plainText:
-            "サブルーチンを作る FORM、呼ぶ PERFORM\nFORM でサブルーチンを定義し、PERFORM で呼び出す。値を渡すときは USING（渡すだけ）／CHANGING（渡して結果も受け取る）。\nPERFORM calc_tax USING lv_price CHANGING lv_tax.\nFORM calc_tax … USING p_price TYPE i … CHANGING p_tax TYPE i. … p_tax = p_price / 10. … ENDFORM.\n1行ずつ：PERFORM＝呼び出し／FORM calc_tax＝名前／USING p_price＝入力（lv_priceが入る）／CHANGING p_tax＝出力（lv_taxへ戻る）／代入＝中身／ENDFORM＝定義終了。\nInfoPanel：変数の動き（単価1000円の例）。\nBちゃん：全部CHANGINGに統一できない？先生：動くことはあるがUSINGは入力だけの宣言。PERFORM1行で入出力が分かる。\nInfoPanel：分ける理由＝読みやすさ・書き換え範囲の明示・後から読む人への配慮。\nAくん：USING/CHANGINGは結果を受け取る場所の看板。先生：矢印の向きをコード上で宣言しておく。",
+            "いちばん単純な FORM ＝ 引数なし\nFORM はいつも USING / CHANGING が必要なわけではない。いちばん単純なのは引数なし——名前を付けた処理のかたまりを PERFORM で呼ぶだけ。\nPERFORM print_header. … FORM print_header. WRITE … ENDFORM.\n1行ずつ：PERFORM print_header＝名前を言って呼ぶ／FORM print_header＝定義の開始（名前は同じ）／WRITE＝中身（見出しを出す）／ENDFORM＝定義終了、呼び出し元に戻る。\nBちゃん：えっ、これだけでいいんですか？先生：そう。値の受け渡しがいらないなら、引数もいらない。名前を付けた処理を呼ぶだけ。\n再利用：同じ見出しを何度も出したいなら PERFORM print_header. を必要なところで呼ぶだけ。\nAくん：じゃあ USING / CHANGING はいつ要るんですか？先生：値を渡したり結果を受け取りたくなったとき。次のスライドで見ていく。",
           content: (
             <>
-              <h2>サブルーチンを作る <code>FORM</code>、呼ぶ <code>PERFORM</code></h2>
-              <p><code>FORM</code> でサブルーチン（関数のような処理）を定義し、<code>PERFORM</code> で呼び出します。値を渡すときは <code>USING</code>（渡すだけ）／<code>CHANGING</code>（渡して結果も受け取る）。</p>
+              <h2>いちばん単純な <code>FORM</code> ＝ 引数なし</h2>
+              <p>
+                <code>FORM</code> はいつも <code>USING</code> / <code>CHANGING</code> が必要なわけではありません。
+                いちばん単純なのは<strong>引数なし</strong>——名前を付けた処理のかたまりを、
+                <code>PERFORM</code> で呼ぶだけの形です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" 呼び出し側：名前を言うだけ
+PERFORM print_header.
+
+" 定義側：引数なしの FORM（見出しを出すだけ）
+FORM print_header.
+  WRITE: / '=== 仕訳日記帳 ==='.
+  WRITE: / '日付', '伝票番号', '金額'.
+ENDFORM.`}
+              />
+              <h3>1行ずつ読む</h3>
+              <ul>
+                <li>
+                  <code>PERFORM print_header.</code> … 名前 <code>print_header</code> のサブルーチンを呼ぶ。渡す値がないので名前だけ
+                </li>
+                <li>
+                  <code>FORM print_header.</code> … サブルーチン定義の開始。<strong>名前</strong>は呼び出し側と同じにする
+                </li>
+                <li>
+                  <code>WRITE: / '...'.</code> … サブルーチンの<strong>中身</strong>。ここでは見出しを画面に出す
+                </li>
+                <li>
+                  <code>ENDFORM.</code> … 定義の終了。ここで呼び出し元（<code>PERFORM</code> の次の行）に戻る
+                </li>
+              </ul>
+              <Dialog speaker="b">
+                えっ、<code>FORM</code> って、これだけでもいいんですか？<code>USING</code> とか <code>CHANGING</code> がないと動かないのかと…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                これで立派なサブルーチンです。<strong>値の受け渡しがいらないなら、引数もいりません</strong>。
+                「名前を付けた処理のかたまりを呼ぶ」——まずはこれが <code>FORM</code> / <code>PERFORM</code> の基本形です。
+              </Dialog>
+              <Callout variant="tip">
+                <strong>再利用も引数なしでOK</strong>：同じ見出しを何度も出したいなら、
+                出したいところで <code>PERFORM print_header.</code> と呼ぶだけ。見出しの文言を変えるときは <code>FORM</code> の中の1か所だけ直せば、呼び出し全部に効きます。
+              </Callout>
+              <Dialog speaker="a">
+                じゃあ <code>USING</code> / <code>CHANGING</code> は、いつ要るんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                サブルーチンに<strong>値を渡したい</strong>とき、または<strong>結果を受け取りたい</strong>ときです。
+                次のスライドで、引数つきの <code>FORM</code> を見ていきましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "引数を渡す（USING / CHANGING）",
+          plainText:
+            "引数を渡す FORM、呼ぶ PERFORM\n引数なしの FORM に、値の受け渡しを足したのが USING / CHANGING。USING（渡すだけ）／CHANGING（渡して結果も受け取る）。\nPERFORM calc_tax USING lv_price CHANGING lv_tax.\nFORM calc_tax … USING p_price TYPE i … CHANGING p_tax TYPE i. … p_tax = p_price / 10. … ENDFORM.\n1行ずつ：PERFORM＝呼び出し／FORM calc_tax＝名前／USING p_price＝入力（lv_priceが入る）／CHANGING p_tax＝出力（lv_taxへ戻る）／代入＝中身／ENDFORM＝定義終了。\nInfoPanel：変数の動き（単価1000円の例）。\nBちゃん：全部CHANGINGに統一できない？先生：動くことはあるがUSINGは入力だけの宣言。PERFORM1行で入出力が分かる。\nInfoPanel：分ける理由＝読みやすさ・書き換え範囲の明示・後から読む人への配慮。\nAくん：USING/CHANGINGは結果を受け取る場所の看板。先生：矢印の向きをコード上で宣言しておく。",
+          content: (
+            <>
+              <h2>引数を渡す <code>FORM</code>（<code>USING</code> / <code>CHANGING</code>）</h2>
+              <p>前のスライドの<strong>引数なしの <code>FORM</code></strong> に、<strong>値の受け渡し</strong>を足したのが <code>USING</code> / <code>CHANGING</code> です。<code>USING</code>（渡すだけ）／<code>CHANGING</code>（渡して結果も受け取る）。</p>
               <CodeBlock
                 language="ABAP"
                 code={`" 呼び出し側
