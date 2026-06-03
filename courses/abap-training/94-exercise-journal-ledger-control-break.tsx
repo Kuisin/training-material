@@ -1504,21 +1504,21 @@ function ReferenceLinks() {
   return (
     <div className="mt-4 flex flex-wrap justify-end gap-2">
       <LessonLinkButton
-        courseSlug="abap-taining"
+        courseSlug="abap-training"
         lessonFile="93-exercise-journal-ledger-detail"
         slide={15}
         label="演習②: 完成コード（土台）"
         variant="back"
       />
       <LessonLinkButton
-        courseSlug="abap-taining"
+        courseSlug="abap-training"
         lessonFile="09-control-flow"
         slide={4}
         label="第9章: サプレス（重複表示を省く）"
         variant="back"
       />
       <LessonLinkButton
-        courseSlug="abap-taining"
+        courseSlug="abap-training"
         lessonFile="09-control-flow"
         slide={5}
         label="第9章: AT 制御（変わり目で処理）"
@@ -1532,7 +1532,7 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
   return (
     <Lesson
       chrome={lessonChrome(
-        "abap-taining",
+        "abap-training",
         "94-exercise-journal-ledger-control-break",
         lessonMeta.title
       )}
@@ -1847,7 +1847,7 @@ ENDIF.
             <>
               <h2>B-① 伝票タイプが変わったら <code>NEW-PAGE</code></h2>
               <p>
-                C パートの <code>AT NEW blart</code> に、<strong>改ページ命令</strong>を足します。
+                A パートの出力ループに <code>AT NEW blart</code> を追加し、その中に<strong>改ページ命令</strong>を置きます。
                 伝票タイプ（<code>blart</code>）が変わった行は、<strong>新しいページの先頭</strong>から始めます。
               </p>
               <CodeBlock
