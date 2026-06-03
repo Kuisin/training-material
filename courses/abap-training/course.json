@@ -42,6 +42,12 @@
       "file": "94-exercise-journal-ledger-control-break",
       "title": "特別演習③ — 伝票見出しをまとめる",
       "meta": "特別 · 45分"
+    },
+    {
+      "file": "95-exercise-journal-ledger-modularization",
+      "title": "特別演習④ Part A — プログラムの構造化（FORM/PERFORM）",
+      "meta": "特別 · 25分",
+      "lock": { "requires": "course", "password": "abap-report-311", "mode": "any" }
     }
   ]
 }

@@ -613,7 +613,7 @@ TOP-OF-PAGE.
           9  sy-uname,
           155 'TIME:' NO-GAP,
           160(9) sy-uzeit RIGHT-JUSTIFIED,
-         /80(20) '仕訳日記帳 演習3' CENTERED,
+         /80(20) '仕訳日記帳' CENTERED,
           155 'PAGE:' NO-GAP,
           160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
 
@@ -974,7 +974,7 @@ TOP-OF-PAGE.
           9  sy-uname,
           155 'TIME:' NO-GAP,
           160(9) sy-uzeit RIGHT-JUSTIFIED,
-         /80(20) '仕訳日記帳 演習3' CENTERED,
+         /80(20) '仕訳日記帳' CENTERED,
           155 'PAGE:' NO-GAP,
           160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
 
@@ -1156,8 +1156,7 @@ DATA: gv_debit  TYPE bseg-dmbtr,  " 借方金額（出力用）
       gv_credit TYPE bseg-dmbtr. " 貸方金額（出力用）
 
 
-DATA: lv_force     TYPE abap_bool,    " 未使用
-      lv_blart     TYPE bkpf-blart,    " 伝票タイプ（表示用）
+DATA: lv_blart     TYPE bkpf-blart,    " 伝票タイプ（表示用）
       lv_blart_txt TYPE t003t-ltext,  " 伝票タイプ名（表示用）
       lv_budat_c   TYPE c LENGTH 10,  " 転記日付（文字・空欄可）
       lv_bldat_c   TYPE c LENGTH 10,  " 伝票日付（文字・空欄可）
@@ -1355,7 +1354,7 @@ TOP-OF-PAGE.
           9  sy-uname,
           155 'TIME:' NO-GAP,
           160(9) sy-uzeit RIGHT-JUSTIFIED,
-         /80(20) '仕訳日記帳 演習3' CENTERED,
+         /80(20) '仕訳日記帳' CENTERED,
           155 'PAGE:' NO-GAP,
           160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
 
@@ -2260,7 +2259,7 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
         {
           title: "C-② 宣言を足す（TYPES・DATA）",
           plainText:
-            "C-② 宣言の追加。出力ループで使う箱を先に宣言する。\ng_typ_outは項目順を入れ替え（budat/bldatをbelnrの前へ）＝AT NEWの階層づくり。\n表示用 lv_blart〜lv_usnam（見出しを出すときだけ値を入れる箱）、日付は lv_budat_c/lv_bldat_c（c LENGTH 10）で空欄可、lv_show_*（旗）、gv_pageno（改ページ判定用）を追加。\nlv_forceは未使用。",
+            "C-② 宣言の追加。出力ループで使う箱を先に宣言する。\ng_typ_outは項目順を入れ替え（budat/bldatをbelnrの前へ）＝AT NEWの階層づくり。\n表示用 lv_blart〜lv_usnam（見出しを出すときだけ値を入れる箱）、日付は lv_budat_c/lv_bldat_c（c LENGTH 10）で空欄可、lv_show_*（旗）、gv_pageno（改ページ判定用）を追加。",
           content: (
             <>
               <h2>C-② 宣言を足す（TYPES・DATA）</h2>
@@ -2320,10 +2319,6 @@ DATA: gv_pageno TYPE sy-pagno.`}
                   </li>
                 </ul>
               </InfoPanel>
-              <Callout variant="note">
-                完成コードには <code>lv_force</code> という宣言もありますが、今回は<strong>未使用</strong>です。
-                実務ではこうした使わない宣言は消して構いません（動作には影響しません）。
-              </Callout>
               <Dialog speaker="a">
                 箱の名前を見ただけで役割が分かりますね。
                 <br />
