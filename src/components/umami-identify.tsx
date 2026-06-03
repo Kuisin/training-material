@@ -104,7 +104,7 @@ export function UmamiIdentify() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="taro.yamada@abeam.com"
+              placeholder="taro.yamada@example.com"
               className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:focus:ring-blue-900"
             />
           </div>
