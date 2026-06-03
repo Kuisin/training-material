@@ -98,8 +98,87 @@ interface DemoLine {
   debit?: number;
   credit?: number;
   sgtxt?: string;
-  /** 伝票（グループ）の先頭明細か */
-  groupFirst: boolean;
+}
+
+function sortDemoLinesForReport3(lines: DemoLine[]): DemoLine[] {
+  return [...lines].sort(
+    (a, b) =>
+      a.blart.localeCompare(b.blart) ||
+      a.budat.localeCompare(b.budat) ||
+      a.bldat.localeCompare(b.bldat) ||
+      a.belnr.localeCompare(b.belnr) ||
+      a.usnam.localeCompare(b.usnam) ||
+      a.buzei.localeCompare(b.buzei),
+  );
+}
+
+function sortDemoLinesForReport3A(lines: DemoLine[]): DemoLine[] {
+  return [...lines].sort(
+    (a, b) =>
+      a.blart.localeCompare(b.blart) ||
+      a.budat.localeCompare(b.budat) ||
+      a.belnr.localeCompare(b.belnr) ||
+      a.usnam.localeCompare(b.usnam) ||
+      a.buzei.localeCompare(b.buzei),
+  );
+}
+
+/** SORT 順の左側を含めて変わったか（ABAP の AT NEW ＝ f および左の項目が変わった行） */
+function atNewInHierarchy(
+  levelIndex: number,
+  line: DemoLine,
+  prev: DemoLine | undefined,
+): boolean {
+  if (!prev) return true;
+  const keys: (keyof Pick<DemoLine, "blart" | "budat" | "bldat" | "belnr" | "usnam">)[] = [
+    "blart",
+    "budat",
+    "bldat",
+    "belnr",
+    "usnam",
+  ];
+  for (let i = 0; i <= levelIndex; i++) {
+    if (line[keys[i]] !== prev[keys[i]]) return true;
+  }
+  return false;
+}
+
+function appendHeaderCells(
+  cells: ReportCell[],
+  lv: {
+    blart: string;
+    blartTxt: string;
+    budat: string;
+    bldat: string;
+    belnr: string;
+    usnam: string;
+  },
+): void {
+  cells.push({ col: 1, text: lv.blart });
+  cells.push({ col: 4, text: lv.blartTxt });
+  cells.push({ col: 18, text: lv.budat });
+  cells.push({ col: 30, text: lv.bldat });
+  cells.push({ col: 42, text: lv.belnr });
+  cells.push({ col: 54, text: lv.usnam });
+}
+
+function appendDetailCells(cells: ReportCell[], line: DemoLine): void {
+  cells.push({ col: 68, text: line.buzei });
+  cells.push({ col: 73, text: line.hkont });
+  cells.push({ col: 85, text: line.hkontTxt });
+  cells.push({
+    col: 106,
+    text: line.debit ? formatAmount(line.debit) : "",
+    width: 14,
+    align: "right",
+  });
+  cells.push({
+    col: 122,
+    text: line.credit ? formatAmount(line.credit) : "",
+    width: 14,
+    align: "right",
+  });
+  cells.push({ col: 139, text: line.sgtxt ?? "" });
 }
 
 const DEMO_LINES: DemoLine[] = [
@@ -115,7 +194,6 @@ const DEMO_LINES: DemoLine[] = [
     hkontTxt: "売上高",
     debit: 120000,
     sgtxt: "1月分売上",
-    groupFirst: true,
   },
   {
     blart: "SA",
@@ -128,12 +206,11 @@ const DEMO_LINES: DemoLine[] = [
     hkont: "11201000",
     hkontTxt: "売掛金",
     credit: 120000,
-    groupFirst: false,
   },
   {
     blart: "SA",
     blartTxt: "G/L伝票",
-    budat: "2025/01/20",
+    budat: "2025/01/15",
     bldat: "2025/01/20",
     belnr: "1900000130",
     usnam: "SUZUKI",
@@ -142,20 +219,18 @@ const DEMO_LINES: DemoLine[] = [
     hkontTxt: "仕入高",
     debit: 80000,
     sgtxt: "1月分仕入",
-    groupFirst: true,
   },
   {
     blart: "SA",
     blartTxt: "G/L伝票",
     budat: "2025/01/20",
     bldat: "2025/01/20",
-    belnr: "1900000130",
+    belnr: "1900000135",
     usnam: "SUZUKI",
     buzei: "002",
     hkont: "21100000",
     hkontTxt: "買掛金",
     credit: 80000,
-    groupFirst: false,
   },
 ];
 
@@ -175,80 +250,97 @@ const COLUMN_HEADER_ROW: ReportRow = {
   ],
 };
 
-/** suppress=true なら、伝票の2行目以降は 伝票タイプ〜ユーザ を空欄にする */
-function buildRows(suppress: boolean): ReportRow[] {
+/** 演習②相当 — 見出し列を毎行そのまま出力 */
+function buildRowsBefore(lines: DemoLine[]): ReportRow[] {
   const rows: ReportRow[] = [COLUMN_HEADER_ROW, { kind: "uline" }];
-  DEMO_LINES.forEach((line) => {
-    const showHead = !suppress || line.groupFirst;
+  sortDemoLinesForReport3(lines).forEach((line) => {
     const cells: ReportCell[] = [];
-    if (showHead) {
-      cells.push({ col: 1, text: line.blart });
-      cells.push({ col: 4, text: line.blartTxt });
-      cells.push({ col: 18, text: line.budat });
-      cells.push({ col: 30, text: line.bldat });
-      cells.push({ col: 42, text: line.belnr });
-      cells.push({ col: 54, text: line.usnam });
-    }
-    cells.push({ col: 68, text: line.buzei });
-    cells.push({ col: 73, text: line.hkont });
-    cells.push({ col: 85, text: line.hkontTxt });
-    cells.push({
-      col: 106,
-      text: line.debit ? formatAmount(line.debit) : "",
-      width: 14,
-      align: "right",
+    appendHeaderCells(cells, {
+      blart: line.blart,
+      blartTxt: line.blartTxt,
+      budat: line.budat,
+      bldat: line.bldat,
+      belnr: line.belnr,
+      usnam: line.usnam,
     });
-    cells.push({
-      col: 122,
-      text: line.credit ? formatAmount(line.credit) : "",
-      width: 14,
-      align: "right",
-    });
-    cells.push({ col: 139, text: line.sgtxt ?? "" });
+    appendDetailCells(cells, line);
     rows.push({ kind: "cells", cells });
   });
   return rows;
 }
 
-const BEFORE_ROWS = buildRows(false);
-const AFTER_ROWS = buildRows(true);
-
-/** A パート用：ユーザ列とその左の見出し列（伝票タイプ〜伝票番号）を同じ条件でサプレス */
-function buildRowsUsnamOnly(suppress: boolean): ReportRow[] {
+/**
+ * create_report_3（FINAL_PROGRAM）の END-OF-SELECTION ループと同じロジックで帳票行を生成。
+ * AT NEW は SORT 順の左側を含めて発火（段階的サプレス）。改ページはプレビューでは省略。
+ */
+function buildRowsFromCreateReport3(lines: DemoLine[]): ReportRow[] {
+  const sorted = sortDemoLinesForReport3(lines);
   const rows: ReportRow[] = [COLUMN_HEADER_ROW, { kind: "uline" }];
-  DEMO_LINES.forEach((line) => {
-    const showHead = !suppress || line.groupFirst;
-    const cells: ReportCell[] = [];
-    if (showHead) {
-      cells.push({ col: 1, text: line.blart });
-      cells.push({ col: 4, text: line.blartTxt });
-      cells.push({ col: 18, text: line.budat });
-      cells.push({ col: 30, text: line.bldat });
-      cells.push({ col: 42, text: line.belnr });
-      cells.push({ col: 54, text: line.usnam });
+  let prev: DemoLine | undefined;
+  const gvPageno = 1;
+  const syPagno = 1;
+
+  for (const line of sorted) {
+    let lvShowBlart = atNewInHierarchy(0, line, prev);
+    let lvShowBudat = atNewInHierarchy(1, line, prev);
+    let lvShowBldat = atNewInHierarchy(2, line, prev);
+    let lvShowBelnr = atNewInHierarchy(3, line, prev);
+    let lvShowUsnam = atNewInHierarchy(4, line, prev);
+
+    if (syPagno !== gvPageno) {
+      lvShowBlart = true;
+      lvShowBudat = true;
+      lvShowBldat = true;
+      lvShowBelnr = true;
+      lvShowUsnam = true;
     }
-    cells.push({ col: 68, text: line.buzei });
-    cells.push({ col: 73, text: line.hkont });
-    cells.push({ col: 85, text: line.hkontTxt });
-    cells.push({
-      col: 106,
-      text: line.debit ? formatAmount(line.debit) : "",
-      width: 14,
-      align: "right",
+
+    const cells: ReportCell[] = [];
+    appendHeaderCells(cells, {
+      blart: lvShowBlart ? line.blart : "",
+      blartTxt: lvShowBlart ? line.blartTxt : "",
+      budat: lvShowBudat ? line.budat : "",
+      bldat: lvShowBldat ? line.bldat : "",
+      belnr: lvShowBelnr ? line.belnr : "",
+      usnam: lvShowUsnam ? line.usnam : "",
     });
-    cells.push({
-      col: 122,
-      text: line.credit ? formatAmount(line.credit) : "",
-      width: 14,
-      align: "right",
-    });
-    cells.push({ col: 139, text: line.sgtxt ?? "" });
+    appendDetailCells(cells, line);
     rows.push({ kind: "cells", cells });
-  });
+    prev = line;
+  }
+
   return rows;
 }
 
-const AFTER_ROWS_A = buildRowsUsnamOnly(true);
+const BEFORE_ROWS = buildRowsBefore(DEMO_LINES);
+const AFTER_ROWS_C = buildRowsFromCreateReport3(DEMO_LINES);
+
+/** create_report_3_a — AT NEW usnam 1本で blart〜usnam をまとめてサプレス */
+function buildRowsFromCreateReport3A(lines: DemoLine[]): ReportRow[] {
+  const sorted = sortDemoLinesForReport3A(lines);
+  const rows: ReportRow[] = [COLUMN_HEADER_ROW, { kind: "uline" }];
+  let prev: DemoLine | undefined;
+
+  for (const line of sorted) {
+    const lvShowUsnam = !prev || line.usnam !== prev.usnam;
+    const cells: ReportCell[] = [];
+    appendHeaderCells(cells, {
+      blart: lvShowUsnam ? line.blart : "",
+      blartTxt: lvShowUsnam ? line.blartTxt : "",
+      budat: lvShowUsnam ? line.budat : "",
+      bldat: lvShowUsnam ? line.bldat : "",
+      belnr: lvShowUsnam ? line.belnr : "",
+      usnam: lvShowUsnam ? line.usnam : "",
+    });
+    appendDetailCells(cells, line);
+    rows.push({ kind: "cells", cells });
+    prev = line;
+  }
+
+  return rows;
+}
+
+const AFTER_ROWS_A = buildRowsFromCreateReport3A(DEMO_LINES);
 
 
 const PROGRAM_A = `REPORT create_report_3_a
@@ -506,7 +598,7 @@ START-OF-SELECTION.
 * 2. データ出力
 * (1) ソート処理
 *---------------------------------------------------------------------*
-  SORT gt_out BY blart budat belnr buzei.  " 演習②と同じ並び順
+  SORT gt_out BY blart budat belnr usnam buzei.  " 演習②＋usnam（AT NEW usnam 用）
 
 *---------------------------------------------------------------------*
 * TOP-OF-PAGE
@@ -867,7 +959,7 @@ START-OF-SELECTION.
 * 2. データ出力
 * (1) ソート処理
 *---------------------------------------------------------------------*
-  SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→明細
+  SORT gt_out BY blart budat bldat belnr usnam buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→ユーザ→明細
 
 *---------------------------------------------------------------------*
 * TOP-OF-PAGE
@@ -1248,7 +1340,7 @@ START-OF-SELECTION.
 * 2. データ出力
 * (1) ソート処理
 *---------------------------------------------------------------------*
-  SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→明細
+  SORT gt_out BY blart budat bldat belnr usnam buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→ユーザ→明細
 
 *---------------------------------------------------------------------*
 * TOP-OF-PAGE
@@ -1474,7 +1566,7 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
                   <strong>B：改ページ</strong> … 伝票タイプが変わったら <code>NEW-PAGE</code>、ページが変わったら見出し列（全列）を再表示（<code>RESERVE</code>・<code>sy-pagno</code>）。
                 </li>
                 <li>
-                  <strong>C：完成コード</strong> … 見出し列<strong>ごと</strong>に <code>AT NEW</code> を置く完成形（階層サプレス）を組み立てます。
+                  <strong>C：完成コード（任意）</strong> … もっと学びたい人向け。見出し列<strong>ごと</strong>に <code>AT NEW</code> を置く完成形（階層サプレス）を組み立てます。
                 </li>
               </ul>
               <Callout variant="note">
@@ -1537,11 +1629,12 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
               />
               <Callout variant="note">
                 <strong>C パートの完成形</strong>は、見出し列<strong>ごと</strong>に <code>AT NEW</code> を置く
-                <strong>階層サプレス</strong>です（下のプレビューは見た目が近い場合もありますが、制御の粒度が異なります）。
+                <strong>段階的サプレス</strong>です（下のプレビューは <code>create_report_3</code> のループから生成。
+                例：転記日付だけ変わった行では、左の列は空欄のまま転記日付以降だけ再表示されます）。
               </Callout>
               <ReportPreview
-                caption="🎯 完成形（C パート）— 見出し列ごとの AT NEW（階層サプレス）"
-                rows={AFTER_ROWS}
+                caption="🎯 完成形（C パート）— create_report_3 のループから生成"
+                rows={AFTER_ROWS_C}
               />
               <Dialog speaker="b">
                 After の方、すっきり読めます！
@@ -1591,8 +1684,8 @@ ENDLOOP.`}
                     <code>AT NEW usnam</code> … 前行と比べて <code>usnam</code> が変わった<strong>先頭行</strong>だけ発火。
                   </li>
                   <li>
-                    だから事前の <code>SORT</code> が前提（A パートは演習②と同じ{" "}
-                    <code>blart budat belnr buzei</code>。C パートで <code>bldat</code> を足します）。
+                    だから事前の <code>SORT</code> が前提（A パートは{" "}
+                    <code>blart budat belnr usnam buzei</code>。C パートで <code>bldat</code> を足します）。
                   </li>
                 </ul>
               </InfoPanel>
@@ -1727,7 +1820,7 @@ ENDIF.
                     <code>AT NEW usnam</code> ＋ <code>lv_show_usnam</code> / <code>lv_blart</code>〜<code>lv_usnam</code>（A-②〜A-④）
                   </li>
                   <li>
-                    <code>SORT gt_out BY blart budat belnr buzei</code> … 演習②と同じ並び順
+                    <code>SORT gt_out BY blart budat belnr usnam buzei</code> … <code>AT NEW usnam</code> 用
                   </li>
                   <li>
                     改ページ（<code>NEW-PAGE</code> / <code>RESERVE</code> / <code>gv_pageno</code>）は<strong>含まない</strong>
@@ -2028,6 +2121,8 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
                 <code>create_report_3</code> に載せていきましょう。
                 <br />
                 A＋B までの全文は<strong>B-⑤</strong>で確認できます。
+                <br />
+                （C パートは<strong>もっと学びたい人向け</strong>の追加内容です。B までで区切っても構いません。）
               </Dialog>
             </>
           ),
@@ -2035,7 +2130,7 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
         {
           title: "B-⑤ Bパート完成コード（全文）",
           plainText:
-            "B-⑤ Bパート完成コード全文 create_report_3_b。Aの伝票タイプ〜ユーザサプレス（lv_show_usnam 1本）＋Bの改ページ。全文はRevealで開く。",
+            "B-⑤ Bパート完成コード全文 create_report_3_b。Aの伝票タイプ〜ユーザサプレス（lv_show_usnam 1本）＋Bの改ページ。全文はRevealで開く。Cパートはもっと学びたい人向けの追加（任意）。",
           content: (
             <>
               <h2>B-⑤ Bパート完成コード（全文）</h2>
@@ -2055,16 +2150,22 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
                     ループ末尾の <code>gv_pageno = sy-pagno</code>（B-③）
                   </li>
                   <li>
-                    <code>SORT gt_out BY blart budat bldat belnr buzei</code> … <code>AT NEW blart</code> 用
+                    <code>SORT gt_out BY blart budat bldat belnr usnam buzei</code> … <code>AT NEW blart</code> 用
                   </li>
                 </ul>
               </InfoPanel>
               <Reveal label="Bパート完成コード（全体）を見る">
                 <CodeBlock language="ABAP" code={PROGRAM_B} />
               </Reveal>
+              <Callout variant="tip">
+                <strong>B パートここまでで演習の本体は完了です。</strong>
+                <br />
+                C パートは、列ごとの <code>AT NEW</code>（階層サプレス）や完成形{" "}
+                <code>create_report_3</code> を<strong>もっと学びたい人向け</strong>の追加内容です。
+                時間がない場合や、A＋B で十分な場合は、ここで区切って構いません。
+              </Callout>
               <Dialog speaker="teacher">
-                C パートでは、<code>lv_show_usnam</code> 1本ではなく列ごとの <code>AT NEW</code> に分け、完成形{" "}
-                <code>create_report_3</code> を組み立てます。
+                余力があれば C パートへ進んでください。列ごとに <code>AT NEW</code> を分ける完成形の組み立て方を確認できます。
               </Dialog>
             </>
           ),
@@ -2072,14 +2173,31 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
         {
           title: "C-① 完成コードの地図",
           plainText:
-            "C-① 完成コードの地図。CパートはA・Bのロジックを実プログラム create_report_3 として上から組み立てる。\n演習②と同じ部分（取得・結合・TOP-OF-PAGE）と、今回足す部分（g_typ_outの並び替え／表示用の変数・フラグ／END-OF-SELECTIONの変わり目処理）を地図にして、どこを読むかを先に把握する。\n足すのは大きく2か所：宣言（型・変数）と出力ループ。",
+            "C-① 完成コードの地図。完成形 create_report_3 の出力イメージを先に確認。CパートはA・Bのロジックを実プログラムとして上から組み立てる。\n演習②と同じ部分と今回足す部分（g_typ_outの並び替え／表示用の変数・フラグ／END-OF-SELECTIONの変わり目処理）を地図にする。\n足すのは大きく2か所：宣言（型・変数）と出力ループ。",
           content: (
             <>
               <h2>C-① — 演習②に何を足すか</h2>
               <p>
-                ここから C パートは、A・B で理解したロジックを実際のプログラム{" "}
+                C パートでは、A・B で理解したロジックを実際のプログラム{" "}
                 <code>create_report_3</code> として<strong>上から順に</strong>組み立てます。
-                まず「演習②と同じ部分」と「今回足す部分」を地図にして、どこを読めばよいか先に押さえます。
+                コードに入る前に、<strong>完成形の出力</strong>を確認しておきましょう。
+              </p>
+              <ReportPreview
+                caption="🎯 完成形の出力（create_report_3）— 見出し列は段階的にサプレス、明細列は毎行"
+                rows={AFTER_ROWS_C}
+              />
+              <Callout variant="note">
+                上のプレビューは、完成コード <code>create_report_3</code> の{" "}
+                <code>END-OF-SELECTION</code> ループ（<code>SORT</code> → <code>AT NEW</code> ×5 → 旗 →{" "}
+                <code>lv_*</code> → <code>WRITE</code>）と<strong>同じロジック</strong>で生成しています。
+              </Callout>
+              <p>
+                見出し列は<strong>段階的</strong>にサプレスされます。左の列が同じなら空欄のまま、
+                変わった列<strong>以降</strong>だけ値が出ます（例：3行目は伝票日付・伝票番号・ユーザ、
+                4行目は転記日付が変わったので転記日付〜伝票番号まで再表示）。
+                明細・勘定・金額・摘要は毎行そのままです。
+                <br />
+                この帳票を作るために「演習②と同じ部分」と「今回足す部分」を、次の地図で押さえます。
               </p>
               <InfoPanel title="演習②と同じ／今回足す（部位マップ）" variant="reference">
                 <table>
@@ -2222,7 +2340,7 @@ DATA: gv_pageno TYPE sy-pagno.`}
         {
           title: "C-③ データを取って並べ替える",
           plainText:
-            "C-③ データ抽出とSORT。取得・結合は演習②と同じ考え方（会社マスタ→伝票タイプ→BKPF→明細BSEG→勘定名SKAT→gt_out）。この版は伝票ごとにBSEGをSELECT、明細ごとにSKATをSELECT SINGLE。\n重要なのはSORT gt_out BY blart budat bldat belnr buzei。サプレスの階層（構造体の項目順）と必ず一致させる。bldatを足したのもこのため。\n取得方法の善し悪しは性能の話で今回の主題ではない。",
+            "C-③ データ抽出とSORT。取得・結合は演習②と同じ考え方（会社マスタ→伝票タイプ→BKPF→明細BSEG→勘定名SKAT→gt_out）。この版は伝票ごとにBSEGをSELECT、明細ごとにSKATをSELECT SINGLE。\n重要なのはSORT gt_out BY blart budat bldat belnr usnam buzei。サプレスの階層（構造体の項目順）と必ず一致させる。bldat/usnamを足したのもこのため。\n取得方法の善し悪しは性能の話で今回の主題ではない。",
           content: (
             <>
               <h2>C-③ データを取って、並べ替える</h2>
@@ -2250,7 +2368,7 @@ LOOP AT gt_bkpf INTO gs_bkpf.
 ENDLOOP.
 
 " ★ サプレスの階層に合わせて並べ替え（構造体の項目順と一致させる）
-SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→明細`}
+SORT gt_out BY blart budat bldat belnr usnam buzei.  " 伝票タイプ→…→ユーザ→明細`}
               />
               <InfoPanel title="ここで効く追加は SORT だけ" variant="breakdown">
                 <ul>
@@ -2260,7 +2378,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                     <code>SKAT</code> を <code>SELECT SINGLE</code> しています。
                   </li>
                   <li>
-                    <code>SORT gt_out BY blart budat bldat belnr buzei</code> … サプレスの階層（＝
+                    <code>SORT gt_out BY blart budat bldat belnr usnam buzei</code> … サプレスの階層（＝
                     <code>g_typ_out</code> の項目順）と<strong>必ず一致</strong>させます（C-②・C-③）。
                     <code>bldat</code> を <code>budat</code> の後ろに足したのもこのためです。
                   </li>
@@ -2540,7 +2658,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                     出力用の作業領域とフラグ：<code>lv_blart … lv_usnam</code>、<code>lv_show_*</code>、<code>gv_pageno</code>
                   </li>
                   <li>
-                    <code>SORT gt_out BY blart budat bldat belnr buzei</code>（構造体の並びと一致）
+                    <code>SORT gt_out BY blart budat bldat belnr usnam buzei</code>（構造体の並びと一致）
                   </li>
                   <li>
                     <code>END-OF-SELECTION</code> の中：<code>AT NEW blart</code> で <code>NEW-PAGE</code> ＋ <code>AT NEW</code> ×5 ＋{" "}

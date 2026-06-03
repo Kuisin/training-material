@@ -34,8 +34,8 @@ new_data = """DATA: lv_blart     TYPE bkpf-blart,    " 伝票タイプ（表示�
 
 pa = pa.replace(old_data, new_data)
 pa = pa.replace(
-    '  SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→明細',
-    '  SORT gt_out BY blart budat belnr buzei.  " 演習②と同じ並び順',
+    '  SORT gt_out BY blart budat bldat belnr usnam buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→ユーザ→明細',
+    '  SORT gt_out BY blart budat belnr usnam buzei.  " 演習②＋usnam（AT NEW usnam 用）',
     1,
 )
 
