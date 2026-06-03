@@ -65,14 +65,17 @@ export default function SettingsExportLesson() {
                 kind="diagram"
               />
               <p>設定できる <strong>/page/</strong> の項目：</p>
-              <CodeBlock language="text">{`/page/
+              <CodeBlock
+                language="text"
+                code={`/page/
   description: この図は受注から出荷までの業務フローを示します。
   header-left: 業務フロー仕様書
   header-center: 受注〜出荷フロー
   header-right: Ver.1.2 / 2025-06-01
   footer-left: 営業部・物流部
   footer-center: 作成：山田
-  footer-right: 承認：鈴木`}</CodeBlock>
+  footer-right: 承認：鈴木`}
+              />
               <Dialog speaker="teacher">
                 ヘッダーには「文書名・バージョン・作成日」、フッターには「部署名・承認者」などを入れるのが典型的な使い方です。
               </Dialog>
@@ -162,11 +165,14 @@ export default function SettingsExportLesson() {
               <p>
                 <code>left-title</code> / <code>left-subtitle</code> と <code>right-title</code> / <code>right-subtitle</code> で左右ガター列の見出しを設定できます。
               </p>
-              <CodeBlock language="text">{`/option/
+              <CodeBlock
+                language="text"
+                code={`/option/
   left-title: 作業手順
   left-subtitle: （詳細説明）
   right-title: 関連資料
-  right-subtitle: 帳票・システム画面`}</CodeBlock>
+  right-subtitle: 帳票・システム画面`}
+              />
               <InfoPanel title="見出し設定の実用例" variant="reference">
                 <table>
                   <thead>

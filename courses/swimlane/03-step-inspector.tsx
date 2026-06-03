@@ -134,10 +134,13 @@ export default function StepInspectorLesson() {
               <p>
                 <strong>label</strong> と <strong>desc</strong> はステップの「左側の補足列（左ガター）」に表示される追加情報です。
               </p>
-              <CodeBlock language="text">{`step label: 申請書類提出 desc: \`\`\`
+              <CodeBlock
+                language="text"
+                code={`step label: 申請書類提出 desc: \`\`\`
 様式A-1に記入して提出。
 添付書類3点（身分証・在職証明・申請理由書）が必要。
-\`\`\``}</CodeBlock>
+\`\`\``}
+              />
               <Callout variant="note">
                 descは <code>```</code>（バッククォート3つ）で囲むことで<strong>複数行</strong>を記述できます。インスペクターの入力欄で改行すると自動的に複数行として保存されます。
               </Callout>
@@ -269,11 +272,14 @@ export default function StepInspectorLesson() {
               <p>
                 <strong>props</strong> フィールドには <code>/prop/</code> で定義した文書・書類のidをカンマ区切りで指定します。ステップの左右に「文書チップ」として表示されます。
               </p>
-              <CodeBlock language="text">{`/prop/ id: form-a   label: 様式A-1       side: left
+              <CodeBlock
+                language="text"
+                code={`/prop/ id: form-a   label: 様式A-1       side: left
 /prop/ id: manual   label: 操作マニュアル side: right
 /prop/ id: checklist label: チェックリスト side: left
 
-step text: 申請書類の提出 props: form-a, checklist;`}</CodeBlock>
+step text: 申請書類の提出 props: form-a, checklist;`}
+              />
               <InfoPanel title="propsのsideオプション" variant="reference">
                 <table>
                   <thead>
@@ -316,13 +322,16 @@ step text: 申請書類の提出 props: form-a, checklist;`}</CodeBlock>
               <p>
                 <strong>id</strong> フィールドでステップを識別し、<strong>merge</strong> フィールドで合流先のステップを指定します。
               </p>
-              <CodeBlock language="text">{`step text: 注文確定
+              <CodeBlock
+                language="text"
+                code={`step text: 注文確定
   id: order-complete
 
 branch
   step text: 注文キャンセル処理
   step text: キャンセル完了通知
-    merge: order-complete;`}</CodeBlock>
+    merge: order-complete;`}
+              />
               <Callout variant="warning">
                 <strong>idは図全体で一意</strong>でなければなりません。同じidを複数のステップに設定すると、mergeの参照先が意図せず変わる可能性があります。idには具体的で分かりやすい名前を付けましょう。
               </Callout>

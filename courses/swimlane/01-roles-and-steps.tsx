@@ -105,9 +105,12 @@ export default function RolesAndStepsLesson() {
                 <li>テキストモードに切り替えてDSLの先頭付近に<strong>貼り付け</strong></li>
                 <li>GUIモードに戻るとレーンパネルに反映される</li>
               </ol>
-              <CodeBlock language="text">{`/role/ id: customer label: 顧客 color: #4A90E2 icon: 👤
+              <CodeBlock
+                language="text"
+                code={`/role/ id: customer label: 顧客 color: #4A90E2 icon: 👤
 /role/ id: staff   label: 担当者 color: #7ED321 icon: 🧑‍💼
-/role/ id: system  label: システム color: #9B59B6 icon: 💻`}</CodeBlock>
+/role/ id: system  label: システム color: #9B59B6 icon: 💻`}
+              />
               <Callout variant="tip">
                 <strong>id</strong>は他のステップからレーンを参照するキーです。英数字・ハイフン・アンダースコアのみ使用可。スペースや日本語は使えません。
               </Callout>
@@ -211,9 +214,12 @@ export default function RolesAndStepsLesson() {
               <p>
                 <strong>ブロック（/block/）</strong>を定義してステップに割り当てることで、形状・背景色・フォントをカスタマイズできます。
               </p>
-              <CodeBlock language="text">{`/block/ id: decision label: 判断 shape: hex bg: #FFF0CC
+              <CodeBlock
+                language="text"
+                code={`/block/ id: decision label: 判断 shape: hex bg: #FFF0CC
 /block/ id: start    label: 開始 shape: ellipse bg: #D5F5E3
-/block/ id: note     label: メモ shape: note   bg: #FDEBD0`}</CodeBlock>
+/block/ id: note     label: メモ shape: note   bg: #FDEBD0`}
+              />
               <InfoPanel title="主なブロック形状" variant="reference">
                 <table>
                   <thead>
