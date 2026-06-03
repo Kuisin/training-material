@@ -195,7 +195,7 @@ export default function DataGovernanceTermsLesson() {
                   </li>
                 </ul>
               </InfoPanel>
-              <Callout variant="info">
+              <Callout variant="note">
                 代表的なデータカタログ製品：Alation・Collibra・Microsoft Purview（Azure）・AWS Glue Data Catalog・SAP Data Intelligence Catalog（BTP）。dbtと連携することでSnowflake/Databricks上のリネージを自動生成できます。
               </Callout>
               <Dialog speaker="teacher">

@@ -12,6 +12,7 @@ function htmlShell(scriptHref, cssHrefs = []) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="562a1745-5026-4fbd-8737-78fe0a58d530"></script>
 ${cssLinks ? `${cssLinks}\n` : ''}  </head>
   <body>
     <div id="root"></div>
