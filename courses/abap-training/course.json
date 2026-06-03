@@ -41,8 +41,7 @@
     {
       "file": "94-exercise-journal-ledger-control-break",
       "title": "特別演習③ — 伝票見出しをまとめる",
-      "meta": "特別 · 45分",
-      "lock": { "requires": "course", "password": "abap-report-435", "mode": "any" }
+      "meta": "特別 · 45分"
     }
   ]
 }
