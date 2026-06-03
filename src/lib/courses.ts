@@ -34,6 +34,7 @@ interface CourseJson {
   courseTest?: CourseJsonLesson[];
   additionalContent?: CourseJsonLesson[];
   specialContent?: CourseJsonLesson[];
+  toolContent?: CourseJsonLesson[];
 }
 
 const courseJsonModules = import.meta.glob<CourseJson>("../../courses/*/course.json", {
@@ -89,6 +90,7 @@ function toCourse(slug: string, meta: CourseJson): Course {
     courseTest: mapLessonEntries(meta.courseTest, "T", 1),
     additionalContent: mapLessonEntries(meta.additionalContent, "A", 1),
     specialContent: mapSpecialEntries(meta.specialContent, "S", 1),
+    toolContent: mapLessonEntries(meta.toolContent, "X", 1),
   };
 }
 
@@ -116,7 +118,8 @@ export function findCourseEntry(course: Course, lessonFile: string): CourseLesso
     course.lessons.find((l) => l.file === lessonFile) ??
     course.courseTest.find((l) => l.file === lessonFile) ??
     course.additionalContent.find((l) => l.file === lessonFile) ??
-    course.specialContent.find((l) => l.file === lessonFile)
+    course.specialContent.find((l) => l.file === lessonFile) ??
+    course.toolContent.find((l) => l.file === lessonFile)
   );
 }
 
@@ -158,7 +161,8 @@ export function courseEntryCount(course: Course): number {
     course.lessons.length +
     course.courseTest.length +
     course.additionalContent.length +
-    course.specialContent.length
+    course.specialContent.length +
+    course.toolContent.length
   );
 }
 

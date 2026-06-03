@@ -207,6 +207,18 @@ function CourseProgress({ course }: { course: Course }) {
   );
 }
 
+function ToolContentSection({ course }: { course: Course }) {
+  if (course.toolContent.length === 0) return null;
+  return (
+    <CourseSection
+      course={course}
+      heading="ツール"
+      description="インタラクティブなサンドボックスツールです。コードを書いて動作を確認できます。"
+      lessons={course.toolContent}
+    />
+  );
+}
+
 function CourseContentSections({ course }: { course: Course }) {
   return (
     <>
@@ -219,6 +231,7 @@ function CourseContentSections({ course }: { course: Course }) {
         lessons={course.additionalContent}
       />
       <SpecialContentSection course={course} />
+      <ToolContentSection course={course} />
     </>
   );
 }

@@ -28,6 +28,9 @@
     { "file": "17-frequently-used-tables", "title": "よく使うテーブルと項目（列）早見表 — BKPF・BSEG・ACDOCAほか", "meta": "初学者 · 30分" },
     { "file": "18-divide-and-conquer", "title": "分割統治（ディバイド・アンド・コンカー）— 大きな問題を小さく分けて解く", "meta": "初学者 · 15分" }
   ],
+  "toolContent": [
+    { "file": "95-table-sandbox", "title": "内部テーブルSandbox — テーブルを定義してコードで書き込みを試す", "meta": "ツール · いつでも" }
+  ],
   "specialContent": [
     {
       "file": "92-exercise-journal-ledger",
