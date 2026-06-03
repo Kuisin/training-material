@@ -50,8 +50,7 @@
     {
       "file": "95-exercise-journal-ledger-modularization",
       "title": "特別演習④ Part A — プログラムの構造化（FORM/PERFORM）",
-      "meta": "特別 · 25分",
-      "lock": { "requires": "course", "password": "abap-report-311", "mode": "any" }
+      "meta": "特別 · 25分"
     },
     {
       "file": "96-exercise-journal-ledger-download",
