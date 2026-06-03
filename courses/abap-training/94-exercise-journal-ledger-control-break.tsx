@@ -213,19 +213,18 @@ function buildRows(suppress: boolean): ReportRow[] {
 const BEFORE_ROWS = buildRows(false);
 const AFTER_ROWS = buildRows(true);
 
-/** A パート用：ユーザ列だけサプレス（他の見出し列は毎行出す） */
+/** A パート用：ユーザ列とその左の見出し列（伝票タイプ〜伝票番号）を同じ条件でサプレス */
 function buildRowsUsnamOnly(suppress: boolean): ReportRow[] {
   const rows: ReportRow[] = [COLUMN_HEADER_ROW, { kind: "uline" }];
   DEMO_LINES.forEach((line) => {
-    const showUsnam = !suppress || line.groupFirst;
-    const cells: ReportCell[] = [
-      { col: 1, text: line.blart },
-      { col: 4, text: line.blartTxt },
-      { col: 18, text: line.budat },
-      { col: 30, text: line.bldat },
-      { col: 42, text: line.belnr },
-    ];
-    if (showUsnam) {
+    const showHead = !suppress || line.groupFirst;
+    const cells: ReportCell[] = [];
+    if (showHead) {
+      cells.push({ col: 1, text: line.blart });
+      cells.push({ col: 4, text: line.blartTxt });
+      cells.push({ col: 18, text: line.budat });
+      cells.push({ col: 30, text: line.bldat });
+      cells.push({ col: 42, text: line.belnr });
       cells.push({ col: 54, text: line.usnam });
     }
     cells.push({ col: 68, text: line.buzei });
@@ -250,6 +249,741 @@ function buildRowsUsnamOnly(suppress: boolean): ReportRow[] {
 }
 
 const AFTER_ROWS_A = buildRowsUsnamOnly(true);
+
+
+const PROGRAM_A = `REPORT create_report_3_a
+  NO STANDARD PAGE HEADING
+  LINE-SIZE 200
+  LINE-COUNT 58.
+
+*---------------------------------------------------------------------*
+* TYPES
+*---------------------------------------------------------------------*
+TYPES: BEGIN OF g_typ_bkpf,         " 会計伝票ヘッダ（BKPF）
+         bukrs TYPE bkpf-bukrs,     " 会社コード
+         blart TYPE bkpf-blart,     " 伝票タイプ
+         budat TYPE bkpf-budat,     " 転記日付
+         bldat TYPE bkpf-bldat,     " 伝票日付
+         belnr TYPE bkpf-belnr,     " 伝票番号
+         usnam TYPE bkpf-usnam,     " ユーザ（入力者ID）
+         gjahr TYPE bkpf-gjahr,     " 会計年度
+       END OF g_typ_bkpf.
+
+TYPES: BEGIN OF g_typ_bseg,         " 会計伝票明細（BSEG）
+         bukrs TYPE bseg-bukrs,     " 会社コード
+         belnr TYPE bseg-belnr,     " 伝票番号
+         gjahr TYPE bseg-gjahr,     " 会計年度
+         buzei TYPE bseg-buzei,     " 明細番号
+         hkont TYPE bseg-hkont,     " 勘定
+         shkzg TYPE bseg-shkzg,     " 借方/貸方区分
+         dmbtr TYPE bseg-dmbtr,     " 金額
+         sgtxt TYPE bseg-sgtxt,     " 摘要
+       END OF g_typ_bseg.
+
+TYPES: BEGIN OF g_typ_t001,         " 会社コードマスタ（T001）
+         ktopl TYPE t001-ktopl,     " 勘定科目表
+         waers TYPE t001-waers,     " 通貨
+       END OF g_typ_t001.
+
+TYPES: BEGIN OF g_typ_t003t,        " 伝票タイプテキスト（T003T）
+         blart TYPE t003t-blart,    " 伝票タイプ
+         ltext TYPE t003t-ltext,    " 伝票タイプ名
+       END OF g_typ_t003t.
+
+TYPES: BEGIN OF g_typ_out,          " 帳票出力用（見出しの左右順＝サプレスの階層）
+         bukrs     TYPE bkpf-bukrs,     " 会社コード
+         blart     TYPE bkpf-blart,     " 伝票タイプ
+         blart_txt TYPE t003t-ltext,    " 伝票タイプ名
+         budat     TYPE bkpf-budat,     " 転記日付 ★ belnrより前に移動
+         bldat     TYPE bkpf-bldat,     " 伝票日付 ★
+         belnr     TYPE bkpf-belnr,     " 伝票番号 ★ budat/bldatの後ろへ
+         usnam     TYPE bkpf-usnam,     " ユーザ（入力者ID）
+         gjahr     TYPE bkpf-gjahr,     " 会計年度
+         buzei     TYPE bseg-buzei,     " 明細番号
+         hkont     TYPE bseg-hkont,     " 勘定
+         hkont_txt TYPE skat-txt20,     " 勘定名
+         shkzg     TYPE bseg-shkzg,     " 借方/貸方区分
+         dmbtr     TYPE bseg-dmbtr,     " 金額
+         sgtxt     TYPE bseg-sgtxt,     " 摘要
+         waers     TYPE t001-waers,     " 通貨
+       END OF g_typ_out.
+
+*---------------------------------------------------------------------*
+* DATA
+*---------------------------------------------------------------------*
+DATA: gt_bkpf  TYPE STANDARD TABLE OF g_typ_bkpf,
+      gs_bkpf  TYPE g_typ_bkpf,
+      gt_bseg  TYPE STANDARD TABLE OF g_typ_bseg,
+      gs_bseg  TYPE g_typ_bseg,
+      gs_t001  TYPE g_typ_t001,
+      gt_t003t TYPE STANDARD TABLE OF g_typ_t003t,
+      gs_t003t TYPE g_typ_t003t,
+      gt_out   TYPE STANDARD TABLE OF g_typ_out,
+      gs_out   TYPE g_typ_out.
+
+DATA: g_wrk_budat  TYPE bkpf-budat,  " 転記日付（選択画面の作業用）
+      g_start_date TYPE bkpf-budat,  " 転記日付 From（帳票表示用）
+      g_end_date   TYPE bkpf-budat,  " 転記日付 To
+      g_hkont_txt  TYPE skat-txt20. " 勘定名（取得用）
+
+DATA: gv_debit  TYPE bseg-dmbtr,  " 借方金額（出力用）
+      gv_credit TYPE bseg-dmbtr. " 貸方金額（出力用）
+
+
+DATA: lv_blart     TYPE bkpf-blart,    " 伝票タイプ（表示用・Aパート）
+      lv_blart_txt TYPE t003t-ltext,  " 伝票タイプ名（表示用・Aパート）
+      lv_budat_c   TYPE c LENGTH 10,  " 転記日付（文字・空欄可・Aパート）
+      lv_bldat_c   TYPE c LENGTH 10,  " 伝票日付（文字・空欄可・Aパート）
+      lv_belnr     TYPE bkpf-belnr,   " 伝票番号（表示用・Aパート）
+      lv_usnam     TYPE bkpf-usnam,   " ユーザ（表示用・Aパート）
+      lv_show_usnam TYPE abap_bool. " ユーザ列とその左の見出し列を出すか（Aパート）
+
+*---------------------------------------------------------------------*
+* CONSTANTS
+*---------------------------------------------------------------------*
+CONSTANTS: c_spras   TYPE t003t-spras VALUE 'J',  " 言語（日本語）
+           c_shkzg_s TYPE bseg-shkzg VALUE 'S',  " 借方
+           c_shkzg_h TYPE bseg-shkzg VALUE 'H'.  " 貸方
+
+*---------------------------------------------------------------------*
+* PARAMETER
+*---------------------------------------------------------------------*
+PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.       " 会社コード
+SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY. " 転記日付
+
+*---------------------------------------------------------------------*
+* START-OF-SELECTION
+*---------------------------------------------------------------------*
+START-OF-SELECTION.
+
+*---------------------------------------------------------------------*
+* Ⅰ データ初期化
+*---------------------------------------------------------------------*
+  CLEAR: gs_bkpf,
+  gs_bseg,
+  gs_t001,
+  gs_t003t,
+  gs_out,
+  g_start_date,
+  g_end_date,
+  g_hkont_txt.
+
+  REFRESH: gt_bkpf,
+  gt_bseg,
+  gt_t003t,
+  gt_out.
+
+*---------------------------------------------------------------------*
+* 選択条件の日付表示用
+*---------------------------------------------------------------------*
+  READ TABLE s_budat INDEX 1.
+  IF sy-subrc = 0.
+    g_start_date = s_budat-low.
+    g_end_date   = s_budat-high.
+  ENDIF.
+
+*---------------------------------------------------------------------*
+* Ⅱ 主処理
+* 1. データ抽出
+*---------------------------------------------------------------------*
+
+* (1) 会社コードマスタ情報の取得
+  SELECT SINGLE ktopl
+  waers
+  INTO CORRESPONDING FIELDS OF gs_t001
+  FROM t001
+  WHERE bukrs = p_bukrs.
+
+* (2) 全伝票タイプテキストの取得
+  SELECT blart
+  ltext
+  INTO TABLE gt_t003t
+  FROM t003t
+  WHERE spras = c_spras.
+
+* (3) 会計伝票ヘッダ情報の取得
+  SELECT bukrs
+  blart
+  budat
+  bldat
+  belnr
+  usnam
+  gjahr
+  INTO TABLE gt_bkpf
+  FROM bkpf
+  WHERE bukrs = p_bukrs
+  AND budat IN s_budat.
+
+  IF gt_bkpf IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.
+
+* (4) 帳票出力用内部テーブルへの格納
+  LOOP AT gt_bkpf INTO gs_bkpf.
+
+*   4-① 伝票タイプテキストの格納
+    READ TABLE gt_t003t INTO gs_t003t
+    WITH KEY blart = gs_bkpf-blart.
+    IF sy-subrc <> 0.
+      CLEAR gs_t003t.
+    ENDIF.
+
+*   4-② 会計伝票明細情報の取得
+    CLEAR gs_bseg.
+    REFRESH gt_bseg.
+
+    SELECT bukrs
+    belnr
+    gjahr
+    buzei
+    hkont
+    shkzg
+    dmbtr
+    sgtxt
+    INTO TABLE gt_bseg
+    FROM bseg
+    WHERE bukrs = gs_bkpf-bukrs
+    AND belnr = gs_bkpf-belnr
+    AND gjahr = gs_bkpf-gjahr.
+
+    LOOP AT gt_bseg INTO gs_bseg.
+
+*     4-③ 勘定コードテキストの取得
+      CLEAR g_hkont_txt.
+
+      SELECT SINGLE txt20
+      INTO g_hkont_txt
+      FROM skat
+      WHERE spras = c_spras
+      AND ktopl = gs_t001-ktopl
+      AND saknr = gs_bseg-hkont.
+
+      IF sy-subrc <> 0.
+        CLEAR g_hkont_txt.
+      ENDIF.
+
+*     4-④ 帳票出力用内部テーブルへの格納
+      CLEAR gs_out.
+
+      gs_out-bukrs     = gs_bkpf-bukrs.     " 会社コード
+      gs_out-blart     = gs_bkpf-blart.     " 伝票タイプ
+      gs_out-blart_txt = gs_t003t-ltext.    " 伝票タイプ名
+      gs_out-belnr     = gs_bkpf-belnr.     " 伝票番号
+      gs_out-budat     = gs_bkpf-budat.     " 転記日付
+      gs_out-bldat     = gs_bkpf-bldat.     " 伝票日付
+      gs_out-usnam     = gs_bkpf-usnam.     " ユーザ
+      gs_out-gjahr     = gs_bkpf-gjahr.     " 会計年度
+      gs_out-buzei     = gs_bseg-buzei.     " 明細番号
+      gs_out-hkont     = gs_bseg-hkont.     " 勘定
+      gs_out-hkont_txt = g_hkont_txt.      " 勘定名
+      gs_out-shkzg     = gs_bseg-shkzg.     " 借方/貸方区分
+      gs_out-dmbtr     = gs_bseg-dmbtr.     " 金額
+      gs_out-sgtxt     = gs_bseg-sgtxt.     " 摘要
+      gs_out-waers     = gs_t001-waers.     " 通貨
+
+      APPEND gs_out TO gt_out.
+
+*     4-⑤ 作業領域の初期化
+      CLEAR: gs_bseg,
+      gs_out.
+
+    ENDLOOP.
+
+*   4-⑥ 作業領域・内部テーブルの初期化
+    CLEAR: gs_bkpf,
+    gs_t003t.
+    REFRESH gt_bseg.
+
+  ENDLOOP.
+
+  IF gt_out IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.
+
+*---------------------------------------------------------------------*
+* 2. データ出力
+* (1) ソート処理
+*---------------------------------------------------------------------*
+  SORT gt_out BY blart budat belnr buzei.  " 演習②と同じ並び順
+
+*---------------------------------------------------------------------*
+* TOP-OF-PAGE
+*---------------------------------------------------------------------*
+TOP-OF-PAGE.
+
+  WRITE: /1   'PGMID:' NO-GAP,
+          9  sy-cprog,
+          155 'DATE:' NO-GAP,
+          160(9) sy-datum  USING EDIT MASK '____/__/__' RIGHT-JUSTIFIED,
+         /1   'USER:' NO-GAP,
+          9  sy-uname,
+          155 'TIME:' NO-GAP,
+          160(9) sy-uzeit RIGHT-JUSTIFIED,
+         /80(20) '仕訳日記帳 演習3' CENTERED,
+          155 'PAGE:' NO-GAP,
+          160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
+
+  SKIP.
+
+  WRITE: /1  '会社コード:',
+          13 p_bukrs,
+         /1  '転記日付:',
+          13 g_start_date USING EDIT MASK '____/__/__'.
+
+
+  IF g_end_date IS NOT INITIAL.
+    WRITE: 25 '～',
+           29 g_end_date USING EDIT MASK '____/__/__'.
+  ENDIF.
+
+  SKIP 2.
+
+  WRITE: /1   TEXT-001,                    " 伝票タイプ
+          18  TEXT-002,                    " 転記日付
+          30  TEXT-003,                    " 伝票日付
+          42  TEXT-004,                    " 伝票番号
+          54  TEXT-005,                    " ユーザ
+          68  TEXT-006,                    " 明細
+          73  TEXT-007,                    " 勘定
+          106(14) TEXT-008 RIGHT-JUSTIFIED, " 借方金額
+          122(14) TEXT-009 RIGHT-JUSTIFIED, " 貸方金額
+          139 TEXT-010.                    " 摘要
+
+  ULINE.
+
+*---------------------------------------------------------------------*
+* END-OF-SELECTION
+*---------------------------------------------------------------------*
+
+END-OF-SELECTION.
+
+  LOOP AT gt_out INTO gs_out.
+
+*   借方・貸方判定
+    CLEAR: gv_debit, gv_credit.
+    IF gs_out-shkzg = c_shkzg_s.       " 借方
+      gv_debit = gs_out-dmbtr.
+    ELSEIF gs_out-shkzg = c_shkzg_h.   " 貸方
+      gv_credit = gs_out-dmbtr.
+    ENDIF.
+
+*   Aパート：見出し列（伝票タイプ〜ユーザ）をリセット
+    CLEAR: lv_blart, lv_blart_txt, lv_budat_c, lv_bldat_c, lv_belnr, lv_usnam,
+           lv_show_usnam.
+
+*   Aパート：ユーザが変わった行だけ旗を立てる
+    AT NEW usnam.
+      lv_show_usnam = abap_true.
+    ENDAT.
+
+*   旗が立ったときだけ値をセット（ユーザ列とその左の見出し列すべて）
+    IF lv_show_usnam = abap_true.
+      lv_blart     = gs_out-blart.
+      lv_blart_txt = gs_out-blart_txt.
+      WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
+      WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
+      lv_belnr = gs_out-belnr.
+      lv_usnam = gs_out-usnam.
+    ENDIF.
+
+*   出力（伝票タイプ〜ユーザは lv_*。明細列は gs_out）
+    WRITE: /1   lv_blart,                                  " 伝票タイプ
+            4   lv_blart_txt,                              " 伝票タイプ名
+            18  lv_budat_c,                                " 転記日付
+            30  lv_bldat_c,                                " 伝票日付
+            42  lv_belnr,                                  " 伝票番号
+            54  lv_usnam,                                  " ユーザ
+            68  gs_out-buzei,                              " 明細番号
+            73  gs_out-hkont,                              " 勘定
+            85  gs_out-hkont_txt,                          " 勘定名
+            106(14) gv_debit  CURRENCY gs_out-waers RIGHT-JUSTIFIED, " 借方金額
+            122(14) gv_credit CURRENCY gs_out-waers RIGHT-JUSTIFIED, " 貸方金額
+            139 gs_out-sgtxt.                               " 摘要
+
+  ENDLOOP.`;
+
+
+const PROGRAM_B = `REPORT create_report_3_b
+  NO STANDARD PAGE HEADING
+  LINE-SIZE 200
+  LINE-COUNT 58.
+
+*---------------------------------------------------------------------*
+* TYPES
+*---------------------------------------------------------------------*
+TYPES: BEGIN OF g_typ_bkpf,         " 会計伝票ヘッダ（BKPF）
+         bukrs TYPE bkpf-bukrs,     " 会社コード
+         blart TYPE bkpf-blart,     " 伝票タイプ
+         budat TYPE bkpf-budat,     " 転記日付
+         bldat TYPE bkpf-bldat,     " 伝票日付
+         belnr TYPE bkpf-belnr,     " 伝票番号
+         usnam TYPE bkpf-usnam,     " ユーザ（入力者ID）
+         gjahr TYPE bkpf-gjahr,     " 会計年度
+       END OF g_typ_bkpf.
+
+TYPES: BEGIN OF g_typ_bseg,         " 会計伝票明細（BSEG）
+         bukrs TYPE bseg-bukrs,     " 会社コード
+         belnr TYPE bseg-belnr,     " 伝票番号
+         gjahr TYPE bseg-gjahr,     " 会計年度
+         buzei TYPE bseg-buzei,     " 明細番号
+         hkont TYPE bseg-hkont,     " 勘定
+         shkzg TYPE bseg-shkzg,     " 借方/貸方区分
+         dmbtr TYPE bseg-dmbtr,     " 金額
+         sgtxt TYPE bseg-sgtxt,     " 摘要
+       END OF g_typ_bseg.
+
+TYPES: BEGIN OF g_typ_t001,         " 会社コードマスタ（T001）
+         ktopl TYPE t001-ktopl,     " 勘定科目表
+         waers TYPE t001-waers,     " 通貨
+       END OF g_typ_t001.
+
+TYPES: BEGIN OF g_typ_t003t,        " 伝票タイプテキスト（T003T）
+         blart TYPE t003t-blart,    " 伝票タイプ
+         ltext TYPE t003t-ltext,    " 伝票タイプ名
+       END OF g_typ_t003t.
+
+TYPES: BEGIN OF g_typ_out,          " 帳票出力用（見出しの左右順＝サプレスの階層）
+         bukrs     TYPE bkpf-bukrs,     " 会社コード
+         blart     TYPE bkpf-blart,     " 伝票タイプ
+         blart_txt TYPE t003t-ltext,    " 伝票タイプ名
+         budat     TYPE bkpf-budat,     " 転記日付 ★ belnrより前に移動
+         bldat     TYPE bkpf-bldat,     " 伝票日付 ★
+         belnr     TYPE bkpf-belnr,     " 伝票番号 ★ budat/bldatの後ろへ
+         usnam     TYPE bkpf-usnam,     " ユーザ（入力者ID）
+         gjahr     TYPE bkpf-gjahr,     " 会計年度
+         buzei     TYPE bseg-buzei,     " 明細番号
+         hkont     TYPE bseg-hkont,     " 勘定
+         hkont_txt TYPE skat-txt20,     " 勘定名
+         shkzg     TYPE bseg-shkzg,     " 借方/貸方区分
+         dmbtr     TYPE bseg-dmbtr,     " 金額
+         sgtxt     TYPE bseg-sgtxt,     " 摘要
+         waers     TYPE t001-waers,     " 通貨
+       END OF g_typ_out.
+
+*---------------------------------------------------------------------*
+* DATA
+*---------------------------------------------------------------------*
+DATA: gt_bkpf  TYPE STANDARD TABLE OF g_typ_bkpf,
+      gs_bkpf  TYPE g_typ_bkpf,
+      gt_bseg  TYPE STANDARD TABLE OF g_typ_bseg,
+      gs_bseg  TYPE g_typ_bseg,
+      gs_t001  TYPE g_typ_t001,
+      gt_t003t TYPE STANDARD TABLE OF g_typ_t003t,
+      gs_t003t TYPE g_typ_t003t,
+      gt_out   TYPE STANDARD TABLE OF g_typ_out,
+      gs_out   TYPE g_typ_out.
+
+DATA: g_wrk_budat  TYPE bkpf-budat,  " 転記日付（選択画面の作業用）
+      g_start_date TYPE bkpf-budat,  " 転記日付 From（帳票表示用）
+      g_end_date   TYPE bkpf-budat,  " 転記日付 To
+      g_hkont_txt  TYPE skat-txt20. " 勘定名（取得用）
+
+DATA: gv_debit  TYPE bseg-dmbtr,  " 借方金額（出力用）
+      gv_credit TYPE bseg-dmbtr. " 貸方金額（出力用）
+
+
+DATA: lv_blart     TYPE bkpf-blart,    " 伝票タイプ（表示用・Aパート）
+      lv_blart_txt TYPE t003t-ltext,  " 伝票タイプ名（表示用・Aパート）
+      lv_budat_c   TYPE c LENGTH 10,  " 転記日付（文字・空欄可・Aパート）
+      lv_bldat_c   TYPE c LENGTH 10,  " 伝票日付（文字・空欄可・Aパート）
+      lv_belnr     TYPE bkpf-belnr,   " 伝票番号（表示用・Aパート）
+      lv_usnam     TYPE bkpf-usnam,   " ユーザ（表示用・Aパート）
+      lv_show_usnam TYPE abap_bool. " ユーザ列とその左の見出し列を出すか（Aパート）
+
+DATA: lv_show_blart TYPE abap_bool, " 改ページ再表示用（Bパート・Cで値セットに拡張）
+      lv_show_budat TYPE abap_bool,
+      lv_show_bldat TYPE abap_bool,
+      lv_show_belnr TYPE abap_bool.
+
+DATA: gv_pageno TYPE sy-pagno.     " 直前行のページ番号（Bパート）
+
+*---------------------------------------------------------------------*
+* CONSTANTS
+*---------------------------------------------------------------------*
+CONSTANTS: c_spras   TYPE t003t-spras VALUE 'J',  " 言語（日本語）
+           c_shkzg_s TYPE bseg-shkzg VALUE 'S',  " 借方
+           c_shkzg_h TYPE bseg-shkzg VALUE 'H'.  " 貸方
+
+*---------------------------------------------------------------------*
+* PARAMETER
+*---------------------------------------------------------------------*
+PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.       " 会社コード
+SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY. " 転記日付
+
+*---------------------------------------------------------------------*
+* START-OF-SELECTION
+*---------------------------------------------------------------------*
+START-OF-SELECTION.
+
+*---------------------------------------------------------------------*
+* Ⅰ データ初期化
+*---------------------------------------------------------------------*
+  CLEAR: gs_bkpf,
+  gs_bseg,
+  gs_t001,
+  gs_t003t,
+  gs_out,
+  g_start_date,
+  g_end_date,
+  g_hkont_txt.
+
+  REFRESH: gt_bkpf,
+  gt_bseg,
+  gt_t003t,
+  gt_out.
+
+*---------------------------------------------------------------------*
+* 選択条件の日付表示用
+*---------------------------------------------------------------------*
+  READ TABLE s_budat INDEX 1.
+  IF sy-subrc = 0.
+    g_start_date = s_budat-low.
+    g_end_date   = s_budat-high.
+  ENDIF.
+
+*---------------------------------------------------------------------*
+* Ⅱ 主処理
+* 1. データ抽出
+*---------------------------------------------------------------------*
+
+* (1) 会社コードマスタ情報の取得
+  SELECT SINGLE ktopl
+  waers
+  INTO CORRESPONDING FIELDS OF gs_t001
+  FROM t001
+  WHERE bukrs = p_bukrs.
+
+* (2) 全伝票タイプテキストの取得
+  SELECT blart
+  ltext
+  INTO TABLE gt_t003t
+  FROM t003t
+  WHERE spras = c_spras.
+
+* (3) 会計伝票ヘッダ情報の取得
+  SELECT bukrs
+  blart
+  budat
+  bldat
+  belnr
+  usnam
+  gjahr
+  INTO TABLE gt_bkpf
+  FROM bkpf
+  WHERE bukrs = p_bukrs
+  AND budat IN s_budat.
+
+  IF gt_bkpf IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.
+
+* (4) 帳票出力用内部テーブルへの格納
+  LOOP AT gt_bkpf INTO gs_bkpf.
+
+*   4-① 伝票タイプテキストの格納
+    READ TABLE gt_t003t INTO gs_t003t
+    WITH KEY blart = gs_bkpf-blart.
+    IF sy-subrc <> 0.
+      CLEAR gs_t003t.
+    ENDIF.
+
+*   4-② 会計伝票明細情報の取得
+    CLEAR gs_bseg.
+    REFRESH gt_bseg.
+
+    SELECT bukrs
+    belnr
+    gjahr
+    buzei
+    hkont
+    shkzg
+    dmbtr
+    sgtxt
+    INTO TABLE gt_bseg
+    FROM bseg
+    WHERE bukrs = gs_bkpf-bukrs
+    AND belnr = gs_bkpf-belnr
+    AND gjahr = gs_bkpf-gjahr.
+
+    LOOP AT gt_bseg INTO gs_bseg.
+
+*     4-③ 勘定コードテキストの取得
+      CLEAR g_hkont_txt.
+
+      SELECT SINGLE txt20
+      INTO g_hkont_txt
+      FROM skat
+      WHERE spras = c_spras
+      AND ktopl = gs_t001-ktopl
+      AND saknr = gs_bseg-hkont.
+
+      IF sy-subrc <> 0.
+        CLEAR g_hkont_txt.
+      ENDIF.
+
+*     4-④ 帳票出力用内部テーブルへの格納
+      CLEAR gs_out.
+
+      gs_out-bukrs     = gs_bkpf-bukrs.     " 会社コード
+      gs_out-blart     = gs_bkpf-blart.     " 伝票タイプ
+      gs_out-blart_txt = gs_t003t-ltext.    " 伝票タイプ名
+      gs_out-belnr     = gs_bkpf-belnr.     " 伝票番号
+      gs_out-budat     = gs_bkpf-budat.     " 転記日付
+      gs_out-bldat     = gs_bkpf-bldat.     " 伝票日付
+      gs_out-usnam     = gs_bkpf-usnam.     " ユーザ
+      gs_out-gjahr     = gs_bkpf-gjahr.     " 会計年度
+      gs_out-buzei     = gs_bseg-buzei.     " 明細番号
+      gs_out-hkont     = gs_bseg-hkont.     " 勘定
+      gs_out-hkont_txt = g_hkont_txt.      " 勘定名
+      gs_out-shkzg     = gs_bseg-shkzg.     " 借方/貸方区分
+      gs_out-dmbtr     = gs_bseg-dmbtr.     " 金額
+      gs_out-sgtxt     = gs_bseg-sgtxt.     " 摘要
+      gs_out-waers     = gs_t001-waers.     " 通貨
+
+      APPEND gs_out TO gt_out.
+
+*     4-⑤ 作業領域の初期化
+      CLEAR: gs_bseg,
+      gs_out.
+
+    ENDLOOP.
+
+*   4-⑥ 作業領域・内部テーブルの初期化
+    CLEAR: gs_bkpf,
+    gs_t003t.
+    REFRESH gt_bseg.
+
+  ENDLOOP.
+
+  IF gt_out IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.
+
+*---------------------------------------------------------------------*
+* 2. データ出力
+* (1) ソート処理
+*---------------------------------------------------------------------*
+  SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付→伝票日付→伝票番号→明細
+
+*---------------------------------------------------------------------*
+* TOP-OF-PAGE
+*---------------------------------------------------------------------*
+TOP-OF-PAGE.
+
+  WRITE: /1   'PGMID:' NO-GAP,
+          9  sy-cprog,
+          155 'DATE:' NO-GAP,
+          160(9) sy-datum  USING EDIT MASK '____/__/__' RIGHT-JUSTIFIED,
+         /1   'USER:' NO-GAP,
+          9  sy-uname,
+          155 'TIME:' NO-GAP,
+          160(9) sy-uzeit RIGHT-JUSTIFIED,
+         /80(20) '仕訳日記帳 演習3' CENTERED,
+          155 'PAGE:' NO-GAP,
+          160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
+
+  SKIP.
+
+  WRITE: /1  '会社コード:',
+          13 p_bukrs,
+         /1  '転記日付:',
+          13 g_start_date USING EDIT MASK '____/__/__'.
+
+
+  IF g_end_date IS NOT INITIAL.
+    WRITE: 25 '～',
+           29 g_end_date USING EDIT MASK '____/__/__'.
+  ENDIF.
+
+  SKIP 2.
+
+  WRITE: /1   TEXT-001,                    " 伝票タイプ
+          18  TEXT-002,                    " 転記日付
+          30  TEXT-003,                    " 伝票日付
+          42  TEXT-004,                    " 伝票番号
+          54  TEXT-005,                    " ユーザ
+          68  TEXT-006,                    " 明細
+          73  TEXT-007,                    " 勘定
+          106(14) TEXT-008 RIGHT-JUSTIFIED, " 借方金額
+          122(14) TEXT-009 RIGHT-JUSTIFIED, " 貸方金額
+          139 TEXT-010.                    " 摘要
+
+  ULINE.
+
+*---------------------------------------------------------------------*
+* END-OF-SELECTION
+*---------------------------------------------------------------------*
+
+END-OF-SELECTION.
+
+  LOOP AT gt_out INTO gs_out.
+
+*   借方・貸方判定
+    CLEAR: gv_debit, gv_credit.
+    IF gs_out-shkzg = c_shkzg_s.       " 借方
+      gv_debit = gs_out-dmbtr.
+    ELSEIF gs_out-shkzg = c_shkzg_h.   " 貸方
+      gv_credit = gs_out-dmbtr.
+    ENDIF.
+
+*   Aパート：見出し列（伝票タイプ〜ユーザ）をリセット
+    CLEAR: lv_blart, lv_blart_txt, lv_budat_c, lv_bldat_c, lv_belnr, lv_usnam,
+           lv_show_usnam,
+           lv_show_blart, lv_show_budat, lv_show_bldat, lv_show_belnr.
+
+*   Bパート：伝票タイプが変わったら改ページ
+    AT NEW blart.
+      NEW-PAGE.
+      lv_show_blart = abap_true.
+    ENDAT.
+
+*   Aパート：ユーザが変わった行だけ旗を立てる
+    AT NEW usnam.
+      lv_show_usnam = abap_true.
+    ENDAT.
+
+*   Bパート：溢れ改ページ → 見出し列をすべて再表示
+    RESERVE 1 LINES.
+
+    IF sy-pagno <> gv_pageno.
+      lv_show_blart = abap_true.
+      lv_show_budat = abap_true.
+      lv_show_bldat = abap_true.
+      lv_show_belnr = abap_true.
+      lv_show_usnam = abap_true.
+    ENDIF.
+
+*   旗が立ったときだけ値をセット（ユーザ列とその左の見出し列すべて）
+    IF lv_show_usnam = abap_true.
+      lv_blart     = gs_out-blart.
+      lv_blart_txt = gs_out-blart_txt.
+      WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
+      WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
+      lv_belnr = gs_out-belnr.
+      lv_usnam = gs_out-usnam.
+    ENDIF.
+
+*   出力（伝票タイプ〜ユーザは lv_*。明細列は gs_out）
+    WRITE: /1   lv_blart,                                  " 伝票タイプ
+            4   lv_blart_txt,                              " 伝票タイプ名
+            18  lv_budat_c,                                " 転記日付
+            30  lv_bldat_c,                                " 伝票日付
+            42  lv_belnr,                                  " 伝票番号
+            54  lv_usnam,                                  " ユーザ
+            68  gs_out-buzei,                              " 明細番号
+            73  gs_out-hkont,                              " 勘定
+            85  gs_out-hkont_txt,                          " 勘定名
+            106(14) gv_debit  CURRENCY gs_out-waers RIGHT-JUSTIFIED, " 借方金額
+            122(14) gv_credit CURRENCY gs_out-waers RIGHT-JUSTIFIED, " 貸方金額
+            139 gs_out-sgtxt.                               " 摘要
+
+    gv_pageno = sy-pagno.
+
+  ENDLOOP.`;
 
 const FINAL_PROGRAM = `REPORT create_report_3
   NO STANDARD PAGE HEADING
@@ -549,7 +1283,7 @@ TOP-OF-PAGE.
   SKIP 2.
 
   WRITE: /1   TEXT-001,                    " 伝票タイプ
-          18  TEXT-c02,                    " 転記日付
+          18  TEXT-002,                    " 転記日付
           30  TEXT-003,                    " 伝票日付
           42  TEXT-004,                    " 伝票番号
           54  TEXT-005,                    " ユーザ
@@ -714,7 +1448,7 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
         {
           title: "概要（A・B・C構成）",
           plainText:
-            "特別演習③ — 伝票見出しをまとめる（コントロールレベル出力）\n演習②の明細帳票を土台に、見出し列を変わり目だけ出す。A：usnam列だけでサプレスの型を学ぶ。B：改ページ。C：全見出し列の完成コード。\n重複説明を避けるため、サプレス・AT制御は第9章、土台コードは演習②へリンク。",
+            "特別演習③ — 伝票見出しをまとめる（コントロールレベル出力）\n演習②の明細帳票を土台に、見出し列を変わり目だけ出す。A：AT NEW usnam＋lv_show_usnamで伝票タイプ〜ユーザを同じ条件でサプレス。B：改ページ。C：各見出し列ごとのAT NEW（完成形）。\n重複説明を避けるため、サプレス・AT制御は第9章、土台コードは演習②へリンク。",
           content: (
             <>
               <hgroup>
@@ -734,15 +1468,19 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
               <h3>このレッスンは3部構成です</h3>
               <ul>
                 <li>
-                  <strong>A：サプレスのロジック</strong> … <code>AT NEW</code> と表示フラグの<strong>型</strong>を、まず<strong>ユーザ列（<code>usnam</code>）だけ</strong>で習得します。伝票タイプ〜伝票番号など他項目の制御は C パートで足します。
+                  <strong>A：サプレスのロジック</strong> … <code>AT NEW usnam</code> と <code>lv_show_usnam</code> の<strong>型</strong>を学びます。A では<strong>ユーザ列とその左（伝票タイプ〜伝票番号）</strong>を、同じ旗1本でまとめてサプレスします。
                 </li>
                 <li>
                   <strong>B：改ページ</strong> … 伝票タイプが変わったら <code>NEW-PAGE</code>、ページが変わったら見出し列（全列）を再表示（<code>RESERVE</code>・<code>sy-pagno</code>）。
                 </li>
                 <li>
-                  <strong>C：完成コード</strong> … A・B で理解したロジックを反映した、プログラム全文を確認します。
+                  <strong>C：完成コード</strong> … 見出し列<strong>ごと</strong>に <code>AT NEW</code> を置く完成形（階層サプレス）を組み立てます。
                 </li>
               </ul>
+              <Callout variant="note">
+                各パートの末尾に<strong>完成コード全文</strong>があります（A-⑤ / B-⑤ / C-⑦）。
+                SE38 に貼って段階的に動かせます。
+              </Callout>
               <Callout variant="tip">
                 <strong>重複説明はしません。</strong> 土台のコード（型・取得・結合・出力）は<strong>演習②</strong>、
                 サプレスと <code>AT NEW</code> の基礎は<strong>第9章</strong>で学んだ前提です。
@@ -775,7 +1513,7 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
         {
           title: "A-① ねらい（Before / After）",
           plainText:
-            "A-① ねらい。演習②は見出し列を明細ごとに繰り返す。Aパートではまずユーザ列だけサプレスの型を学ぶ（AT NEW usnam＋lv_show_usnam）。\n完成形（伝票タイプ〜ユーザすべて空欄）はCパート。明細・勘定・金額・摘要は毎行そのまま。",
+            "A-① ねらい。演習②は見出し列を明細ごとに繰り返す。AパートではAT NEW usnam＋lv_show_usnamで、ユーザ列とその左（伝票タイプ〜伝票番号）を同じ条件でサプレスする型を学ぶ。\nCパートでは見出し列ごとにAT NEWを置く完成形（階層サプレス）。明細・勘定・金額・摘要は毎行そのまま。",
           content: (
             <>
               <h2>A-① 何を直したいのか</h2>
@@ -789,19 +1527,20 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
               />
               <p>
                 <strong>A パート</strong>では、サプレスの<strong>型</strong>を身につけるため、
-                まず<strong>ユーザ列（<code>usnam</code>）だけ</strong>「変わり目の行だけ出す」練習をします。
-                他の見出し列はこの段階では毎行そのまま出します。
+                <strong>ユーザ（<code>usnam</code>）が変わった行</strong>だけ、
+                <strong>ユーザ列とその左の見出し列（伝票タイプ〜伝票番号）</strong>をまとめて出します。
+                旗は <code>lv_show_usnam</code> 1本だけです。
               </p>
               <ReportPreview
-                caption="✅ After（A パート）— ユーザ列だけサプレス"
+                caption="✅ After（A パート）— 伝票タイプ〜ユーザを同じ条件でサプレス"
                 rows={AFTER_ROWS_A}
               />
               <Callout variant="note">
-                <strong>演習の完成形</strong>は、伝票タイプ〜ユーザ<strong>すべて</strong>を変わり目だけ出す帳票です（下のプレビュー）。
-                その実装は<strong>C パート</strong>で、A で身につけた「<code>AT NEW</code> ＋ 旗」の型を他項目に広げます。
+                <strong>C パートの完成形</strong>は、見出し列<strong>ごと</strong>に <code>AT NEW</code> を置く
+                <strong>階層サプレス</strong>です（下のプレビューは見た目が近い場合もありますが、制御の粒度が異なります）。
               </Callout>
               <ReportPreview
-                caption="🎯 完成形（C パート）— 伝票タイプ〜ユーザをすべてサプレス"
+                caption="🎯 完成形（C パート）— 見出し列ごとの AT NEW（階層サプレス）"
                 rows={AFTER_ROWS}
               />
               <Dialog speaker="b">
@@ -823,14 +1562,15 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
         {
           title: "A-② 変わり目を AT NEW usnam でつかむ",
           plainText:
-            "A-② 変わり目の検知（ユーザ列のみ）。第9章のAT NEWを使う。SORT済みgt_outをLOOPし、AT NEW usnam で『ユーザが変わった先頭行』だけ lv_show_usnam を立てる。\nAではこの1項目だけ。blart/budat/bldat/belnr の AT NEW はCパートで同じ型を足す。",
+            "A-② 変わり目の検知。第9章のAT NEW usnam を使う。SORT済みgt_outをLOOPし、ユーザが変わった先頭行だけ lv_show_usnam を立てる。\nこの旗1本で、ユーザ列とその左（伝票タイプ〜伝票番号）の出し分けもまとめて制御する（A-③）。Cパートでは blart/budat/bldat/belnr もそれぞれ AT NEW を置く。",
           content: (
             <>
               <h2>A-② 「変わり目」は <code>AT NEW usnam</code> でつかむ</h2>
               <p>
                 第9章で学んだ <code>AT NEW 項目</code> は、<strong>SORT 済み</strong>のテーブルを{" "}
                 <code>LOOP</code> したとき、「その項目が変わった最初の行」だけで処理が走る仕組みでした。
-                <strong>A パート</strong>では、まず<strong>ユーザ（<code>usnam</code>）だけ</strong>これを置きます。
+                <strong>A パート</strong>では <code>AT NEW usnam</code> で旗を立て、
+                その旗で<strong>ユーザ列とその左の見出し列</strong>をまとめて制御します。
               </p>
               <CodeBlock
                 language="ABAP"
@@ -838,20 +1578,21 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
   AT NEW usnam.
     lv_show_usnam = abap_true.   " ユーザが変わった行だけ旗を立てる
   ENDAT.
-  " … 旗が立ったときだけ lv_usnam をセット → WRITE …
+  " … 旗が立ったときだけ lv_blart〜lv_usnam をセット → WRITE …
 ENDLOOP.`}
               />
               <InfoPanel
                 title="AT NEW の復習（詳しくは第9章）"
                 variant="reference"
-                lead="A では usnam だけ。完成形で blart 〜 belnr も制御する方法は C パート。"
+                lead="A では lv_show_usnam 1本で blart〜usnam を制御。C パートでは列ごとに AT NEW を置きます。"
               >
                 <ul>
                   <li>
                     <code>AT NEW usnam</code> … 前行と比べて <code>usnam</code> が変わった<strong>先頭行</strong>だけ発火。
                   </li>
                   <li>
-                    だから事前の <code>SORT</code> が前提（完成形の並び順は C-③）。
+                    だから事前の <code>SORT</code> が前提（A パートは演習②と同じ{" "}
+                    <code>blart budat belnr buzei</code>。C パートで <code>bldat</code> を足します）。
                   </li>
                 </ul>
               </InfoPanel>
@@ -861,28 +1602,29 @@ ENDLOOP.`}
               <Dialog speaker="teacher">
                 その通り。A では<strong>型</strong>に集中します。
                 <br />
-                次は「旗を立てて、外で値をセットする」流れを、<code>usnam</code> だけで固めましょう。
+                次は「旗を立てて、外で値をセットする」流れを、<code>lv_blart</code>〜<code>lv_usnam</code> で固めましょう。
               </Dialog>
               <ReferenceLinks />
             </>
           ),
         },
         {
-          title: "A-③ フラグでユーザ列の「出す / 出さない」を決める",
+          title: "A-③ フラグで見出し列の「出す / 出さない」を決める",
           plainText:
-            "A-③ フラグ（usnamのみ）。AT NEW usnam の中では lv_show_usnam を立てるだけ。値は ENDAT の外で。\nループ先頭で lv_usnam / lv_show_usnam を CLEAR → AT NEW usnam → IF lv_show_usnam で gs_out-usnam を lv_usnam にセット。\nblart 等の旗・作業領域はCパート。改ページはBパート。",
+            "A-③ フラグ（lv_show_usnam）。AT NEW usnam の中では lv_show_usnam を立てるだけ。値は ENDAT の外で。\nループ先頭で lv_blart〜lv_usnam / lv_show_usnam を CLEAR → AT NEW usnam → IF lv_show_usnam で blart〜usnam を lv_* にセット。\n改ページはBパート。列ごとの AT NEW はCパート。",
           content: (
             <>
-              <h2>A-③ <code>usnam</code> 列——旗を立てて、外で値をセット</h2>
+              <h2>A-③ 伝票タイプ〜ユーザ——旗1本でまとめて制御</h2>
               <p>
                 <code>AT NEW usnam</code> では値を読まず、<strong>表示フラグ</strong>{" "}
                 <code>lv_show_usnam</code> だけを <code>abap_true</code> にします。
-                実際の値セットは <code>ENDAT</code> の<strong>外</strong>で行います。
+                旗が立った行では、<strong>ユーザ列とその左の見出し列</strong>すべてに値をセットします。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`" ① ループ先頭でユーザ列だけリセット
-CLEAR: lv_usnam, lv_show_usnam.
+                code={`" ① ループ先頭で見出し列をリセット
+CLEAR: lv_blart, lv_blart_txt, lv_budat_c, lv_bldat_c, lv_belnr, lv_usnam,
+       lv_show_usnam.
 
 " ② 変わり目だけ旗を立てる（値は読まない）
 AT NEW usnam.
@@ -891,10 +1633,15 @@ ENDAT.
 
 " ③ 旗が立ったときだけ、ENDAT の外で値をセット
 IF lv_show_usnam = abap_true.
-  lv_usnam = gs_out-usnam.          " ユーザ
+  lv_blart     = gs_out-blart.
+  lv_blart_txt = gs_out-blart_txt.
+  WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
+  WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
+  lv_belnr = gs_out-belnr.
+  lv_usnam = gs_out-usnam.
 ENDIF.
 
-" ④ WRITE では lv_usnam をユーザ列に出力（空なら空欄）`}
+" ④ WRITE では lv_blart〜lv_usnam を出力（空なら空欄）`}
               />
               <Callout variant="warning">
                 <strong>なぜ中で値を読まないのか</strong>：<code>AT NEW … ENDAT</code> の<strong>内側</strong>では、
@@ -902,37 +1649,38 @@ ENDIF.
                 だから「中では旗だけ」「値は外で」が定石です。
               </Callout>
               <Callout variant="note">
-                伝票タイプ・日付・伝票番号など<strong>他の見出し列</strong>も、C パートで同じ型（
-                <code>lv_show_*</code> ＋ <code>IF</code> で値セット）を<strong>項目ごとに足していきます</strong>。
+                C パートでは <code>lv_show_usnam</code> 1本ではなく、
+                <strong>列ごと</strong>に <code>lv_show_blart</code> などの旗と <code>AT NEW</code> を置く
+                <strong>階層サプレス</strong>に進みます。
               </Callout>
               <Dialog speaker="b">
-                <code>usnam</code> 1列だけでも、旗 → 値 → 出力の流れがはっきりしますね。
+                <code>lv_show_usnam</code> 1本で blart〜usnam をまとめて制御する型がはっきりしましたね。
               </Dialog>
               <Dialog speaker="teacher">
                 それが A パートのゴールです。
                 <br />
-                改ページは<strong>B パート</strong>、残りの見出し列は<strong>C パート</strong>で足します。
+                改ページは<strong>B パート</strong>、列ごとの <code>AT NEW</code> は<strong>C パート</strong>で足します。
               </Dialog>
             </>
           ),
         },
         {
-          title: "A-④ 出力ループ 全体フロー（usnam のみ）",
+          title: "A-④ 出力ループ 全体フロー（伝票タイプ〜ユーザ）",
           plainText:
-            "A-④ END-OF-SELECTIONのLOOP流れ（Aパート・usnamのみ）。\n①借方/貸方振り分け ②lv_usnam/lv_show_usnamをCLEAR ③AT NEW usnamで旗 ④旗が立ったらlv_usnamセット ⑤WRITE。\n他見出し列・改ページはB/Cパート。",
+            "A-④ END-OF-SELECTIONのLOOP流れ（Aパート）。\n①借方/貸方振り分け ②lv_blart〜lv_usnam/lv_show_usnamをCLEAR ③AT NEW usnamで旗 ④旗が立ったらblart〜usnamをセット ⑤WRITE。\n改ページはBパート。列ごとのAT NEWはCパート。",
           content: (
             <>
-              <h2>A-④ 出力ループの流れ（1行ぶん・<code>usnam</code> のみ）</h2>
+              <h2>A-④ 出力ループの流れ（1行ぶん・伝票タイプ〜ユーザ）</h2>
               <p>
                 A パートで学んだ部品を <code>LOOP</code> に並べると、1行あたり次の順番になります。
-                <strong>ユーザ列だけ</strong>が対象です。
+                <strong>ユーザ列とその左の見出し列</strong>が対象です。
               </p>
               <MermaidDiagram
                 chart={`flowchart TD
   S[gt_out を1行読む] --> D[借方/貸方を振り分け]
-  D --> C["lv_usnam / lv_show_usnam を CLEAR"]
+  D --> C["lv_blart〜lv_usnam / lv_show_usnam を CLEAR"]
   C --> AN["AT NEW usnam → lv_show_usnam = abap_true"]
-  AN --> V["lv_show_usnam なら lv_usnam に値セット"]
+  AN --> V["lv_show_usnam なら blart〜usnam に値セット"]
   V --> W[WRITE で1行出力]
   W --> S`}
               />
@@ -942,20 +1690,58 @@ ENDIF.
                     <strong><code>AT NEW usnam</code></strong> … ユーザが変わった行だけ旗を立てる（第9章）
                   </li>
                   <li>
-                    <strong><code>lv_show_usnam</code></strong> … 「この行でユーザ列を出すか」の旗
+                    <strong><code>lv_show_usnam</code></strong> … 伝票タイプ〜ユーザをまとめて出すかの旗
                   </li>
                   <li>
-                    <strong><code>lv_usnam</code></strong> … 出すときだけ値を入れる箱。空なら帳票も空欄
+                    <strong><code>lv_blart</code>〜<code>lv_usnam</code></strong> … 出すときだけ値を入れる箱。空なら帳票も空欄
                   </li>
                 </ul>
               </InfoPanel>
               <Dialog speaker="a">
-                1列だけでも「リセット → 旗立て → 値セット → 出力」のリズムが掴めました。
+                「リセット → 旗立て → 値セット → 出力」のリズムが掴めました。
               </Dialog>
               <Dialog speaker="teacher">
-                この型を B（改ページ）と C（他見出し列の追加）に広げていきます。
+                この型を B（改ページ）と C（列ごとの <code>AT NEW</code>）に広げていきます。
                 <br />
                 まず B パートで改ページを押さえてから、C で<strong>完成形</strong>のコードを組み立てましょう。
+                <br />
+                A パートだけの全文は<strong>A-⑤</strong>で確認できます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "A-⑤ Aパート完成コード（全文）",
+          plainText:
+            "A-⑤ Aパート完成コード全文 create_report_3_a。lv_show_usnam 1本で伝票タイプ〜ユーザを同じ条件でサプレス。改ページ・列ごとのAT NEWは含まない。全文はRevealで開く。",
+          content: (
+            <>
+              <h2>A-⑤ Aパート完成コード（全文）</h2>
+              <p>
+                A パートで学んだ<strong>伝票タイプ〜ユーザのサプレス</strong>を実装したプログラムです。
+                <code>lv_show_usnam</code> 1本で、ユーザ列とその左の見出し列をまとめて制御します。
+              </p>
+              <InfoPanel title="A パートの範囲" variant="reference">
+                <ul>
+                  <li>
+                    <code>AT NEW usnam</code> ＋ <code>lv_show_usnam</code> / <code>lv_blart</code>〜<code>lv_usnam</code>（A-②〜A-④）
+                  </li>
+                  <li>
+                    <code>SORT gt_out BY blart budat belnr buzei</code> … 演習②と同じ並び順
+                  </li>
+                  <li>
+                    改ページ（<code>NEW-PAGE</code> / <code>RESERVE</code> / <code>gv_pageno</code>）は<strong>含まない</strong>
+                  </li>
+                  <li>
+                    列ごとの <code>AT NEW</code>（<code>lv_show_blart</code> など）は<strong>C パート</strong>で追加
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Reveal label="Aパート完成コード（全体）を見る">
+                <CodeBlock language="ABAP" code={PROGRAM_A} />
+              </Reveal>
+              <Dialog speaker="teacher">
+                次の B パートでは、このコードに改ページ処理を足していきます。
               </Dialog>
             </>
           ),
@@ -1240,6 +2026,45 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
               <Dialog speaker="teacher">
                 では C パートで、A のサプレスと B の改ページを<strong>実プログラム</strong>{" "}
                 <code>create_report_3</code> に載せていきましょう。
+                <br />
+                A＋B までの全文は<strong>B-⑤</strong>で確認できます。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "B-⑤ Bパート完成コード（全文）",
+          plainText:
+            "B-⑤ Bパート完成コード全文 create_report_3_b。Aの伝票タイプ〜ユーザサプレス（lv_show_usnam 1本）＋Bの改ページ。全文はRevealで開く。",
+          content: (
+            <>
+              <h2>B-⑤ Bパート完成コード（全文）</h2>
+              <p>
+                A パートの<strong>伝票タイプ〜ユーザのサプレス</strong>に、B パートの<strong>改ページ処理</strong>を足したプログラムです。
+                見出し列は <code>lv_show_usnam</code> 1本で制御し、溢れ改ページ時は <code>lv_show_*</code> をすべて ON にして再表示します。
+              </p>
+              <InfoPanel title="B パートで足した箇所" variant="reference">
+                <ul>
+                  <li>
+                    <code>AT NEW blart</code> の中で <code>NEW-PAGE</code>（B-①）
+                  </li>
+                  <li>
+                    <code>RESERVE 1 LINES</code> → <code>IF sy-pagno &lt;&gt; gv_pageno</code>（B-②）
+                  </li>
+                  <li>
+                    ループ末尾の <code>gv_pageno = sy-pagno</code>（B-③）
+                  </li>
+                  <li>
+                    <code>SORT gt_out BY blart budat bldat belnr buzei</code> … <code>AT NEW blart</code> 用
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Reveal label="Bパート完成コード（全体）を見る">
+                <CodeBlock language="ABAP" code={PROGRAM_B} />
+              </Reveal>
+              <Dialog speaker="teacher">
+                C パートでは、<code>lv_show_usnam</code> 1本ではなく列ごとの <code>AT NEW</code> に分け、完成形{" "}
+                <code>create_report_3</code> を組み立てます。
               </Dialog>
             </>
           ),
@@ -1322,7 +2147,7 @@ gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え�
             <>
               <h2>C-② 宣言を足す（TYPES・DATA）</h2>
               <p>
-                最初に、出力ループで使う「箱」を宣言します。A パートでは <code>usnam</code> だけ習いましたが、
+                最初に、出力ループで使う「箱」を宣言します。A パートでは <code>lv_show_usnam</code> 1本で blart〜usnam を制御しましたが、
                 完成形では見出し列すべて分の箱と旗をここで宣言します。
               </p>
               <CodeBlock
@@ -1364,7 +2189,7 @@ DATA: gv_pageno TYPE sy-pagno.`}
                     <code>SORT</code> の並びと必ず一致させます。
                   </li>
                   <li>
-                    <code>lv_blart … lv_usnam</code> … 「出すときだけ値を入れる」見出し用の箱。A では <code>lv_usnam</code> だけ使用。
+                    <code>lv_blart … lv_usnam</code> … 「出すときだけ値を入れる」見出し用の箱。A では <code>lv_show_usnam</code> 1本でまとめて使用。
                   </li>
                   <li>
                     <code>lv_budat_c / lv_bldat_c</code>（<code>c LENGTH 10</code>）… 日付を<strong>空欄にできる</strong>よう文字で持つ（C-⑥）。
@@ -1473,7 +2298,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 code={`TOP-OF-PAGE.
   WRITE: /1 'PGMID:' NO-GAP, 9 sy-cprog, ... .   " 演習②と同じヘッダ
   " ... 会社コード・転記日付 ...
-  WRITE: /1 TEXT-001, 18 TEXT-c02, 30 TEXT-003, 42 TEXT-004,
+  WRITE: /1 TEXT-001, 18 TEXT-002, 30 TEXT-003, 42 TEXT-004,
           54 TEXT-005, 68 TEXT-006, 73 TEXT-007,
           106(14) TEXT-008 RIGHT-JUSTIFIED,
           122(14) TEXT-009 RIGHT-JUSTIFIED,
@@ -1516,7 +2341,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
               <h2>C-⑤ 出力ループ前半（振り分け・初期化・旗立て）</h2>
               <p>
                 ここからが今回の主役、<code>END-OF-SELECTION</code> の <code>LOOP</code> です。
-                A パートでは <code>AT NEW usnam</code> だけでしたが、完成形では見出し5項目すべてに同じ型を足します。
+                A パートでは <code>AT NEW usnam</code> と <code>lv_show_usnam</code> 1本で blart〜usnam を制御しましたが、完成形では見出し5項目すべてに列ごとの <code>AT NEW</code> を置きます。
                 1行ぶんを前半（このスライド）と後半（C-⑥）に分けて読みます。
               </p>
               <CodeBlock
@@ -1689,14 +2514,16 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
           ),
         },
         {
-          title: "C-⑦ 完成コード（全文）",
+          title: "C-⑦ Cパート完成コード（全文）",
           plainText:
-            "C-⑦ 完成コード全文 create_report_3。部品の意味（C-①〜C-⑥）を踏まえ、上から下への流れを通して確認する。\n全文はRevealで開く。TEXTエレメント(TEXT-001等)はSE38で登録。土台や明細取得・結合は演習②、サプレス/AT制御は第9章を参照。",
+            "C-⑦ Cパート完成コード全文 create_report_3。A（usnamサプレス）＋B（改ページ）＋C（全見出し列のサプレス・日付文字化）を統合した最終版。部品の意味（C-①〜C-⑥）を踏まえ全文を通読。Revealで開く。TEXT-001等はSE38で登録。",
           content: (
             <>
-              <h2>C-⑦ 完成コード（全文）</h2>
+              <h2>C-⑦ Cパート完成コード（全文）</h2>
               <p>
-                部品ごとの意味は C-①〜C-⑥ で確認しました。ここでは<strong>全文を通して</strong>、
+                A（ユーザ列サプレス）・B（改ページ）・C（全見出し列のサプレスと日付整形）を
+                <strong>1本に統合</strong>した最終プログラム <code>create_report_3</code> です。
+                部品ごとの意味は C-①〜C-⑥ で確認済みなので、ここでは<strong>全文を通して</strong>
                 上から下への流れ（宣言 → 抽出 → <code>SORT</code> → <code>TOP-OF-PAGE</code> →{" "}
                 <code>END-OF-SELECTION</code> の変わり目処理）を確認します。
               </p>
@@ -1725,7 +2552,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 SE38 に貼り付けて動かす前に、C-②〜C-⑥ で追った部分と見比べると理解が深まります。
                 いきなり全文を暗記する必要はありません。
               </p>
-              <Reveal label="完成コード（全体）を見る">
+              <Reveal label="Cパート完成コード（全体）を見る">
                 <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
               </Reveal>
               <ReferenceLinks />
