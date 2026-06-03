@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -78,7 +78,7 @@ export default function ModularizationLesson() {
         {
           title: "なぜ分けるか",
           plainText:
-            "分けると、3つ良いことがある\n読みやすい：名前を見れば何をする部分か分かる\n直しやすい：そのサブルーチンだけ直せばよい（影響範囲が狭い）\n再利用できる：同じ処理を何度も呼べる\nAくん：関数に切り出すのと同じ発想ですね。重複を1か所にまとめられる。\n先生：そう。同じ処理を何か所にもコピーすると、直すとき全部直さないといけません。1か所なら1回で済む。",
+            "分けると、3つ良いことがある\n読みやすい：名前を見れば何をする部分か分かる\n直しやすい：そのサブルーチンだけ直せばよい（影響範囲が狭い）\n再利用できる：同じ処理を何度も呼べる\nAくん：関数に切り出すのと同じ発想ですね。重複を1か所にまとめられる。\n先生：そう。同じ処理を何か所にもコピーすると、直すとき全部直さないといけません。1か所なら1回で済む。\n具体例：商品A/B/Cの税額を同じ式でコピペすると、税率10%→8%変更時に3か所直す必要があり、直し忘れがバグになる。\nBちゃん：もし税率が変わったら3か所全部直すんですか？こわい。\n先生：そう。コピペした数だけ直す場所が増える。サブルーチンなら計算式は1か所だけ。\n改善後：PERFORM calc_tax を3回呼ぶだけ。税率を変えるときは calc_tax の中の1行を直せば、3つとも一気に直る。\nBちゃん：calc_tax の中の / 10 の「10」はまだベタ書き。定数にしたほうがよくない？\n先生：良い気づき。意味の分からない数字（マジックナンバー）は CONSTANTS で名前付き定数にするのがおすすめ。\nCONSTANTS c_tax_divisor TYPE i VALUE 10. として p_tax = p_price / c_tax_divisor とすれば意味が分かる。\nBちゃん：名前で意味が分かるし、定数はうっかり書き換えられないのもいい。\n先生：DATA と違い CONSTANTS は値を変えられない。サブルーチンで処理をまとめ、定数で数値に名前を付けるのは同じ「読む人にやさしく」の発想。\nBちゃん：定数で名前を付けられるなら、もう calc_tax のサブルーチンはいらなくない？各行を lv_tax_a = lv_price_a / c_tax_divisor と書けば十分では？\n先生：定数とサブルーチンは解決していることが別もの。定数で書いても3行コピペは残る。定数が名前を付けるのは「10」という値ひとつだけで、計算の手順そのものは3か所に散らばったまま。切り捨てなど仕様が変われば3行とも直す羽目に。calc_tax にまとめれば手順の変更も1か所で済む。\nBちゃん：定数は「値に名前」、サブルーチンは「手順に名前」。役割が違うから両方そろえると一番うれしい。\n先生：値が増えれば定数、処理が増えればサブルーチン。どちらも同じものを1か所にまとめる道具で、競合せず一緒に使える。\nAくん：コピペは「楽そうで後がつらい」、サブルーチンは「最初ひと手間でも後が楽」ですね。",
           content: (
             <>
               <h2>分けると、3つ良いことがある</h2>
@@ -92,6 +92,98 @@ export default function ModularizationLesson() {
               </Dialog>
               <Dialog speaker="teacher">
                 その通りです。同じ処理を何か所にもコピーすると、直すとき全部直す羽目になります。1か所にまとめておけば、修正は1回で済みます。
+              </Dialog>
+              <h3>具体例：税額の計算をコピペすると…</h3>
+              <p>商品 A・B・C の税額を、同じ式（税率10%）で<strong>コピペ</strong>して書いたとします。</p>
+              <CodeBlock
+                language="ABAP"
+                code={`" ❌ 同じ計算式を3か所にコピペ
+lv_tax_a = lv_price_a / 10.    " 商品Aの税額
+lv_tax_b = lv_price_b / 10.    " 商品Bの税額
+lv_tax_c = lv_price_c / 10.    " 商品Cの税額`}
+              />
+              <Dialog speaker="b">
+                もし税率が 10%→8% に変わったら…この3行ぜんぶ直すんですか？1つでも直し忘れたら、その商品だけ税額がズレちゃう。こわいです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                そう、まさにそこが落とし穴です。コピペした数だけ「直す場所」と「直し忘れる危険」が増えます。
+                計算式を <code>calc_tax</code> という<strong>サブルーチン1か所</strong>にまとめておけばどうでしょう。
+              </Dialog>
+              <CodeBlock
+                language="ABAP"
+                code={`" ✅ 計算式は calc_tax の中だけ。呼ぶ側は3回頼むだけ
+PERFORM calc_tax USING lv_price_a CHANGING lv_tax_a.
+PERFORM calc_tax USING lv_price_b CHANGING lv_tax_b.
+PERFORM calc_tax USING lv_price_c CHANGING lv_tax_c.
+
+" 税率を変えるときは、この1行を直すだけで A・B・C 全部に効く
+FORM calc_tax USING p_price TYPE i CHANGING p_tax TYPE i.
+  p_tax = p_price / 10.
+ENDFORM.`}
+              />
+              <Dialog speaker="b">
+                あれ、でも <code>calc_tax</code> の中の <code>/ 10</code> って、まだ「10」がそのまま書いてありますよね。
+                これって<strong>定数</strong>にしておいたほうがよくないですか？「<code>10</code>」だけ見ても、何の数字か分からないし…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                とても良い気づきです。その <code>10</code> のような<strong>意味の分からない数字（マジックナンバー）</strong>は、
+                名前を付けた<strong>定数</strong>にしておくのがおすすめです。<code>CONSTANTS</code> で宣言します。
+              </Dialog>
+              <CodeBlock
+                language="ABAP"
+                code={`" 税率を「名前付きの定数」にする（10で割る＝税率10%）
+CONSTANTS c_tax_divisor TYPE i VALUE 10.
+
+FORM calc_tax USING p_price TYPE i CHANGING p_tax TYPE i.
+  p_tax = p_price / c_tax_divisor.   " 「10」より意味が分かる
+ENDFORM.`}
+              />
+              <Dialog speaker="b">
+                <code>c_tax_divisor</code> って名前なら「税率に関わる数だな」って一目で分かりますね。
+                それに <code>CONSTANTS</code> は<strong>うっかり書き換えられない</strong>のもいいです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                そのとおり。<code>DATA</code>（変数）と違って <code>CONSTANTS</code>（定数）は途中で値を変えられないので、
+                「ここは固定値ですよ」という意図がコードに残ります。
+                <strong>サブルーチンで処理をまとめ、定数で数値に名前を付ける</strong>——どちらも「読む人にやさしく」の同じ発想です。
+              </Dialog>
+              <Dialog speaker="b">
+                あれ、でも定数で <code>10</code> に名前を付けられるなら…
+                もう <code>calc_tax</code> の<strong>サブルーチンはいらなく</strong>ないですか？
+                各行を <code>lv_tax_a = lv_price_a / c_tax_divisor.</code> って書けば、定数だけで十分な気が…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                鋭い質問ですね。でも、定数とサブルーチンは<strong>解決していることが別もの</strong>なんです。
+                定数で書いても、ほら——まだ3行コピペが残りますよね。
+              </Dialog>
+              <CodeBlock
+                language="ABAP"
+                code={`" 定数を使っても…計算の「式」は3行コピペのまま
+lv_tax_a = lv_price_a / c_tax_divisor.
+lv_tax_b = lv_price_b / c_tax_divisor.
+lv_tax_c = lv_price_c / c_tax_divisor.`}
+              />
+              <Dialog speaker="teacher">
+                定数が名前を付けるのは<strong>「10」という値ひとつ</strong>だけ。
+                計算の<strong>手順そのもの</strong>（割る、将来は端数処理や割引も足すかも）は、まだ3か所に散らばっています。
+                たとえば「税額は<strong>切り捨て</strong>にしよう」と仕様が変わったら、定数だけでは3行とも直す羽目に。
+                <code>calc_tax</code> にまとめてあれば、<strong>手順の変更も1か所</strong>で済みます。
+              </Dialog>
+              <Dialog speaker="b">
+                なるほど…定数は「<strong>値</strong>に名前」、サブルーチンは「<strong>手順</strong>に名前」。
+                役割が違うから、両方そろえると一番うれしいんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その理解でばっちりです。<strong>値が増えれば定数、処理が増えればサブルーチン</strong>。
+                どちらも「同じものを1か所にまとめる」道具で、競合せず一緒に使えます。
+              </Dialog>
+              <Callout variant="tip">
+                <strong>読みやすい</strong>＝「<code>calc_tax</code>＝税額計算」と名前で分かる。
+                <strong>直しやすい</strong>＝税率変更は <code>FORM</code> の中の1行だけ。
+                <strong>再利用できる</strong>＝同じ <code>calc_tax</code> を A・B・C で使い回せる。3つの良いことが、この1例にぜんぶ詰まっています。
+              </Callout>
+              <Dialog speaker="a">
+                コピペは「いま楽そうで、あとがつらい」。サブルーチンは「最初にひと手間でも、あとがずっと楽」なんですね。
               </Dialog>
             </>
           ),
@@ -256,7 +348,7 @@ ENDFORM.`}
         {
           title: "変数スコープ",
           plainText:
-            "グローバル と ローカル\nDATA の宣言場所で決まる。FORM の外＝グローバル、FORM の中＝ローカル。\nDATA lv_total（外）… FORM 内 DATA lv_step（作業用・その FORM だけ）… ENDFORM 後 lv_step は使えない。\nBちゃん：作業用も外に DATA 宣言しちゃダメ？先生：動くがどの FORM 用か分からなくなる。FORM 内 DATA がよい。\nつまずき：何でもグローバルにするとどこで値が変わったか追えない。",
+            "グローバル と ローカル\nDATA の宣言場所で決まる。FORM の外＝グローバル、FORM の中＝ローカル。\nDATA lv_total（外）… FORM 内 DATA lv_step（作業用・その FORM だけ）… ENDFORM 後 lv_step は使えない。\nBちゃん：作業用も外に DATA 宣言しちゃダメ？先生：動くがどの FORM 用か分からなくなる。FORM 内 DATA がよい。\nつまずき：何でもグローバルにするとどこで値が変わったか追えない。\n具体例：print_headers と print_footers が同じ名前 lv_i をそれぞれ FORM 内で DATA 宣言。\nAくん：同じ名前だと上書きして壊れない？先生：壊れない。ローカルはその FORM の中だけの手元メモで、名前が同じでも別物。print_headers が終われば消える。\nBちゃん：クラスごとに出席番号1番がいても別人と同じ。だから他のFORMの変数名を気にせず使える。\n補足：もし lv_i をグローバルにすると共有メモが1枚になり、片方の値変更が他方に波及して追いにくい。作業用はローカルが安全。",
           content: (
             <>
               <h2>グローバル と ローカル</h2>
@@ -329,6 +421,47 @@ ENDFORM.
               <Dialog speaker="stumble">
                 何でもグローバルにすると、どこで値が変わったか追えなくなる。→ できるだけローカルに閉じ込めるのが安全です。
               </Dialog>
+              <h3>具体例：同じ名前 <code>lv_i</code> でもぶつからない</h3>
+              <p>
+                2つの <code>FORM</code> が、たまたま同じ名前 <code>lv_i</code>（ループ用のカウンタ）を使っています。
+                それぞれ <code>FORM</code> の<strong>中</strong>で <code>DATA</code> 宣言したローカル変数です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`FORM print_headers.
+  DATA lv_i TYPE i.        " この FORM 専用の lv_i
+  DO 3 TIMES.
+    lv_i = sy-index.       " 1, 2, 3 と進む（見出しを3行出す）
+    WRITE: / '見出し', lv_i.
+  ENDDO.
+ENDFORM.
+
+FORM print_footers.
+  DATA lv_i TYPE i.        " 別物！print_headers の lv_i とは無関係
+  DO 5 TIMES.
+    lv_i = sy-index.       " こちらは 1〜5（脚注を5行出す）
+    WRITE: / '脚注', lv_i.
+  ENDDO.
+ENDFORM.`}
+              />
+              <Dialog speaker="a">
+                両方 <code>lv_i</code> って同じ名前ですけど…<code>print_footers</code> の <code>DO 5 TIMES</code> が、
+                <code>print_headers</code> の <code>lv_i</code> を上書きして壊したりしないんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                壊れません。ローカル変数は「その <code>FORM</code> の中だけに存在する手元のメモ」です。
+                名前が同じでも、<strong>別々のメモ用紙</strong>なので中身は混ざりません。
+                <code>print_headers</code> が終われば、そこの <code>lv_i</code> は消えてなくなります。
+              </Dialog>
+              <Dialog speaker="b">
+                クラスごとに「出席番号1番」がいても別人なのと同じですね。
+                だから他の <code>FORM</code> の変数名を気にせず、好きなカウンタ名を使えるんだ。
+              </Dialog>
+              <Callout variant="note">
+                もし <code>lv_i</code> を <code>FORM</code> の<strong>外</strong>（グローバル）に置くと、これは1枚しかない共有メモになります。
+                <code>print_headers</code> で 3 にした値が、<code>print_footers</code> を呼ぶと 5 に書き換わる…と、
+                どこで値が変わったか追いにくくなります。だから<strong>作業用はローカル</strong>が安全です。
+              </Callout>
               <Dialog speaker="a">
                 スコープを狭く保つと、影響範囲が読めて安心ですね。
               </Dialog>
