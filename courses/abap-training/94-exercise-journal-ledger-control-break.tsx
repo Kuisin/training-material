@@ -674,9 +674,9 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
       )}
       slides={[
         {
-          title: "概要（A・B構成）",
+          title: "概要（A・B・C構成）",
           plainText:
-            "特別演習③ — 伝票見出しをまとめる（コントロールレベル出力）\n演習②の明細帳票を土台に、伝票タイプ〜入力者ID（伝票単位で同じ値）を毎行繰り返さず、変わり目だけ出す。改ページ時は先頭で再表示。\nこのレッスンは2部構成。A：ロジックを段階的に学ぶ。B：完成コード全文。\n重複説明を避けるため、サプレス・AT制御は第9章、土台コードは演習②へリンク。",
+            "特別演習③ — 伝票見出しをまとめる（コントロールレベル出力）\n演習②の明細帳票を土台に、伝票タイプ〜入力者ID（伝票単位で同じ値）を毎行繰り返さず、変わり目だけ出す。改ページ時は先頭で再表示。\nこのレッスンは3部構成。A：サプレスのロジックを段階的に学ぶ。B：改ページ（NEW-PAGE・RESERVE・sy-pagno）。C：完成コード全文。\n重複説明を避けるため、サプレス・AT制御は第9章、土台コードは演習②へリンク。",
           content: (
             <>
               <hgroup>
@@ -693,13 +693,16 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
-              <h3>このレッスンは2部構成です</h3>
+              <h3>このレッスンは3部構成です</h3>
               <ul>
                 <li>
-                  <strong>A：ロジック</strong> …「ユーザ名以前の項目（＝伝票タイプ〜入力者ID）が変わったら、その見出しを出力する」を段階的に組み立てます。
+                  <strong>A：サプレスのロジック</strong> …「ユーザ名以前の項目（＝伝票タイプ〜入力者ID）が変わったら、その見出しを出力する」を段階的に組み立てます。
                 </li>
                 <li>
-                  <strong>B：完成コード</strong> … A で理解したロジックを反映した、プログラム全文を確認します。
+                  <strong>B：改ページ</strong> … 伝票タイプが変わったら <code>NEW-PAGE</code>、ページが変わったら見出し列（全列）を再表示（<code>RESERVE</code>・<code>sy-pagno</code>）。
+                </li>
+                <li>
+                  <strong>C：完成コード</strong> … A・B で理解したロジックを反映した、プログラム全文を確認します。
                 </li>
               </ul>
               <Callout variant="tip">
@@ -941,7 +944,7 @@ ENDIF.`}
                 このスライドでは「<code>AT NEW blart</code> の中に入れる」と覚えてください。
                 <br />
                 改ページ全体の話（<code>RESERVE</code> や見出しの再表示との<strong>役割分担</strong>）は、
-                このレッスンの<strong>後ろ（A-⑥）</strong>で詳しく説明します。ここでは深追いしません。
+                このレッスンの<strong>B パート</strong>で詳しく説明します。ここでは深追いしません。
               </Dialog>
               <Callout variant="warning">
                 <strong>なぜ中で値を読まないのか</strong>：<code>AT NEW … ENDAT</code> の<strong>内側</strong>では、
@@ -1319,20 +1322,197 @@ ENDIF.`}
               <Dialog speaker="teacher">
                 それが今日いちばん伝えたいことです。
                 <br />
-                では B として、その組み立てを<strong>部品ごとに</strong>、コードを上から追って確認していきましょう。
+                サプレスだけでは足りない場面——改ページ——を、次の B パートで押さえてから、
+                C で<strong>部品ごとに</strong>コードを上から追いましょう。
               </Dialog>
             </>
           ),
         },
         {
-          title: "B-① 完成コードの地図",
+          title: "B-① 伝票タイプが変わったら NEW-PAGE",
           plainText:
-            "B-① 完成コードの地図。BパートはAのロジックを実プログラム create_report_3 として上から組み立てる。\n演習②と同じ部分（取得・結合・TOP-OF-PAGE）と、今回足す部分（g_typ_outの並び替え／表示用の変数・フラグ／END-OF-SELECTIONの変わり目処理）を地図にして、どこを読むかを先に把握する。\n足すのは大きく2か所：宣言（型・変数）と出力ループ。",
+            "B-① 伝票タイプが変わったら改ページ。AT NEW blart の中で NEW-PAGE を実行し、タイプごとに帳票を区切る。\nNEW-PAGE は『表示するか』の旗 lv_show_blart とは別物。旗は溢れ改ページの再表示でも立つため、外で IF lv_show_blart … NEW-PAGE とはしない。\n意図的な区切り＝AT NEW blart の中、見出しの再表示＝RESERVE と sy-pagno 比較（B-②）。",
           content: (
             <>
-              <h2>B-① — 演習②に何を足すか</h2>
+              <h2>B-① 伝票タイプが変わったら <code>NEW-PAGE</code></h2>
               <p>
-                ここから B パートは、A で理解したロジックを実際のプログラム{" "}
+                A で学んだ <code>AT NEW blart</code> に、<strong>改ページ命令</strong>を足します。
+                伝票タイプ（<code>blart</code>）が変わった行は、<strong>新しいページの先頭</strong>から始めます。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`AT NEW blart.
+  NEW-PAGE.              " 伝票タイプが変わったときだけ（意図的な区切り）
+  lv_show_blart = abap_true.
+ENDAT.`}
+              />
+              <Callout variant="note">
+                <code>NEW-PAGE</code> 命令そのものは<strong>第7章</strong>で学びました。
+                ここでは「<code>AT NEW blart</code> の<strong>中</strong>に置く」と覚えてください。
+              </Callout>
+              <Callout variant="warning">
+                <strong><code>lv_show_blart</code> で <code>NEW-PAGE</code> しない理由</strong>
+                <ul className="mt-2">
+                  <li>
+                    <code>lv_show_blart</code> は「見出しを<strong>出すか</strong>」の旗。立つ理由は2つ：
+                    <code>AT NEW blart</code>（タイプが変わった）と{" "}
+                    <code>IF sy-pagno &lt;&gt; gv_pageno</code>（溢れ改ページ後の再表示）
+                  </li>
+                  <li>
+                    外で <code>IF lv_show_blart … NEW-PAGE</code> すると、2番目でも改ページしてしまう
+                    → タイプは同じなのに余計な空白ページ
+                  </li>
+                  <li>
+                    改ページの<strong>意図</strong>ごとに場所を分ける：<code>NEW-PAGE</code> は <code>AT NEW blart</code> の中だけ
+                  </li>
+                </ul>
+              </Callout>
+              <CodeBlock
+                language="ABAP"
+                code={`" ✗ こう書かない
+IF lv_show_blart = abap_true.
+  NEW-PAGE.    " ← 溢れ改ページの再表示行でも発火してしまう
+ENDIF.
+
+" ✓ 改ページの意図ごとに場所を分ける
+AT NEW blart.
+  NEW-PAGE.              " タイプが変わったときだけ
+  lv_show_blart = abap_true.
+ENDAT.`}
+              />
+              <Dialog speaker="a">
+                タイプが変わったときだけ区切る、という<strong>意図</strong>がはっきりしますね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通り。次は「同じタイプのままページだけ変わった」とき——サプレスした見出しをどう戻すか——です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "B-② 新ページでは見出し列をすべて再表示",
+          plainText:
+            "B-② 新ページでは見出し列（blart〜usnam）をすべて再表示。サプレスだけだと同じ伝票の続きが新ページ先頭に来たとき見出しが空欄になる。\nRESERVE 1 LINES で行が収まるか先に判定→収まらなければ改ページ（sy-pagno が進む）。\nIF sy-pagno <> gv_pageno なら lv_show_* をすべて abap_true にして全列の値を出し直す。WRITE の後に gv_pageno = sy-pagno で直前行のページを控える。",
+          content: (
+            <>
+              <h2>B-② 新ページでは、見出し列を<strong>すべて</strong>出し直す</h2>
+              <p>
+                サプレスだけだと困る場面があります。<strong>同じ伝票がページをまたいだ</strong>とき、
+                新ページの先頭行は「変わり目ではない」ので見出し（伝票タイプ〜ユーザ）が空欄になり、何の伝票か分からなくなります。
+              </p>
+              <p>
+                要件：<strong>ページが変わった行では、見出し列（blart〜usnam）の値をすべて再表示</strong>する。
+                明細列（明細番号・勘定・金額・摘要）は毎行そのまま出します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`RESERVE 1 LINES.            " 入らなければ先に改ページ（sy-pagno が進む）
+
+IF sy-pagno <> gv_pageno.      " 直前行とページが違う＝改ページした
+  lv_show_blart = abap_true.   " 見出し列の旗をすべて立てる
+  lv_show_budat = abap_true.
+  lv_show_bldat = abap_true.
+  lv_show_belnr = abap_true.
+  lv_show_usnam = abap_true.
+ENDIF.
+
+" … 旗が立った項目だけ値セット → WRITE …
+
+gv_pageno = sy-pagno.          " ループ末尾：今行のページを控え（次行の比較用）`}
+              />
+              <InfoPanel title="2つの部品の役割" variant="breakdown">
+                <ul>
+                  <li>
+                    <code>RESERVE n LINES.</code> … 「あと n 行ぶん入るか？」を判定。入らなければ<strong>その場で改ページ</strong>。
+                    <code>WRITE</code> の<strong>前</strong>に置くと <code>sy-pagno</code> が先に正しい値になる。
+                  </li>
+                  <li>
+                    <code>gv_pageno</code> … 直前に出力した行のページ番号の<strong>控え</strong>。
+                    ループ<strong>先頭付近で読み</strong>、<strong>末尾で更新</strong>（A-⑦）。
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="note">
+                ここでフラグ方式が効きます。<code>AT NEW</code> が立てた旗に、改ページ判定が「全部立てる」を<strong>上書き</strong>するだけ。
+                値セットと <code>WRITE</code> は1か所のままで、両方の事情をきれいに合流できます。
+              </Callout>
+              <Dialog speaker="b">
+                「変わり目だから出す」と「ページが変わったから<strong>全部</strong>出す」の2つの理由が、同じ旗に集まるんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通り。順番は「<code>RESERVE</code> → 判定 → 値セット → <code>WRITE</code> → <code>gv_pageno</code> 保持」を固定してください。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "B-③ 改ページ処理の3か所（まとめ）",
+          plainText:
+            "B-③ 改ページは3か所で役割が違う。NEW-PAGE＝AT NEW blart の中、タイプが変わったときの意図的な区切り。\nRESERVE 1 LINES＝AT NEW の外、行がページに収まらないときの溢れ改ページ。\nIF sy-pagno <> gv_pageno＝AT NEW の外、ページが変わったあと見出し列をすべて再表示（NEW-PAGE は呼ばない）。\nB の要点を押さえたら C で create_report_3 を部品ごとに組み立てる。",
+          content: (
+            <>
+              <h2>B-③ 改ページ処理は3か所——役割を混ぜない</h2>
+              <InfoPanel title="改ページは3か所で役割が違う" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>処理</th>
+                      <th>置く場所</th>
+                      <th>いつ動くか</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>NEW-PAGE</code></td>
+                      <td><code>AT NEW blart</code> の<strong>中</strong></td>
+                      <td>伝票タイプが変わったとき（意図的な区切り）</td>
+                    </tr>
+                    <tr>
+                      <td><code>RESERVE 1 LINES</code></td>
+                      <td><code>AT NEW</code> の<strong>外</strong></td>
+                      <td>行がページに収まらないとき（溢れ改ページ）</td>
+                    </tr>
+                    <tr>
+                      <td><code>IF sy-pagno &lt;&gt; gv_pageno</code></td>
+                      <td><code>AT NEW</code> の<strong>外</strong></td>
+                      <td>ページが変わったあと、見出し列を<strong>すべて再表示</strong>（<code>NEW-PAGE</code> は呼ばない）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart TD
+  AN["AT NEW blart → NEW-PAGE + 旗"] --> R[RESERVE 1 LINES]
+  R --> P{"sy-pagno ≠ gv_pageno?"}
+  P -->|はい| ALL[見出しの旗を全部 ON]
+  P -->|いいえ| V
+  ALL --> V[旗が立った列だけ値セット]
+  V --> W[WRITE]
+  W --> K[gv_pageno = sy-pagno]`}
+              />
+              <Callout variant="warning">
+                <strong>順番が命</strong>：<code>RESERVE</code> → 判定 → 値セット → <code>WRITE</code> →{" "}
+                <code>gv_pageno</code> 保持。詳しい理由は A-⑥・A-⑦ を参照してください。
+              </Callout>
+              <Dialog speaker="a">
+                B パートは改ページまわりだけに絞れて、頭がすっきりしました。
+              </Dialog>
+              <Dialog speaker="teacher">
+                では C パートで、A のサプレスと B の改ページを<strong>実プログラム</strong>{" "}
+                <code>create_report_3</code> に載せていきましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "C-① 完成コードの地図",
+          plainText:
+            "C-① 完成コードの地図。CパートはA・Bのロジックを実プログラム create_report_3 として上から組み立てる。\n演習②と同じ部分（取得・結合・TOP-OF-PAGE）と、今回足す部分（g_typ_outの並び替え／表示用の変数・フラグ／END-OF-SELECTIONの変わり目処理）を地図にして、どこを読むかを先に把握する。\n足すのは大きく2か所：宣言（型・変数）と出力ループ。",
+          content: (
+            <>
+              <h2>C-① — 演習②に何を足すか</h2>
+              <p>
+                ここから C パートは、A・B で理解したロジックを実際のプログラム{" "}
                 <code>create_report_3</code> として<strong>上から順に</strong>組み立てます。
                 まず「演習②と同じ部分」と「今回足す部分」を地図にして、どこを読めばよいか先に押さえます。
               </p>
@@ -1349,32 +1529,32 @@ ENDIF.`}
                     <tr>
                       <td>TYPES（型）</td>
                       <td>ほぼ同じ</td>
-                      <td><code>g_typ_out</code> の項目順を入れ替え（B-②）</td>
+                      <td><code>g_typ_out</code> の項目順を入れ替え（C-②）</td>
                     </tr>
                     <tr>
                       <td>DATA（変数）</td>
                       <td>追加あり</td>
-                      <td>表示用の作業領域・フラグ・<code>gv_pageno</code>（B-②）</td>
+                      <td>表示用の作業領域・フラグ・<code>gv_pageno</code>（C-②）</td>
                     </tr>
                     <tr>
                       <td>データ抽出</td>
                       <td>同じ考え方</td>
-                      <td>変更なし（取得・結合は演習②）（B-③）</td>
+                      <td>変更なし（取得・結合は演習②）（C-③）</td>
                     </tr>
                     <tr>
                       <td>SORT</td>
                       <td>ほぼ同じ</td>
-                      <td>並び順を構造体に合わせる（B-③）</td>
+                      <td>並び順を構造体に合わせる（C-③）</td>
                     </tr>
                     <tr>
                       <td>TOP-OF-PAGE</td>
                       <td>同じ</td>
-                      <td>変更なし（B-④）</td>
+                      <td>変更なし（C-④）</td>
                     </tr>
                     <tr>
                       <td>END-OF-SELECTION</td>
                       <td>1行ずつ <code>WRITE</code></td>
-                      <td>変わり目処理を追加（B-⑤・B-⑥）</td>
+                      <td>変わり目処理を追加（C-⑤・C-⑥）</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1395,12 +1575,12 @@ ENDIF.`}
           ),
         },
         {
-          title: "B-② 宣言を足す（TYPES・DATA）",
+          title: "C-② 宣言を足す（TYPES・DATA）",
           plainText:
-            "B-② 宣言の追加。出力ループで使う箱を先に宣言する。\ng_typ_outは項目順を入れ替え（budat/bldatをbelnrの前へ）＝AT NEWの階層づくり。\n表示用 lv_blart〜lv_usnam（見出しを出すときだけ値を入れる箱）、日付は lv_budat_c/lv_bldat_c（c LENGTH 10）で空欄可、lv_show_*（旗）、gv_pageno（改ページ判定用）を追加。\nlv_forceは未使用。",
+            "C-② 宣言の追加。出力ループで使う箱を先に宣言する。\ng_typ_outは項目順を入れ替え（budat/bldatをbelnrの前へ）＝AT NEWの階層づくり。\n表示用 lv_blart〜lv_usnam（見出しを出すときだけ値を入れる箱）、日付は lv_budat_c/lv_bldat_c（c LENGTH 10）で空欄可、lv_show_*（旗）、gv_pageno（改ページ判定用）を追加。\nlv_forceは未使用。",
           content: (
             <>
-              <h2>B-② 宣言を足す（TYPES・DATA）</h2>
+              <h2>C-② 宣言を足す（TYPES・DATA）</h2>
               <p>
                 最初に、出力ループで使う「箱」を宣言します。これは A-③〜A-⑥ で説明した部品そのものです。
                 ここで名前と役割を一度に見ておくと、後のループが読みやすくなります。
@@ -1475,12 +1655,12 @@ DATA: gv_pageno TYPE sy-pagno.`}
           ),
         },
         {
-          title: "B-③ データを取って並べ替える",
+          title: "C-③ データを取って並べ替える",
           plainText:
-            "B-③ データ抽出とSORT。取得・結合は演習②と同じ考え方（会社マスタ→伝票タイプ→BKPF→明細BSEG→勘定名SKAT→gt_out）。この版は伝票ごとにBSEGをSELECT、明細ごとにSKATをSELECT SINGLE。\n重要なのはSORT gt_out BY blart budat bldat belnr buzei。サプレスの階層（構造体の項目順）と必ず一致させる。bldatを足したのもこのため。\n取得方法の善し悪しは性能の話で今回の主題ではない。",
+            "C-③ データ抽出とSORT。取得・結合は演習②と同じ考え方（会社マスタ→伝票タイプ→BKPF→明細BSEG→勘定名SKAT→gt_out）。この版は伝票ごとにBSEGをSELECT、明細ごとにSKATをSELECT SINGLE。\n重要なのはSORT gt_out BY blart budat bldat belnr buzei。サプレスの階層（構造体の項目順）と必ず一致させる。bldatを足したのもこのため。\n取得方法の善し悪しは性能の話で今回の主題ではない。",
           content: (
             <>
-              <h2>B-③ データを取って、並べ替える</h2>
+              <h2>C-③ データを取って、並べ替える</h2>
               <p>
                 データの取得と結合は演習②と<strong>同じ考え方</strong>です（会社マスタ → 伝票タイプ → BKPF →
                 明細 BSEG → 勘定名 SKAT → <code>gt_out</code> へ格納）。ここでは詳しく繰り返さず、要点と
@@ -1538,12 +1718,12 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
           ),
         },
         {
-          title: "B-④ ページ上部の見出し（TOP-OF-PAGE）",
+          title: "C-④ ページ上部の見出し（TOP-OF-PAGE）",
           plainText:
-            "B-④ TOP-OF-PAGE。演習②と同じで、ページ上部（システム情報・会社コード・列見出し）を出す。列見出しは TEXT-001〜TEXT-010。\nTOP-OF-PAGEは各ページ先頭で自動実行されるので列タイトルは毎ページ出る。一方、明細行内の伝票見出し（blart〜usnamの値）はサプレスで消えるため、伝票がページをまたぐと新ページ先頭で空になる。これをB-⑥の改ページ再表示で補う。",
+            "C-④ TOP-OF-PAGE。演習②と同じで、ページ上部（システム情報・会社コード・列見出し）を出す。列見出しは TEXT-001〜TEXT-010。\nTOP-OF-PAGEは各ページ先頭で自動実行されるので列タイトルは毎ページ出る。一方、明細行内の伝票見出し（blart〜usnamの値）はサプレスで消えるため、伝票がページをまたぐと新ページ先頭で空になる。これをC-⑥の改ページ再表示で補う。",
           content: (
             <>
-              <h2>B-④ ページ上部の見出し（TOP-OF-PAGE）</h2>
+              <h2>C-④ ページ上部の見出し（TOP-OF-PAGE）</h2>
               <p>
                 <code>TOP-OF-PAGE</code> は演習②と同じで、ページ上部（システム情報・会社コード・列見出し）を出します。
                 列見出しは <code>TEXT-001</code>〜<code>TEXT-010</code>（テキストエレメント）です。
@@ -1568,7 +1748,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                   </li>
                   <li>
                     一方、明細行の中に出す<strong>伝票見出しの値</strong>（<code>blart</code>〜<code>usnam</code>）はサプレスで消えます。
-                    → 同じ伝票がページをまたぐと、新ページ先頭で値が空欄になる。これを <strong>B-⑥</strong> の改ページ再表示で補います。
+                    → 同じ伝票がページをまたぐと、新ページ先頭で値が空欄になる。これを <strong>C-⑥</strong> の改ページ再表示で補います。
                   </li>
                 </ul>
               </InfoPanel>
@@ -1588,15 +1768,15 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
           ),
         },
         {
-          title: "B-⑤ 出力ループ前半（振り分け・初期化・旗立て）",
+          title: "C-⑤ 出力ループ前半（振り分け・初期化・旗立て）",
           plainText:
-            "B-⑤ END-OF-SELECTIONのLOOP前半。1行ぶんを前半（この行）と後半（B-⑥）に分けて読む。\n(1)借方・貸方の振り分け（演習②と同じ、毎行CLEARしてからshkzgで振り分け）。(2)作業領域・フラグを毎行CLEAR（前の行の値や旗が残らないように）。(3)AT NEW×5で変わり目の項目だけ旗を立てる（AT NEW blartではNEW-PAGEも。中では値を読まない）。",
+            "C-⑤ END-OF-SELECTIONのLOOP前半。1行ぶんを前半（この行）と後半（C-⑥）に分けて読む。\n(1)借方・貸方の振り分け（演習②と同じ、毎行CLEARしてからshkzgで振り分け）。(2)作業領域・フラグを毎行CLEAR（前の行の値や旗が残らないように）。(3)AT NEW×5で変わり目の項目だけ旗を立てる（AT NEW blartではNEW-PAGEも。中では値を読まない）。",
           content: (
             <>
-              <h2>B-⑤ 出力ループ前半（振り分け・初期化・旗立て）</h2>
+              <h2>C-⑤ 出力ループ前半（振り分け・初期化・旗立て）</h2>
               <p>
                 ここからが今回の主役、<code>END-OF-SELECTION</code> の <code>LOOP</code> です。
-                1行ぶんを前半（このスライド）と後半（B-⑥）に分けて読みます。
+                1行ぶんを前半（このスライド）と後半（C-⑥）に分けて読みます。
               </p>
               <CodeBlock
                 language="ABAP"
@@ -1647,7 +1827,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 <code>AT NEW</code> を5つ並べるだけで「上位が変われば下位も」になるのが効いてますね（A-③）。
               </Dialog>
               <Dialog speaker="teacher">
-                並び順（B-②・B-③）が効くのはここです。
+                並び順（C-②・C-③）が効くのはここです。
                 <br />
                 旗は<strong>立てるだけ</strong>、値は後半でまとめて入れます。
               </Dialog>
@@ -1655,12 +1835,12 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
           ),
         },
         {
-          title: "B-⑥ 出力ループ後半（改ページ・値セット・出力）",
+          title: "C-⑥ 出力ループ後半（改ページ・値セット・出力）",
           plainText:
-            "B-⑥ END-OF-SELECTIONのLOOP後半。(4)RESERVE 1 LINESで先に改ページを起こし、sy-pagno≠gv_pagenoなら旗を全部立てる（A-⑥）。(5)旗が立った項目だけ値をセット、日付はWRITE…TO…USING EDIT MASKで文字に整形（A-⑤）。(6)WRITEで出力（見出し列はlv_*、明細列はgs_out）。(7)gv_pageno=sy-pagnoで今行のページ番号を控える。\n順番が命：RESERVE→判定→値セット→WRITE→gv_pageno。",
+            "C-⑥ END-OF-SELECTIONのLOOP後半。(4)RESERVE 1 LINESで先に改ページを起こし、sy-pagno≠gv_pagenoなら旗を全部立てる（B-②）。(5)旗が立った項目だけ値をセット、日付はWRITE…TO…USING EDIT MASKで文字に整形（A-⑤）。(6)WRITEで出力（見出し列はlv_*、明細列はgs_out）。(7)gv_pageno=sy-pagnoで今行のページ番号を控える。\n順番が命：RESERVE→判定→値セット→WRITE→gv_pageno。",
           content: (
             <>
-              <h2>B-⑥ 出力ループ後半（改ページ・値セット・出力）</h2>
+              <h2>C-⑥ 出力ループ後半（改ページ・値セット・出力）</h2>
               <CodeBlock
                 language="ABAP"
                 code={`*   (4) 改ページしたら見出しを全部出し直す（A-⑥）
@@ -1707,7 +1887,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 <ul>
                   <li>
                     <strong>(4) 改ページ判定</strong> … <code>RESERVE</code> で先に改ページを起こし、
-                    <code>sy-pagno ≠ gv_pageno</code> なら旗を全部立てる（A-⑥）。
+                    <code>sy-pagno ≠ gv_pageno</code> なら旗を全部立てる（B-②）。
                   </li>
                   <li>
                     <strong>(5) 値セット</strong> … 旗が立った項目だけ値を入れる。日付は{" "}
@@ -1723,7 +1903,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
               </InfoPanel>
               <Callout variant="warning">
                 <strong>順番が命</strong>です。<code>RESERVE</code> → 判定 → 値セット → <code>WRITE</code> →{" "}
-                <code>gv_pageno</code> 保持 の順を崩さないでください（A-⑥）。
+                <code>gv_pageno</code> 保持 の順を崩さないでください（B-②・B-③）。
               </Callout>
               <BreakPointCheck
                 insert={`    IF sy-pagno <> gv_pageno.
@@ -1764,14 +1944,14 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
           ),
         },
         {
-          title: "B-⑦ 完成コード（全文）",
+          title: "C-⑦ 完成コード（全文）",
           plainText:
-            "B-⑦ 完成コード全文 create_report_3。部品の意味（B-①〜B-⑥）を踏まえ、上から下への流れを通して確認する。\n全文はRevealで開く。TEXTエレメント(TEXT-001等)はSE38で登録。土台や明細取得・結合は演習②、サプレス/AT制御は第9章を参照。",
+            "C-⑦ 完成コード全文 create_report_3。部品の意味（C-①〜C-⑥）を踏まえ、上から下への流れを通して確認する。\n全文はRevealで開く。TEXTエレメント(TEXT-001等)はSE38で登録。土台や明細取得・結合は演習②、サプレス/AT制御は第9章を参照。",
           content: (
             <>
-              <h2>B-⑦ 完成コード（全文）</h2>
+              <h2>C-⑦ 完成コード（全文）</h2>
               <p>
-                部品ごとの意味は B-①〜B-⑥ で確認しました。ここでは<strong>全文を通して</strong>、
+                部品ごとの意味は C-①〜C-⑥ で確認しました。ここでは<strong>全文を通して</strong>、
                 上から下への流れ（宣言 → 抽出 → <code>SORT</code> → <code>TOP-OF-PAGE</code> →{" "}
                 <code>END-OF-SELECTION</code> の変わり目処理）を確認します。
               </p>
@@ -1797,7 +1977,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                 </ul>
               </InfoPanel>
               <p>
-                SE38 に貼り付けて動かす前に、B-②〜B-⑥ で追った部分と見比べると理解が深まります。
+                SE38 に貼り付けて動かす前に、C-②〜C-⑥ で追った部分と見比べると理解が深まります。
                 いきなり全文を暗記する必要はありません。
               </p>
               <Reveal label="完成コード（全体）を見る">
@@ -1815,7 +1995,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
             <>
               <h2>理解度チェック</h2>
               <p>
-                演習③の要点を3問で確認します。迷ったら B パートの該当スライド（B-②・B-⑤・B-⑥）や第9章に戻って復習してください。
+                演習③の要点を3問で確認します。迷ったら C パートの該当スライド（C-②・C-⑤・C-⑥）や B パート（改ページ）、第9章に戻って復習してください。
               </p>
               <LessonQuiz
                 answer={1}
