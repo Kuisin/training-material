@@ -43,26 +43,48 @@ function splitByComma(s: string): string[] {
   return parts;
 }
 
-function formatWidth(val: string, w: number, align: "left" | "right" | "center"): string {
-  const s = val.substring(0, w);
-  const pad = w - s.length;
-  if (pad <= 0) return s;
-  if (align === "right") return " ".repeat(pad) + s;
-  if (align === "center") { const l = Math.floor(pad / 2); return " ".repeat(l) + s + " ".repeat(pad - l); }
-  return s + " ".repeat(pad);
+// Display width: CJK/full-width characters count as 2 display columns.
+// The line buffer stores one element per DISPLAY COLUMN.
+// Double-width chars occupy index[p] = char and index[p+1] = "" (right-half marker).
+function charDW(ch: string): 1 | 2 {
+  const cp = ch.codePointAt(0) ?? 0;
+  return (
+    (cp >= 0x1100 && cp <= 0x11FF) || (cp >= 0x2E80 && cp <= 0x303F) ||
+    (cp >= 0x3040 && cp <= 0x33FF) || (cp >= 0x3400 && cp <= 0x4DBF) ||
+    (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0xAC00 && cp <= 0xD7AF) ||
+    (cp >= 0xF900 && cp <= 0xFAFF) || (cp >= 0xFE10 && cp <= 0xFE4F) ||
+    (cp >= 0xFF00 && cp <= 0xFF60) || (cp >= 0xFFE0 && cp <= 0xFFE6) ||
+    (cp >= 0x20000 && cp <= 0x2FFFD)
+  ) ? 2 : 1;
 }
 
-function writeAt(chars: string[], col: number, text: string): string[] {
-  const pos = col - 1;
-  const result = [...chars];
-  for (let k = 0; k < text.length; k++) {
-    while (result.length <= pos + k) result.push(" ");
-    result[pos + k] = text[k];
+function formatWidth(val: string, w: number, align: "left" | "right" | "center"): string {
+  let s = "", dw = 0;
+  for (const ch of val) { const cw = charDW(ch); if (dw + cw > w) break; s += ch; dw += cw; }
+  const pad = w - dw;
+  if (pad <= 0) return s;
+  const sp = " ".repeat(pad);
+  if (align === "right") return sp + s;
+  if (align === "center") { const l = Math.floor(pad / 2); return " ".repeat(l) + s + " ".repeat(pad - l); }
+  return s + sp;
+}
+
+// col is a 1-indexed DISPLAY COLUMN position (same as ABAP WRITE column semantics).
+function writeAt(buf: string[], col: number, text: string): string[] {
+  const result = [...buf];
+  let p = col - 1; // 0-indexed display column
+  for (const ch of text) {
+    const w = charDW(ch);
+    while (result.length <= p + w - 1) result.push(" ");
+    result[p] = ch;
+    if (w === 2) result[p + 1] = ""; // right-half placeholder
+    p += w;
   }
   return result;
 }
 
-function bufStr(chars: string[]): string { return chars.join("").trimEnd(); }
+// Filter out right-half placeholders before joining so HTML renders double-width chars correctly.
+function bufStr(chars: string[]): string { return chars.filter(c => c !== "").join("").trimEnd(); }
 
 function applyEditMask(value: string, mask: string): string {
   let result = "", vi = 0;
@@ -374,6 +396,22 @@ function runCode(code: string, tables: TableDef[]): ExecResult {
       i++; continue;
     }
 
+    // ── CONTINUE ─────────────────────────────────────────────────────────────
+    if (upper === "CONTINUE") {
+      if (!loopStack.length) { errors.push({ line: lineNum, message: "CONTINUE は LOOP の外では使えません" }); i++; continue; }
+      let depth = 0;
+      let jumped = false;
+      for (let j = i + 1; j < uppers.length; j++) {
+        if (uppers[j].match(/^LOOP\s+AT\b/)) depth++;
+        if (uppers[j] === "ENDLOOP") {
+          if (depth === 0) { i = j; jumped = true; break; }
+          depth--;
+        }
+      }
+      if (!jumped) i++;
+      continue;
+    }
+
     // ── NEW-LINE ─────────────────────────────────────────────────────────────
     if (upper === "NEW-LINE") { flushLine(); i++; continue; }
 
@@ -495,43 +533,110 @@ function runCode(code: string, tables: TableDef[]): ExecResult {
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
-const EXAMPLE_TABLES: TableDef[] = [{
-  id: "ex-1", name: "GT_OUT",
-  columns: [
-    { id: "c1", name: "BLART" }, { id: "c2", name: "BELNR" }, { id: "c3", name: "BUDAT" },
-    { id: "c4", name: "HKONT" }, { id: "c5", name: "SHKZG" }, { id: "c6", name: "DMBTR" },
-    { id: "c7", name: "SGTXT" },
-  ],
-  rows: [
-    { BLART: "SA", BELNR: "1000000001", BUDAT: "20240115", HKONT: "0000113100", SHKZG: "S", DMBTR: "100000", SGTXT: "売上計上" },
-    { BLART: "SA", BELNR: "1000000001", BUDAT: "20240115", HKONT: "0000800000", SHKZG: "H", DMBTR: "100000", SGTXT: "売上" },
-    { BLART: "KR", BELNR: "1900000001", BUDAT: "20240116", HKONT: "0000160000", SHKZG: "H", DMBTR: "50000", SGTXT: "買掛金" },
-    { BLART: "KR", BELNR: "1900000001", BUDAT: "20240116", HKONT: "0000400000", SHKZG: "S", DMBTR: "50000", SGTXT: "仕入" },
-  ],
-}];
+const EXAMPLE_TABLES: TableDef[] = [
+  {
+    id: "t001", name: "T001",
+    columns: [
+      { id: "t001-1", name: "BUKRS" }, { id: "t001-2", name: "BUTXT" },
+      { id: "t001-3", name: "WAERS" }, { id: "t001-4", name: "KTOPL" },
+    ],
+    rows: [
+      { BUKRS: "1000", BUTXT: "サンプル株式会社", WAERS: "JPY", KTOPL: "INT" },
+      { BUKRS: "2000", BUTXT: "デモ商事株式会社", WAERS: "JPY", KTOPL: "INT" },
+    ],
+  },
+  {
+    id: "bkpf", name: "BKPF",
+    columns: [
+      { id: "bkpf-1", name: "BUKRS" }, { id: "bkpf-2", name: "BELNR" },
+      { id: "bkpf-3", name: "GJAHR" }, { id: "bkpf-4", name: "BLART" },
+      { id: "bkpf-5", name: "BUDAT" }, { id: "bkpf-6", name: "BLDAT" },
+      { id: "bkpf-7", name: "USNAM" },
+    ],
+    rows: [
+      { BUKRS: "1000", BELNR: "1000000001", GJAHR: "2024", BLART: "SA", BUDAT: "20240115", BLDAT: "20240115", USNAM: "USER01" },
+      { BUKRS: "1000", BELNR: "1900000001", GJAHR: "2024", BLART: "KR", BUDAT: "20240116", BLDAT: "20240116", USNAM: "USER01" },
+      { BUKRS: "1000", BELNR: "1000000002", GJAHR: "2024", BLART: "SA", BUDAT: "20240120", BLDAT: "20240120", USNAM: "USER02" },
+    ],
+  },
+  {
+    id: "bseg", name: "BSEG",
+    columns: [
+      { id: "bseg-1", name: "BUKRS" }, { id: "bseg-2", name: "BELNR" },
+      { id: "bseg-3", name: "GJAHR" }, { id: "bseg-4", name: "BUZEI" },
+      { id: "bseg-5", name: "HKONT" }, { id: "bseg-6", name: "SHKZG" },
+      { id: "bseg-7", name: "DMBTR" }, { id: "bseg-8", name: "SGTXT" },
+    ],
+    rows: [
+      { BUKRS: "1000", BELNR: "1000000001", GJAHR: "2024", BUZEI: "001", HKONT: "0000113100", SHKZG: "S", DMBTR: "100000", SGTXT: "売上計上" },
+      { BUKRS: "1000", BELNR: "1000000001", GJAHR: "2024", BUZEI: "002", HKONT: "0000800000", SHKZG: "H", DMBTR: "100000", SGTXT: "売上高" },
+      { BUKRS: "1000", BELNR: "1900000001", GJAHR: "2024", BUZEI: "001", HKONT: "0000160000", SHKZG: "H", DMBTR: "50000",  SGTXT: "買掛金計上" },
+      { BUKRS: "1000", BELNR: "1900000001", GJAHR: "2024", BUZEI: "002", HKONT: "0000400000", SHKZG: "S", DMBTR: "50000",  SGTXT: "仕入高" },
+      { BUKRS: "1000", BELNR: "1000000002", GJAHR: "2024", BUZEI: "001", HKONT: "0000113100", SHKZG: "S", DMBTR: "200000", SGTXT: "売上計上" },
+      { BUKRS: "1000", BELNR: "1000000002", GJAHR: "2024", BUZEI: "002", HKONT: "0000800000", SHKZG: "H", DMBTR: "200000", SGTXT: "売上高" },
+    ],
+  },
+  {
+    id: "skat", name: "SKAT",
+    columns: [
+      { id: "skat-1", name: "KTOPL" }, { id: "skat-2", name: "SAKNR" },
+      { id: "skat-3", name: "SPRAS" }, { id: "skat-4", name: "TXT20" },
+    ],
+    rows: [
+      { KTOPL: "INT", SAKNR: "0000113100", SPRAS: "J", TXT20: "売掛金" },
+      { KTOPL: "INT", SAKNR: "0000160000", SPRAS: "J", TXT20: "買掛金" },
+      { KTOPL: "INT", SAKNR: "0000400000", SPRAS: "J", TXT20: "仕入高" },
+      { KTOPL: "INT", SAKNR: "0000800000", SPRAS: "J", TXT20: "売上高" },
+    ],
+  },
+];
 
-const EXAMPLE_CODE = `" 仕訳日記帳 サンプル
+const EXAMPLE_CODE = `" 仕訳日記帳レポート
+CONSTANTS c_bukrs VALUE '1000'.
 CONSTANTS c_s VALUE 'S'.
-CONSTANTS c_h VALUE 'H'.
 
-SORT GT_OUT BY BLART BELNR BUDAT.
-
-WRITE: /1 '伝票T', 8 '伝票番号', 20 '転記日付', 32 '勘定', 44 '借方', 57 '貸方', 70 '摘要'.
+" 会社コード情報取得
+READ TABLE T001 INTO gs_t001 WITH KEY BUKRS = c_bukrs.
+WRITE: /1 '会社名:', 10 gs_t001-BUTXT, 45 '通貨:', 51 gs_t001-WAERS.
 ULINE.
 
-LOOP AT GT_OUT INTO gs_out.
-  AT NEW BLART.
-    WRITE: /1 gs_out-BLART.
-  ENDAT.
-  IF gs_out-SHKZG = c_s.
-    gv_deb = gs_out-DMBTR.
-    gv_crd = ''.
-  ELSE.
-    gv_deb = ''.
-    gv_crd = gs_out-DMBTR.
+" 列ヘッダー
+WRITE: /1 '伝票番号', 13 '転記日付', 25 '明細', 30 '勘定コード', 43 '勘定名称', 57 '借方', 70 '貸方', 83 '摘要'.
+ULINE.
+
+" BKPF × BSEG 結合ループ
+LOOP AT BKPF INTO gs_bkpf.
+  IF gs_bkpf-BUKRS <> c_bukrs.
+    CONTINUE.
   ENDIF.
-  WRITE gs_out-BUDAT TO lv_date USING EDIT MASK '____/__/__'.
-  WRITE: /3 gs_out-BELNR, 20 lv_date, 32 gs_out-HKONT, 44(12) gv_deb RIGHT-JUSTIFIED, 57(12) gv_crd RIGHT-JUSTIFIED, 71 gs_out-SGTXT.
+  WRITE gs_bkpf-BUDAT TO lv_date USING EDIT MASK '____/__/__'.
+
+  LOOP AT BSEG INTO gs_bseg.
+    IF gs_bseg-BELNR <> gs_bkpf-BELNR.
+      CONTINUE.
+    ENDIF.
+
+    " 勘定科目名称取得
+    READ TABLE SKAT INTO gs_skat WITH KEY SAKNR = gs_bseg-HKONT.
+
+    " 借方・貸方判定
+    IF gs_bseg-SHKZG = c_s.
+      gv_deb = gs_bseg-DMBTR.
+      gv_crd = ''.
+    ELSE.
+      gv_deb = ''.
+      gv_crd = gs_bseg-DMBTR.
+    ENDIF.
+
+    WRITE: /1 gs_bkpf-BELNR,
+           13 lv_date,
+           25 gs_bseg-BUZEI,
+           30 gs_bseg-HKONT,
+           43 gs_skat-TXT20,
+           57(12) gv_deb RIGHT-JUSTIFIED,
+           70(12) gv_crd RIGHT-JUSTIFIED,
+           83 gs_bseg-SGTXT.
+  ENDLOOP.
 ENDLOOP.
 
 ULINE.`;
@@ -595,80 +700,127 @@ function Spreadsheet({ table, onChange }: { table: TableDef; onChange: (t: Table
 // ─── Table Designer ───────────────────────────────────────────────────────────
 
 function TableDesigner({ tables, onChange }: { tables: TableDef[]; onChange: (t: TableDef[]) => void }) {
+  const [activeId, setActiveId] = useState<string>(() => tables[0]?.id ?? "");
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newCols, setNewCols] = useState<Record<string, string>>({});
+  const [newCol, setNewCol] = useState("");
+
+  // Keep activeId valid when tables change
+  const active = tables.find(t => t.id === activeId) ?? tables[0];
 
   function addTable() {
     const n = newName.trim().toUpperCase();
     if (!n || tables.some(t => t.name === n)) return;
-    onChange([...tables, { id: genId(), name: n, columns: [], rows: [] }]);
+    const id = genId();
+    onChange([...tables, { id, name: n, columns: [], rows: [] }]);
+    setActiveId(id);
     setNewName(""); setAdding(false);
   }
-  function update(t: TableDef) { onChange(tables.map(x => x.id === t.id ? t : x)); }
-  function remove(id: string) { onChange(tables.filter(t => t.id !== id)); }
 
-  function addCol(tid: string) {
-    const n = (newCols[tid] ?? "").trim().toUpperCase();
-    if (!n) return;
-    onChange(tables.map(t => {
-      if (t.id !== tid || t.columns.some(c => c.name === n)) return t;
-      return { ...t, columns: [...t.columns, { id: genId(), name: n }], rows: t.rows.map(r => ({ ...r, [n]: r[n] ?? "" })) };
-    }));
-    setNewCols(p => ({ ...p, [tid]: "" }));
+  function removeActive() {
+    if (!active) return;
+    const remaining = tables.filter(t => t.id !== active.id);
+    onChange(remaining);
+    setActiveId(remaining[remaining.length - 1]?.id ?? "");
   }
-  function removeCol(tid: string, cid: string) {
-    onChange(tables.map(t => {
-      if (t.id !== tid) return t;
-      const col = t.columns.find(c => c.id === cid);
-      return { ...t, columns: t.columns.filter(c => c.id !== cid), rows: col ? t.rows.map(r => { const n = { ...r }; delete n[col.name]; return n; }) : t.rows };
-    }));
+
+  function update(t: TableDef) { onChange(tables.map(x => x.id === t.id ? t : x)); }
+
+  function addCol() {
+    if (!active) return;
+    const n = newCol.trim().toUpperCase();
+    if (!n || active.columns.some(c => c.name === n)) return;
+    update({ ...active, columns: [...active.columns, { id: genId(), name: n }], rows: active.rows.map(r => ({ ...r, [n]: r[n] ?? "" })) });
+    setNewCol("");
+  }
+
+  function removeCol(cid: string) {
+    if (!active) return;
+    const col = active.columns.find(c => c.id === cid);
+    update({ ...active, columns: active.columns.filter(c => c.id !== cid), rows: col ? active.rows.map(r => { const n = { ...r }; delete n[col.name]; return n; }) : active.rows });
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {tables.map(t => (
-        <div key={t.id} className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-          <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 dark:border-slate-700">
-            <span className="font-mono text-sm font-bold text-slate-800 dark:text-slate-100">{t.name}</span>
-            <button type="button" onClick={() => remove(t.id)} className="text-xs text-slate-400 hover:text-red-500">✕</button>
+    <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      {/* Tab bar */}
+      <div className="flex items-center gap-0 overflow-x-auto border-b border-slate-200 dark:border-slate-700">
+        {tables.map(t => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => { setActiveId(t.id); setAdding(false); }}
+            className={cn(
+              "shrink-0 border-b-2 px-3 py-2 font-mono text-xs font-semibold transition",
+              t.id === activeId && !adding
+                ? "border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            )}
+          >
+            {t.name}
+          </button>
+        ))}
+        {adding ? (
+          <div className="flex items-center gap-1 px-2 py-1">
+            <input
+              type="text"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") addTable(); if (e.key === "Escape") setAdding(false); }}
+              placeholder="テーブル名"
+              autoFocus
+              className="w-24 rounded border border-slate-300 px-2 py-0.5 font-mono text-xs font-bold uppercase outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+            />
+            <button type="button" onClick={addTable} className="rounded bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white hover:bg-blue-700">追加</button>
+            <button type="button" onClick={() => setAdding(false)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
           </div>
-          <div className="px-3 pt-2.5">
-            {t.columns.length > 0 ? (
-              <ul className="mb-2 flex flex-wrap gap-1.5">
-                {t.columns.map(c => (
-                  <li key={c.id} className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 dark:bg-slate-700">
-                    <span className="font-mono text-xs text-slate-600 dark:text-slate-300">{c.name}</span>
-                    <button type="button" onClick={() => removeCol(t.id, c.id)} className="text-[10px] text-slate-400 hover:text-red-400">✕</button>
-                  </li>
-                ))}
-              </ul>
-            ) : <p className="mb-2 text-xs text-slate-400">列がありません</p>}
-            <div className="flex gap-1.5">
-              <input type="text" value={newCols[t.id] ?? ""} onChange={e => setNewCols(p => ({ ...p, [t.id]: e.target.value }))}
-                onKeyDown={e => e.key === "Enter" && addCol(t.id)} placeholder="列名"
-                className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1 font-mono text-xs uppercase outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100" />
-              <button type="button" onClick={() => addCol(t.id)}
-                className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300">＋列</button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="shrink-0 border-b-2 border-transparent px-3 py-2 text-xs text-slate-400 hover:text-blue-500 dark:hover:text-blue-400"
+          >
+            ＋
+          </button>
+        )}
+      </div>
+
+      {/* Active table content */}
+      {active && !adding && (
+        <div className="p-3">
+          {/* Column chips + delete table */}
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {active.columns.length > 0 ? active.columns.map(c => (
+                <span key={c.id} className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 dark:bg-slate-700">
+                  <span className="font-mono text-xs text-slate-600 dark:text-slate-300">{c.name}</span>
+                  <button type="button" onClick={() => removeCol(c.id)} className="text-[10px] text-slate-400 hover:text-red-400">✕</button>
+                </span>
+              )) : <span className="text-xs text-slate-400">列がありません</span>}
             </div>
+            <button type="button" onClick={removeActive} className="shrink-0 text-xs text-slate-300 hover:text-red-400 dark:text-slate-600 dark:hover:text-red-400" title={`${active.name}を削除`}>
+              テーブル削除
+            </button>
           </div>
-          <div className="px-3 pb-3"><Spreadsheet table={t} onChange={update} /></div>
+
+          {/* Add column */}
+          <div className="mb-3 flex gap-1.5">
+            <input
+              type="text"
+              value={newCol}
+              onChange={e => setNewCol(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && addCol()}
+              placeholder="列名を追加"
+              className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1 font-mono text-xs uppercase outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+            />
+            <button type="button" onClick={addCol}
+              className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300">
+              ＋列
+            </button>
+          </div>
+
+          {/* Spreadsheet */}
+          <Spreadsheet table={active} onChange={update} />
         </div>
-      ))}
-      {adding ? (
-        <div className="flex gap-1.5">
-          <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") addTable(); if (e.key === "Escape") setAdding(false); }}
-            placeholder="テーブル名" autoFocus
-            className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm font-bold uppercase outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100" />
-          <button type="button" onClick={addTable} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">追加</button>
-          <button type="button" onClick={() => setAdding(false)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-500 dark:border-slate-600">✕</button>
-        </div>
-      ) : (
-        <button type="button" onClick={() => setAdding(true)}
-          className="flex items-center gap-2 rounded-xl border-2 border-dashed border-slate-200 px-4 py-3 text-sm font-medium text-slate-400 transition hover:border-blue-400 hover:text-blue-500 dark:border-slate-700">
-          ＋ テーブルを追加
-        </button>
       )}
     </div>
   );
@@ -738,7 +890,7 @@ export function AbapTableSandbox() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-2">
         <section>
           <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">テーブル定義 &amp; データ</h2>
           <TableDesigner tables={tables} onChange={setTables} />
