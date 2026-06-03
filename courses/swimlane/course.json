@@ -1,0 +1,24 @@
+{
+  "title": "Kai Swimlane 完全入門 — GUIエディタからDSL・フロー制御まで",
+  "active": true,
+  "description": "ブラウザで動くスイムレーン図エディタ「Kai Swimlane」をゼロから完全習得するコース。GUIモード（クリック操作）→ テキストモード（DSL基礎）→ フロー制御（if・fork・section・branch・merge）の3ブロックで体系的に学ぶ。",
+  "lessons": [
+    { "file": "00-introduction",       "title": "コース概要 — Kai Swimlane とは・GUIエディタの全体像",       "meta": "初学者 · 15分" },
+    { "file": "01-roles-and-steps",    "title": "GUI 第1章 — レーン（役割）とステップの作成",               "meta": "初学者 · 20分" },
+    { "file": "02-flow-control-gui",   "title": "GUI 第2章 — 分岐・並行処理・枠・支線の追加",              "meta": "初学者 · 25分" },
+    { "file": "03-step-inspector",     "title": "GUI 第3章 — ステップ詳細（インスペクター）の活用",          "meta": "初学者 · 20分" },
+    { "file": "04-settings-export",    "title": "GUI 第4章 — 設定・テーマ・エクスポート",                   "meta": "初学者 · 15分" },
+    { "file": "05-text-introduction",  "title": "テキスト概要 — DSLとは何か・7セクションの全体像",           "meta": "初学者 · 15分" },
+    { "file": "06-title-page-option",  "title": "テキスト 第1章 — /title/ /page/ /option/ の設定",         "meta": "初学者 · 20分" },
+    { "file": "07-roles-blocks-props", "title": "テキスト 第2章 — /role/ /block/ /prop/ の定義",           "meta": "初学者 · 25分" },
+    { "file": "08-steps",              "title": "テキスト 第3章 — ステップ記述（/line/）の基本",            "meta": "初学者 · 25分" },
+    { "file": "09-flow-introduction",  "title": "フロー制御概要 — 6つの構文の全体像",                       "meta": "中級 · 15分" },
+    { "file": "10-if-branches",        "title": "フロー 第1章 — 排他分岐（if / elseif / else / endif）",   "meta": "中級 · 25分" },
+    { "file": "11-fork-parallel",      "title": "フロー 第2章 — 並行処理（fork / and / endfork）",         "meta": "中級 · 20分" },
+    { "file": "12-section-branch",     "title": "フロー 第3章 — 枠（section）と支線（branch）",            "meta": "中級 · 20分" },
+    { "file": "13-merge-advanced",     "title": "フロー 第4章 — 途中合流（merge）と応用パターン",           "meta": "中級 · 25分" }
+  ],
+  "courseTest": [],
+  "additionalContent": [],
+  "specialContent": []
+}
