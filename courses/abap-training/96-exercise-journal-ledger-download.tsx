@@ -1373,7 +1373,7 @@ ENDFORM.`}
               <InfoPanel title="手順：表題の登録" variant="reference">
                 <ul>
                   <li>SE41 を起動 → <strong>プログラム名</strong>を入力</li>
-                  <li>サブオブジェクトで<strong>「表題（タイトル）」</strong>を選ぶ</li>
+                  <li>サブオブジェクトで<strong>「表題（タイトル）」➜「登録」</strong>を選ぶ</li>
                   <li>
                     表題コード <code>T0010</code>、表題 <strong>仕訳日記帳 演習4</strong> を入力して保存
                   </li>
