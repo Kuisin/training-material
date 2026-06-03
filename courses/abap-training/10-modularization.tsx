@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   lessonChrome,
   Callout,
@@ -26,7 +26,7 @@ export default function ModularizationLesson() {
         {
           title: "概要",
           plainText:
-            "プログラムを分かりやすくする\n処理をサブルーチンに分けると、なぜ分かりやすくなるのか。引数とスコープを学びます。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・処理をサブルーチン（関数に近い）に分ける理由\n・サブルーチンへ値を渡す引数（USING / CHANGING）\n・変数のスコープ（グローバル＝全体／ローカル＝そのサブルーチンの中だけ）",
+            "プログラムを分かりやすくする\n処理をサブルーチンに分けると、なぜ分かりやすくなるのか。引数とスコープを学びます。\n⏱ 25分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・処理をサブルーチン（関数に近い）に分ける理由\n・サブルーチンへ値を渡す引数（USING / CHANGING）\n・変数のスコープ（グローバル＝全体／ローカル＝そのサブルーチンの中だけ）\n補足：処理をサブルーチンに分けるのは「大きな問題を小さく分けて解く」分割統治（ディバイド・アンド・コンカー）の実践。考え方の背景は別コンテンツ「分割統治」で詳しく解説。",
           content: (
             <>
               <hgroup>
@@ -49,6 +49,17 @@ export default function ModularizationLesson() {
               <Callout variant="note">
                 <strong>サブルーチン</strong>＝名前を付けた処理のかたまり。Excel のマクロや、他の言語の<strong>関数</strong>と同じ発想で、「必要なときに呼び出す」ものです。
               </Callout>
+              <Callout variant="tip">
+                処理をサブルーチンに分けるのは、「大きな問題を小さく分けて解く」という
+                <strong>分割統治（ディバイド・アンド・コンカー）</strong>の実践です。
+                考え方の背景は、別コンテンツで詳しく解説しています。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="18-divide-and-conquer"
+                label="参考: 分割統治（ディバイド・アンド・コンカー）を学ぶ"
+                className="mb-4"
+              />
             </>
           ),
         },

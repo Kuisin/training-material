@@ -25,7 +25,8 @@
   "additionalContent": [
     { "file": "14-sap-development-tools", "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション", "meta": "初学者 · 35分" },
     { "file": "15-files-jobs-and-batch", "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC", "meta": "初学者 · 25分" },
-    { "file": "17-frequently-used-tables", "title": "よく使うテーブルと項目（列）早見表 — BKPF・BSEG・ACDOCAほか", "meta": "初学者 · 30分" }
+    { "file": "17-frequently-used-tables", "title": "よく使うテーブルと項目（列）早見表 — BKPF・BSEG・ACDOCAほか", "meta": "初学者 · 30分" },
+    { "file": "18-divide-and-conquer", "title": "分割統治（ディバイド・アンド・コンカー）— 大きな問題を小さく分けて解く", "meta": "初学者 · 15分" }
   ],
   "specialContent": [
     {
