@@ -1,7 +1,6 @@
 import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { applyStoredTheme } from "./lib/theme";
-import { UmamiIdentify } from "./components/umami-identify";
 import "./styles.css";
 
 /** Vite MPA エントリ: default export されたレッスンコンポーネントを #root にマウントする。 */
@@ -18,7 +17,6 @@ export function mountLesson(LessonPage: ComponentType): void {
 
   createRoot(root).render(
     <StrictMode>
-      <UmamiIdentify />
       <LessonPage />
     </StrictMode>
   );
