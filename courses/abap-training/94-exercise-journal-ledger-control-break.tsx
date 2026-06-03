@@ -545,6 +545,7 @@ END-OF-SELECTION.
 
 *   コントロールレベル判定（上位項目が変われば下位も自動的に再表示される）
     AT NEW blart.  " 伝票タイプが変わった行
+      NEW-PAGE.    " 改ページ
       lv_show_blart = abap_true.
     ENDAT.
     AT NEW budat.  " 転記日付が変わった行
@@ -780,7 +781,10 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
               <CodeBlock
                 language="ABAP"
                 code={`LOOP AT gt_out INTO gs_out.
-  AT NEW blart. ... ENDAT.   " 伝票タイプが変わった先頭行
+  AT NEW blart.
+    NEW-PAGE.                 " 伝票タイプが変わったら改ページ
+    lv_show_blart = abap_true.
+  ENDAT.
   AT NEW budat. ... ENDAT.   " 転記日付 〃
   AT NEW bldat. ... ENDAT.   " 伝票日付 〃
   AT NEW belnr. ... ENDAT.   " 伝票番号 〃
@@ -874,7 +878,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
         {
           title: "A-④ フラグで「出す / 出さない」を決める",
           plainText:
-            "A-④ フラグ。AT NEWの中では値を読まず、表示フラグ(lv_show_*)を立てるだけにする。\n理由：AT NEW〜ENDATの内側では、その項目より右の作業領域が'*'で埋まる（ABAP仕様）。だから値読みは外で。\nループ先頭で全フラグCLEAR→AT NEWでフラグON→ENDATの外でフラグが立った項目だけgs_outから値をセット。",
+            "A-④ フラグ。AT NEWの中では値を読まず、表示フラグ(lv_show_*)を立てるだけにする。AT NEW blartではNEW-PAGEも入れて伝票タイプごとに改ページ（命令自体は第7章、役割分担はA-⑥で詳説）。\n理由：AT NEW〜ENDATの内側では、その項目より右の作業領域が'*'で埋まる（ABAP仕様）。だから値読みは外で。\nループ先頭で全フラグCLEAR→AT NEWでフラグON→ENDATの外でフラグが立った項目だけgs_outから値をセット。",
           content: (
             <>
               <h2>A-④ AT NEW の中では「旗を立てるだけ」</h2>
@@ -889,7 +893,10 @@ CLEAR: lv_blart, lv_blart_txt, lv_budat_c, lv_bldat_c, lv_belnr, lv_usnam,
        lv_show_blart, lv_show_budat, lv_show_bldat, lv_show_belnr, lv_show_usnam.
 
 " ② 変わり目の項目だけ旗を立てる（値は読まない）
-AT NEW blart. lv_show_blart = abap_true. ENDAT.  " 伝票タイプ
+AT NEW blart.
+  NEW-PAGE.                      " 伝票タイプが変わったら改ページ
+  lv_show_blart = abap_true.
+ENDAT.                           " 伝票タイプ
 AT NEW budat. lv_show_budat = abap_true. ENDAT.  " 転記日付
 AT NEW bldat. lv_show_bldat = abap_true. ENDAT.  " 伝票日付
 AT NEW belnr. lv_show_belnr = abap_true. ENDAT.  " 伝票番号
@@ -907,11 +914,23 @@ IF lv_show_usnam = abap_true.
   lv_usnam = gs_out-usnam.          " ユーザ
 ENDIF.`}
               />
+              <Callout variant="note">
+                <strong><code>AT NEW blart</code> だけ <code>NEW-PAGE</code> も入れる</strong>：伝票タイプが変わった行は
+                新しいページから始めます。旗を立てるのと同時に改ページするので、
+                タイプごとに帳票が区切られて読みやすくなります。
+              </Callout>
+              <Dialog speaker="teacher">
+                <code>NEW-PAGE</code> 命令そのものは<strong>第7章</strong>で学びました（改ページして{" "}
+                <code>TOP-OF-PAGE</code> を出し直す、あの命令です）。
+                このスライドでは「<code>AT NEW blart</code> の中に入れる」と覚えてください。
+                改ページ全体の話——<code>RESERVE</code> や見出しの再表示との<strong>役割分担</strong>——は、
+                このレッスンの<strong>後ろ（A-⑥）</strong>で詳しく説明します。ここでは深追いしません。
+              </Dialog>
               <Callout variant="warning">
                 <strong>なぜ中で値を読まないのか</strong>：<code>AT NEW … ENDAT</code> の<strong>内側</strong>では、
                 ABAP がその制御項目より<strong>右側の作業領域を <code>*</code> で埋める</strong>仕様があります。
                 中で <code>gs_out-belnr</code> などを読むと <code>*</code> が入っていて事故ります。
-                だから「中では旗だけ」「値は外で」が定石です。
+                だから「中では旗だけ」「値は外で」が定石です。<code>NEW-PAGE</code> のような出力命令は問題ありません。
               </Callout>
               <Dialog speaker="b">
                 <code>AT NEW</code> の中ってちょっと特別な空間なんですね。中では旗を立てるだけ、と覚えます。
@@ -976,7 +995,7 @@ ENDIF.`}
         {
           title: "A-⑥ 改ページ時は見出しを再表示",
           plainText:
-            "A-⑥ 改ページ対応。サプレスだけだと、ページをまたいだ伝票の続きが新ページ先頭で見出し空欄になり読めない。\nRESERVE 1 LINES で『この明細が今ページに収まるか』を先に判定→収まらなければ改ページしsy-pagnoが進む。\n直前行のページ番号 gv_pageno と比較し、変わっていたら全フラグをONにして見出しを再表示。出力後 gv_pageno = sy-pagno を保持。",
+            "A-⑥ 改ページ対応。サプレスだけだと、ページをまたいだ伝票の続きが新ページ先頭で見出し空欄になり読めない。\nRESERVE 1 LINES で『この明細が今ページに収まるか』を先に判定→収まらなければ改ページしsy-pagnoが進む。\n直前行のページ番号 gv_pageno と比較し、変わっていたら全フラグをONにして見出しを再表示。出力後 gv_pageno = sy-pagno を保持。\nB：lv_show_blartを外でIFしてNEW-PAGEは？→旗は『表示する』意味で、改ページ再表示でも立つのでNEW-PAGEのトリガーに使えない。NEW-PAGEはAT NEW blartの中に置く。",
           content: (
             <>
               <h2>A-⑥ ページが変わったら、見出しをもう一度</h2>
@@ -1016,6 +1035,34 @@ gv_pageno = sy-pagno.`}
                   </li>
                 </ul>
               </InfoPanel>
+              <InfoPanel title="改ページは3か所で役割が違う" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>処理</th>
+                      <th>置く場所</th>
+                      <th>いつ動くか</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>NEW-PAGE</code></td>
+                      <td><code>AT NEW blart</code> の<strong>中</strong></td>
+                      <td>伝票タイプが変わったとき（意図的な区切り）</td>
+                    </tr>
+                    <tr>
+                      <td><code>RESERVE 1 LINES</code></td>
+                      <td><code>AT NEW</code> の<strong>外</strong></td>
+                      <td>行がページに収まらないとき（溢れ改ページ）</td>
+                    </tr>
+                    <tr>
+                      <td><code>IF sy-pagno &lt;&gt; gv_pageno</code></td>
+                      <td><code>AT NEW</code> の<strong>外</strong></td>
+                      <td>ページが変わったあと、見出しを<strong>再表示</strong>（<code>NEW-PAGE</code> は呼ばない）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
               <Callout variant="note">
                 ここでフラグ方式が効きます。<code>AT NEW</code> が立てた旗に、改ページ判定が「全部立てる」を<strong>上書き</strong>するだけ。
                 値セットと <code>WRITE</code> は1か所のままで、両方の事情をきれいに合流できます。
@@ -1023,6 +1070,55 @@ gv_pageno = sy-pagno.`}
               <Dialog speaker="b">
                 「変わり目だから出す」と「ページが変わったから出す」の2つの理由が、同じ旗に集まるんですね。
               </Dialog>
+              <Dialog speaker="b">
+                それなら <code>NEW-PAGE</code> も <code>AT NEW</code> の外に出して、
+                <code>IF lv_show_blart = abap_true.</code> のときだけ実行すれば、旗の管理が1か所にまとまりませんか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                惜しい発想ですが、<strong>それは避けましょう</strong>。
+                <code>lv_show_blart</code> は「見出しを<strong>出すか</strong>」の旗で、
+                <code>NEW-PAGE</code> は「タイプが<strong>変わったら区切る</strong>」命令——意味が違います。
+                同じ <code>IF</code> にまとめると、意図しない改ページが起きます。
+              </Dialog>
+              <Callout variant="warning">
+                <strong>なぜ <code>IF lv_show_blart</code> で <code>NEW-PAGE</code> しないのか</strong>
+                <ul className="mt-2">
+                  <li>
+                    <code>lv_show_blart</code> が立つ理由は2つ：
+                    <code>AT NEW blart</code>（タイプが変わった）と{" "}
+                    <code>IF sy-pagno &lt;&gt; gv_pageno</code>（同じ伝票の続きが新ページに載った＝溢れ改ページ）
+                  </li>
+                  <li>
+                    外で <code>IF lv_show_blart … NEW-PAGE</code> すると、2番目でも改ページしてしまう
+                    → タイプは同じなのに余計な空白ページやレイアウト崩れ
+                  </li>
+                  <li>
+                    別フラグを足して外で <code>NEW-PAGE</code> することもできるが、
+                    <code>AT NEW blart</code> の中に書くのが ABAP の定石で、短くて意図も明確
+                  </li>
+                </ul>
+              </Callout>
+              <CodeBlock
+                language="ABAP"
+                code={`" ✗ こう書かない
+AT NEW blart.
+  lv_show_blart = abap_true.
+ENDAT.
+IF lv_show_blart = abap_true.
+  NEW-PAGE.    " ← 溢れ改ページの再表示行でも発火してしまう
+ENDIF.
+
+" ✓ 改ページの意図ごとに場所を分ける
+AT NEW blart.
+  NEW-PAGE.              " タイプが変わったときだけ
+  lv_show_blart = abap_true.
+ENDAT.
+RESERVE 1 LINES.         " 行が収まらないときだけ
+IF sy-pagno <> gv_pageno.  " 見出しを出し直すだけ（NEW-PAGE は呼ばない）
+  lv_show_blart = abap_true.
+  " ...
+ENDIF.`}
+              />
               <Dialog speaker="a">
                 <code>RESERVE</code> を <code>WRITE</code> の前に置くのが効くんですね。先に改ページしておくから、ページ番号の比較が正しくなる。
               </Dialog>
@@ -1155,7 +1251,7 @@ gv_pageno = sy-pagno.`}
                 chart={`flowchart TD
   S[gt_out を1行読む] --> D[借方/貸方を gv_debit / gv_credit に振り分け]
   D --> C[作業領域と表示フラグを CLEAR]
-  C --> AN[AT NEW で変わり目の項目の旗を立てる]
+  C --> AN["AT NEW で旗を立てる（blart なら NEW-PAGE も）"]
   AN --> R[RESERVE 1 LINES]
   R --> P{"改ページした? (sy-pagno ≠ gv_pageno)"}
   P -->|はい| ALL[見出しの旗を全部立てる]
@@ -1177,7 +1273,10 @@ gv_pageno = sy-pagno.`}
                     <strong>整形の箱</strong>：日付は <code>c LENGTH 10</code> ＋ <code>WRITE … TO … USING EDIT MASK</code>
                   </li>
                   <li>
-                    <strong>改ページ対応</strong>：<code>RESERVE</code> ＋ <code>sy-pagno</code> / <code>gv_pageno</code> 比較
+                    <strong>改ページ</strong>：<code>AT NEW blart</code> で <code>NEW-PAGE</code>（タイプごとに区切る）
+                  </li>
+                  <li>
+                    <strong>改ページ再表示</strong>：<code>RESERVE</code> ＋ <code>sy-pagno</code> / <code>gv_pageno</code> 比較
                   </li>
                 </ul>
               </InfoPanel>
@@ -1450,7 +1549,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
         {
           title: "B-⑤ 出力ループ前半（振り分け・初期化・旗立て）",
           plainText:
-            "B-⑤ END-OF-SELECTIONのLOOP前半。1行ぶんを前半（この行）と後半（B-⑥）に分けて読む。\n(1)借方・貸方の振り分け（演習②と同じ、毎行CLEARしてからshkzgで振り分け）。(2)作業領域・フラグを毎行CLEAR（前の行の値や旗が残らないように）。(3)AT NEW×5で変わり目の項目だけ旗を立てる（中では値を読まない）。",
+            "B-⑤ END-OF-SELECTIONのLOOP前半。1行ぶんを前半（この行）と後半（B-⑥）に分けて読む。\n(1)借方・貸方の振り分け（演習②と同じ、毎行CLEARしてからshkzgで振り分け）。(2)作業領域・フラグを毎行CLEAR（前の行の値や旗が残らないように）。(3)AT NEW×5で変わり目の項目だけ旗を立てる（AT NEW blartではNEW-PAGEも。中では値を読まない）。",
           content: (
             <>
               <h2>B-⑤ 出力ループ前半（振り分け・初期化・旗立て）</h2>
@@ -1476,7 +1575,10 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
     lv_show_blart, lv_show_budat, lv_show_bldat, lv_show_belnr, lv_show_usnam.
 
 *   (3) 変わり目の項目だけ旗を立てる（中では値を読まない → A-④）
-    AT NEW blart. lv_show_blart = abap_true. ENDAT.  " 伝票タイプ
+    AT NEW blart.
+      NEW-PAGE.    " 改ページ
+      lv_show_blart = abap_true.
+    ENDAT.         " 伝票タイプ
     AT NEW budat. lv_show_budat = abap_true. ENDAT.  " 転記日付
     AT NEW bldat. lv_show_bldat = abap_true. ENDAT.  " 伝票日付
     AT NEW belnr. lv_show_belnr = abap_true. ENDAT.  " 伝票番号
@@ -1492,6 +1594,7 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                   </li>
                   <li>
                     <strong>(3) 旗立て</strong> … <code>AT NEW</code> を5つ並べ、変わり目の項目だけ旗を立てる。
+                    <code>AT NEW blart</code> では <code>NEW-PAGE</code> も入れて伝票タイプごとに改ページ（A-④）。
                     中では値を読まない（A-④の <code>*</code> 埋め回避）。
                   </li>
                 </ul>
@@ -1643,7 +1746,8 @@ SORT gt_out BY blart budat bldat belnr buzei.  " 伝票タイプ→転記日付�
                     <code>SORT gt_out BY blart budat bldat belnr buzei</code>（構造体の並びと一致）
                   </li>
                   <li>
-                    <code>END-OF-SELECTION</code> の中：<code>AT NEW</code> ×5 ＋ <code>RESERVE</code> ＋ 改ページ再表示 ＋ フラグ判定で値セット
+                    <code>END-OF-SELECTION</code> の中：<code>AT NEW blart</code> で <code>NEW-PAGE</code> ＋ <code>AT NEW</code> ×5 ＋{" "}
+                    <code>RESERVE</code> ＋ 改ページ再表示 ＋ フラグ判定で値セット
                   </li>
                 </ul>
               </InfoPanel>
