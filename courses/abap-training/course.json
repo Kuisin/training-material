@@ -111,6 +111,11 @@
       "file": "19-file-output",
       "title": "ファイル出力 — PCへのダウンロードとデータ整形",
       "meta": "初学者 · 20分"
+    },
+    {
+      "file": "20-how-to-debug-program",
+      "title": "プログラムの直し方（デバッグ）— 非エンジニア向けの手順とよくあるエラー",
+      "meta": "初学者 · 25分"
     }
   ],
   "toolContent": [
