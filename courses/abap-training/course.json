@@ -116,6 +116,11 @@
       "file": "20-how-to-debug-program",
       "title": "プログラムの直し方（デバッグ）— 非エンジニア向けの手順とよくあるエラー",
       "meta": "初学者 · 25分"
+    },
+    {
+      "file": "21-oop-class-method",
+      "title": "オブジェクト指向とクラス・メソッド（SE24）— S/4HANAのモダンABAP入門",
+      "meta": "初学者 · 30分"
     }
   ],
   "toolContent": [
