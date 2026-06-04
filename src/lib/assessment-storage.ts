@@ -97,3 +97,8 @@ export function appendAttemptHistory(
 export function createAttemptId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+/** データ転送用: 受験履歴を直接書き込む（インポート時に使用）。 */
+export function setAttemptHistory(storageKey: string, records: AssessmentAttemptRecord[]): void {
+  writeJson(historyKey(storageKey), records.slice(0, HISTORY_MAX));
+}

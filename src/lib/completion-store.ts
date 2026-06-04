@@ -11,7 +11,7 @@ import { useSyncExternalStore } from "react";
  * - 静的サイトのため「完全な削除防止」は不可能（DevTools 等での消去は防げない）。
  */
 
-interface CompletionData {
+export interface CompletionData {
   /** courseSlug -> 完了したレッスンファイル一覧 */
   completedLessons: Record<string, string[]>;
   /** courseSlug -> 解放済みロックコンテンツのファイル一覧（パスワード・完了条件のいずれかで解放） */
@@ -170,6 +170,20 @@ export const isSpecialUnlocked = isContentUnlocked;
 /** 完了・解放状態の変化を購読する（変化のたびに再描画）。 */
 export function useCompletion(): number {
   return useSyncExternalStore(subscribe, getVersion, getVersion);
+}
+
+/** データ転送用: 現在の完了・解放データのスナップショットを返す。 */
+export function getCompletionSnapshot(): { completedLessons: Record<string, string[]>; unlockedContent: Record<string, string[]> } {
+  ensureLoaded();
+  return JSON.parse(JSON.stringify({ completedLessons: data.completedLessons, unlockedContent: data.unlockedContent })) as { completedLessons: Record<string, string[]>; unlockedContent: Record<string, string[]> };
+}
+
+/** データ転送用: 外部データをマージしてインポートする。 */
+export function importCompletionData(src: Partial<CompletionData>): void {
+  ensureLoaded();
+  mergeInto(data, src);
+  persist();
+  emit();
 }
 
 if (typeof window !== "undefined") {
