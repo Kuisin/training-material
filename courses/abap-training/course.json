@@ -140,7 +140,12 @@
     {
       "file": "96-exercise-journal-ledger-download",
       "title": "特別演習④ Part B — GUIステータスとExcelダウンロード",
-      "meta": "特別 · 45分"
+      "meta": "特別 · 45分",
+      "lock": {
+        "requires": "course",
+        "password": "abap-report-311",
+        "mode": "any"
+      }
     }
   ]
 }
