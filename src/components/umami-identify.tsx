@@ -1,4 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
+import { getOrCreateUserId } from "../lib/user-id";
 
 const STORAGE_KEY = "umami_user";
 const SKIP_KEY = "umami_skip_until";
@@ -42,11 +43,15 @@ export function UmamiIdentify() {
   const [countdown, setCountdown] = useState(SKIP_COUNTDOWN);
 
   useEffect(() => {
+    const userId = getOrCreateUserId();
     const stored = getStoredUser();
     if (stored) {
-      window.umami?.identify({ name: stored.name, email: stored.email });
-    } else if (!isSkippedToday()) {
-      setOpen(true);
+      window.umami?.identify({ userId, name: stored.name, email: stored.email });
+    } else {
+      window.umami?.identify({ userId });
+      if (!isSkippedToday()) {
+        setOpen(true);
+      }
     }
   }, []);
 
@@ -61,7 +66,7 @@ export function UmamiIdentify() {
     e.preventDefault();
     const user: UmamiUser = { name: name.trim(), email: email.trim() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    window.umami?.identify({ name: user.name, email: user.email });
+    window.umami?.identify({ userId: getOrCreateUserId(), name: user.name, email: user.email });
     setOpen(false);
   }
 
