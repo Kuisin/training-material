@@ -68,6 +68,7 @@ function readLessonEntries(root) {
       ...(meta.courseTest ?? []),
       ...(meta.additionalContent ?? []),
       ...(meta.specialContent ?? []),
+      ...(meta.toolContent ?? []),
     ];
 
     for (const lesson of allLessons) {

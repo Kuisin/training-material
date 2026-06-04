@@ -177,6 +177,7 @@ export function buildSearchIndex(root) {
       { list: meta.courseTest ?? [], prefix: 'T', startAt: 1 },
       { list: meta.additionalContent ?? [], prefix: 'A', startAt: 1 },
       { list: meta.specialContent ?? [], prefix: 'S', startAt: 1 },
+      { list: meta.toolContent ?? [], prefix: 'X', startAt: 1 },
     ];
     const allLessons = categories.flatMap(({ list, prefix, startAt }) =>
       list.map((lesson, index) => ({ lesson, num: lesson.num ?? `${prefix}${index + startAt}` }))

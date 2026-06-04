@@ -85,6 +85,7 @@ export interface Course {
   courseTest: CourseLesson[];
   additionalContent: CourseLesson[];
   specialContent: SpecialContentEntry[];
+  toolContent: CourseLesson[];
 }
 
 export type CalloutVariant = "tip" | "warning" | "note";

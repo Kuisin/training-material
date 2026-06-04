@@ -113,6 +113,9 @@
       "meta": "初学者 · 20分"
     }
   ],
+  "toolContent": [
+    { "file": "95-table-sandbox", "title": "内部テーブルSandbox — テーブルを定義してコードで書き込みを試す", "meta": "ツール · いつでも" }
+  ],
   "specialContent": [
     {
       "file": "92-exercise-journal-ledger",
