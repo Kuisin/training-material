@@ -181,7 +181,7 @@ ENDFORM.                    " F_CALL_DOWNLOAD`;
 
 /**
  * Part C 完成コードを Part D（create_report_6）完成形へ変換する。
- * 98-exercise の D-⑦ 全文表示用。
+ * Part D では Part B で用意した DL ボタンにダウンロード処理を接続する。
  */
 export function buildPartDFinalProgram(): string {
   let code = partCFinalProgram.replace(
@@ -190,21 +190,31 @@ export function buildPartDFinalProgram(): string {
   );
 
   code = code.replace(
-    `*>>> 追加: フィールド名構造（Excelヘッダ行用）
-TYPES: BEGIN OF g_typ_fname,
-         name TYPE c LENGTH 60,
-       END OF g_typ_fname.
-
-`,
-    ""
-  );
-
-  code = code.replace(
-    `       END OF g_typ_dl.
+    `       END OF g_typ_out.
 
 *---------------------------------------------------------------------*
 * DATA（グローバル変数）`,
-    `       END OF g_typ_dl.
+    `       END OF g_typ_out.
+
+*>>> 追加: ダウンロード用構造（文字型でExcel出力を整形）
+TYPES: BEGIN OF g_typ_dl,
+         bukrs     TYPE c LENGTH 10,
+         butxt     TYPE c LENGTH 25,
+         blart     TYPE c LENGTH 5,
+         blart_txt TYPE c LENGTH 30,
+         budat     TYPE c LENGTH 10,
+         bldat     TYPE c LENGTH 10,
+         belnr     TYPE c LENGTH 10,
+         usnam     TYPE c LENGTH 12,
+         gjahr     TYPE c LENGTH 4,
+         buzei     TYPE c LENGTH 5,
+         hkont     TYPE c LENGTH 10,
+         hkont_txt TYPE c LENGTH 20,
+         shkzg     TYPE c LENGTH 2,
+         dmbtr     TYPE c LENGTH 16,
+         sgtxt     TYPE c LENGTH 50,
+         waers     TYPE c LENGTH 5,
+       END OF g_typ_dl.
 
 TYPES g_typ_dl_tab TYPE STANDARD TABLE OF g_typ_dl WITH DEFAULT KEY.
 
@@ -222,20 +232,74 @@ TYPES g_typ_dl_tab TYPE STANDARD TABLE OF g_typ_dl WITH DEFAULT KEY.
   );
 
   code = code.replace(
-    `* AT SELECTION-SCREEN ON VALUE-REQUEST（ファイル保存ダイアログ）
-*---------------------------------------------------------------------*
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_get_filename.`,
-    `* AT SELECTION-SCREEN ON VALUE-REQUEST（ファイル保存ダイアログ）
-*---------------------------------------------------------------------*
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_select_file.`
+    `           c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
+           c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE`,
+    `           c_on         TYPE c           VALUE 'X',   " フラグオン
+           c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
+           c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE`
   );
 
   code = code.replace(
-    /\*&--------------------------------------------------------------------\*\r?\n\*& Form F_GET_FILENAME[\s\S]*?ENDFORM\.                    " F_GET_FILENAME\r?\n\r?\n\*&--------------------------------------------------------------------\*\r?\n\*& Form F_DOWNLOAD[\s\S]*?ENDFORM\.                    " F_DOWNLOAD/,
-    downloadForms
+    `PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.
+SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.`,
+    `PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.
+SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
+
+*>>> 追加: 出力ファイルパス
+PARAMETERS: p_file TYPE string LOWER CASE.`
   );
+
+  code = code.replace(
+    `AT SELECTION-SCREEN.
+  PERFORM f_check_parameters.
+
+*---------------------------------------------------------------------*
+* START-OF-SELECTION`,
+    `AT SELECTION-SCREEN.
+  PERFORM f_check_parameters.
+
+*---------------------------------------------------------------------*
+* AT SELECTION-SCREEN ON VALUE-REQUEST（ファイル保存ダイアログ）
+*---------------------------------------------------------------------*
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  PERFORM f_select_file.
+
+*---------------------------------------------------------------------*
+* START-OF-SELECTION`
+  );
+
+  code = code.replace(
+    `END-OF-SELECTION.
+
+  PERFORM f_write_list.     " Ⅲ データ出力
+
+*=====================================================================*
+* サブルーチン定義`,
+    `END-OF-SELECTION.
+
+  PERFORM f_write_list.     " Ⅲ データ出力
+
+*---------------------------------------------------------------------*
+* AT USER-COMMAND（Part B の DL ボタン → ダウンロード処理）
+*---------------------------------------------------------------------*
+AT USER-COMMAND.
+  CASE sy-ucomm.
+    WHEN 'DL'.
+      PERFORM f_download.
+  ENDCASE.
+
+*=====================================================================*
+* サブルーチン定義`
+  );
+
+  if (!code.includes("*& Form F_DOWNLOAD")) {
+    code = code.replace(
+      `ENDFORM.                    " F_WRITE_HEAD`,
+      `ENDFORM.                    " F_WRITE_HEAD
+
+${downloadForms}`
+    );
+  }
 
   return code;
 }

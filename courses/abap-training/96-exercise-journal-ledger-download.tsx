@@ -1,4 +1,4 @@
-import {
+﻿import {
   Lesson,
   Callout,
   Dialog,
@@ -13,783 +13,19 @@ import {
   mountLesson,
 } from "../../src/lesson";
 
+import { partAFinalProgram } from "./journal-ledger-part-a-program";
+import { partBFinalProgram } from "./journal-ledger-part-b-program";
+
 export const lessonMeta = {
-  title: "特別演習④ Part B — GUIステータスとExcelダウンロード",
-  meta: "特別 · 45分",
+  title: "特別演習④ Part B — GUIステータスとボタン設定",
+  meta: "特別 · 25分",
 };
 
-/**
- * 出発点：Part A の構造化済みコード create_report_3（FORM/PERFORM 版）。
- * Part B では、この構造の上に「ファイルパスの選択画面」「ファイル保存ダイアログ」
- * 「GUIステータス／タイトル」「AT USER-COMMAND」「GUI_DOWNLOAD」を FORM として足す。
- */
-const START_PROGRAM = `REPORT create_report_3
-  NO STANDARD PAGE HEADING
-  LINE-SIZE 200
-  LINE-COUNT 58.
-
-*---------------------------------------------------------------------*
-* TYPES
-*---------------------------------------------------------------------*
-TYPES: BEGIN OF g_typ_bkpf,
-         bukrs TYPE bkpf-bukrs,
-         blart TYPE bkpf-blart,
-         budat TYPE bkpf-budat,
-         bldat TYPE bkpf-bldat,
-         belnr TYPE bkpf-belnr,
-         usnam TYPE bkpf-usnam,
-         gjahr TYPE bkpf-gjahr,
-       END OF g_typ_bkpf.
-
-TYPES: BEGIN OF g_typ_bseg,
-         bukrs TYPE bseg-bukrs,
-         belnr TYPE bseg-belnr,
-         gjahr TYPE bseg-gjahr,
-         buzei TYPE bseg-buzei,
-         hkont TYPE bseg-hkont,
-         shkzg TYPE bseg-shkzg,
-         dmbtr TYPE bseg-dmbtr,
-         sgtxt TYPE bseg-sgtxt,
-       END OF g_typ_bseg.
-
-TYPES: BEGIN OF g_typ_t001,
-         ktopl TYPE t001-ktopl,
-         waers TYPE t001-waers,
-       END OF g_typ_t001.
-
-TYPES: BEGIN OF g_typ_t003t,
-         blart TYPE t003t-blart,
-         ltext TYPE t003t-ltext,
-       END OF g_typ_t003t.
-
-TYPES: BEGIN OF g_typ_out,
-         bukrs     TYPE bkpf-bukrs,
-         blart     TYPE bkpf-blart,
-         blart_txt TYPE t003t-ltext,
-         budat     TYPE bkpf-budat,
-         bldat     TYPE bkpf-bldat,
-         belnr     TYPE bkpf-belnr,
-         usnam     TYPE bkpf-usnam,
-         gjahr     TYPE bkpf-gjahr,
-         buzei     TYPE bseg-buzei,
-         hkont     TYPE bseg-hkont,
-         hkont_txt TYPE skat-txt20,
-         shkzg     TYPE bseg-shkzg,
-         dmbtr     TYPE bseg-dmbtr,
-         sgtxt     TYPE bseg-sgtxt,
-         waers     TYPE t001-waers,
-       END OF g_typ_out.
-
-*---------------------------------------------------------------------*
-* DATA（グローバル変数）
-*---------------------------------------------------------------------*
-DATA: gt_bkpf  TYPE STANDARD TABLE OF g_typ_bkpf,
-      gs_bkpf  TYPE g_typ_bkpf,
-      gt_bseg  TYPE STANDARD TABLE OF g_typ_bseg,
-      gs_bseg  TYPE g_typ_bseg,
-      gs_t001  TYPE g_typ_t001,
-      gt_t003t TYPE STANDARD TABLE OF g_typ_t003t,
-      gs_t003t TYPE g_typ_t003t,
-      gt_out   TYPE STANDARD TABLE OF g_typ_out,
-      gs_out   TYPE g_typ_out.
-
-DATA: g_wrk_budat  TYPE bkpf-budat,
-      g_start_date TYPE bkpf-budat,
-      g_end_date   TYPE bkpf-budat,
-      g_hkont_txt  TYPE skat-txt20.
-
-DATA: gv_debit  TYPE bseg-dmbtr,
-      gv_credit TYPE bseg-dmbtr.
-
-DATA: gv_pageno TYPE sy-pagno.
-
-*---------------------------------------------------------------------*
-* CONSTANTS
-*---------------------------------------------------------------------*
-CONSTANTS: c_spras   TYPE t003t-spras VALUE 'J',
-           c_shkzg_s TYPE bseg-shkzg  VALUE 'S',
-           c_shkzg_h TYPE bseg-shkzg  VALUE 'H'.
-
-*---------------------------------------------------------------------*
-* PARAMETER
-*---------------------------------------------------------------------*
-PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.
-SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
-
-*=====================================================================*
-* イベント
-*=====================================================================*
-
-START-OF-SELECTION.
-  PERFORM f_init_main.      " Ⅰ データ初期化
-  PERFORM f_get_data.       " Ⅱ データ抽出
-
-TOP-OF-PAGE.
-  PERFORM f_write_head.     " ヘッダー出力
-
-END-OF-SELECTION.
-  PERFORM f_write_list.     " Ⅲ データ出力
-
-*=====================================================================*
-* サブルーチン定義（f_init_main / f_get_data / f_get_ktopl /
-*   f_get_blart_text / f_get_bkpf_and_bseg / f_write_list /
-*   f_proc_sort / f_proc_write / f_write_head）
-* ※ Part A 完成版そのまま。詳細は Part A の完成コードを参照。
-*=====================================================================*`;
-
-/**
- * 特別演習④ Part B 完成形：Part A の構造の上に、選択画面のファイルパス・
- * ファイル保存ダイアログ・GUIステータス／タイトル・AT USER-COMMAND・
- * GUI_DOWNLOAD（タブ区切り .xls）を足した完成コード create_report_4。
- */
-const FINAL_PROGRAM = `REPORT create_report_4
-  NO STANDARD PAGE HEADING
-  LINE-SIZE 200
-  LINE-COUNT 58.
-
-*---------------------------------------------------------------------*
-* TYPES
-*---------------------------------------------------------------------*
-TYPES: BEGIN OF g_typ_bkpf,
-         bukrs TYPE bkpf-bukrs,
-         blart TYPE bkpf-blart,
-         budat TYPE bkpf-budat,
-         bldat TYPE bkpf-bldat,
-         belnr TYPE bkpf-belnr,
-         usnam TYPE bkpf-usnam,
-         gjahr TYPE bkpf-gjahr,
-       END OF g_typ_bkpf.
-
-TYPES: BEGIN OF g_typ_bseg,
-         bukrs TYPE bseg-bukrs,
-         belnr TYPE bseg-belnr,
-         gjahr TYPE bseg-gjahr,
-         buzei TYPE bseg-buzei,
-         hkont TYPE bseg-hkont,
-         shkzg TYPE bseg-shkzg,
-         dmbtr TYPE bseg-dmbtr,
-         sgtxt TYPE bseg-sgtxt,
-       END OF g_typ_bseg.
-
-TYPES: BEGIN OF g_typ_t001,
-         ktopl TYPE t001-ktopl,
-         waers TYPE t001-waers,
-       END OF g_typ_t001.
-
-TYPES: BEGIN OF g_typ_t003t,
-         blart TYPE t003t-blart,
-         ltext TYPE t003t-ltext,
-       END OF g_typ_t003t.
-
-TYPES: BEGIN OF g_typ_out,
-         bukrs     TYPE bkpf-bukrs,
-         blart     TYPE bkpf-blart,
-         blart_txt TYPE t003t-ltext,
-         budat     TYPE bkpf-budat,
-         bldat     TYPE bkpf-bldat,
-         belnr     TYPE bkpf-belnr,
-         usnam     TYPE bkpf-usnam,
-         gjahr     TYPE bkpf-gjahr,
-         buzei     TYPE bseg-buzei,
-         hkont     TYPE bseg-hkont,
-         hkont_txt TYPE skat-txt20,
-         shkzg     TYPE bseg-shkzg,
-         dmbtr     TYPE bseg-dmbtr,
-         sgtxt     TYPE bseg-sgtxt,
-         waers     TYPE t001-waers,
-       END OF g_typ_out.
-
-*>>> 追加: ダウンロード用構造（文字型でExcel出力を整形）
-TYPES: BEGIN OF g_typ_dl,
-         bukrs     TYPE c LENGTH 10,
-         blart     TYPE c LENGTH 5,
-         blart_txt TYPE c LENGTH 30,
-         budat     TYPE c LENGTH 10,
-         bldat     TYPE c LENGTH 10,
-         belnr     TYPE c LENGTH 10,
-         usnam     TYPE c LENGTH 12,
-         gjahr     TYPE c LENGTH 4,
-         buzei     TYPE c LENGTH 5,
-         hkont     TYPE c LENGTH 10,
-         hkont_txt TYPE c LENGTH 20,
-         shkzg     TYPE c LENGTH 2,
-         dmbtr     TYPE c LENGTH 16,
-         sgtxt     TYPE c LENGTH 50,
-         waers     TYPE c LENGTH 5,
-       END OF g_typ_dl.
-
-*>>> 追加: フィールド名構造（Excelヘッダ行用）
-TYPES: BEGIN OF g_typ_fname,
-         name TYPE c LENGTH 60,
-       END OF g_typ_fname.
-
-*---------------------------------------------------------------------*
-* DATA（グローバル変数）
-*---------------------------------------------------------------------*
-DATA: gt_bkpf  TYPE STANDARD TABLE OF g_typ_bkpf,
-      gs_bkpf  TYPE g_typ_bkpf,
-      gt_bseg  TYPE STANDARD TABLE OF g_typ_bseg,
-      gs_bseg  TYPE g_typ_bseg,
-      gs_t001  TYPE g_typ_t001,
-      gt_t003t TYPE STANDARD TABLE OF g_typ_t003t,
-      gs_t003t TYPE g_typ_t003t,
-      gt_out   TYPE STANDARD TABLE OF g_typ_out,
-      gs_out   TYPE g_typ_out.
-
-DATA: g_wrk_budat  TYPE bkpf-budat,
-      g_start_date TYPE bkpf-budat,
-      g_end_date   TYPE bkpf-budat,
-      g_hkont_txt  TYPE skat-txt20.
-
-DATA: gv_debit  TYPE bseg-dmbtr,
-      gv_credit TYPE bseg-dmbtr.
-
-DATA: gv_pageno TYPE sy-pagno.
-
-*---------------------------------------------------------------------*
-* CONSTANTS
-*---------------------------------------------------------------------*
-CONSTANTS: c_spras       TYPE t003t-spras VALUE 'J',   " 言語キー
-           c_shkzg_s    TYPE bseg-shkzg  VALUE 'S',   " 借方
-           c_shkzg_h    TYPE bseg-shkzg  VALUE 'H',   " 貸方
-           c_on         TYPE c           VALUE 'X',   " フラグオン
-           c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
-           c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE
-
-*---------------------------------------------------------------------*
-* PARAMETER
-*---------------------------------------------------------------------*
-PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.
-SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
-
-*>>> 追加: 出力ファイルパス
-PARAMETERS: p_file TYPE string LOWER CASE.
-
-*=====================================================================*
-* イベント
-*=====================================================================*
-
-*---------------------------------------------------------------------*
-* INITIALIZATION（追加）
-*---------------------------------------------------------------------*
-INITIALIZATION.
-
-*---------------------------------------------------------------------*
-* AT SELECTION-SCREEN ON VALUE-REQUEST（追加: ファイル保存ダイアログ）
-*---------------------------------------------------------------------*
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_get_filename.
-
-*---------------------------------------------------------------------*
-* START-OF-SELECTION
-*---------------------------------------------------------------------*
-START-OF-SELECTION.
-
-*>>> 追加: GUIステータス・タイトルの設定
-  SET PF-STATUS c_gui_status.
-  SET TITLEBAR  c_gui_title.
-
-  PERFORM f_init_main.      " Ⅰ データ初期化
-  PERFORM f_get_data.       " Ⅱ データ抽出
-
-*---------------------------------------------------------------------*
-* TOP-OF-PAGE
-*---------------------------------------------------------------------*
-TOP-OF-PAGE.
-  PERFORM f_write_head.     " ヘッダー出力
-
-*---------------------------------------------------------------------*
-* END-OF-SELECTION
-*---------------------------------------------------------------------*
-END-OF-SELECTION.
-  PERFORM f_write_list.     " Ⅲ データ出力
-
-*---------------------------------------------------------------------*
-* AT USER-COMMAND（追加: ダウンロードボタン処理）
-*---------------------------------------------------------------------*
-AT USER-COMMAND.
-  CASE sy-ucomm.
-    WHEN 'DL'.
-      PERFORM f_download.
-  ENDCASE.
-
-*=====================================================================*
-* サブルーチン定義
-*=====================================================================*
-
-*&--------------------------------------------------------------------*
-*& Form F_INIT_MAIN
-*&--------------------------------------------------------------------*
-*  データ初期化
-*---------------------------------------------------------------------*
-FORM f_init_main.
-
-  CLEAR: gs_bkpf,
-         gs_bseg,
-         gs_t001,
-         gs_t003t,
-         gs_out,
-         g_start_date,
-         g_end_date,
-         g_hkont_txt.
-
-  REFRESH: gt_bkpf,
-           gt_bseg,
-           gt_t003t,
-           gt_out.
-
-  READ TABLE s_budat INDEX 1.
-  IF sy-subrc = 0.
-    g_start_date = s_budat-low.
-    g_end_date   = s_budat-high.
-  ENDIF.
-
-ENDFORM.                    " F_INIT_MAIN
-
-*&--------------------------------------------------------------------*
-*& Form F_GET_DATA
-*&--------------------------------------------------------------------*
-FORM f_get_data.
-
-  PERFORM f_get_ktopl.
-  PERFORM f_get_blart_text.
-  PERFORM f_get_bkpf_and_bseg.
-
-ENDFORM.                    " F_GET_DATA
-
-*&--------------------------------------------------------------------*
-*& Form F_GET_KTOPL
-*&--------------------------------------------------------------------*
-FORM f_get_ktopl.
-
-  SELECT SINGLE ktopl
-                waers
-    INTO CORRESPONDING FIELDS OF gs_t001
-    FROM t001
-    WHERE bukrs = p_bukrs.
-
-ENDFORM.                    " F_GET_KTOPL
-
-*&--------------------------------------------------------------------*
-*& Form F_GET_BLART_TEXT
-*&--------------------------------------------------------------------*
-FORM f_get_blart_text.
-
-  SELECT blart
-         ltext
-    INTO TABLE gt_t003t
-    FROM t003t
-    WHERE spras = c_spras.
-
-ENDFORM.                    " F_GET_BLART_TEXT
-
-*&--------------------------------------------------------------------*
-*& Form F_GET_BKPF_AND_BSEG
-*&--------------------------------------------------------------------*
-FORM f_get_bkpf_and_bseg.
-
-  SELECT bukrs
-         blart
-         budat
-         bldat
-         belnr
-         usnam
-         gjahr
-    INTO TABLE gt_bkpf
-    FROM bkpf
-    WHERE bukrs = p_bukrs
-      AND budat IN s_budat.
-
-  IF gt_bkpf IS INITIAL.
-    MESSAGE s000(z01) WITH '対象データは登録されていません'.
-    LEAVE LIST-PROCESSING.
-  ENDIF.
-
-  LOOP AT gt_bkpf INTO gs_bkpf.
-
-    READ TABLE gt_t003t INTO gs_t003t
-      WITH KEY blart = gs_bkpf-blart.
-    IF sy-subrc <> 0.
-      CLEAR gs_t003t.
-    ENDIF.
-
-    CLEAR gs_bseg.
-    REFRESH gt_bseg.
-
-    SELECT bukrs
-           belnr
-           gjahr
-           buzei
-           hkont
-           shkzg
-           dmbtr
-           sgtxt
-      INTO TABLE gt_bseg
-      FROM bseg
-      WHERE bukrs = gs_bkpf-bukrs
-        AND belnr = gs_bkpf-belnr
-        AND gjahr = gs_bkpf-gjahr.
-
-    LOOP AT gt_bseg INTO gs_bseg.
-
-      CLEAR g_hkont_txt.
-
-      SELECT SINGLE txt20
-        INTO g_hkont_txt
-        FROM skat
-        WHERE spras = c_spras
-          AND ktopl = gs_t001-ktopl
-          AND saknr = gs_bseg-hkont.
-
-      IF sy-subrc <> 0.
-        CLEAR g_hkont_txt.
-      ENDIF.
-
-      CLEAR gs_out.
-
-      gs_out-bukrs     = gs_bkpf-bukrs.
-      gs_out-blart     = gs_bkpf-blart.
-      gs_out-blart_txt = gs_t003t-ltext.
-      gs_out-belnr     = gs_bkpf-belnr.
-      gs_out-budat     = gs_bkpf-budat.
-      gs_out-bldat     = gs_bkpf-bldat.
-      gs_out-usnam     = gs_bkpf-usnam.
-      gs_out-gjahr     = gs_bkpf-gjahr.
-      gs_out-buzei     = gs_bseg-buzei.
-      gs_out-hkont     = gs_bseg-hkont.
-      gs_out-hkont_txt = g_hkont_txt.
-      gs_out-shkzg     = gs_bseg-shkzg.
-      gs_out-dmbtr     = gs_bseg-dmbtr.
-      gs_out-sgtxt     = gs_bseg-sgtxt.
-      gs_out-waers     = gs_t001-waers.
-
-      APPEND gs_out TO gt_out.
-
-      CLEAR: gs_bseg,
-             gs_out.
-
-    ENDLOOP.
-
-    CLEAR: gs_bkpf,
-           gs_t003t.
-    REFRESH gt_bseg.
-
-  ENDLOOP.
-
-  IF gt_out IS INITIAL.
-    MESSAGE s000(z01) WITH '対象データは登録されていません'.
-    LEAVE LIST-PROCESSING.
-  ENDIF.
-
-ENDFORM.                    " F_GET_BKPF_AND_BSEG
-
-*&--------------------------------------------------------------------*
-*& Form F_WRITE_LIST
-*&--------------------------------------------------------------------*
-FORM f_write_list.
-
-  PERFORM f_proc_sort.
-  PERFORM f_proc_write.
-
-ENDFORM.                    " F_WRITE_LIST
-
-*&--------------------------------------------------------------------*
-*& Form F_PROC_SORT
-*&--------------------------------------------------------------------*
-FORM f_proc_sort.
-
-  SORT gt_out BY blart budat bldat belnr usnam buzei.
-
-ENDFORM.                    " F_PROC_SORT
-
-*&--------------------------------------------------------------------*
-*& Form F_PROC_WRITE
-*&--------------------------------------------------------------------*
-FORM f_proc_write.
-
-  DATA: lv_blart     TYPE bkpf-blart,
-        lv_blart_txt TYPE t003t-ltext,
-        lv_budat_c   TYPE c LENGTH 10,
-        lv_bldat_c   TYPE c LENGTH 10,
-        lv_belnr     TYPE bkpf-belnr,
-        lv_usnam     TYPE bkpf-usnam.
-
-  DATA: lv_show_blart TYPE abap_bool,
-        lv_show_budat TYPE abap_bool,
-        lv_show_bldat TYPE abap_bool,
-        lv_show_belnr TYPE abap_bool,
-        lv_show_usnam TYPE abap_bool.
-
-  LOOP AT gt_out INTO gs_out.
-
-    CLEAR: gv_debit, gv_credit.
-    IF gs_out-shkzg = c_shkzg_s.
-      gv_debit = gs_out-dmbtr.
-    ELSEIF gs_out-shkzg = c_shkzg_h.
-      gv_credit = gs_out-dmbtr.
-    ENDIF.
-
-    CLEAR: lv_blart, lv_blart_txt,
-           lv_budat_c, lv_bldat_c,
-           lv_belnr, lv_usnam,
-           lv_show_blart, lv_show_budat,
-           lv_show_bldat, lv_show_belnr,
-           lv_show_usnam.
-
-    AT NEW blart.
-      NEW-PAGE.
-      lv_show_blart = abap_true.
-    ENDAT.
-    AT NEW budat.
-      lv_show_budat = abap_true.
-    ENDAT.
-    AT NEW bldat.
-      lv_show_bldat = abap_true.
-    ENDAT.
-    AT NEW belnr.
-      lv_show_belnr = abap_true.
-    ENDAT.
-    AT NEW usnam.
-      lv_show_usnam = abap_true.
-    ENDAT.
-
-    RESERVE 1 LINES.
-
-    IF sy-pagno <> gv_pageno.
-      lv_show_blart = abap_true.
-      lv_show_budat = abap_true.
-      lv_show_bldat = abap_true.
-      lv_show_belnr = abap_true.
-      lv_show_usnam = abap_true.
-    ENDIF.
-
-    IF lv_show_blart = abap_true.
-      lv_blart     = gs_out-blart.
-      lv_blart_txt = gs_out-blart_txt.
-    ENDIF.
-    IF lv_show_budat = abap_true.
-      WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
-    ENDIF.
-    IF lv_show_bldat = abap_true.
-      WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
-    ENDIF.
-    IF lv_show_belnr = abap_true.
-      lv_belnr = gs_out-belnr.
-    ENDIF.
-    IF lv_show_usnam = abap_true.
-      lv_usnam = gs_out-usnam.
-    ENDIF.
-
-    WRITE: /1   lv_blart,
-            4   lv_blart_txt,
-            18  lv_budat_c,
-            30  lv_bldat_c,
-            42  lv_belnr,
-            54  lv_usnam,
-            68  gs_out-buzei,
-            73  gs_out-hkont,
-            85  gs_out-hkont_txt,
-            106(14) gv_debit  CURRENCY gs_out-waers RIGHT-JUSTIFIED,
-            122(14) gv_credit CURRENCY gs_out-waers RIGHT-JUSTIFIED,
-            139 gs_out-sgtxt.
-
-    gv_pageno = sy-pagno.
-
-  ENDLOOP.
-
-ENDFORM.                    " F_PROC_WRITE
-
-*&--------------------------------------------------------------------*
-*& Form F_WRITE_HEAD
-*&--------------------------------------------------------------------*
-FORM f_write_head.
-
-  WRITE: /1   'PGMID:' NO-GAP,
-          9   sy-cprog,
-          155 'DATE:' NO-GAP,
-          160(9) sy-datum USING EDIT MASK '____/__/__' RIGHT-JUSTIFIED,
-         /1   'USER:' NO-GAP,
-          9   sy-uname,
-          155 'TIME:' NO-GAP,
-          160(9) sy-uzeit RIGHT-JUSTIFIED,
-         /80(20) '仕訳日記帳 演習4' CENTERED,
-          155 'PAGE:' NO-GAP,
-          160(9) sy-pagno NO-SIGN RIGHT-JUSTIFIED.
-
-  SKIP.
-
-  WRITE: /1  '会社コード:',
-          13 p_bukrs,
-         /1  '転記日付:',
-          13 g_start_date USING EDIT MASK '____/__/__'.
-
-  IF g_end_date IS NOT INITIAL.
-    WRITE: 25 '～',
-           29 g_end_date USING EDIT MASK '____/__/__'.
-  ENDIF.
-
-  SKIP 2.
-
-  WRITE: /1   TEXT-001,
-          18  TEXT-002,
-          30  TEXT-003,
-          42  TEXT-004,
-          54  TEXT-005,
-          68  TEXT-006,
-          73  TEXT-007,
-          106(14) TEXT-008 RIGHT-JUSTIFIED,
-          122(14) TEXT-009 RIGHT-JUSTIFIED,
-          139 TEXT-010.
-
-  ULINE.
-
-ENDFORM.                    " F_WRITE_HEAD
-
-*&--------------------------------------------------------------------*
-*& Form F_GET_FILENAME（追加: ファイル保存ダイアログ）
-*&--------------------------------------------------------------------*
-FORM f_get_filename.
-
-  DATA: lv_filename TYPE string,
-        lv_path     TYPE string,
-        lv_fullpath TYPE string.
-
-  CALL METHOD cl_gui_frontend_services=>file_save_dialog
-    EXPORTING
-      window_title      = 'ダウンロード先の選択'
-      default_extension = 'xls'
-      default_file_name = '仕訳日記帳.xls'
-    CHANGING
-      filename             = lv_filename
-      path                 = lv_path
-      fullpath             = lv_fullpath
-    EXCEPTIONS
-      cntl_error           = 1
-      error_no_gui         = 2
-      not_supported_by_gui = 3
-      OTHERS               = 4.
-
-  IF sy-subrc = 0.
-    p_file = lv_fullpath.
-  ENDIF.
-
-ENDFORM.                    " F_GET_FILENAME
-
-*&--------------------------------------------------------------------*
-*& Form F_DOWNLOAD（追加: Excelダウンロード処理）
-*&--------------------------------------------------------------------*
-FORM f_download.
-
-  DATA: lt_dl    TYPE STANDARD TABLE OF g_typ_dl,
-        ls_dl    TYPE g_typ_dl,
-        lt_fname TYPE STANDARD TABLE OF g_typ_fname,
-        ls_fname TYPE g_typ_fname.
-
-  DATA: lv_budat_c TYPE c LENGTH 10,
-        lv_bldat_c TYPE c LENGTH 10,
-        lv_dmbtr_c TYPE c LENGTH 16.
-
-* ファイルパスチェック
-  IF p_file IS INITIAL.
-    MESSAGE s000(z01) WITH '出力ファイルパスを指定してください'.
-    RETURN.
-  ENDIF.
-
-* ヘッダ行（Excelの列名）の構築
-  CLEAR ls_fname.
-  ls_fname-name = '会社コード'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプ'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプテキスト'. APPEND ls_fname TO lt_fname.
-  ls_fname-name = '転記日付'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = '証憑日付'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票番号'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = 'ユーザ名'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = '会計年度'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = '明細番号'.           APPEND ls_fname TO lt_fname.
-  ls_fname-name = '勘定コード'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '勘定コードテキスト'. APPEND ls_fname TO lt_fname.
-  ls_fname-name = '借方/貸方'.          APPEND ls_fname TO lt_fname.
-  ls_fname-name = '金額'.               APPEND ls_fname TO lt_fname.
-  ls_fname-name = '明細テキスト'.       APPEND ls_fname TO lt_fname.
-  ls_fname-name = '通貨'.               APPEND ls_fname TO lt_fname.
-
-* データ行の構築
-  LOOP AT gt_out INTO gs_out.
-
-    CLEAR: ls_dl, lv_budat_c, lv_bldat_c, lv_dmbtr_c.
-
-    ls_dl-bukrs     = gs_out-bukrs.
-    ls_dl-blart     = gs_out-blart.
-    ls_dl-blart_txt = gs_out-blart_txt.
-
-    WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
-    ls_dl-budat = lv_budat_c.
-
-    WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
-    ls_dl-bldat = lv_bldat_c.
-
-    ls_dl-belnr     = gs_out-belnr.
-    ls_dl-usnam     = gs_out-usnam.
-    ls_dl-gjahr     = gs_out-gjahr.
-    ls_dl-buzei     = gs_out-buzei.
-    ls_dl-hkont     = gs_out-hkont.
-    ls_dl-hkont_txt = gs_out-hkont_txt.
-    ls_dl-shkzg     = gs_out-shkzg.
-
-    WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
-    CONDENSE lv_dmbtr_c.
-    ls_dl-dmbtr = lv_dmbtr_c.
-
-    ls_dl-sgtxt     = gs_out-sgtxt.
-    ls_dl-waers     = gs_out-waers.
-
-    APPEND ls_dl TO lt_dl.
-
-  ENDLOOP.
-
-* GUI_DOWNLOAD でExcelファイルとしてダウンロード
-  CALL FUNCTION 'GUI_DOWNLOAD'
-    EXPORTING
-      filename                = p_file
-      filetype                = 'DAT'
-      write_field_separator   = c_on
-    TABLES
-      data_tab                = lt_dl
-      fieldnames              = lt_fname
-    EXCEPTIONS
-      file_write_error        = 1
-      no_batch                = 2
-      gui_refuse_filetransfer = 3
-      invalid_type            = 4
-      no_authority            = 5
-      unknown_error           = 6
-      header_not_allowed      = 7
-      separator_not_allowed   = 8
-      filesize_not_allowed    = 9
-      header_too_long         = 10
-      dp_error_create         = 11
-      dp_error_send           = 12
-      dp_error_write          = 13
-      unknown_dp_error        = 14
-      access_denied           = 15
-      dp_out_of_memory        = 16
-      disk_full               = 17
-      dp_timeout              = 18
-      file_not_found          = 19
-      dataprovider_exception  = 20
-      control_flush_error     = 21
-      OTHERS                  = 22.
-
-  IF sy-subrc = 0.
-    MESSAGE s000(z01) WITH 'ダウンロードが完了しました'.
-  ELSE.
-    MESSAGE s000(z01) WITH 'ダウンロードに失敗しました'.
-  ENDIF.
-
-ENDFORM.                    " F_DOWNLOAD`;
-
-/** Part C など他レッスンの出発点として参照する Part B 完成コード */
-export const partBFinalProgram = FINAL_PROGRAM;
+/** 他レッスンから参照する Part B 完成コード */
+export { partBFinalProgram };
+
+const START_PROGRAM = partAFinalProgram;
+const FINAL_PROGRAM = partBFinalProgram;
 
 function ReferenceLinks() {
   return (
@@ -809,17 +45,9 @@ function ReferenceLinks() {
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="04-selection-screen"
+        lessonFile="98-exercise-journal-ledger-function-module"
         slide={1}
-        label="第4章: 選択画面"
-        variant="back"
-      />
-      <LessonLinkButton
-        courseSlug="abap-training"
-        lessonFile="15-files-jobs-and-batch"
-        slide={1}
-        label="第15章: ファイル連携"
-        variant="back"
+        label="Part D: ダウンロード処理（次のステップ）"
       />
     </div>
   );
@@ -835,65 +63,57 @@ export default function ExerciseJournalLedgerDownloadLesson() {
       )}
       slides={[
         {
-          title: "概要（Part B：GUIステータスとダウンロード）",
+          title: "概要（Part B：GUIステータスとボタン設定）",
           plainText:
-            "特別演習④ Part B — GUIステータスとExcelダウンロード\nPart A で構造化した create_report_3 を出発点に、帳票画面に「ダウンロード」ボタンを足し、結果をタブ区切り .xls（Excelで開ける形式）として保存できるようにする。\n主な追加: 選択画面の出力ファイルパス p_file / ファイル保存ダイアログ / GUIステータス S0010・タイトル T0010 / AT USER-COMMAND の DL 処理 / GUI_DOWNLOAD。SE41 でのステータス登録が必須。",
+            "特別演習④ Part B — GUIステータスとボタン設定\nPart A で構造化した create_report_3 を出発点に、帳票画面に「ダウンロード」ボタンを表示する GUI 設定を足す。\n主な追加: 定数 c_gui_status / c_gui_title、START-OF-SELECTION での SET PF-STATUS / SET TITLEBAR、SE41 での S0010・T0010 登録。\nボタン押下時の処理（AT USER-COMMAND / ファイル出力）は Part D で実装する。",
           content: (
             <>
               <hgroup>
-                <h1>特別演習④ Part B — GUIステータスとExcelダウンロード</h1>
+                <h1>特別演習④ Part B — GUIステータスとボタン設定</h1>
                 <p>
                   Part A で構造化した <code>create_report_3</code> を出発点に、帳票画面の左上に
-                  <strong>「ダウンロード」ボタン</strong>を足します。ボタンを押すと、帳票データを
-                  <strong>タブ区切りの .xls ファイル</strong>（Excel で直接開ける形式）として保存できます。
+                  <strong>「ダウンロード」ボタン</strong>を<strong>表示できる状態</strong>にします。
+                  このパートでは<strong>ボタンの見た目と GUI 設定</strong>まで。押したときの処理は Part D です。
                 </p>
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "45分" },
+                  { icon: "⏱", text: "25分" },
                   { icon: "📶", text: "特別演習" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
               <Callout variant="note">
-                <strong>このパートは Part A の続きです。</strong>
-                Part A（プログラムの構造化）で <code>FORM</code> に分かれた土台があるので、
-                追加機能を<strong>新しい <code>FORM</code> として足すだけ</strong>で済みます。
-                まだの方は先に Part A を完了してください。
+                <strong>Part B と Part D の分担</strong>
+                <ul className="mt-2">
+                  <li>
+                    <strong>Part B（このパート）</strong> … <code>SET PF-STATUS</code> /{" "}
+                    <code>SET TITLEBAR</code> と SE41 登録でボタンを<strong>画面に出す</strong>
+                  </li>
+                  <li>
+                    <strong>Part D</strong> … <code>AT USER-COMMAND</code> と{" "}
+                    <code>GUI_DOWNLOAD</code> でボタン押下時に<strong>ファイルを保存する</strong>
+                  </li>
+                </ul>
               </Callout>
               <h3>このパートで足すもの</h3>
               <ul>
                 <li>
-                  選択画面に<strong>出力ファイルパス</strong> <code>p_file</code> を追加（B-③）
+                  定数 <code>c_gui_status</code>（<code>S0010</code>）と{" "}
+                  <code>c_gui_title</code>（<code>T0010</code>）（B-③）
                 </li>
                 <li>
-                  <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code> で
-                  <strong>ファイル保存ダイアログ</strong>を表示（B-④）
+                  <code>START-OF-SELECTION</code> 先頭の <code>SET PF-STATUS</code> /{" "}
+                  <code>SET TITLEBAR</code>（B-③）
                 </li>
                 <li>
-                  <strong>GUIステータス／タイトル</strong>（<code>SET PF-STATUS</code> /{" "}
-                  <code>SET TITLEBAR</code>）の設定（B-⑤）
-                </li>
-                <li>
-                  <code>AT USER-COMMAND</code> で<strong>ダウンロードボタン</strong>（機能コード{" "}
-                  <code>DL</code>）を処理（B-⑤）
-                </li>
-                <li>
-                  <code>GUI_DOWNLOAD</code> で<strong>タブ区切り .xls</strong> として Excel ダウンロード（B-⑥）
+                  SE41 でステータス <code>S0010</code> に機能コード <code>DL</code> を登録（B-④）
                 </li>
               </ul>
               <ReferenceLinks />
               <Dialog speaker="teacher">
-                Part A までで「読みやすい帳票プログラム」ができました。今回は<strong>機能を1つ足します</strong>。
-                <br />
-                画面に出した結果を、ボタン1つで <strong>Excel に落とせる</strong>ようにします。実務でとても喜ばれる機能です。
-              </Dialog>
-              <Dialog speaker="b">
-                画面で見るだけじゃなく、ファイルに保存できるんですね！どこから手をつけるんですか？
-              </Dialog>
-              <Dialog speaker="teacher">
-                まず<strong>「どこに保存するか」を選ぶ欄</strong>を選択画面に足し、次に<strong>ボタン</strong>を用意し、
-                最後に<strong>書き出し処理</strong>を書きます。順番に見ていきましょう。
+                Part A までで帳票は完成しました。次は画面に<strong>ツールバーボタン</strong>を足します。
+                まずは「ボタンが見える状態」を作り、実際のダウンロード処理は Part D に回します。
               </Dialog>
             </>
           ),
@@ -901,293 +121,95 @@ export default function ExerciseJournalLedgerDownloadLesson() {
         {
           title: "B-① 出発点：Part A の構造化コード",
           plainText:
-            "B-① 出発点。Part A で構造化した create_report_3（FORM/PERFORM 版）をそのまま使う。イベントは PERFORM の並び、処理は FORM に分かれている。\nPart B では新規プログラム create_report_4 として、この構造の上に追加 FORM（f_get_filename / f_download）と新しいイベント（INITIALIZATION / AT SELECTION-SCREEN ON VALUE-REQUEST / AT USER-COMMAND）を足していく。",
+            "B-① 出発点。Part A で構造化した create_report_3（FORM/PERFORM 版）をそのまま使う。\nPart B では新規プログラム create_report_4 としてコピーし、GUI ステータス／タイトルの定数と SET 文だけを足していく。",
           content: (
             <>
               <h2>B-① 出発点は Part A の完成コード</h2>
               <p>
                 下のコードは <strong>Part A の完成版</strong> <code>create_report_3</code>（構造化済み）です。
                 Part B では、これを新規プログラム <code>create_report_4</code> としてコピーし、
-                <strong>新しい <code>FORM</code> とイベント</strong>を足していきます。
+                <strong>GUI 設定だけ</strong>を足していきます。
               </p>
-              <Callout variant="tip">
-                <strong>なぜ構造化が効くのか：</strong>抽出・出力がすでに <code>FORM</code> に分かれているので、
-                ダウンロード処理は <code>f_download</code> という<strong>独立した箱</strong>として足すだけ。
-                既存の処理にはほとんど触りません。
-              </Callout>
               <Reveal label="出発点コード（Part A 構造化版）を見る">
                 <CodeBlock language="ABAP" code={START_PROGRAM} />
               </Reveal>
-              <Dialog speaker="a">
-                <code>FORM</code> に分かれているから、足す場所が分かりやすいですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通り。これが Part A をやっておく理由です。では全体像から確認しましょう。
-              </Dialog>
               <ReferenceLinks />
             </>
           ),
         },
         {
-          title: "B-② 全体像：何を足すか",
+          title: "B-② 全体像：GUI ボタンを出すまで",
           plainText:
-            "B-② 全体像。追加するイベントは3つ：INITIALIZATION（初期化用の枠）、AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file（ファイル選択ボタン押下時に f_get_filename を呼ぶ）、AT USER-COMMAND（ツールバーのボタン押下を CASE sy-ucomm で振り分け、DL なら f_download）。\nSTART-OF-SELECTION の先頭に SET PF-STATUS c_gui_status と SET TITLEBAR c_gui_title を追加。追加する FORM は f_get_filename（ファイル保存ダイアログ）と f_download（GUI_DOWNLOAD）。追加する型は g_typ_dl（ダウンロード用・文字型）と g_typ_fname（ヘッダ行用）。",
+            "B-② 全体像。Part B で追加するのは定数2つと START-OF-SELECTION 先頭の SET 文2行。SE41 で S0010 に DL ボタン、T0010 に表題を登録。\nAT USER-COMMAND や GUI_DOWNLOAD は Part D の範囲。",
           content: (
             <>
               <h2>B-② どこに何を足すか（全体像）</h2>
               <p>
-                追加するのは<strong>イベント3つ</strong>・<strong><code>FORM</code> 2つ</strong>・
-                <strong>型2つ</strong>・<strong>パラメータ1つ</strong>だけです。既存の処理はそのままです。
+                Part B でコードに足すのは<strong>定数 2 つ</strong>と<strong>SET 文 2 行</strong>だけです。
+                ボタンの中身（押下時の処理）は Part D で接続します。
               </p>
               <MermaidDiagram
                 chart={`flowchart TD
-  INIT["INITIALIZATION（追加）"]
-  VR["AT SELECTION-SCREEN<br/>ON VALUE-REQUEST FOR p_file（追加）"] --> GETF["PERFORM f_get_filename<br/>（ファイル保存ダイアログ）"]
-  SOS["START-OF-SELECTION"] --> STATUS["SET PF-STATUS c_gui_status<br/>SET TITLEBAR c_gui_title（追加）"]
-  SOS --> EXIST["PERFORM f_init_main / f_get_data<br/>（既存）"]
-  UC["AT USER-COMMAND（追加）"] --> CASE["CASE sy-ucomm → WHEN 'DL'"]
-  CASE --> DL["PERFORM f_download<br/>（GUI_DOWNLOAD）"]`}
+  SOS["START-OF-SELECTION"] --> STATUS["SET PF-STATUS c_gui_status\\nSET TITLEBAR c_gui_title（Part B で追加）"]
+  SOS --> EXIST["PERFORM f_init_main / f_get_data\\n（Part A のまま）"]
+  SE41["SE41: S0010 に DL ボタン登録\\nT0010 に表題登録（Part B で必須）"]
+  STATUS --> BTN["帳票画面に DL ボタン表示"]
+  SE41 --> BTN
+  BTN -.->|"Part D"| UC["AT USER-COMMAND → f_download"]`}
               />
-              <InfoPanel title="追加する部品の一覧" variant="reference">
+              <InfoPanel title="Part B / Part D の分担" variant="reference">
                 <table>
                   <thead>
                     <tr>
-                      <th>種類</th>
-                      <th>名前</th>
-                      <th>役割</th>
+                      <th>処理</th>
+                      <th>パート</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td>パラメータ</td>
-                      <td><code>p_file</code></td>
-                      <td>出力ファイルパス（保存先）</td>
+                      <td>
+                        <code>SET PF-STATUS</code> / <code>SET TITLEBAR</code>
+                      </td>
+                      <td>Part B</td>
                     </tr>
                     <tr>
-                      <td>型</td>
-                      <td><code>g_typ_dl</code></td>
-                      <td>ダウンロード用の行（全項目を文字型に整形）</td>
+                      <td>SE41 で <code>S0010</code> / <code>T0010</code> 登録</td>
+                      <td>Part B</td>
                     </tr>
                     <tr>
-                      <td>型</td>
-                      <td><code>g_typ_fname</code></td>
-                      <td>Excel の見出し行（列名）用</td>
-                    </tr>
-                    <tr>
-                      <td>イベント</td>
-                      <td><code>AT SELECTION-SCREEN ON VALUE-REQUEST</code></td>
-                      <td>ファイル欄の「選択」ボタン押下でダイアログ表示</td>
-                    </tr>
-                    <tr>
-                      <td>イベント</td>
-                      <td><code>AT USER-COMMAND</code></td>
-                      <td>ツールバーのボタン押下を振り分け（<code>DL</code>）</td>
-                    </tr>
-                    <tr>
-                      <td>FORM</td>
-                      <td><code>f_get_filename</code></td>
-                      <td>ファイル保存ダイアログの表示</td>
-                    </tr>
-                    <tr>
-                      <td>FORM</td>
-                      <td><code>f_download</code></td>
-                      <td>整形して <code>GUI_DOWNLOAD</code> で書き出し</td>
+                      <td>
+                        <code>AT USER-COMMAND</code> / <code>f_download</code> /{" "}
+                        <code>GUI_DOWNLOAD</code>
+                      </td>
+                      <td>Part D</td>
                     </tr>
                   </tbody>
                 </table>
               </InfoPanel>
               <Callout variant="warning">
-                <strong>コードだけでは動きません。</strong>ボタン（機能コード <code>DL</code>）とタイトルは、
-                SE41 で <code>S0010</code> / <code>T0010</code> を登録して初めて表示されます。
-                手順は追加コンテンツ「ファイル出力」を参照してください。
+                <strong>コードだけではボタンは出ません。</strong>機能コード <code>DL</code> は SE41 で{" "}
+                <code>S0010</code> に登録して初めて表示されます。
               </Callout>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="19-file-output"
-                slide={2}
-                label="ファイル出力: GUI設定手順（全体像）"
-                className="mb-4"
-              />
-              <Dialog speaker="b">
-                足すものが整理されていると安心します。型を2つ足すのは何のためですか？
-              </Dialog>
-              <Dialog speaker="teacher">
-                次のスライドで説明します。<strong>Excel に綺麗に出すため</strong>の準備です。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "B-③ ダウンロード用の型とファイルパスを追加",
-          plainText:
-            "B-③ 追加する型とパラメータ。g_typ_dl はダウンロード用の行で、全項目を文字型（TYPE c LENGTH n）にする。理由：日付は ____/__/__ 形式、金額は通貨編集済みの見やすい文字列として Excel に出したいから。数値型のまま出すと書式が崩れる。\ng_typ_fname は name（C LENGTH 60）1項目だけの型で、Excel の1行目（列名）に使う。\nパラメータ p_file TYPE string LOWER CASE を選択画面に追加し、保存先パスを受け取る。LOWER CASE で小文字パスもそのまま保持する。",
-          content: (
-            <>
-              <h2>B-③ 型2つとファイルパスを足す</h2>
-              <p>
-                まず、ダウンロード用の型を <code>TYPES</code> の最後に足します。
-                <strong>全項目を文字型</strong>にするのがポイントです。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`*>>> ダウンロード用構造（文字型でExcel出力を整形）
-TYPES: BEGIN OF g_typ_dl,
-         bukrs     TYPE c LENGTH 10,
-         blart     TYPE c LENGTH 5,
-         blart_txt TYPE c LENGTH 30,
-         budat     TYPE c LENGTH 10,   " ____/__/__ で整形して入れる
-         bldat     TYPE c LENGTH 10,
-         belnr     TYPE c LENGTH 10,
-         usnam     TYPE c LENGTH 12,
-         gjahr     TYPE c LENGTH 4,
-         buzei     TYPE c LENGTH 5,
-         hkont     TYPE c LENGTH 10,
-         hkont_txt TYPE c LENGTH 20,
-         shkzg     TYPE c LENGTH 2,
-         dmbtr     TYPE c LENGTH 16,   " 通貨編集した金額を文字で入れる
-         sgtxt     TYPE c LENGTH 50,
-         waers     TYPE c LENGTH 5,
-       END OF g_typ_dl.
-
-*>>> フィールド名構造（Excelヘッダ行用）
-TYPES: BEGIN OF g_typ_fname,
-         name TYPE c LENGTH 60,
-       END OF g_typ_fname.`}
-              />
-              <InfoPanel title="なぜ全項目を文字型にするのか" variant="breakdown">
-                <ul>
-                  <li>
-                    <strong>日付</strong> … <code>budat</code> / <code>bldat</code> を{" "}
-                    <code>____/__/__</code> 形式に整えて出したい
-                  </li>
-                  <li>
-                    <strong>金額</strong> … <code>dmbtr</code> を通貨編集（桁区切りなど）した
-                    <strong>見やすい文字列</strong>で出したい
-                  </li>
-                  <li>
-                    数値型・日付型のまま <code>GUI_DOWNLOAD</code> に渡すと、Excel 側で書式が崩れやすい
-                  </li>
-                </ul>
-              </InfoPanel>
-              <p>次に、選択画面に<strong>保存先パス</strong>のパラメータを足します。</p>
-              <CodeBlock
-                language="ABAP"
-                code={`PARAMETERS: p_bukrs TYPE t001-bukrs OBLIGATORY.
-SELECT-OPTIONS: s_budat FOR g_wrk_budat OBLIGATORY.
-
-*>>> 追加: 出力ファイルパス
-PARAMETERS: p_file TYPE string LOWER CASE.`}
-              />
-              <Callout variant="note">
-                <code>LOWER CASE</code> を付けると、入力した<strong>小文字をそのまま保持</strong>します
-                （既定では大文字に変換されます）。Windows のパスは大小を区別しませんが、
-                見た目どおりに扱うため付けておきます。
-              </Callout>
-              <Dialog speaker="a">
-                <code>g_typ_fname</code> は <code>name</code> 1項目だけなんですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                はい。これは Excel の<strong>1行目（列名）</strong>に使います。
-                次は、そのファイルパスを「ダイアログで選ぶ」仕組みを足します。
-              </Dialog>
               <ReferenceLinks />
             </>
           ),
         },
         {
-          title: "B-④ ファイル保存ダイアログ",
+          title: "B-③ 定数と SET PF-STATUS / SET TITLEBAR",
           plainText:
-            "B-④ ファイル保存ダイアログ。INITIALIZATION イベントを追加（今は枠だけ）。AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file を追加し、p_file 欄の選択（F4）ボタンが押されたら f_get_filename を呼ぶ。\nf_get_filename では cl_gui_frontend_services=>file_save_dialog メソッドで保存ダイアログを開く。EXPORTING に window_title・default_extension='xls'・default_file_name='仕訳日記帳.xls'、CHANGING に filename/path/fullpath。sy-subrc=0 なら p_file = lv_fullpath を入れる。",
+            "B-③ 定数 c_gui_status（S0010）・c_gui_title（T0010）を CONSTANTS に追加。START-OF-SELECTION の先頭で SET PF-STATUS と SET TITLEBAR を呼ぶ。既存の PERFORM f_init_main / f_get_data はそのまま。",
           content: (
             <>
-              <h2>B-④ パスを「ダイアログで選ぶ」</h2>
-              <p>
-                ファイルパスは手で打たせず、<strong>保存ダイアログ</strong>で選ばせます。
-                <code>p_file</code> 欄の選択ボタン（F4）が押されたときに動くイベントを足します。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`INITIALIZATION.
-
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_get_filename.`}
-              />
-              <p>呼ばれる <code>f_get_filename</code> は、標準クラスのメソッドでダイアログを開きます。</p>
-              <CodeBlock
-                language="ABAP"
-                code={`FORM f_get_filename.
-
-  DATA: lv_filename TYPE string,
-        lv_path     TYPE string,
-        lv_fullpath TYPE string.
-
-  CALL METHOD cl_gui_frontend_services=>file_save_dialog
-    EXPORTING
-      window_title      = 'ダウンロード先の選択'
-      default_extension = 'xls'
-      default_file_name = '仕訳日記帳.xls'
-    CHANGING
-      filename             = lv_filename
-      path                 = lv_path
-      fullpath             = lv_fullpath
-    EXCEPTIONS
-      cntl_error           = 1
-      error_no_gui         = 2
-      not_supported_by_gui = 3
-      OTHERS               = 4.
-
-  IF sy-subrc = 0.
-    p_file = lv_fullpath.   " 選んだフルパスを選択画面へ戻す
-  ENDIF.
-
-ENDFORM.`}
-              />
-              <InfoPanel title="file_save_dialog の主な引数" variant="breakdown">
-                <ul>
-                  <li>
-                    <code>window_title</code> … ダイアログのタイトル
-                  </li>
-                  <li>
-                    <code>default_extension = 'xls'</code> … 既定の拡張子
-                  </li>
-                  <li>
-                    <code>default_file_name</code> … 既定のファイル名（<code>仕訳日記帳.xls</code>）
-                  </li>
-                  <li>
-                    <code>fullpath</code> … ユーザが選んだ<strong>フォルダ＋ファイル名</strong>。これを{" "}
-                    <code>p_file</code> に戻す
-                  </li>
-                </ul>
-              </InfoPanel>
-              <Callout variant="note">
-                <code>AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file</code> は、その項目で
-                <strong>F4（入力ヘルプ）</strong>が押されたときに走るイベントです。
-                ここでダイアログを開き、選ばれたパスを <code>p_file</code> に入れて画面に表示します。
-              </Callout>
-              <Dialog speaker="b">
-                <code>sy-subrc = 0</code> のときだけ入れるのは、キャンセルされたら何もしないためですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                そうです。キャンセル時に空で上書きしない配慮です。次はボタンの仕組みを足します。
-              </Dialog>
-              <ReferenceLinks />
-            </>
-          ),
-        },
-        {
-          title: "B-⑤ GUIステータスとボタン処理",
-          plainText:
-            "B-⑤ GUIステータスとボタン処理。CONSTANTS に c_gui_status（S0010）・c_gui_title（T0010）を追加。START-OF-SELECTION の先頭に SET PF-STATUS c_gui_status（ツールバー・ボタンの定義）と SET TITLEBAR c_gui_title（画面タイトル）を足す。これで帳票画面に独自ツールバーが付く。\nボタンが押されたときの処理は AT USER-COMMAND で受ける。CASE sy-ucomm で機能コードを判定し、WHEN 'DL' のとき PERFORM f_download を呼ぶ。sy-ucomm には押されたボタンの機能コードが入る。",
-          content: (
-            <>
-              <h2>B-⑤ ボタンを表示して、押下を受け取る</h2>
+              <h2>B-③ 定数と GUI 設定</h2>
               <p>
                 帳票画面に独自ツールバーを出すには、<code>START-OF-SELECTION</code> の<strong>先頭</strong>で
                 ステータスとタイトルをセットします。値は定数で宣言しておきます。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`CONSTANTS: c_on         TYPE c           VALUE 'X',   " フラグオン
+                code={`CONSTANTS: c_spras       TYPE t003t-spras VALUE 'J',
+           c_shkzg_s    TYPE bseg-shkzg  VALUE 'S',
+           c_shkzg_h    TYPE bseg-shkzg  VALUE 'H',
            c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
            c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE`}
               />
@@ -1195,23 +217,14 @@ ENDFORM.`}
                 language="ABAP"
                 code={`START-OF-SELECTION.
 
-*>>> GUIステータス・タイトルの設定
+*>>> 追加: GUIステータス・タイトルの設定
   SET PF-STATUS c_gui_status.   " ツールバー（DL ボタンを含む）
   SET TITLEBAR  c_gui_title.    " 画面タイトル「仕訳日記帳 演習4」
 
   PERFORM f_init_main.      " Ⅰ データ初期化（既存）
   PERFORM f_get_data.       " Ⅱ データ抽出（既存）`}
               />
-              <p>ボタンが押されたときの処理は、<code>AT USER-COMMAND</code> で受け取ります。</p>
-              <CodeBlock
-                language="ABAP"
-                code={`AT USER-COMMAND.
-  CASE sy-ucomm.
-    WHEN 'DL'.              " ダウンロードボタンの機能コード
-      PERFORM f_download.
-  ENDCASE.`}
-              />
-              <InfoPanel title="2つの仕組みの役割" variant="breakdown">
+              <InfoPanel title="2つの SET 文の役割" variant="breakdown">
                 <ul>
                   <li>
                     <code>SET PF-STATUS c_gui_status</code> … どんなボタンを出すかを決める
@@ -1221,194 +234,26 @@ ENDFORM.`}
                     <code>SET TITLEBAR c_gui_title</code> … 画面のタイトルを決める（SE41 で{" "}
                     <code>T0010</code> を登録）
                   </li>
-                  <li>
-                    <code>AT USER-COMMAND</code> … ボタンが押されると走るイベント。
-                    <code>sy-ucomm</code> に<strong>押されたボタンの機能コード</strong>が入る
-                  </li>
-                  <li>
-                    <code>CASE sy-ucomm</code> … 機能コードで処理を振り分ける（<code>DL</code> →{" "}
-                    <code>f_download</code>）
-                  </li>
                 </ul>
               </InfoPanel>
-              <Callout variant="warning">
-                <code>S0010</code> / <code>T0010</code> はコードに書くだけでは存在しません。
-                SE41 で登録して初めてボタンとタイトルが表示されます（手順は「ファイル出力」参照）。
+              <Callout variant="note">
+                ボタンが押されたときの処理（<code>AT USER-COMMAND</code> で <code>sy-ucomm = &apos;DL&apos;</code>
+                を受け取る）は<strong>Part D</strong>で実装します。Part B ではボタンを<strong>表示する</strong>ところまでです。
               </Callout>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="19-file-output"
-                slide={2}
-                label="ファイル出力: GUI設定手順（全体像）"
-                className="mb-4"
-              />
-              <Dialog speaker="a">
-                押されたボタンの種類が <code>sy-ucomm</code> に入るんですね。ボタンが増えても{" "}
-                <code>WHEN</code> を足すだけで対応できそう。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通りです。では押されたときの本体、<code>f_download</code> を作りましょう。
-              </Dialog>
               <ReferenceLinks />
             </>
           ),
         },
         {
-          title: "B-⑥ ダウンロード処理（GUI_DOWNLOAD）",
+          title: "B-④ SE41 登録（必須）",
           plainText:
-            "B-⑥ f_download の中身。手順は3つ。(1) p_file が空ならメッセージを出して RETURN。(2) ヘッダ行 lt_fname を組み立てる（会社コード〜通貨の列名を APPEND）。(3) gt_out をループして lt_dl に詰める。日付は WRITE ... USING EDIT MASK で ____/__/__ に、金額は WRITE ... CURRENCY して CONDENSE で詰める。\n最後に CALL FUNCTION 'GUI_DOWNLOAD' に filename=p_file・filetype='DAT'・write_field_separator=c_on（タブ区切り）、TABLES に data_tab=lt_dl・fieldnames=lt_fname を渡す。sy-subrc=0 で完了メッセージ、それ以外で失敗メッセージ。\n注意：アプリ言語が日本語以外だと、ダウンロードした Excel の日本語（列名・テキスト項目など）が文字化けすることがある。本演習は日本語でログオンして実行すること。",
+            "B-④ SE41 登録。T0010 の表題を『仕訳日記帳 演習4』、S0010 に DL ボタンを AP ツールバーに追加。保存と有効化を忘れない。詳細手順は追加コンテンツ「ファイル出力」参照。",
           content: (
             <>
-              <h2>B-⑥ 整形して書き出す</h2>
-              <p>
-                <code>f_download</code> の流れは<strong>「チェック → ヘッダ行 → データ行 → 書き出し」</strong>です。
-                まず保存先が未指定なら止めます。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`FORM f_download.
-
-  DATA: lt_dl    TYPE STANDARD TABLE OF g_typ_dl,
-        ls_dl    TYPE g_typ_dl,
-        lt_fname TYPE STANDARD TABLE OF g_typ_fname,
-        ls_fname TYPE g_typ_fname.
-
-  DATA: lv_budat_c TYPE c LENGTH 10,
-        lv_bldat_c TYPE c LENGTH 10,
-        lv_dmbtr_c TYPE c LENGTH 16.
-
-* (1) ファイルパスチェック
-  IF p_file IS INITIAL.
-    MESSAGE s000(z01) WITH '出力ファイルパスを指定してください'.
-    RETURN.
-  ENDIF.`}
-              />
-              <p>
-                次に、Excel の<strong>1行目（列名）</strong>を <code>lt_fname</code> に組み立てます。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`* (2) ヘッダ行（Excelの列名）の構築
-  CLEAR ls_fname.
-  ls_fname-name = '会社コード'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプ'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプテキスト'. APPEND ls_fname TO lt_fname.
-  " … 転記日付・証憑日付・伝票番号・ユーザ名・会計年度・明細番号 …
-  ls_fname-name = '金額'.               APPEND ls_fname TO lt_fname.
-  ls_fname-name = '明細テキスト'.       APPEND ls_fname TO lt_fname.
-  ls_fname-name = '通貨'.               APPEND ls_fname TO lt_fname.`}
-              />
-              <p>
-                続いて <code>gt_out</code> をループし、<strong>文字型に整形</strong>しながら{" "}
-                <code>lt_dl</code> へ詰めます。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`* (3) データ行の構築
-  LOOP AT gt_out INTO gs_out.
-
-    CLEAR: ls_dl, lv_budat_c, lv_bldat_c, lv_dmbtr_c.
-
-    ls_dl-bukrs     = gs_out-bukrs.
-    ls_dl-blart     = gs_out-blart.
-    ls_dl-blart_txt = gs_out-blart_txt.
-
-    WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
-    ls_dl-budat = lv_budat_c.
-    WRITE gs_out-bldat TO lv_bldat_c USING EDIT MASK '____/__/__'.
-    ls_dl-bldat = lv_bldat_c.
-
-    ls_dl-belnr = gs_out-belnr.
-    " … usnam / gjahr / buzei / hkont / hkont_txt / shkzg …
-
-    WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
-    CONDENSE lv_dmbtr_c.              " 前後の空白を詰める
-    ls_dl-dmbtr = lv_dmbtr_c.
-
-    ls_dl-sgtxt = gs_out-sgtxt.
-    ls_dl-waers = gs_out-waers.
-
-    APPEND ls_dl TO lt_dl.
-
-  ENDLOOP.`}
-              />
-              <p>
-                最後に <code>GUI_DOWNLOAD</code> で書き出します。タブ区切りにするのが
-                <strong>「Excel で開ける .xls」</strong>の肝です。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`* (4) GUI_DOWNLOAD でExcelファイルとしてダウンロード
-  CALL FUNCTION 'GUI_DOWNLOAD'
-    EXPORTING
-      filename              = p_file
-      filetype              = 'DAT'
-      write_field_separator = c_on   " ← タブ区切り（Excelで列が分かれる）
-    TABLES
-      data_tab              = lt_dl
-      fieldnames            = lt_fname
-    EXCEPTIONS
-      file_write_error      = 1
-      " … 多数の例外 …
-      OTHERS                = 22.
-
-  IF sy-subrc = 0.
-    MESSAGE s000(z01) WITH 'ダウンロードが完了しました'.
-  ELSE.
-    MESSAGE s000(z01) WITH 'ダウンロードに失敗しました'.
-  ENDIF.
-
-ENDFORM.`}
-              />
-              <InfoPanel title="GUI_DOWNLOAD のポイント" variant="breakdown">
-                <ul>
-                  <li>
-                    <code>filetype = 'DAT'</code> + <code>write_field_separator = c_on</code> …{" "}
-                    <strong>タブ区切りテキスト</strong>（<code>c_on = 'X'</code>）。拡張子{" "}
-                    <code>.xls</code> なら Excel が表として開く
-                  </li>
-                  <li>
-                    <code>data_tab = lt_dl</code> … データ本体（文字型に整形済み）
-                  </li>
-                  <li>
-                    <code>fieldnames = lt_fname</code> … <strong>1行目の列名</strong>
-                  </li>
-                  <li>
-                    結果は <code>sy-subrc</code> で判定し、成功／失敗をメッセージで知らせる
-                  </li>
-                </ul>
-              </InfoPanel>
-              <Callout variant="warning">
-                <strong>注意：</strong>アプリ言語（SAP GUI のログオン言語）が<strong>日本語以外</strong>の場合、
-                ダウンロードした Excel の日本語（列名・伝票タイプテキスト・勘定科目名など）が
-                <strong>文字化け</strong>することがあります。本演習では<strong>日本語</strong>でログオンして実行してください。
-              </Callout>
-              <Callout variant="tip">
-                <code>WRITE ... CURRENCY</code> の後の <code>CONDENSE</code> は、通貨編集で入る
-                <strong>余分な前後空白を詰める</strong>ためです。これでセルに綺麗に収まります。
-              </Callout>
-              <Dialog speaker="b">
-                日付や金額を一度「文字」に直してから渡す理由が、これで腑に落ちました。
-              </Dialog>
-              <Dialog speaker="teacher">
-                よい理解です。あと一歩、<strong>SE41 でのボタン登録</strong>を忘れると動かないので、
-                追加コンテンツ「ファイル出力」で手順を確認してください。
-              </Dialog>
-              <ReferenceLinks />
-            </>
-          ),
-        },
-        {
-          title: "B-⑦ SE41 登録（ファイル出力章を参照）",
-          plainText:
-            "B-⑦ SE41 登録。手順の詳細は追加コンテンツ「ファイル出力」に集約。本演習では T0010 の表題を『仕訳日記帳 演習4』、S0010 に DL ボタンを登録。保存と有効化を忘れない。",
-          content: (
-            <>
-              <h2>B-⑦ SE41 登録（必須）</h2>
+              <h2>B-④ SE41 登録（必須）</h2>
               <p>
                 <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）の SE41 登録手順は、
                 追加コンテンツ<strong>「ファイル出力」</strong>で詳しく説明しています。
-                ここでは本演習固有の設定だけ押さえます。
               </p>
               <InfoPanel title="本演習での設定値" variant="reference">
                 <ul>
@@ -1422,6 +267,7 @@ ENDFORM.`}
               </InfoPanel>
               <Callout variant="warning">
                 コードだけでは動きません。SE41 で登録したあとは、<strong>保存と有効化</strong>まで完了してください。
+                この時点では DL ボタンを押しても<strong>何も起きません</strong>（Part D で処理を接続します）。
               </Callout>
               <LessonLinkButton
                 courseSlug="abap-training"
@@ -1435,62 +281,39 @@ ENDFORM.`}
           ),
         },
         {
-          title: "B-⑧ Part B 完成コード（全文）",
+          title: "B-⑤ Part B 完成コード（全文）",
           plainText:
-            "B-⑧ Part B 完成コード全文 create_report_4。Part A の構造化版に、p_file パラメータ・g_typ_dl/g_typ_fname 型・INITIALIZATION・AT SELECTION-SCREEN ON VALUE-REQUEST→f_get_filename・START-OF-SELECTION 先頭の SET PF-STATUS/SET TITLEBAR・AT USER-COMMAND→f_download・f_get_filename（file_save_dialog）・f_download（GUI_DOWNLOAD）を足した完成形。\n既存の抽出・出力 FORM は Part A のまま。実行前に SE41 で S0010・T0010 を登録し、TEXT-001〜010 を Text elements に登録する。Reveal で全文を開いて確認する。",
+            "B-⑤ Part B 完成コード create_report_4。Part A に定数 c_gui_status/c_gui_title と START-OF-SELECTION 先頭の SET 文を足した完成形。ダウンロード処理は含まない。SE41 登録後、帳票画面に DL ボタンが表示される。",
           content: (
             <>
-              <h2>B-⑧ Part B 完成コード（全文）</h2>
+              <h2>B-⑤ Part B 完成コード（全文）</h2>
               <p>
-                Part A の <code>create_report_3</code> に、Part B の追加部分（型・パラメータ・イベント・<code>FORM</code>）を
-                足した<strong>完成版</strong> <code>create_report_4</code> です。
-                既存の抽出・出力 <code>FORM</code> は<strong>Part A のまま</strong>です。
+                Part A の <code>create_report_3</code> に、Part B の GUI 設定だけを足した
+                <strong>完成版</strong> <code>create_report_4</code> です。
               </p>
-              <InfoPanel title="Part A から足した箇所だけ拾うと" variant="breakdown">
+              <InfoPanel title="Part A から足した箇所だけ" variant="breakdown">
                 <ul>
-                  <li>型 <code>g_typ_dl</code> / <code>g_typ_fname</code> を追加（B-③）</li>
-                  <li>パラメータ <code>p_file</code> を追加（B-③）</li>
                   <li>
-                    <code>INITIALIZATION</code> と{" "}
-                    <code>AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file</code> →{" "}
-                    <code>f_get_filename</code> を追加（B-④）
+                    定数 <code>c_gui_status</code> / <code>c_gui_title</code>（B-③）
                   </li>
                   <li>
-                    <code>START-OF-SELECTION</code> 先頭に <code>SET PF-STATUS c_gui_status</code> /{" "}
-                    <code>SET TITLEBAR c_gui_title</code> を追加（B-⑤）
-                  </li>
-                  <li>
-                    <code>AT USER-COMMAND</code> → <code>WHEN 'DL'</code> → <code>f_download</code> を追加（B-⑤）
-                  </li>
-                  <li>
-                    <code>f_get_filename</code>（ダイアログ）・<code>f_download</code>（書き出し）を追加（B-④・B-⑥）
+                    <code>START-OF-SELECTION</code> 先頭の <code>SET PF-STATUS</code> /{" "}
+                    <code>SET TITLEBAR</code>（B-③）
                   </li>
                 </ul>
               </InfoPanel>
               <Callout variant="note">
-                実行前に SE41 で <code>S0010</code> / <code>T0010</code> を登録し（手順は「ファイル出力」参照）、
+                実行前に SE41 で <code>S0010</code> / <code>T0010</code> を登録し（B-④）、
                 列見出し <code>TEXT-001</code>〜<code>TEXT-010</code> を SE38 の <strong>Text elements</strong> に
                 登録しておきます（演習③・Part A と同じ）。
               </Callout>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="19-file-output"
-                slide={2}
-                label="ファイル出力: GUI設定手順（全体像）"
-                className="mb-4"
-              />
               <Reveal label="Part B 完成コード（create_report_4・全体）を見る">
                 <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
               </Reveal>
-              <Callout variant="tip">
-                <strong>確認のコツ：</strong>Part A の完成コードと並べ、<strong>足した部分だけが「＋」で増えている</strong>
-                ことを確かめてください。既存の抽出・出力ロジックは1ミリも変えていません。
-              </Callout>
               <Dialog speaker="teacher">
-                これで Part B（GUIステータスとExcelダウンロード）は完成です。
+                これで Part B は完成です。帳票画面に DL ボタンが表示されます。
                 <br />
-                構造化（Part A）のおかげで、<strong>追加機能を独立した <code>FORM</code> として足すだけ</strong>で
-                済みました。これが「育てやすいプログラム」の効果です。
+                次は Part C で選択画面の初期化・入力チェックを整え、Part D でボタンにダウンロード処理を接続します。
               </Dialog>
               <ReferenceLinks />
             </>
@@ -1499,24 +322,24 @@ ENDFORM.`}
         {
           title: "理解度チェック",
           plainText:
-            "理解度チェック\nQ1 ダウンロード用の g_typ_dl を全項目 文字型にする理由→ 日付を ____/__/__、金額を通貨編集した見やすい文字列で Excel に出すため。数値/日付型のままだと書式が崩れる\nQ2 帳票画面に DL ボタンを出すために必須の作業→ SE41 で GUIステータス S0010 を登録し DL を APツールバーに追加する（コードの SET PF-STATUS だけでは出ない）\nQ3 GUI_DOWNLOAD で Excel が列に分けて開ける .xls にするための指定→ filetype='DAT' と write_field_separator=c_on（タブ区切り）",
+            "理解度チェック\nQ1 SET PF-STATUS の役割→ 帳票画面に出すボタン（GUIステータス）を指定する\nQ2 DL ボタンを出すために必須の作業→ SE41 で S0010 に DL を登録\nQ3 ボタン押下時の処理を実装するパート→ Part D",
           content: (
             <>
               <h2>理解度チェック</h2>
-              <p>Part B の要点を3問で確認します。迷ったら B-③（型）・ファイル出力（SE41）・B-⑥（GUI_DOWNLOAD）に戻ってください。</p>
+              <p>Part B の要点を3問で確認します。</p>
               <LessonQuiz
                 answer={1}
                 question={
                   <strong>
-                    ダウンロード用の <code>g_typ_dl</code> を<strong>全項目 文字型</strong>にするのはなぜ？
+                    <code>SET PF-STATUS c_gui_status</code> の役割は？
                   </strong>
                 }
                 options={[
-                  "文字型のほうがメモリを節約できるから",
-                  "日付を ____/__/__、金額を通貨編集した見やすい文字列で Excel に出すため。数値・日付型のままだと書式が崩れやすい",
-                  "GUI_DOWNLOAD は文字型しか受け取れないから",
+                  "選択画面の入力チェックを行う",
+                  "帳票画面に表示するボタン（GUIステータス）を指定する",
+                  "ファイルを PC にダウンロードする",
                 ]}
-                explanation="日付は WRITE ... USING EDIT MASK で ____/__/__ に、金額は WRITE ... CURRENCY で桁区切りなどを整えた文字列にしてから出します。数値型・日付型のまま GUI_DOWNLOAD に渡すと Excel 側で書式が崩れやすいため、表示用に整形した文字列を持つ g_typ_dl を用意します。"
+                explanation="SET PF-STATUS は「どの GUI ステータス（ツールバー定義）を使うか」を指定します。S0010 の中身（DL ボタンなど）は SE41 で登録します。"
               />
               <LessonQuiz
                 answer={2}
@@ -1527,32 +350,26 @@ ENDFORM.`}
                   </strong>
                 }
                 options={[
-                  "特になし。SET PF-STATUS c_gui_status を書けば自動でボタンが出る",
+                  "特になし。SET PF-STATUS を書けば自動でボタンが出る",
                   "SE38 の Text elements に DL を登録する",
                   "SE41 で GUIステータス S0010 を登録し、機能コード DL を APツールバーに追加する",
                 ]}
-                explanation="SET PF-STATUS c_gui_status は「S0010 というステータスを使う」という指定にすぎません。S0010 の中身（どのボタンを出すか）と機能コード DL は、SE41 でステータスを登録し APツールバーに DL を追加して初めて有効になります（詳細は追加コンテンツ「ファイル出力」）。タイトル T0010 も SE41 で登録し、有効化まで完了してください。"
+                explanation="SET PF-STATUS は「S0010 を使う」という指定にすぎません。DL ボタンは SE41 で S0010 に登録して初めて表示されます。"
               />
               <LessonQuiz
-                answer={0}
+                answer={2}
                 question={
                   <strong>
-                    <code>GUI_DOWNLOAD</code> で、Excel が<strong>列に分けて</strong>開ける .xls を作る指定は？
+                    DL ボタン押下時に <code>GUI_DOWNLOAD</code> でファイルを保存する処理は、どのパートで実装する？
                   </strong>
                 }
-                options={[
-                  "filetype = 'DAT' と write_field_separator = c_on（タブ区切り）",
-                  "filetype = 'BIN'（バイナリ）にする",
-                  "filename の拡張子を .xls にすれば区切りは不要",
-                ]}
-                explanation="filetype = 'DAT' に write_field_separator = c_on（値 'X'）を組み合わせると、各項目がタブで区切られたテキストになります。拡張子を .xls にしておけば Excel がタブ区切りを列の境目として解釈し、表として開きます。拡張子だけ変えても区切り文字がなければ1列にまとまってしまいます。"
+                options={["Part B", "Part C", "Part D"]}
+                explanation="Part B はボタンの表示（GUI 設定）まで。Part C は選択画面の初期化・入力チェック。Part D で AT USER-COMMAND とダウンロード処理を足します。"
               />
               <Dialog speaker="closing">
-                お疲れさまでした。Part B では、構造化した土台の上に「選択画面の拡張」「GUIステータス」
-                「ファイルダイアログ」「GUI_DOWNLOAD」を<strong>新しい <code>FORM</code> として足す</strong>だけで、
-                実務で喜ばれる<strong>Excel ダウンロード</strong>を実現しました。
-                <br />
-                コードと SE41 の登録は<strong>セットでひとつの機能</strong>——これを忘れないでください。
+                お疲れさまでした。Part B では<strong>GUI ステータスとボタン表示</strong>までを整えました。
+                コードと SE41 の登録は<strong>セット</strong>——これを忘れないでください。
+                ダウンロード機能は Part D で接続します。
               </Dialog>
             </>
           ),

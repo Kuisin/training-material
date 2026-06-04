@@ -1,4 +1,4 @@
-import { partBFinalProgram } from "./96-exercise-journal-ledger-download";
+import { partBFinalProgram } from "./journal-ledger-part-b-program";
 
 /**
  * Part B 完成コードを Part C（create_report_5）完成形へ変換する。
@@ -23,28 +23,7 @@ export function buildPartCFinalProgram(): string {
   );
 
   code = code.replace(
-    `TYPES: BEGIN OF g_typ_dl,
-         bukrs     TYPE c LENGTH 10,
-         blart     TYPE c LENGTH 5,`,
-    `TYPES: BEGIN OF g_typ_dl,
-         bukrs     TYPE c LENGTH 10,
-         butxt     TYPE c LENGTH 25,
-         blart     TYPE c LENGTH 5,`
-  );
-
-  code = code.replace(
     `*---------------------------------------------------------------------*
-* INITIALIZATION（追加）
-*---------------------------------------------------------------------*
-INITIALIZATION.
-
-*---------------------------------------------------------------------*
-* AT SELECTION-SCREEN ON VALUE-REQUEST（追加: ファイル保存ダイアログ）
-*---------------------------------------------------------------------*
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_get_filename.
-
-*---------------------------------------------------------------------*
 * START-OF-SELECTION
 *---------------------------------------------------------------------*
 START-OF-SELECTION.
@@ -68,12 +47,6 @@ AT SELECTION-SCREEN.
   PERFORM f_check_parameters.
 
 *---------------------------------------------------------------------*
-* AT SELECTION-SCREEN ON VALUE-REQUEST（ファイル保存ダイアログ）
-*---------------------------------------------------------------------*
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_get_filename.
-
-*---------------------------------------------------------------------*
 * START-OF-SELECTION
 *---------------------------------------------------------------------*
 START-OF-SELECTION.
@@ -93,6 +66,7 @@ START-OF-SELECTION.
 *---------------------------------------------------------------------*
 FORM f_init_main.
 
+* 作業領域・内部テーブルの初期化
   CLEAR: gs_bkpf,
          gs_bseg,
          gs_t001,
@@ -107,6 +81,7 @@ FORM f_init_main.
            gt_t003t,
            gt_out.
 
+* 選択条件の日付表示用
   READ TABLE s_budat INDEX 1.
   IF sy-subrc = 0.
     g_start_date = s_budat-low.
@@ -194,6 +169,7 @@ ENDFORM.                    " F_HANDLE_NO_DATA`
   code = code.replace(
     `FORM f_get_data.
 
+* (1) 会社コードマスタ情報の取得（勘定科目表・通貨）
   PERFORM f_get_ktopl.`,
     `FORM f_get_data.
 
@@ -217,6 +193,7 @@ ENDFORM.                    " F_HANDLE_NO_DATA`
     g_end_date   = s_budat-high.
   ENDIF.
 
+* (1) 会社コードマスタ情報の取得（勘定科目表・通貨）
   PERFORM f_get_ktopl.`
   );
 
@@ -254,22 +231,6 @@ ENDFORM.                    " F_GET_KTOPL`
           13 p_bukrs,
           20 gs_t001-butxt,
          /1  '転記日付:',`
-  );
-
-  code = code.replace(
-    `  ls_fname-name = '会社コード'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプ'.         APPEND ls_fname TO lt_fname.`,
-    `  ls_fname-name = '会社コード'.         APPEND ls_fname TO lt_fname.
-  ls_fname-name = '会社名'.             APPEND ls_fname TO lt_fname.
-  ls_fname-name = '伝票タイプ'.         APPEND ls_fname TO lt_fname.`
-  );
-
-  code = code.replace(
-    `    ls_dl-bukrs     = gs_out-bukrs.
-    ls_dl-blart     = gs_out-blart.`,
-    `    ls_dl-bukrs     = gs_out-bukrs.
-    ls_dl-butxt     = gs_t001-butxt.
-    ls_dl-blart     = gs_out-blart.`
   );
 
   return code;
