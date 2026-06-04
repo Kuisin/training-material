@@ -249,9 +249,12 @@ DATA: gv_pageno TYPE sy-pagno.
 *---------------------------------------------------------------------*
 * CONSTANTS
 *---------------------------------------------------------------------*
-CONSTANTS: c_spras   TYPE t003t-spras VALUE 'J',
-           c_shkzg_s TYPE bseg-shkzg  VALUE 'S',
-           c_shkzg_h TYPE bseg-shkzg  VALUE 'H'.
+CONSTANTS: c_spras       TYPE t003t-spras VALUE 'J',   " 言語キー
+           c_shkzg_s    TYPE bseg-shkzg  VALUE 'S',   " 借方
+           c_shkzg_h    TYPE bseg-shkzg  VALUE 'H',   " 貸方
+           c_on         TYPE c           VALUE 'X',   " フラグオン
+           c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
+           c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE
 
 *---------------------------------------------------------------------*
 * PARAMETER
@@ -283,8 +286,8 @@ AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
 START-OF-SELECTION.
 
 *>>> 追加: GUIステータス・タイトルの設定
-  SET PF-STATUS 'S0010'.
-  SET TITLEBAR  'T0010'.
+  SET PF-STATUS c_gui_status.
+  SET TITLEBAR  c_gui_title.
 
   PERFORM f_init_main.      " Ⅰ データ初期化
   PERFORM f_get_data.       " Ⅱ データ抽出
@@ -749,7 +752,7 @@ FORM f_download.
     EXPORTING
       filename                = p_file
       filetype                = 'DAT'
-      write_field_separator   = 'X'
+      write_field_separator   = c_on
     TABLES
       data_tab                = lt_dl
       fieldnames              = lt_fname
@@ -788,6 +791,12 @@ ENDFORM.                    " F_DOWNLOAD`;
 function ReferenceLinks() {
   return (
     <div className="mt-4 flex flex-wrap justify-end gap-2">
+      <LessonLinkButton
+        courseSlug="abap-training"
+        lessonFile="19-file-output"
+        slide={2}
+        label="ファイル出力: GUI設定手順（全体像）"
+      />
       <LessonLinkButton
         courseSlug="abap-training"
         lessonFile="95-exercise-journal-ledger-modularization"
@@ -919,7 +928,7 @@ export default function ExerciseJournalLedgerDownloadLesson() {
         {
           title: "B-② 全体像：何を足すか",
           plainText:
-            "B-② 全体像。追加するイベントは3つ：INITIALIZATION（初期化用の枠）、AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file（ファイル選択ボタン押下時に f_get_filename を呼ぶ）、AT USER-COMMAND（ツールバーのボタン押下を CASE sy-ucomm で振り分け、DL なら f_download）。\nSTART-OF-SELECTION の先頭に SET PF-STATUS 'S0010' と SET TITLEBAR 'T0010' を追加。追加する FORM は f_get_filename（ファイル保存ダイアログ）と f_download（GUI_DOWNLOAD）。追加する型は g_typ_dl（ダウンロード用・文字型）と g_typ_fname（ヘッダ行用）。",
+            "B-② 全体像。追加するイベントは3つ：INITIALIZATION（初期化用の枠）、AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file（ファイル選択ボタン押下時に f_get_filename を呼ぶ）、AT USER-COMMAND（ツールバーのボタン押下を CASE sy-ucomm で振り分け、DL なら f_download）。\nSTART-OF-SELECTION の先頭に SET PF-STATUS c_gui_status と SET TITLEBAR c_gui_title を追加。追加する FORM は f_get_filename（ファイル保存ダイアログ）と f_download（GUI_DOWNLOAD）。追加する型は g_typ_dl（ダウンロード用・文字型）と g_typ_fname（ヘッダ行用）。",
           content: (
             <>
               <h2>B-② どこに何を足すか（全体像）</h2>
@@ -931,7 +940,7 @@ export default function ExerciseJournalLedgerDownloadLesson() {
                 chart={`flowchart TD
   INIT["INITIALIZATION（追加）"]
   VR["AT SELECTION-SCREEN<br/>ON VALUE-REQUEST FOR p_file（追加）"] --> GETF["PERFORM f_get_filename<br/>（ファイル保存ダイアログ）"]
-  SOS["START-OF-SELECTION"] --> STATUS["SET PF-STATUS 'S0010'<br/>SET TITLEBAR 'T0010'（追加）"]
+  SOS["START-OF-SELECTION"] --> STATUS["SET PF-STATUS c_gui_status<br/>SET TITLEBAR c_gui_title（追加）"]
   SOS --> EXIST["PERFORM f_init_main / f_get_data<br/>（既存）"]
   UC["AT USER-COMMAND（追加）"] --> CASE["CASE sy-ucomm → WHEN 'DL'"]
   CASE --> DL["PERFORM f_download<br/>（GUI_DOWNLOAD）"]`}
@@ -986,8 +995,16 @@ export default function ExerciseJournalLedgerDownloadLesson() {
               </InfoPanel>
               <Callout variant="warning">
                 <strong>コードだけでは動きません。</strong>ボタン（機能コード <code>DL</code>）とタイトルは、
-                <strong>SE41</strong> で <code>S0010</code> / <code>T0010</code> を登録して初めて表示されます（B-⑦）。
+                SE41 で <code>S0010</code> / <code>T0010</code> を登録して初めて表示されます。
+                手順は追加コンテンツ「ファイル出力」を参照してください。
               </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="19-file-output"
+                slide={2}
+                label="ファイル出力: GUI設定手順（全体像）"
+                className="mb-4"
+              />
               <Dialog speaker="b">
                 足すものが整理されていると安心します。型を2つ足すのは何のためですか？
               </Dialog>
@@ -1157,21 +1174,27 @@ ENDFORM.`}
         {
           title: "B-⑤ GUIステータスとボタン処理",
           plainText:
-            "B-⑤ GUIステータスとボタン処理。START-OF-SELECTION の先頭に SET PF-STATUS 'S0010'（ツールバー・ボタンの定義）と SET TITLEBAR 'T0010'（画面タイトル）を足す。これで帳票画面に独自ツールバーが付く。\nボタンが押されたときの処理は AT USER-COMMAND で受ける。CASE sy-ucomm で機能コードを判定し、WHEN 'DL' のとき PERFORM f_download を呼ぶ。sy-ucomm には押されたボタンの機能コードが入る。",
+            "B-⑤ GUIステータスとボタン処理。CONSTANTS に c_gui_status（S0010）・c_gui_title（T0010）を追加。START-OF-SELECTION の先頭に SET PF-STATUS c_gui_status（ツールバー・ボタンの定義）と SET TITLEBAR c_gui_title（画面タイトル）を足す。これで帳票画面に独自ツールバーが付く。\nボタンが押されたときの処理は AT USER-COMMAND で受ける。CASE sy-ucomm で機能コードを判定し、WHEN 'DL' のとき PERFORM f_download を呼ぶ。sy-ucomm には押されたボタンの機能コードが入る。",
           content: (
             <>
               <h2>B-⑤ ボタンを表示して、押下を受け取る</h2>
               <p>
                 帳票画面に独自ツールバーを出すには、<code>START-OF-SELECTION</code> の<strong>先頭</strong>で
-                ステータスとタイトルをセットします。
+                ステータスとタイトルをセットします。値は定数で宣言しておきます。
               </p>
+              <CodeBlock
+                language="ABAP"
+                code={`CONSTANTS: c_on         TYPE c           VALUE 'X',   " フラグオン
+           c_gui_status TYPE sy-pfkey    VALUE 'S0010', " GUI_STATUS
+           c_gui_title  TYPE c LENGTH 20 VALUE 'T0010'. " GUI_TITLE`}
+              />
               <CodeBlock
                 language="ABAP"
                 code={`START-OF-SELECTION.
 
 *>>> GUIステータス・タイトルの設定
-  SET PF-STATUS 'S0010'.   " ツールバー（DL ボタンを含む）
-  SET TITLEBAR  'T0010'.   " 画面タイトル「仕訳日記帳 演習4」
+  SET PF-STATUS c_gui_status.   " ツールバー（DL ボタンを含む）
+  SET TITLEBAR  c_gui_title.    " 画面タイトル「仕訳日記帳 演習4」
 
   PERFORM f_init_main.      " Ⅰ データ初期化（既存）
   PERFORM f_get_data.       " Ⅱ データ抽出（既存）`}
@@ -1188,11 +1211,12 @@ ENDFORM.`}
               <InfoPanel title="2つの仕組みの役割" variant="breakdown">
                 <ul>
                   <li>
-                    <code>SET PF-STATUS 'S0010'</code> … どんなボタンを出すかを決める
-                    （SE41 で登録したステータス）
+                    <code>SET PF-STATUS c_gui_status</code> … どんなボタンを出すかを決める
+                    （SE41 で <code>S0010</code> を登録）
                   </li>
                   <li>
-                    <code>SET TITLEBAR 'T0010'</code> … 画面のタイトルを決める（SE41 で登録）
+                    <code>SET TITLEBAR c_gui_title</code> … 画面のタイトルを決める（SE41 で{" "}
+                    <code>T0010</code> を登録）
                   </li>
                   <li>
                     <code>AT USER-COMMAND</code> … ボタンが押されると走るイベント。
@@ -1206,8 +1230,15 @@ ENDFORM.`}
               </InfoPanel>
               <Callout variant="warning">
                 <code>S0010</code> / <code>T0010</code> はコードに書くだけでは存在しません。
-                <strong>SE41 で登録（B-⑦）</strong>して初めてボタンとタイトルが表示されます。
+                SE41 で登録して初めてボタンとタイトルが表示されます（手順は「ファイル出力」参照）。
               </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="19-file-output"
+                slide={2}
+                label="ファイル出力: GUI設定手順（全体像）"
+                className="mb-4"
+              />
               <Dialog speaker="a">
                 押されたボタンの種類が <code>sy-ucomm</code> に入るんですね。ボタンが増えても{" "}
                 <code>WHEN</code> を足すだけで対応できそう。
@@ -1222,7 +1253,7 @@ ENDFORM.`}
         {
           title: "B-⑥ ダウンロード処理（GUI_DOWNLOAD）",
           plainText:
-            "B-⑥ f_download の中身。手順は3つ。(1) p_file が空ならメッセージを出して RETURN。(2) ヘッダ行 lt_fname を組み立てる（会社コード〜通貨の列名を APPEND）。(3) gt_out をループして lt_dl に詰める。日付は WRITE ... USING EDIT MASK で ____/__/__ に、金額は WRITE ... CURRENCY して CONDENSE で詰める。\n最後に CALL FUNCTION 'GUI_DOWNLOAD' に filename=p_file・filetype='DAT'・write_field_separator='X'（タブ区切り）、TABLES に data_tab=lt_dl・fieldnames=lt_fname を渡す。sy-subrc=0 で完了メッセージ、それ以外で失敗メッセージ。",
+            "B-⑥ f_download の中身。手順は3つ。(1) p_file が空ならメッセージを出して RETURN。(2) ヘッダ行 lt_fname を組み立てる（会社コード〜通貨の列名を APPEND）。(3) gt_out をループして lt_dl に詰める。日付は WRITE ... USING EDIT MASK で ____/__/__ に、金額は WRITE ... CURRENCY して CONDENSE で詰める。\n最後に CALL FUNCTION 'GUI_DOWNLOAD' に filename=p_file・filetype='DAT'・write_field_separator=c_on（タブ区切り）、TABLES に data_tab=lt_dl・fieldnames=lt_fname を渡す。sy-subrc=0 で完了メッセージ、それ以外で失敗メッセージ。\n注意：アプリ言語が日本語以外だと、ダウンロードした Excel の日本語（列名・テキスト項目など）が文字化けすることがある。本演習は日本語でログオンして実行すること。",
           content: (
             <>
               <h2>B-⑥ 整形して書き出す</h2>
@@ -1309,7 +1340,7 @@ ENDFORM.`}
     EXPORTING
       filename              = p_file
       filetype              = 'DAT'
-      write_field_separator = 'X'   " ← タブ区切り（Excelで列が分かれる）
+      write_field_separator = c_on   " ← タブ区切り（Excelで列が分かれる）
     TABLES
       data_tab              = lt_dl
       fieldnames            = lt_fname
@@ -1329,8 +1360,9 @@ ENDFORM.`}
               <InfoPanel title="GUI_DOWNLOAD のポイント" variant="breakdown">
                 <ul>
                   <li>
-                    <code>filetype = 'DAT'</code> + <code>write_field_separator = 'X'</code> …{" "}
-                    <strong>タブ区切りテキスト</strong>。拡張子 <code>.xls</code> なら Excel が表として開く
+                    <code>filetype = 'DAT'</code> + <code>write_field_separator = c_on</code> …{" "}
+                    <strong>タブ区切りテキスト</strong>（<code>c_on = 'X'</code>）。拡張子{" "}
+                    <code>.xls</code> なら Excel が表として開く
                   </li>
                   <li>
                     <code>data_tab = lt_dl</code> … データ本体（文字型に整形済み）
@@ -1343,6 +1375,11 @@ ENDFORM.`}
                   </li>
                 </ul>
               </InfoPanel>
+              <Callout variant="warning">
+                <strong>注意：</strong>アプリ言語（SAP GUI のログオン言語）が<strong>日本語以外</strong>の場合、
+                ダウンロードした Excel の日本語（列名・伝票タイプテキスト・勘定科目名など）が
+                <strong>文字化け</strong>することがあります。本演習では<strong>日本語</strong>でログオンして実行してください。
+              </Callout>
               <Callout variant="tip">
                 <code>WRITE ... CURRENCY</code> の後の <code>CONDENSE</code> は、通貨編集で入る
                 <strong>余分な前後空白を詰める</strong>ためです。これでセルに綺麗に収まります。
@@ -1351,92 +1388,46 @@ ENDFORM.`}
                 日付や金額を一度「文字」に直してから渡す理由が、これで腑に落ちました。
               </Dialog>
               <Dialog speaker="teacher">
-                よい理解です。あと一歩、<strong>SE41 でのボタン登録</strong>を忘れると動かないので、次で確認します。
+                よい理解です。あと一歩、<strong>SE41 でのボタン登録</strong>を忘れると動かないので、
+                追加コンテンツ「ファイル出力」で手順を確認してください。
               </Dialog>
               <ReferenceLinks />
             </>
           ),
         },
         {
-          title: "B-⑦ SE41 でのGUIステータス登録（必須）",
+          title: "B-⑦ SE41 登録（ファイル出力章を参照）",
           plainText:
-            "B-⑦ SE41 登録手順（必須）。コードだけでは動かないため SE41（メニューペインタ）で手動登録する。\nGUIタイトル T0010：SE41 を起動→プログラム名を入力→表題（タイトル）登録→表題コード T0010・表題『仕訳日記帳 演習4』→保存→有効化。\nGUIステータス S0010：SE41→SAPMSSY0 の STLI を自プログラムへコピー→S0010。機能キー（例F5）に DL・ダウンロードを割当。APツールバーに DL を追加→保存→有効化。\nBちゃん：登録したのに動かない？→有効化を忘れない！\nこれで帳票結果画面の左上に『ダウンロード』ボタンが出る。",
+            "B-⑦ SE41 登録。手順の詳細は追加コンテンツ「ファイル出力」に集約。本演習では T0010 の表題を『仕訳日記帳 演習4』、S0010 に DL ボタンを登録。保存と有効化を忘れない。",
           content: (
             <>
-              <h2>B-⑦ SE41 でステータス／タイトルを登録</h2>
-              <Callout variant="warning">
-                <strong>コードだけでは動きません。</strong>
-                <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）は、
-                <strong>SE41（メニューペインタ）</strong>で手動登録して初めて有効になります。
-              </Callout>
-              <h3>① GUIタイトル T0010</h3>
-              <InfoPanel title="手順：表題の登録" variant="reference">
-                <ul>
-                  <li>SE41 を起動 → <strong>プログラム名</strong>を入力</li>
-                  <li>サブオブジェクトで<strong>「表題（タイトル）」➜「登録」</strong>を選ぶ</li>
-                  <li>
-                    表題コード <code>T0010</code>、表題 <strong>仕訳日記帳 演習4</strong> を入力して保存
-                  </li>
-                  <li>
-                    <strong>有効化</strong>する
-                  </li>
-                </ul>
-              </InfoPanel>
-              <h3>② GUIステータス S0010</h3>
-              <InfoPanel title="手順：ステータスの登録" variant="reference">
+              <h2>B-⑦ SE41 登録（必須）</h2>
+              <p>
+                <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）の SE41 登録手順は、
+                追加コンテンツ<strong>「ファイル出力」</strong>で詳しく説明しています。
+                ここでは本演習固有の設定だけ押さえます。
+              </p>
+              <InfoPanel title="本演習での設定値" variant="reference">
                 <ul>
                   <li>
-                    SE41 → プログラム <code>SAPMSSY0</code> のステータス <code>STLI</code> を
-                    <strong>自プログラムへコピー</strong>
-                  </li>
-                  <li>コピー先ステータス名： <code>S0010</code></li>
-                  <li>
-                    <strong>機能キー</strong>を展開 → 任意選定可能キー（例：<code>F5</code>）に
-                    <ul>
-                      <li>機能コード： <code>DL</code></li>
-                      <li>機能名： <strong>ダウンロード</strong></li>
-                    </ul>
+                    表題コード <code>T0010</code> … 表題：<strong>仕訳日記帳 演習4</strong>
                   </li>
                   <li>
-                    <strong>APツールバー</strong>の空きスロットに <code>DL</code> を追加（左上にボタンが表示される）
-                  </li>
-                  <li>
-                    <strong>保存</strong>する
-                  </li>
-                  <li>
-                    <strong>有効化</strong>する
+                    ステータス <code>S0010</code> … 機能コード <code>DL</code>（ダウンロード）を AP ツールバーに追加
                   </li>
                 </ul>
               </InfoPanel>
               <Callout variant="warning">
-                <strong>有効化を忘れない！</strong>
-                表題（<code>T0010</code>）もステータス（<code>S0010</code>）も、
-                保存だけでは実行時に反映されません。必ず有効化してください。
+                コードだけでは動きません。SE41 で登録したあとは、<strong>保存と有効化</strong>まで完了してください。
               </Callout>
-              <Callout variant="note">
-                <code>SAPMSSY0</code> の <code>STLI</code> は「リスト表示用」の標準ステータスです。
-                これをコピーすると、戻る・終了などの<strong>標準ボタンが揃った状態</strong>から
-                <code>DL</code> を足せます。
-              </Callout>
-              <Callout variant="tip">
-                ここまで登録すると、帳票結果画面の<strong>左上ツールバーに「ダウンロード」ボタン</strong>が現れ、
-                押下すると <code>p_file</code> に指定したパスへ<strong>タブ区切り .xls</strong>（Excel で直接開ける形式）が
-                ダウンロードされます。
-              </Callout>
-              <Dialog speaker="b">
-                先生、SE41 も登録したのに動かないんですけど…。
-              </Dialog>
-              <Dialog speaker="teacher">
-                保存だけで終わっていませんか？<strong>有効化を忘れない！</strong>
-                表題もステータスも、保存のあと必ず有効化しないと反映されません。
-              </Dialog>
-              <Dialog speaker="b">
-                プログラムだけ書いてボタンが出ず焦ったのに、SE41 も保存までやったのに…有効化が足りなかったんですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                まさに「あるある」です。<strong>コード ＋ SE41 登録 ＋ 有効化</strong>の3つがそろって、
-                初めてボタンとタイトルが表示されます。
-              </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="19-file-output"
+                slide={4}
+                label="ファイル出力: GUI設定手順（PF-STATUS）"
+                className="mb-4"
+              />
+              <ReferenceLinks />
             </>
           ),
         },
@@ -1462,8 +1453,8 @@ ENDFORM.`}
                     <code>f_get_filename</code> を追加（B-④）
                   </li>
                   <li>
-                    <code>START-OF-SELECTION</code> 先頭に <code>SET PF-STATUS 'S0010'</code> /{" "}
-                    <code>SET TITLEBAR 'T0010'</code> を追加（B-⑤）
+                    <code>START-OF-SELECTION</code> 先頭に <code>SET PF-STATUS c_gui_status</code> /{" "}
+                    <code>SET TITLEBAR c_gui_title</code> を追加（B-⑤）
                   </li>
                   <li>
                     <code>AT USER-COMMAND</code> → <code>WHEN 'DL'</code> → <code>f_download</code> を追加（B-⑤）
@@ -1474,10 +1465,17 @@ ENDFORM.`}
                 </ul>
               </InfoPanel>
               <Callout variant="note">
-                実行前に <strong>SE41</strong> で <code>S0010</code> / <code>T0010</code> を登録し（B-⑦）、
+                実行前に SE41 で <code>S0010</code> / <code>T0010</code> を登録し（手順は「ファイル出力」参照）、
                 列見出し <code>TEXT-001</code>〜<code>TEXT-010</code> を SE38 の <strong>Text elements</strong> に
                 登録しておきます（演習③・Part A と同じ）。
               </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="19-file-output"
+                slide={2}
+                label="ファイル出力: GUI設定手順（全体像）"
+                className="mb-4"
+              />
               <Reveal label="Part B 完成コード（create_report_4・全体）を見る">
                 <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
               </Reveal>
@@ -1498,11 +1496,11 @@ ENDFORM.`}
         {
           title: "理解度チェック",
           plainText:
-            "理解度チェック\nQ1 ダウンロード用の g_typ_dl を全項目 文字型にする理由→ 日付を ____/__/__、金額を通貨編集した見やすい文字列で Excel に出すため。数値/日付型のままだと書式が崩れる\nQ2 帳票画面に DL ボタンを出すために必須の作業→ SE41 で GUIステータス S0010 を登録し DL を APツールバーに追加する（コードの SET PF-STATUS だけでは出ない）\nQ3 GUI_DOWNLOAD で Excel が列に分けて開ける .xls にするための指定→ filetype='DAT' と write_field_separator='X'（タブ区切り）",
+            "理解度チェック\nQ1 ダウンロード用の g_typ_dl を全項目 文字型にする理由→ 日付を ____/__/__、金額を通貨編集した見やすい文字列で Excel に出すため。数値/日付型のままだと書式が崩れる\nQ2 帳票画面に DL ボタンを出すために必須の作業→ SE41 で GUIステータス S0010 を登録し DL を APツールバーに追加する（コードの SET PF-STATUS だけでは出ない）\nQ3 GUI_DOWNLOAD で Excel が列に分けて開ける .xls にするための指定→ filetype='DAT' と write_field_separator=c_on（タブ区切り）",
           content: (
             <>
               <h2>理解度チェック</h2>
-              <p>Part B の要点を3問で確認します。迷ったら B-③（型）・B-⑦（SE41）・B-⑥（GUI_DOWNLOAD）に戻ってください。</p>
+              <p>Part B の要点を3問で確認します。迷ったら B-③（型）・ファイル出力（SE41）・B-⑥（GUI_DOWNLOAD）に戻ってください。</p>
               <LessonQuiz
                 answer={1}
                 question={
@@ -1526,11 +1524,11 @@ ENDFORM.`}
                   </strong>
                 }
                 options={[
-                  "特になし。SET PF-STATUS 'S0010' を書けば自動でボタンが出る",
+                  "特になし。SET PF-STATUS c_gui_status を書けば自動でボタンが出る",
                   "SE38 の Text elements に DL を登録する",
                   "SE41 で GUIステータス S0010 を登録し、機能コード DL を APツールバーに追加する",
                 ]}
-                explanation="SET PF-STATUS 'S0010' は「S0010 というステータスを使う」という指定にすぎません。S0010 の中身（どのボタンを出すか）と機能コード DL は、SE41 でステータスを登録し APツールバーに DL を追加して初めて有効になります。タイトル T0010 も SE41 で登録します。"
+                explanation="SET PF-STATUS c_gui_status は「S0010 というステータスを使う」という指定にすぎません。S0010 の中身（どのボタンを出すか）と機能コード DL は、SE41 でステータスを登録し APツールバーに DL を追加して初めて有効になります（詳細は追加コンテンツ「ファイル出力」）。タイトル T0010 も SE41 で登録し、有効化まで完了してください。"
               />
               <LessonQuiz
                 answer={0}
@@ -1540,11 +1538,11 @@ ENDFORM.`}
                   </strong>
                 }
                 options={[
-                  "filetype = 'DAT' と write_field_separator = 'X'（タブ区切り）",
+                  "filetype = 'DAT' と write_field_separator = c_on（タブ区切り）",
                   "filetype = 'BIN'（バイナリ）にする",
                   "filename の拡張子を .xls にすれば区切りは不要",
                 ]}
-                explanation="filetype = 'DAT' に write_field_separator = 'X' を組み合わせると、各項目がタブで区切られたテキストになります。拡張子を .xls にしておけば Excel がタブ区切りを列の境目として解釈し、表として開きます。拡張子だけ変えても区切り文字がなければ1列にまとまってしまいます。"
+                explanation="filetype = 'DAT' に write_field_separator = c_on（値 'X'）を組み合わせると、各項目がタブで区切られたテキストになります。拡張子を .xls にしておけば Excel がタブ区切りを列の境目として解釈し、表として開きます。拡張子だけ変えても区切り文字がなければ1列にまとまってしまいます。"
               />
               <Dialog speaker="closing">
                 お疲れさまでした。Part B では、構造化した土台の上に「選択画面の拡張」「GUIステータス」

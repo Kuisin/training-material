@@ -2,6 +2,9 @@
 export { Lesson } from "./components/lesson";
 export { Callout } from "./components/callout";
 export { InfoPanel } from "./components/info-panel";
+export { KeyValueTable } from "./components/key-value-table";
+export type { KeyValueRow } from "./components/key-value-table";
+export { InstructionSubsteps } from "./components/instruction-substeps";
 export { Dialog } from "./components/dialog";
 export { CharacterIntro } from "./components/character-intro";
 export { CodeBlock } from "./components/code-block";

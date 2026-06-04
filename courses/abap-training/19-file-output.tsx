@@ -7,6 +7,8 @@ import {
   Quiz,
   MermaidDiagram,
   InfoPanel,
+  KeyValueTable,
+  InstructionSubsteps,
   LessonMeta,
   LessonLinkButton,
   mountLesson,
@@ -14,7 +16,7 @@ import {
 
 export const lessonMeta = {
   title: "ファイル出力 — PCへのダウンロードとデータ整形",
-  meta: "初学者 · 20分",
+  meta: "初学者 · 30分",
 };
 
 export default function FileOutputLesson() {
@@ -25,7 +27,7 @@ export default function FileOutputLesson() {
         {
           title: "概要",
           plainText:
-            "ファイル出力\n帳票画面で見た結果を、PC上のファイル（Excelなど）として保存する方法を学びます。\n⏱ 20分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・画面出力（WRITE）とファイル出力の違い\n・WRITE ... TO ... によるデータ整形\n・ファイル保存ダイアログ（保存先の選択）\n・GUI_DOWNLOAD によるPCへのダウンロード",
+            "ファイル出力\n帳票画面で見た結果を、PC上のファイル（Excelなど）として保存する方法を学びます。\n本章は理解しやすいよう SE41 を先に説明（開発中はコードを先に書くこともある）。\n⏱ 30分 / 📶 初学者 / 🏷 ABAP研修",
           content: (
             <>
               <hgroup>
@@ -34,7 +36,7 @@ export default function FileOutputLesson() {
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "20分" },
+                  { icon: "⏱", text: "30分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
@@ -42,17 +44,23 @@ export default function FileOutputLesson() {
               <h3>この章で学ぶこと</h3>
               <ul>
                 <li>画面出力（<code>WRITE</code>）とファイル出力の違い</li>
+                <li>SE41 による GUI ステータス／タイトルの登録（ダウンロードボタンの前提）</li>
                 <li>
-                  <code>WRITE ... TO ...</code> によるデータ整形
+                  <code>SET PF-STATUS</code> / <code>AT USER-COMMAND</code> によるボタン表示と押下処理
                 </li>
                 <li>ファイル保存ダイアログ（保存先の選択）</li>
                 <li>
-                  <code>GUI_DOWNLOAD</code> による PC へのダウンロード
+                  <code>WRITE ... TO ...</code> によるデータ整形
                 </li>
                 <li>
-                  SE41 による GUI ステータス／タイトルの登録（ボタン表示の前提）
+                  <code>GUI_DOWNLOAD</code> による PC へのダウンロード
                 </li>
               </ul>
+              <Callout variant="tip">
+                本章では理解しやすいよう<strong> SE41 を先に、コードを後に</strong>説明します。
+                開発中にコードを先に書くこともありますが、実行してボタンを確認する時点では
+                <strong>SE41 の登録・有効化とコードの両方</strong>がそろっている必要があります。
+              </Callout>
               <Callout variant="note">
                 サーバ上のファイルを<strong>読み込む</strong>処理（<code>OPEN DATASET</code> など）は
                 追加コンテンツ「ファイル連携とバッチ」（第15章相当）で扱います。
@@ -105,8 +113,8 @@ export default function FileOutputLesson() {
                 画面で見える帳票を、そのまま Excel に落としたい、という要望が多いんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その通りです。画面の <code>WRITE</code> とファイル出力は<strong>別の経路</strong>です。
-                内部テーブルのデータを一度整形してから、<code>GUI_DOWNLOAD</code> で PC に渡します。
+                実務では、<code>SET PF-STATUS</code> を先に書いてから SE41 を整えることもあります。
+                大事なのは実行時に<strong>コード側の指定</strong>と<strong>SE41 側の定義</strong>がそろっていることです。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
@@ -120,36 +128,410 @@ export default function FileOutputLesson() {
           ),
         },
         {
-          title: "データ整形（WRITE TO）",
+          title: "GUI設定の全体像",
           plainText:
-            "データ整形\nGUI_DOWNLOADに渡す前に、日付・金額などを見やすい文字列に変換する。\nWRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'。\nWRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers。CONDENSEで空白を詰める。\nダウンロード用の型は全項目文字型にするのが定石。",
+            "GUI設定（ダウンロード機能）の全体像\n① TITLEBAR（画面上部タイトル）② PF-STATUS（ダウンロードボタン）③ プログラムに適用 ④ ボタン押下処理。\nTITLEBARとPF-STATUSは完全に別物。SE41で定義し、SET TITLEBAR / SET PF-STATUSで参照。コードとSE41はセット。",
           content: (
             <>
-              <h2>データ整形（<code>WRITE ... TO ...</code>）</h2>
+              <h2>GUI 設定（ダウンロード機能）の全体像</h2>
               <p>
-                <code>GUI_DOWNLOAD</code> に渡す前に、日付・金額などを<strong>見やすい文字列</strong>に変換します。
-                数値型・日付型のまま渡すと、Excel 側で書式が崩れやすいためです。
+                帳票画面に「ダウンロード」ボタンとタイトルを出すには、
+                <strong>SE41（メニューペインタ）</strong> で GUI を定義し、
+                プログラム側から<strong>名前を指定して使う</strong>必要があります。
+              </p>
+              <InfoPanel title="4つのステップ（順番の目安）" variant="reference">
+                <ol>
+                  <li>
+                    <strong>① TITLEBAR</strong> … 画面上部のタイトルを作る（例：<code>T0010</code>）
+                  </li>
+                  <li>
+                    <strong>② PF-STATUS</strong> … ダウンロードボタンを作る（例：<code>S0010</code>）
+                  </li>
+                  <li>
+                    <strong>③ プログラムに適用</strong> … <code>SET TITLEBAR</code> /{" "}
+                    <code>SET PF-STATUS</code> を記述
+                  </li>
+                  <li>
+                    <strong>④ ボタン押下処理</strong> … <code>AT USER-COMMAND</code> で{" "}
+                    <code>DL</code> を受け取る
+                  </li>
+                </ol>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart LR
+  C[ABAPコード<br/>SET PF-STATUS / SET TITLEBAR] --> R{SE41で登録済み?}
+  R -->|いいえ| X[ボタンもタイトルも出ない]
+  R -->|はい| O[帳票画面にボタンとタイトルが表示]`}
+              />
+              <Callout variant="warning">
+                <strong>注意：</strong>コードだけでは動きません。
+                <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）は、
+                SE41 で手動登録し、<strong>有効化まで</strong>済ませて初めて反映されます。
+              </Callout>
+              <InfoPanel title="なぜ2つ設定する？" variant="breakdown">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>設定</th>
+                      <th>役割</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>TITLEBAR</code>
+                      </td>
+                      <td>見た目（画面上部のタイトル）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>PF-STATUS</code>
+                      </td>
+                      <td>操作（ツールバーのボタン）</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p>完全に別物です。片方だけ設定しても、もう片方は出ません。</p>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                このあと<strong>① TITLEBAR → ② PF-STATUS</strong>の順で、SE41 の操作を1ステップずつ見ていきます。
+                開発中はコードを先に書くこともありますが、実行時には<strong>SE41 とコードの両方</strong>がそろっている必要があります。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "GUI表題（TITLEBAR）の設定",
+          plainText:
+            "GUI表題 TITLEBAR T0010\nSE41→自分のプログラム→表題一覧→登録→T0010と表題を入力→保存→有効化。\nプログラム側の SET TITLEBAR は「プログラム反映と押下処理」スライドで説明。",
+          content: (
+            <>
+              <h2>① GUI 表題（TITLEBAR）の設定</h2>
+              <p>
+                まずは<strong>画面上部のタイトル</strong>を SE41 で作ります。
+                ここでは表題コード <code>T0010</code>、表題「仕訳日記帳一覧」を例にします。
+              </p>
+              <ol>
+                <li>
+                  <strong>SE41 を起動する</strong>
+                </li>
+                <li>
+                  <strong>対象プログラムを指定する</strong>
+                  <br />
+                  例：<code>ZXXXXX</code>（自分のレポートプログラム名）
+                </li>
+                <li>
+                  <strong>「表題一覧」を選ぶ</strong>
+                  <br />
+                  サブオブジェクトから <strong>表題一覧</strong> を選択
+                </li>
+                <li>
+                  <strong>「登録」を押下する</strong>
+                  <br />
+                  新しいタイトル定義を作成する
+                </li>
+                <li>
+                  <strong>表題コードと表題を入力する</strong>
+                  <KeyValueTable
+                    labelHeader="項目"
+                    valueHeader="例"
+                    rows={[
+                      { label: "表題コード", value: <code>T0010</code> },
+                      { label: "表題", value: "仕訳日記帳一覧" },
+                    ]}
+                  />
+                </li>
+                <li>
+                  <strong>保存する</strong>
+                  <br />
+                  タイトルデータが SE41 上に登録される（この時点では実行時にまだ反映されない）
+                </li>
+                <li>
+                  <strong>有効化する</strong>
+                  <br />
+                  保存だけでは不十分。有効化して初めて実行時に使える
+                </li>
+              </ol>
+              <Callout variant="note">
+                SE41 での登録・有効化が終わったら、プログラム側で <code>SET TITLEBAR &apos;T0010&apos;</code> を書きます。
+                記述場所とコードは<strong>「プログラム反映と押下処理」</strong>スライドで説明します。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "GUIステータス（PF-STATUS）の設定",
+          plainText:
+            "GUIステータス PF-STATUS S0010\nSAPMSSY0/STLIをS0010としてコピー→変更→F5にDL→メニューバー・APツールバーにDL→保存→有効化。\nDLがAT USER-COMMANDのトリガー。配置と有効化を忘れるとボタンが出ない。",
+          content: (
+            <>
+              <h2>② GUI ステータス（PF-STATUS）の設定</h2>
+              <p>
+                次に<strong>ダウンロードボタン</strong>を SE41 で作ります。
+                標準のリスト画面ステータス <code>STLI</code> をコピーして、
+                機能コード <code>DL</code> を足すのが定番です。
+              </p>
+              <ol>
+                <li>
+                  <strong>SE41 を起動する</strong>（Tr-cd: <code>SE41</code>）
+                </li>
+                <li>
+                  <strong>コピー元の標準ステータスを指定する</strong>
+                  <KeyValueTable
+                    rows={[
+                      { label: "プログラム", value: <code>SAPMSSY0</code> },
+                      { label: "ステータス", value: <code>STLI</code> },
+                    ]}
+                  />
+                  <p>
+                    <code>STLI</code> はリスト表示用の標準 GUI（戻る・終了などが揃った状態）です。
+                  </p>
+                </li>
+                <li>
+                  <strong>STLI を自プログラムへコピーする</strong>
+                  <InstructionSubsteps>
+                    <li>サブオブジェクトから <strong>ステータス</strong> を選択</li>
+                    <li>
+                      ステータス <code>STLI</code> を入力 → <strong>ステータス</strong>（Ctrl+F6）を押下
+                    </li>
+                    <li>
+                      コピー先を設定
+                      <KeyValueTable
+                        rows={[
+                          { label: "To プログラム", value: <>自分のプログラム（例：<code>ZXXXXX</code>）</> },
+                          { label: "To ステータス", value: <code>S0010</code> },
+                        ]}
+                      />
+                    </li>
+                  </InstructionSubsteps>
+                </li>
+                <li>
+                  <strong>変更モードに入る</strong>
+                  <InstructionSubsteps>
+                    <li>
+                      SE41 で自分のプログラム名とステータス <code>S0010</code> を入力
+                    </li>
+                    <li>
+                      <strong>変更</strong> を押下
+                    </li>
+                  </InstructionSubsteps>
+                </li>
+                <li>
+                  <strong>機能キーを展開する</strong>（F キー設定画面を開く）
+                </li>
+                <li>
+                  <strong>ダウンロード機能を追加する</strong>（例：F5 キー）
+                  <KeyValueTable
+                    labelHeader="項目"
+                    valueHeader="内容"
+                    rows={[
+                      { label: "機能コード", value: <code>DL</code> },
+                      { label: "機能名", value: "ダウンロード" },
+                    ]}
+                  />
+                  <p>
+                    この <code>DL</code> が、後で <code>AT USER-COMMAND</code> の{" "}
+                    <code>WHEN &apos;DL&apos;</code> と対応します。
+                  </p>
+                </li>
+                <li>
+                  <strong>（推奨）DL の詳細設定</strong>
+                  <InstructionSubsteps>
+                    <li>
+                      <code>DL</code> をダブルクリック
+                    </li>
+                    <li>アイコン・テキスト・ショートカットを設定（見やすくなる）</li>
+                  </InstructionSubsteps>
+                </li>
+                <li>
+                  <strong>メニューバーに DL を登録する</strong>
+                  <InstructionSubsteps>
+                    <li>「一覧」など既存メニュー項目をダブルクリック</li>
+                    <li>
+                      Code に <code>DL</code> を入力
+                    </li>
+                  </InstructionSubsteps>
+                </li>
+                <li>
+                  <strong>AP ツールバーに DL を設置する</strong>
+                  <InstructionSubsteps>
+                    <li>AP ツールバーの空きスロットに <code>DL</code> を入力</li>
+                    <li>帳票画面<strong>左上</strong>に「ダウンロード」ボタンが表示される</li>
+                  </InstructionSubsteps>
+                </li>
+                <li>
+                  <strong>保存 → 有効化する</strong>
+                  <InstructionSubsteps>
+                    <li>編集内容を<strong>保存</strong></li>
+                    <li>
+                      <strong>有効化</strong>する（保存だけでは実行時に反映されない）
+                    </li>
+                  </InstructionSubsteps>
+                </li>
+              </ol>
+              <Callout variant="warning">
+                <strong>メニューバー・AP ツールバーへの配置と有効化を忘れるとボタンが出ません。</strong>
+                機能キーに <code>DL</code> を割り当てただけでは足りません。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "プログラム反映と押下処理",
+          plainText:
+            "プログラムへの反映とボタン押下処理\nSET TITLEBAR 'T0010' / SET PF-STATUS 'S0010' でSE41定義を使う。\nAT USER-COMMAND で sy-ucomm='DL' を判定し PERFORM f_download。\nボタン押下→SY-UCOMM=DL→AT USER-COMMAND→PERFORM の流れ。",
+          content: (
+            <>
+              <h2>③ プログラムに反映する ／ ④ ボタン押下処理</h2>
+              <p>
+                SE41 で <code>T0010</code> / <code>S0010</code> を登録・有効化したうえで、
+                プログラム側では次のコードを書きます。
+              </p>
+              <h3>③ プログラムに適用</h3>
+              <p>
+                プログラム側では、SE41 で登録した表題コード・ステータス名を<strong>指定するだけ</strong>です。
+                帳票を出す直前（通常は <code>START-OF-SELECTION</code>）に書きます。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`DATA: lv_budat_c TYPE c LENGTH 10,
-        lv_dmbtr_c TYPE c LENGTH 16.
-
-" 日付 → ____/__/__ 形式の文字列
-WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
-ls_dl-budat = lv_budat_c.
-
-" 金額 → 通貨編集済みの文字列
-WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
-CONDENSE lv_dmbtr_c.
-ls_dl-dmbtr = lv_dmbtr_c.`}
+                code={`START-OF-SELECTION.
+  SET TITLEBAR 'T0010'.   " タイトル（SE41 で登録した表題コード）
+  SET PF-STATUS 'S0010'.  " ボタン（SE41 で登録したステータス名）
+  PERFORM f_get_data.`}
               />
               <Callout variant="tip">
-                ダウンロード用の行型（例：<code>g_typ_dl</code>）は、<strong>全項目を文字型</strong>にしておくと
-                整形結果をそのまま詰めやすくなります。
+                <strong>結果：</strong>
+                <code>SET TITLEBAR</code> により画面上部に「仕訳日記帳一覧」が表示され、
+                <code>SET PF-STATUS</code> により左上に「ダウンロード」ボタンが出ます。
               </Callout>
-              <Dialog speaker="a">
-                画面の <code>WRITE</code> と同じ整形命令を、文字変数に向けて使うイメージですね。
+              <Callout variant="note">
+                ここでは SE41 で作った定義を<strong>名前で指定して使う</strong>だけです。
+                定義そのものは SE41 側にあります。
+              </Callout>
+              <h3>④ ボタン押下処理</h3>
+              <MermaidDiagram
+                chart={`flowchart TD
+  B[ダウンロードボタン DL] --> U[AT USER-COMMAND]
+  U --> S[sy-ucomm = 'DL']
+  S --> F[PERFORM f_download]
+  F --> V{p_file 指定済み?}
+  V -->|いいえ| M[メッセージして RETURN]
+  V -->|はい| H[ヘッダ行 lt_fname を組み立て]
+  H --> L[gt_out をループして lt_dl に整形]
+  L --> G[GUI_DOWNLOAD]`}
+              />
+              <CodeBlock
+                language="ABAP"
+                code={`AT USER-COMMAND.
+  CASE sy-ucomm.
+    WHEN 'DL'.
+      PERFORM f_download.
+  ENDCASE.`}
+              />
+              <InfoPanel title="ボタンが動く仕組み" variant="breakdown">
+                <ol>
+                  <li>ユーザーが「ダウンロード」ボタンを押す</li>
+                  <li>
+                    <code>sy-ucomm</code> に機能コード <code>DL</code> が入る
+                  </li>
+                  <li>
+                    <code>AT USER-COMMAND</code> が起動する
+                  </li>
+                  <li>
+                    <code>PERFORM f_download</code> でファイル出力処理を実行する
+                  </li>
+                </ol>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                イベント（<code>AT USER-COMMAND</code>）は振り分けだけ、
+                実処理は <code>FORM f_download</code> に集めます。中身はこのあとのスライドで順に足します。
+              </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="10-modularization"
+                  slide={8}
+                  label="第10章: FORM/PERFORM を復習する"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="96-exercise-journal-ledger-download"
+                  slide={0}
+                  label="特別演習④ Part B: 実装例へ"
+                />
+              </div>
+            </>
+          ),
+        },
+        {
+          title: "よくあるミス",
+          plainText:
+            "GUI設定のよくあるミス\nボタンが出ない→APツールバー未配置・有効化忘れ。\n押しても動かない→AT USER-COMMAND未実装。\nタイトルが出ない→SET TITLEBAR未記述。\nDLとDL+スペースの typo に注意。",
+          content: (
+            <>
+              <h2>よくあるミスと確認ポイント</h2>
+              <InfoPanel title="症状別チェックリスト" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>症状</th>
+                      <th>よくある原因</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ボタンが出ない</td>
+                      <td>
+                        <code>DL</code> を AP ツールバーに置いていない／有効化していない
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>押しても動かない</td>
+                      <td>
+                        <code>AT USER-COMMAND</code> が未実装、または <code>WHEN &apos;DL&apos;</code>{" "}
+                        の綴り不一致
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>タイトルが出ない</td>
+                      <td>
+                        <code>SET TITLEBAR</code> を書いていない／<code>T0010</code> が SE41 未登録
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>GUI が反映されない</td>
+                      <td>SE41 で保存したが<strong>有効化</strong>していない</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>DL</code> と書いたつもりで動かない
+                      </td>
+                      <td>
+                        <code>DL </code>（末尾スペース）などの typo
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                先生、SE41 も①〜④まで終えたのに、ボタンが出ないんですけど…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                よくあるのは<strong>有効化を忘れた</strong>ケースと、
+                <strong>AP ツールバーへの配置を忘れた</strong>ケースです。
+                保存まで終わっていても、有効化しないと実行時に反映されません。
+              </Dialog>
+              <Dialog speaker="stumble">
+                <code>SET PF-STATUS</code> を書いただけでは足りません。
+                SE41 で <code>S0010</code> / <code>T0010</code> を登録し、<strong>有効化まで</strong>済ませる——
+                コードと SE41 は<strong>セットでひとつの機能</strong>です。
+              </Dialog>
+              <Dialog speaker="b">
+                あ、保存ボタンを押しただけで満足してました…。有効化までやらないとダメなんですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。有効化まで終わったら、<strong>次のスライド以降</strong>で
+                ファイル保存ダイアログ → データ整形 → <code>GUI_DOWNLOAD</code> を実装していきましょう。
               </Dialog>
             </>
           ),
@@ -157,12 +539,13 @@ ls_dl-dmbtr = lv_dmbtr_c.`}
         {
           title: "ファイル保存ダイアログ",
           plainText:
-            "ファイル保存ダイアログ\nCL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG で保存先を選ぶ。\n選択画面のパラメータ p_file と AT SELECTION-SCREEN ON VALUE-REQUEST を組み合わせる。\nPERFORM f_get_filename として FORM に分けると読みやすい。",
+            "ファイル保存ダイアログ（f_download の①）\nCL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG で保存先を選ぶ。\n選択画面のパラメータ p_file と AT SELECTION-SCREEN ON VALUE-REQUEST を組み合わせる。\nPERFORM f_get_filename として FORM に分けると読みやすい。",
           content: (
             <>
               <h2>ファイル保存ダイアログ</h2>
               <p>
-                保存先のパスは、<strong>ファイル保存ダイアログ</strong>でユーザーに選んでもらいます。
+                <code>f_download</code> の第一要素は、保存先のパスです。
+                <strong>ファイル保存ダイアログ</strong>でユーザーに選んでもらいます。
               </p>
               <CodeBlock
                 language="ABAP"
@@ -197,15 +580,52 @@ AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
           ),
         },
         {
+          title: "データ整形（WRITE TO）",
+          plainText:
+            "データ整形（f_download の②）\nGUI_DOWNLOADに渡す前に、日付・金額などを見やすい文字列に変換する。\nWRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'。\nWRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers。CONDENSEで空白を詰める。\nダウンロード用の型は全項目文字型にするのが定石。",
+          content: (
+            <>
+              <h2>データ整形（<code>WRITE ... TO ...</code>）</h2>
+              <p>
+                <code>f_download</code> の第二要素は、<code>GUI_DOWNLOAD</code> に渡す前の<strong>データ整形</strong>です。
+                日付・金額などを見やすい文字列に変換します（数値型・日付型のままだと Excel 側で書式が崩れやすい）。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`DATA: lv_budat_c TYPE c LENGTH 10,
+        lv_dmbtr_c TYPE c LENGTH 16.
+
+" 日付 → ____/__/__ 形式の文字列
+WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
+ls_dl-budat = lv_budat_c.
+
+" 金額 → 通貨編集済みの文字列
+WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
+CONDENSE lv_dmbtr_c.
+ls_dl-dmbtr = lv_dmbtr_c.`}
+              />
+              <Callout variant="tip">
+                ダウンロード用の行型（例：<code>g_typ_dl</code>）は、<strong>全項目を文字型</strong>にしておくと
+                整形結果をそのまま詰めやすくなります。
+              </Callout>
+              <Dialog speaker="a">
+                画面の <code>WRITE</code> と同じ整形命令を、文字変数に向けて使うイメージですね。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "GUI_DOWNLOAD",
           plainText:
-            "GUI_DOWNLOAD\nCALL FUNCTION 'GUI_DOWNLOAD' で内部テーブルをPCへ書き出す。\nfilename＝保存先パス、filetype='DAT'、write_field_separator='X'（タブ区切り）でExcelが列に分かれて開ける。\nTABLES data_tab＝データ行、fieldnames＝列見出し行。sy-subrc=0で成功。",
+            "GUI_DOWNLOAD（f_download の③）\nCALL FUNCTION 'GUI_DOWNLOAD' で内部テーブルをPCへ書き出す。\nfilename＝保存先パス、filetype='DAT'、write_field_separator='X'（タブ区切り）でExcelが列に分かれて開ける。\nTABLES data_tab＝データ行、fieldnames＝列見出し行。sy-subrc=0で成功。",
           content: (
             <>
               <h2>
                 <code>GUI_DOWNLOAD</code>
               </h2>
-              <p>整形済みの内部テーブルを、PC 上のファイルとして書き出します。</p>
+              <p>
+                <code>f_download</code> の最後は、整形済みの内部テーブルを PC 上のファイルとして書き出します。
+              </p>
               <CodeBlock
                 language="ABAP"
                 code={`CALL FUNCTION 'GUI_DOWNLOAD'
@@ -263,178 +683,6 @@ ENDIF.`}
                 書き出し前に <code>p_file</code> が空でないか確認してください。
                 未指定のまま <code>GUI_DOWNLOAD</code> を呼ぶとエラーになります。
               </Callout>
-            </>
-          ),
-        },
-        {
-          title: "ボタンからダウンロードまで",
-          plainText:
-            "ボタンからダウンロードまで\nSET PF-STATUS / SET TITLEBAR で帳票画面にボタンを出す。\n注意：コードだけでは動きません。S0010（ステータス）と T0010（タイトル）は SE41（メニューペインタ）で手動登録して初めて有効。\nAT USER-COMMAND で sy-ucomm を判定し、DL なら PERFORM f_download。\nf_download の流れ：パスチェック→ヘッダ行→データ整形→GUI_DOWNLOAD。",
-          content: (
-            <>
-              <h2>ボタンからダウンロードまで</h2>
-              <MermaidDiagram
-                chart={`flowchart TD
-  B[ダウンロードボタン DL] --> U[AT USER-COMMAND]
-  U --> C{sy-ucomm = 'DL'?}
-  C -->|はい| F[PERFORM f_download]
-  F --> V{p_file 指定済み?}
-  V -->|いいえ| M[メッセージして RETURN]
-  V -->|はい| H[ヘッダ行 lt_fname を組み立て]
-  H --> L[gt_out をループして lt_dl に整形]
-  L --> G[GUI_DOWNLOAD]`}
-              />
-              <CodeBlock
-                language="ABAP"
-                code={`START-OF-SELECTION.
-  SET PF-STATUS 'S0010'.
-  SET TITLEBAR 'T0010'.
-  PERFORM f_get_data.
-
-AT USER-COMMAND.
-  CASE sy-ucomm.
-    WHEN 'DL'.
-      PERFORM f_download.
-  ENDCASE.`}
-              />
-              <Callout variant="warning">
-                <strong>注意：</strong>コードだけでは動きません。
-                <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）は、
-                <strong>SE41</strong>（メニューペインタ）で手動登録して初めて有効になります。
-                手順は次のスライドで説明します。
-              </Callout>
-              <Dialog speaker="teacher">
-                イベント（<code>AT USER-COMMAND</code>）は振り分けだけ、
-                実処理は <code>FORM f_download</code> に集める——第10章の構造化の考え方と同じです。
-              </Dialog>
-              <div className="mt-4 flex flex-wrap justify-end gap-2">
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="10-modularization"
-                  slide={8}
-                  label="第10章: FORM/PERFORM を復習する"
-                />
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="96-exercise-journal-ledger-download"
-                  slide={1}
-                  label="特別演習④ Part B: 実装例へ"
-                />
-              </div>
-            </>
-          ),
-        },
-        {
-          title: "SE41でステータス／タイトルを登録",
-          plainText:
-            "SE41でのGUIステータス登録（必須）\nコードだけでは動かない。S0010（ステータス）と T0010（タイトル）を SE41（メニューペインタ）で手動登録する。\n① T0010：SE41→プログラム名入力→表題（タイトル）登録→表題コード T0010・表題を入力→保存→有効化。\n② S0010：SE41→SAPMSSY0 の STLI を自プログラムへコピー→S0010。機能キー（例F5）に DL・ダウンロードを割当。APツールバーに DL を追加→保存→有効化。\nBちゃん：登録したのに動かない？→有効化を忘れない！保存だけでは反映されない。\nコード＋SE41 の両方でひとつの機能。",
-          content: (
-            <>
-              <h2>SE41 でステータス／タイトルを登録</h2>
-              <p>
-                <code>SET PF-STATUS &apos;S0010&apos;</code> や <code>SET TITLEBAR &apos;T0010&apos;</code> は、
-                「その名前の定義を使う」という<strong>指定</strong>にすぎません。
-                定義そのものは <strong>SE41（メニューペインタ）</strong> で作ります。
-              </p>
-              <Callout variant="warning">
-                <strong>注意：</strong>コードだけでは動きません。
-                <code>S0010</code>（ステータス）と <code>T0010</code>（タイトル）は、
-                SE41 で手動登録して初めて有効になります。
-              </Callout>
-              <MermaidDiagram
-                chart={`flowchart LR
-  C[ABAPコード<br/>SET PF-STATUS / SET TITLEBAR] --> R{SE41で登録済み?}
-  R -->|いいえ| X[ボタンもタイトルも出ない]
-  R -->|はい| O[帳票画面にボタンとタイトルが表示]`}
-              />
-              <h3>① GUIタイトル T0010</h3>
-              <InfoPanel title="手順：表題（タイトル）の登録" variant="reference">
-                <ol>
-                  <li>
-                    トランザクション <strong>SE41</strong> を起動する
-                  </li>
-                  <li>
-                    <strong>プログラム名</strong>（自分のレポート名）を入力する
-                  </li>
-                  <li>
-                    サブオブジェクトで<strong>「表題（タイトル）」→「登録」</strong>を選ぶ
-                  </li>
-                  <li>
-                    表題コード <code>T0010</code>、表題（例：<strong>仕訳日記帳</strong>）を入力して<strong>保存</strong>
-                  </li>
-                  <li>
-                    <strong>有効化</strong>する（保存だけでは実行時に反映されない）
-                  </li>
-                </ol>
-              </InfoPanel>
-              <h3>② GUIステータス S0010</h3>
-              <InfoPanel title="手順：ステータス（ボタン）の登録" variant="reference">
-                <ol>
-                  <li>
-                    SE41 で、プログラム <code>SAPMSSY0</code> のステータス <code>STLI</code> を
-                    <strong>自プログラムへコピー</strong>する（リスト表示用の標準ボタンが揃った状態から始められる）
-                  </li>
-                  <li>
-                    コピー先ステータス名：<code>S0010</code>
-                  </li>
-                  <li>
-                    <strong>機能キー</strong>を展開 → 任意選定可能キー（例：<code>F5</code>）に割り当てる
-                    <ul>
-                      <li>
-                        機能コード：<code>DL</code>
-                      </li>
-                      <li>
-                        機能名：<strong>ダウンロード</strong>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <strong>APツールバー</strong>の空きスロットに <code>DL</code> を追加する（左上にボタンが表示される）
-                  </li>
-                  <li>
-                    <strong>保存</strong>する
-                  </li>
-                  <li>
-                    <strong>有効化</strong>する（ここを忘れるとボタンが出ない）
-                  </li>
-                </ol>
-              </InfoPanel>
-              <Callout variant="note">
-                <code>SAPMSSY0</code> の <code>STLI</code> は「リスト表示用」の標準ステータスです。
-                戻る・終了などの標準ボタンが揃った状態から <code>DL</code> を足せます。
-              </Callout>
-              <Callout variant="tip">
-                登録が完了すると、帳票結果画面の<strong>左上ツールバーに「ダウンロード」ボタン</strong>が現れます。
-                押下すると <code>AT USER-COMMAND</code> で <code>sy-ucomm = &apos;DL&apos;</code> となり、
-                <code>PERFORM f_download</code> が呼ばれます。
-              </Callout>
-              <Dialog speaker="b">
-                先生、SE41 も登録したのに動かないんですけど…。
-              </Dialog>
-              <Dialog speaker="teacher">
-                保存だけで終わっていませんか？<strong>有効化を忘れていませんか？</strong><br />
-                表題もステータスも、保存のあと必ず有効化しないと実行時に反映されません。
-                SE38 のプログラム本体と同じで、「保存した＝動く」ではありません。
-              </Dialog>
-              <Callout variant="warning">
-                SE41 でも SE38 と同じで、<strong>保存だけでは動きません</strong>。
-                表題（<code>T0010</code>）もステータス（<code>S0010</code>）も、
-                登録のあと必ず<strong>有効化</strong>してください。
-              </Callout>
-              <Dialog speaker="b">
-                あ、保存ボタンを押しただけで満足してました…。有効化までやらないとダメなんですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通りです。<strong>コード ＋ SE41 登録 ＋ 有効化</strong>の3つがそろって、
-                初めてボタンとタイトルが表示されます。
-              </Dialog>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="96-exercise-journal-ledger-download"
-                slide={7}
-                label="特別演習④ Part B: SE41 登録の実践（B-⑦）"
-                className="mb-4"
-              />
             </>
           ),
         },
@@ -532,7 +780,7 @@ AT USER-COMMAND.
               />
               <Quiz
                 answer={1}
-                explanation="SET PF-STATUS 'S0010' は「S0010 というステータスを使う」という指定にすぎません。S0010 の中身（どのボタンを出すか）と機能コード DL は、SE41 でステータスを登録し APツールバーに DL を追加して初めて有効になります。T0010 も SE41 で登録します。登録後は保存だけでなく有効化も忘れずに。"
+                explanation="SET PF-STATUS 'S0010' は「S0010 というステータスを使う」という指定にすぎません。S0010 の中身（機能コード DL の定義、メニューバー・APツールバーへの配置）は SE41 で登録し、有効化も忘れずに。T0010 も SE41 で登録します。"
                 question={<strong>帳票画面に DL ボタンを出すために必須の作業は？</strong>}
                 options={[
                   "SET PF-STATUS 'S0010' をコードに書くだけでよい",
@@ -541,7 +789,7 @@ AT USER-COMMAND.
                 ]}
               />
               <Dialog speaker="closing">
-                ファイル出力は「整形 → 保存先選択 → GUI_DOWNLOAD」、ボタン表示は「コード ＋ SE41 登録 ＋ 有効化」のセットで覚えましょう。
+                ファイル出力は「SE41 登録・有効化 ＋ コード（ボタン処理 → 保存先 → 整形 → GUI_DOWNLOAD）」のセットで覚えましょう。
               </Dialog>
             </>
           ),
