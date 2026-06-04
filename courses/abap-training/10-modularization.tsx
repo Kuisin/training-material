@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -620,15 +620,22 @@ CALL FUNCTION 'GUI_DOWNLOAD'
               </InfoPanel>
               <Dialog speaker="teacher">
                 今は「役割ごとに分ける」という発想と、イベントが“いつ動くか”の位置づけだけ押さえれば十分です。
-                詳しい書き方は使うときに深めていきましょう。
+                ファイル出力の詳細は追加コンテンツ「ファイル出力」、実装例は特別演習④ Part B で深めていきましょう。
               </Dialog>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="11-document-posting"
-                slide={6}
-                label="第11章: 会計伝票登録（BAPI）へ進む"
-                className="mb-4"
-              />
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="19-file-output"
+                  slide={1}
+                  label="ファイル出力: PCへのダウンロードへ"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="11-document-posting"
+                  slide={6}
+                  label="第11章: 会計伝票登録（BAPI）へ進む"
+                />
+              </div>
             </>
           ),
         },
