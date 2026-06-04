@@ -145,12 +145,7 @@
     {
       "file": "96-exercise-journal-ledger-download",
       "title": "特別演習④ Part B — GUIステータスとボタン設定",
-      "meta": "特別 · 25分",
-      "lock": {
-        "requires": "course",
-        "password": "abap-report-311",
-        "mode": "any"
-      }
+      "meta": "特別 · 25分"
     },
     {
       "file": "97-exercise-journal-ledger-screen-check",
