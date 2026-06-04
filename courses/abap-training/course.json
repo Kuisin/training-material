@@ -65,7 +65,7 @@
     },
     {
       "file": "13-good-programming",
-      "title": "良いABAP — 性能と保守性・SELECT/LOOPの書き方",
+      "title": "良いABAP — レポートイベント・性能と保守性",
       "meta": "初学者 · 35分"
     },
     {
@@ -144,8 +144,8 @@
     },
     {
       "file": "96-exercise-journal-ledger-download",
-      "title": "特別演習④ Part B — GUIステータスとExcelダウンロード",
-      "meta": "特別 · 45分",
+      "title": "特別演習④ Part B — GUIステータスとボタン設定",
+      "meta": "特別 · 25分",
       "lock": {
         "requires": "course",
         "password": "abap-report-311",
@@ -164,8 +164,8 @@
     },
     {
       "file": "98-exercise-journal-ledger-function-module",
-      "title": "特別演習④ Part D — 汎用モジュールの活用",
-      "meta": "特別 · 30分",
+      "title": "特別演習④ Part D — Excelダウンロードと汎用モジュール",
+      "meta": "特別 · 45分",
       "lock": {
         "requires": "course",
         "password": "abap-report-583",

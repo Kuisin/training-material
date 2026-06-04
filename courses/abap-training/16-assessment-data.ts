@@ -695,8 +695,8 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
   },
   {
     num: "13",
-    title: "良いABAP",
-    summary: "SELECT・内部テーブルの性能と、可読性・保守性の両立を確認します。",
+    title: "良いABAP — レポートイベント・性能と保守性",
+    summary: "レポートのイベント駆動と、SELECT・内部テーブルの性能、可読性・保守性の両立を確認します。",
     arrangeKind: "code",
     codeInstruction: "大量データを扱うときの良い取得パターンを組み立ててください",
     codeLines: [
