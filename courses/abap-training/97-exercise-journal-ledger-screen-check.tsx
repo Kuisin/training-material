@@ -364,6 +364,7 @@ ENDFORM.
               <Dialog speaker="closing">
                 Part C では「入口の設計」（初期値・チェック）と「マスタ情報の拡張」を足しました。
                 帳票の見た目とダウンロード列が1段リッチになり、Part B のダウンロード機能はそのまま使えます。
+                次は Part D でダウンロード処理を分割し、汎用モジュール <code>GUI_DOWNLOAD</code> の呼び出しを整理します。
               </Dialog>
               <ReferenceLinks />
             </>

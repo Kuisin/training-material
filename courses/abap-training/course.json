@@ -161,6 +161,16 @@
         "password": "abap-report-452",
         "mode": "any"
       }
+    },
+    {
+      "file": "98-exercise-journal-ledger-function-module",
+      "title": "特別演習④ Part D — 汎用モジュールの活用",
+      "meta": "特別 · 30分",
+      "lock": {
+        "requires": "course",
+        "password": "abap-report-583",
+        "mode": "any"
+      }
     }
   ]
 }
