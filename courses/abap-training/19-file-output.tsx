@@ -203,13 +203,13 @@ export default function FileOutputLesson() {
         {
           title: "GUI表題（TITLEBAR）の設定",
           plainText:
-            "GUI表題 TITLEBAR T0010\nSE41→自分のプログラム→表題一覧→登録→T0010と表題を入力→保存→有効化。\nプログラム側の SET TITLEBAR は「プログラム反映と押下処理」スライドで説明。",
+            "GUI表題 TITLEBAR T0010\nSE41→自分のプログラム→表題一覧→登録→T0010と表題「仕訳日記帳」を入力→保存→有効化。\nプログラム側の SET TITLEBAR は「プログラム反映と押下処理」スライドで説明。",
           content: (
             <>
               <h2>① GUI 表題（TITLEBAR）の設定</h2>
               <p>
                 まずは<strong>画面上部のタイトル</strong>を SE41 で作ります。
-                ここでは表題コード <code>T0010</code>、表題「仕訳日記帳一覧」を例にします。
+                表題コード <code>T0010</code>、表題「<strong>仕訳日記帳</strong>」を、本研修で使う標準的な例として説明します。
               </p>
               <ol>
                 <li>
@@ -237,9 +237,14 @@ export default function FileOutputLesson() {
                     valueHeader="例"
                     rows={[
                       { label: "表題コード", value: <code>T0010</code> },
-                      { label: "表題", value: "仕訳日記帳一覧" },
+                      { label: "表題", value: "仕訳日記帳" },
                     ]}
                   />
+                  <Callout variant="note">
+                    表題コード <code>T0010</code> と表題「仕訳日記帳」は、本研修で使う<strong>標準的な名前</strong>です。
+                    プログラム側の <code>SET TITLEBAR &apos;T0010&apos;</code> と、SE41 の登録内容が
+                    <strong>一致していること</strong>が重要です。
+                  </Callout>
                 </li>
                 <li>
                   <strong>保存する</strong>
@@ -401,7 +406,7 @@ export default function FileOutputLesson() {
               />
               <Callout variant="tip">
                 <strong>結果：</strong>
-                <code>SET TITLEBAR</code> により画面上部に「仕訳日記帳一覧」が表示され、
+                <code>SET TITLEBAR</code> により画面上部に「仕訳日記帳」が表示され、
                 <code>SET PF-STATUS</code> により左上に「ダウンロード」ボタンが出ます。
               </Callout>
               <Callout variant="note">
