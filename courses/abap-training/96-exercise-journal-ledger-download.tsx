@@ -788,6 +788,9 @@ FORM f_download.
 
 ENDFORM.                    " F_DOWNLOAD`;
 
+/** Part C など他レッスンの出発点として参照する Part B 完成コード */
+export const partBFinalProgram = FINAL_PROGRAM;
+
 function ReferenceLinks() {
   return (
     <div className="mt-4 flex flex-wrap justify-end gap-2">

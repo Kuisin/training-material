@@ -146,6 +146,16 @@
         "password": "abap-report-311",
         "mode": "any"
       }
+    },
+    {
+      "file": "97-exercise-journal-ledger-screen-check",
+      "title": "特別演習④ Part C — 選択画面の初期化・入力チェックと会社マスタ拡張",
+      "meta": "特別 · 30分",
+      "lock": {
+        "requires": "course",
+        "password": "abap-report-452",
+        "mode": "any"
+      }
     }
   ]
 }

@@ -26,7 +26,7 @@ export default function GoodProgrammingLesson() {
         {
           title: "概要",
           plainText:
-            "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
+            "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・レポートのイベント駆動（いつ動くかとFORMの役割分担）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
           content: (
             <>
               <hgroup>
@@ -47,6 +47,7 @@ export default function GoodProgrammingLesson() {
               <h3>この章で学ぶこと</h3>
               <ul>
                 <li>長期運用の視点（継続利用・改修前提の設計）</li>
+                <li>レポートの<strong>イベント駆動</strong>（<code>INITIALIZATION</code> など「いつ」と <code>FORM</code> の「何」）</li>
                 <li><code>SELECT</code> / 内部テーブルの性能改善（往復削減・LOOP削減）</li>
                 <li>実行時間分析の基本（<code>SE30</code> / <code>SAT</code>）</li>
                 <li>可読性・保守性（コメント・履歴・開発標準・わかりやすい書き方）</li>
@@ -107,6 +108,184 @@ export default function GoodProgrammingLesson() {
               <Dialog speaker="teacher">
                 性能の問題は、開発環境では見えにくいのが怖いところです。
                 「今動く」だけでなく、「データが10倍・100倍になっても耐えられるか」を最初から問いかけましょう。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "レポートのイベント駆動",
+          plainText:
+            "ABAPレポートのイベント駆動\n特定のタイミングでだけ処理が走る。イベント＝いつ、FORM＝何。イベントにはPERFORMだけ並べ、中身はFORMへ。\n主な流れ：INITIALIZATION（入力初期化・f_init_main）→ 選択画面 → AT SELECTION-SCREEN（存在性チェック・f_check_parameters）→ START-OF-SELECTION（データ抽出・f_get_data）→ TOP-OF-PAGE（ヘッダ）→ END-OF-SELECTION（一覧）→ AT USER-COMMAND（DL等）。\n良い習慣：イベントにSELECT/LOOPを直書きしない。処理をイベントの外に追い出すと10年後も読みやすい。",
+          content: (
+            <>
+              <h2>レポートのイベント駆動</h2>
+              <p>
+                ABAP のレポートプログラムは、<strong>「いつ」処理が動くか</strong>をイベントで決めます。
+                第10章で学んだ <code>FORM</code> / <code>PERFORM</code> と組み合わせると、
+                イベントが<strong>目次</strong>、<code>FORM</code> が<strong>本文</strong>になり、保守しやすくなります。
+              </p>
+              <Callout variant="note">
+                <strong>2つの役割分担</strong>
+                <ul className="mt-2 list-disc pl-5">
+                  <li>
+                    <strong>イベントブロック</strong> … タイミングだけを表す（中身は <code>PERFORM</code> の並び）
+                  </li>
+                  <li>
+                    <strong><code>FORM</code></strong> … 実際の処理（初期化・チェック・取得・出力）
+                  </li>
+                </ul>
+              </Callout>
+              <InfoPanel title="主なイベント（仕訳日記帳レポートの例）" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>イベント</th>
+                      <th>いつ動くか</th>
+                      <th>呼ぶ FORM（例）</th>
+                      <th>処理の意味</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code>INITIALIZATION</code>
+                      </td>
+                      <td>プログラム起動直後（選択画面の前）</td>
+                      <td>
+                        <code>f_init_main</code>
+                      </td>
+                      <td>Ⅰ データ初期化（検索条件の初期値）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>AT SELECTION-SCREEN</code>
+                      </td>
+                      <td>実行ボタン押下の直前</td>
+                      <td>
+                        <code>f_check_parameters</code>
+                      </td>
+                      <td>Ⅰ 存在性チェック（マスタ存在・日付範囲など）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code>
+                      </td>
+                      <td>選択画面の F4（検索ヘルプ）押下時</td>
+                      <td>
+                        <code>f_get_filename</code> など
+                      </td>
+                      <td>ファイルパス選択ダイアログなど</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>START-OF-SELECTION</code>
+                      </td>
+                      <td>入力チェック通過後（メイン処理の入口）</td>
+                      <td>
+                        <code>f_get_data</code>
+                      </td>
+                      <td>Ⅰ－１ データ抽出（<code>SELECT</code>・結合）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>TOP-OF-PAGE</code>
+                      </td>
+                      <td>各ページの先頭</td>
+                      <td>
+                        <code>f_write_head</code>
+                      </td>
+                      <td>帳票ヘッダ（会社コード・日付・列名）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>END-OF-SELECTION</code>
+                      </td>
+                      <td>一覧出力のタイミング</td>
+                      <td>
+                        <code>f_write_list</code>
+                      </td>
+                      <td>Ⅰ－２ データ出力（ソート・明細 <code>WRITE</code>）</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code>AT USER-COMMAND</code>
+                      </td>
+                      <td>帳票画面のツールバーボタン押下時</td>
+                      <td>
+                        <code>f_download</code> など
+                      </td>
+                      <td>ダウンロード（機能コード <code>DL</code> など）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart TD
+  I["INITIALIZATION\\nf_init_main"] --> S["選択画面"]
+  S --> A["AT SELECTION-SCREEN\\nf_check_parameters"]
+  A --> M["START-OF-SELECTION\\nf_get_data"]
+  M --> H["TOP-OF-PAGE\\nf_write_head"]
+  M --> L["END-OF-SELECTION\\nf_write_list"]
+  L --> U["AT USER-COMMAND\\nf_download など"]`}
+              />
+              <CodeBlock
+                language="ABAP"
+                code={`* イベントは「目次」— PERFORM だけ並べる
+INITIALIZATION.
+  PERFORM f_init_main.
+
+AT SELECTION-SCREEN.
+  PERFORM f_check_parameters.
+
+START-OF-SELECTION.
+  PERFORM f_get_data.
+
+TOP-OF-PAGE.
+  PERFORM f_write_head.
+
+END-OF-SELECTION.
+  PERFORM f_write_list.
+
+AT USER-COMMAND.
+  CASE sy-ucomm.
+    WHEN 'DL'.
+      PERFORM f_download.
+  ENDCASE.`}
+              />
+              <Callout variant="warning">
+                <strong>保守性の落とし穴</strong> … イベントの中に長い <code>SELECT</code> や <code>LOOP</code> を直書きすると、
+                「いつ動くか」と「何をしているか」が混ざり、後から直しにくくなります。
+                特別演習④ Part C 以降は、<strong>イベント名と FORM 名を構造図どおり揃える</strong>のが実務の型です。
+              </Callout>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="11-document-posting"
+                  slide={17}
+                  label="第11章: イベント駆動処理"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="97-exercise-journal-ledger-screen-check"
+                  slide={0}
+                  label="特別演習④ Part C: 初期化・存在性チェック"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="10-modularization"
+                  slide={5}
+                  label="第10章: FORM/PERFORM"
+                  variant="back"
+                />
+              </div>
+              <Dialog speaker="teacher">
+                イベントは「処理の順番表」です。上から読んで、<code>INITIALIZATION</code> で初期値、
+                <code>AT SELECTION-SCREEN</code> でチェック、<code>START-OF-SELECTION</code> で本処理、
+                という流れが一目で分かれば、10年後の改修も楽になります。
+              </Dialog>
+              <Dialog speaker="a">
+                第10章の「イベントは目次、FORM は本文」が、ここで全体の設計原則になっているんですね。
               </Dialog>
             </>
           ),
@@ -869,7 +1048,7 @@ IF lv_found = 'X'.`}
                   <li><strong>基本文法・帳票出力</strong> … 第3〜7章（<code>SELECT</code>・<code>WRITE</code>・選択画面）</li>
                   <li><strong>データ結合</strong> … 第8章（<code>LOOP</code> / <code>READ TABLE</code> / <code>APPEND</code>）</li>
                   <li><strong>出力最適化</strong> … 第9章（サプレス・制御ブロック・フラグ）</li>
-                  <li><strong>実務構造</strong> … 第10章（<code>FORM</code>・GUI・ダウンロード）</li>
+                  <li><strong>実務構造</strong> … 第10章（<code>FORM</code>・イベント・GUI・ダウンロード）</li>
                   <li><strong>会計伝票登録</strong> … 第11章（BAPI・ロック・検証）</li>
                   <li><strong>開発ツール・連携</strong> … 第14〜15章（SE38・ファイル・ジョブ・BDC）</li>
                 </ul>
@@ -896,7 +1075,7 @@ IF lv_found = 'X'.`}
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nBちゃん：間違えても大丈夫？→ 解説で復習できる。実務に入る前の型を確認する場。\nQ1 避けたい書き方→ LOOP内で毎回SELECT（N+1）\nQ2 適切なプログラミング→ 性能と保守性の両立\nQ3 往復を減らすと並ぶ方針→ 必要な列に絞る\n今日のひとこと：翻訳者の入口に立ったあなたへ。良いコードは未来へのやさしさ。",
+            "理解度チェック\nBちゃん：間違えても大丈夫？→ 解説で復習できる。実務に入る前の型を確認する場。\nQ1 避けたい書き方→ LOOP内で毎回SELECT（N+1）\nQ2 適切なプログラミング→ 性能と保守性の両立\nQ3 往復を減らすと並ぶ方針→ 必要な列に絞る\nQ4 存在性チェックのイベント→ AT SELECTION-SCREEN\n今日のひとこと：翻訳者の入口に立ったあなたへ。良いコードは未来へのやさしさ。",
           content: (
             <>
               <h2>理解度チェック</h2>
@@ -948,6 +1127,20 @@ IF lv_found = 'X'.`}
                   "WRITE の桁位置指定",
                   "SELECT 文と WHERE 条件",
                   "コメントの量",
+                ]}
+              />
+              <Quiz
+                answer={1}
+                explanation="会社コードのマスタ存在チェックなど、実行前の入力検証は AT SELECTION-SCREEN で行います。INITIALIZATION は選択画面表示前の初期値設定、START-OF-SELECTION はチェック通過後の本処理（データ抽出）です。"
+                question={
+                  <strong>
+                    会社コードが T001 に存在するかを、実行ボタン押下前に確認するイベントは？
+                  </strong>
+                }
+                options={[
+                  "INITIALIZATION",
+                  "AT SELECTION-SCREEN",
+                  "TOP-OF-PAGE",
                 ]}
               />
               <Dialog speaker="closing">
