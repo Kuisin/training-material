@@ -32,14 +32,14 @@ function ReferenceLinks() {
       <LessonLinkButton
         courseSlug="abap-training"
         lessonFile="97-exercise-journal-ledger-screen-check"
-        slide={5}
+        slide={6}
         label="Part C: C-⑤ 完成コード（create_report_5）"
         variant="back"
       />
       <LessonLinkButton
         courseSlug="abap-training"
         lessonFile="96-exercise-journal-ledger-download"
-        slide={5}
+        slide={6}
         label="Part B: GUIボタン設定"
         variant="back"
       />
@@ -95,21 +95,21 @@ export default function ExerciseJournalLedgerFunctionModuleLesson() {
                   </li>
                 </ul>
               </Callout>
-              <h3>このパートで足すもの</h3>
-              <ul>
+              <h3>このパートで足すもの（実装順）</h3>
+              <ol>
                 <li>
-                  選択画面の <code>p_file</code> とダウンロード用型 <code>g_typ_dl</code>（D-③）
+                  選択画面の <code>p_file</code> とダウンロード用型 <code>g_typ_dl</code>（D-②）
                 </li>
                 <li>
-                  <code>AT USER-COMMAND</code> で Part B の DL ボタンを受け取る（D-④）
+                  <code>f_select_file</code>（ファイル保存ダイアログ）（D-③）
                 </li>
                 <li>
-                  <code>f_select_file</code>（ファイル保存ダイアログ）（D-⑤）
+                  データ整形・書き出しの FORM 群と <code>GUI_DOWNLOAD</code>（D-④〜D-⑦）
                 </li>
                 <li>
-                  <code>f_download</code> ほか、<code>GUI_DOWNLOAD</code> を呼ぶ FORM 群（D-⑥〜D-⑨）
+                  <code>AT USER-COMMAND</code> で Part B の DL ボタンを接続（D-⑧）
                 </li>
-              </ul>
+              </ol>
               <ReferenceLinks />
             </>
           ),
@@ -204,47 +204,16 @@ PARAMETERS: p_file TYPE string LOWER CASE.`}
           ),
         },
         {
-          title: "D-③ Part B の DL ボタンに処理を接続",
+          title: "D-③ f_select_file（ファイル保存ダイアログ）",
           plainText:
-            "D-③ AT USER-COMMAND。CASE sy-ucomm WHEN 'DL' で PERFORM f_download。Part B の SET PF-STATUS + SE41 で表示したボタンの機能コード DL をここで受け取る。",
+            "D-③ f_select_file。D-② で足した p_file に対し、AT SELECTION-SCREEN ON VALUE-REQUEST で FILE_SAVE_DIALOG を表示。保存先パスを選んでからダウンロード処理へ進む。",
           content: (
             <>
-              <h2>D-③ DL ボタン押下を受け取る</h2>
+              <h2>D-③ ファイル選択（f_select_file）</h2>
               <p>
-                Part B で SE41 に登録した機能コード <code>DL</code> が押されると、
-                <code>AT USER-COMMAND</code> が走り <code>sy-ucomm</code> に <code>&apos;DL&apos;</code> が入ります。
+                D-② で追加した <code>p_file</code> 欄の F4 押下時に、保存先をダイアログで選びます。
+                ボタン接続（D-⑧）の<strong>前</strong>に、保存先パスを取れるようにしておきます。
               </p>
-              <CodeBlock
-                language="ABAP"
-                code={`AT USER-COMMAND.
-  CASE sy-ucomm.
-    WHEN 'DL'.              " Part B で SE41 登録した機能コード
-      PERFORM f_download.
-  ENDCASE.`}
-              />
-              <InfoPanel title="Part B との接続" variant="breakdown">
-                <ul>
-                  <li>
-                    Part B … <code>SET PF-STATUS c_gui_status</code> で <code>S0010</code> を指定 →
-                    SE41 で登録した DL ボタンが<strong>表示</strong>される
-                  </li>
-                  <li>
-                    Part D … <code>AT USER-COMMAND</code> で <code>sy-ucomm = &apos;DL&apos;</code> を
-                    <strong>処理</strong>する
-                  </li>
-                </ul>
-              </InfoPanel>
-              <ReferenceLinks />
-            </>
-          ),
-        },
-        {
-          title: "D-④ f_select_file（ファイル保存ダイアログ）",
-          plainText:
-            "D-④ f_select_file。AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file。CL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG で保存先を取得。",
-          content: (
-            <>
-              <h2>D-④ ファイル選択（f_select_file）</h2>
               <CodeBlock
                 language="ABAP"
                 code={`AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
@@ -279,12 +248,12 @@ ENDFORM.`}
           ),
         },
         {
-          title: "D-⑤ 汎用モジュールとは",
+          title: "D-④ 汎用モジュールとは",
           plainText:
-            "D-⑤ 汎用モジュール。FORM との違いは他プログラムからも呼べること。GUI_DOWNLOAD がファイルダウンロードの代表例。f_call_download に包んで呼ぶ。",
+            "D-④ 汎用モジュール。FORM との違いは他プログラムからも呼べること。GUI_DOWNLOAD がファイルダウンロードの代表例。f_call_download に包んで呼ぶ。",
           content: (
             <>
-              <h2>D-⑤ 汎用モジュール（Function Module）とは</h2>
+              <h2>D-④ 汎用モジュール（Function Module）とは</h2>
               <InfoPanel title="FORM との違い" variant="reference">
                 <table>
                   <thead>
@@ -320,12 +289,12 @@ ENDFORM.`}
           ),
         },
         {
-          title: "D-⑥ f_create_header / f_create_item",
+          title: "D-⑤ f_create_header / f_create_item",
           plainText:
-            "D-⑥ データ整形。f_create_header は g_typ_dl の 1 行に列見出し。f_create_item は gt_out をループし日付・金額を文字型に整形。",
+            "D-⑤ データ整形。f_create_header は g_typ_dl の 1 行に列見出し。f_create_item は gt_out をループし日付・金額を文字型に整形。Part C の butxt も含める。",
           content: (
             <>
-              <h2>D-⑥ ヘッダ行とデータ行の構築</h2>
+              <h2>D-⑤ ヘッダ行とデータ行の構築</h2>
               <p>
                 ヘッダ行も <code>g_typ_dl</code> の 1 行として組み立て、
                 同じ <code>GUI_DOWNLOAD</code> 呼び出しで書き出します。
@@ -354,12 +323,12 @@ ENDFORM.`}
           ),
         },
         {
-          title: "D-⑦ f_call_download（GUI_DOWNLOAD）",
+          title: "D-⑥ f_call_download（GUI_DOWNLOAD）",
           plainText:
-            "D-⑦ f_call_download。CALL FUNCTION GUI_DOWNLOAD を FORM に集約。filetype ASC、write_field_separator X。ヘッダは append 空白、明細は append X。",
+            "D-⑥ f_call_download。CALL FUNCTION GUI_DOWNLOAD を FORM に集約。filetype ASC、write_field_separator X。ヘッダは append 空白、明細は append X。",
           content: (
             <>
-              <h2>D-⑦ 汎用モジュール呼び出し（f_call_download）</h2>
+              <h2>D-⑥ 汎用モジュール呼び出し（f_call_download）</h2>
               <MermaidDiagram
                 chart={`flowchart TD
   DL["f_download"] --> CH["f_create_header"]
@@ -396,12 +365,12 @@ ENDFORM.`}
           ),
         },
         {
-          title: "D-⑧ f_download（統括処理）",
+          title: "D-⑦ f_download（統括処理）",
           plainText:
-            "D-⑧ f_download 統括。パスチェック後、f_create_header→f_call_download（ヘッダ）→f_create_item→f_call_download（明細）。sy-subrc で成功/失敗メッセージ。",
+            "D-⑦ f_download 統括。パスチェック後、f_create_header→f_call_download（ヘッダ）→f_create_item→f_call_download（明細）。sy-subrc で成功/失敗メッセージ。",
           content: (
             <>
-              <h2>D-⑧ ダウンロード処理の統括（f_download）</h2>
+              <h2>D-⑦ ダウンロード処理の統括（f_download）</h2>
               <CodeBlock
                 language="ABAP"
                 code={`FORM f_download.
@@ -440,31 +409,74 @@ ENDFORM.`}
           ),
         },
         {
+          title: "D-⑧ Part B の DL ボタンに処理を接続",
+          plainText:
+            "D-⑧ AT USER-COMMAND。D-⑦ までで f_download を実装済み。Part B の SET PF-STATUS + SE41 で表示した DL ボタン押下を CASE sy-ucomm WHEN 'DL' で受け取る。",
+          content: (
+            <>
+              <h2>D-⑧ DL ボタン押下を受け取る（最後の接続）</h2>
+              <p>
+                Part B で SE41 に登録した機能コード <code>DL</code> が押されると、
+                <code>AT USER-COMMAND</code> が走り <code>sy-ucomm</code> に <code>&apos;DL&apos;</code> が入ります。
+                D-⑦ で作った <code>f_download</code> をここで呼び出します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`AT USER-COMMAND.
+  CASE sy-ucomm.
+    WHEN 'DL'.              " Part B で SE41 登録した機能コード
+      PERFORM f_download.
+  ENDCASE.`}
+              />
+              <InfoPanel title="Part B → Part D の接続" variant="breakdown">
+                <ol>
+                  <li>
+                    Part B … <code>SET PF-STATUS</code> + SE41 で DL ボタンを<strong>表示</strong>
+                  </li>
+                  <li>
+                    Part D D-②〜D-⑦ … 保存先パス取得・整形・<code>GUI_DOWNLOAD</code> を<strong>実装</strong>
+                  </li>
+                  <li>
+                    Part D D-⑧ … <code>AT USER-COMMAND</code> でボタンと <code>f_download</code> を<strong>接続</strong>
+                  </li>
+                </ol>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart LR
+  B["Part B\\nSET PF-STATUS + SE41\\nボタン表示"] --> D8["Part D D-⑧\\nAT USER-COMMAND"]
+  D2["D-② p_file / g_typ_dl"] --> D3["D-③ f_select_file"]
+  D3 --> D7["D-⑦ f_download"]
+  D7 --> D8
+  D8 --> DL["Excel ファイル保存"]`}
+              />
+              <ReferenceLinks />
+            </>
+          ),
+        },
+        {
           title: "D-⑨ Part D 完成コード（全文）",
           plainText:
             "D-⑨ create_report_6 完成全文。Part C の処理を維持し、p_file/g_typ_dl/AT USER-COMMAND/f_select_file/f_download 群を追加。Part B の DL ボタンで Excel ダウンロードが動作する。",
           content: (
             <>
               <h2>D-⑨ Part D 完成コード（全文）</h2>
-              <InfoPanel title="Part C から足した箇所" variant="breakdown">
-                <ul>
+              <InfoPanel title="Part C から足した箇所（実装順）" variant="breakdown">
+                <ol>
                   <li>
                     型 … <code>g_typ_dl</code> / <code>g_typ_dl_tab</code>、DATA …{" "}
-                    <code>gt_dl_header</code> / <code>gt_dl_item</code>
+                    <code>gt_dl_header</code> / <code>gt_dl_item</code>、パラメータ … <code>p_file</code>（D-②）
                   </li>
                   <li>
-                    パラメータ … <code>p_file</code>、定数 … <code>c_on</code>
+                    <code>f_select_file</code> + <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code>（D-③）
                   </li>
                   <li>
-                    イベント … <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code> /{" "}
-                    <code>AT USER-COMMAND</code>
+                    <code>f_create_header</code> / <code>f_create_item</code> / <code>f_call_download</code> /{" "}
+                    <code>f_download</code>（D-⑤〜D-⑦）
                   </li>
                   <li>
-                    FORM … <code>f_select_file</code> / <code>f_download</code> /{" "}
-                    <code>f_create_header</code> / <code>f_create_item</code> /{" "}
-                    <code>f_call_download</code>
+                    <code>AT USER-COMMAND</code> → <code>PERFORM f_download</code>（D-⑧・最後に接続）
                   </li>
-                </ul>
+                </ol>
               </InfoPanel>
               <Reveal label="Part D 完成コード（create_report_6・全文）を見る">
                 <CodeBlock language="ABAP" code={FINAL_PROGRAM} />

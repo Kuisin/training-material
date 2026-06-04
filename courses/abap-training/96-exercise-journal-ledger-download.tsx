@@ -45,9 +45,9 @@ function ReferenceLinks() {
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="98-exercise-journal-ledger-function-module"
+        lessonFile="97-exercise-journal-ledger-screen-check"
         slide={1}
-        label="Part D: ダウンロード処理（次のステップ）"
+        label="Part C: 選択画面の初期化・チェック（次のステップ）"
       />
     </div>
   );
@@ -83,6 +83,10 @@ export default function ExerciseJournalLedgerDownloadLesson() {
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
+              <Callout variant="note">
+                <strong>進め方：</strong>Part A → <strong>Part B（このパート）</strong> → Part C → Part D の順です。
+                Part B ではボタンを<strong>表示</strong>するだけ。押下時の処理は Part D です。
+              </Callout>
               <Callout variant="note">
                 <strong>Part B と Part D の分担</strong>
                 <ul className="mt-2">

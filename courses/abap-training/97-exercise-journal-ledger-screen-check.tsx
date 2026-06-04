@@ -20,7 +20,7 @@ export const lessonMeta = {
   meta: "特別 · 30分",
 };
 
-/** 出発点：Part B 完成コード create_report_4（96-exercise の B-⑧ と同一） */
+/** 出発点：Part B 完成コード create_report_4（96-exercise の B-⑤ と同一） */
 const START_PROGRAM = partBFinalProgram;
 
 /** Part C 完成形：create_report_5 全文（Part B + 初期化・チェック・butxt） */
@@ -32,7 +32,7 @@ function ReferenceLinks() {
       <LessonLinkButton
         courseSlug="abap-training"
         lessonFile="96-exercise-journal-ledger-download"
-        slide={8}
+        slide={6}
         label="Part B: 完成コード（create_report_4）"
         variant="back"
       />
@@ -49,6 +49,12 @@ function ReferenceLinks() {
         slide={8}
         label="第11章: イベント駆動処理"
         variant="back"
+      />
+      <LessonLinkButton
+        courseSlug="abap-training"
+        lessonFile="98-exercise-journal-ledger-function-module"
+        slide={1}
+        label="Part D: Excelダウンロード（次のステップ）"
       />
     </div>
   );
@@ -83,6 +89,10 @@ export default function ExerciseJournalLedgerScreenCheckLesson() {
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
+              <Callout variant="note">
+                <strong>進め方：</strong>Part B → <strong>Part C（このパート）</strong> → Part D の順です。
+                Part C では選択画面と帳票ヘッダを整えます。ダウンロード処理は Part D です。
+              </Callout>
               <Callout variant="note">
                 <strong>構造図のイベントと FORM</strong>
                 <table className="mt-2 w-full text-sm">
@@ -151,7 +161,7 @@ export default function ExerciseJournalLedgerScreenCheckLesson() {
               <Callout variant="tip">
                 <strong>コピーして始める：</strong>下の「出発点コード（Part B 完成版）を見る」を開き、全文を SE38 の新規プログラム
                 <code>create_report_5</code> に貼り付けてから、C-② 以降を読み進めてください。
-                Part B をまだ終えていない場合は、Part B の B-⑧（完成コード全文）を使ってください。
+                Part B をまだ終えていない場合は、Part B の B-⑤（完成コード全文）を使ってください。
               </Callout>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Part B では <code>SET PF-STATUS</code> / <code>SET TITLEBAR</code> で DL ボタンを
@@ -210,6 +220,41 @@ ENDFORM.`}
                 <code>CLEAR</code> していました。構造図に合わせ、<strong>同名 FORM は INITIALIZATION 専用</strong>
                 （入力パラメータ初期化）にし、クリア処理は <code>f_get_data</code> の先頭へ移します。
               </Callout>
+              <p className="mt-4">あわせて <code>START-OF-SELECTION</code> から <code>f_init_main</code> の呼び出しを外します（Part B の GUI 設定はそのまま）。</p>
+              <CodeBlock
+                language="ABAP"
+                code={`START-OF-SELECTION.
+
+*>>> GUIステータス・タイトルの設定（Part B のまま）
+  SET PF-STATUS c_gui_status.
+  SET TITLEBAR  c_gui_title.
+
+  PERFORM f_get_data.       " f_init_main は INITIALIZATION へ移動
+
+FORM f_get_data.
+
+  CLEAR: gs_bkpf,
+         gs_bseg,
+         gs_t001,
+         gs_t003t,
+         gs_out,
+         g_start_date,
+         g_end_date,
+         g_hkont_txt.
+
+  REFRESH: gt_bkpf,
+           gt_bseg,
+           gt_t003t,
+           gt_out.
+
+  READ TABLE s_budat INDEX 1.
+  IF sy-subrc = 0.
+    g_start_date = s_budat-low.
+    g_end_date   = s_budat-high.
+  ENDIF.
+
+* (1) 以降、Part A/B と同じ PERFORM 呼び出し …`}
+              />
               <ReferenceLinks />
             </>
           ),
@@ -272,7 +317,7 @@ ENDFORM.`}
               />
               <Callout variant="warning">
                 <code>MESSAGE ... TYPE 'E'</code>（または <code>e000</code>）は実行を止めます。
-                ダウンロード時の <code>s000</code>（情報）とは役割が異なります。
+                Part D でダウンロード時に使う <code>s000</code>（情報）とは役割が異なります。
               </Callout>
               <ReferenceLinks />
             </>
@@ -317,7 +362,8 @@ ENDFORM.
   SCR["選択画面"] --> ASS["AT SELECTION-SCREEN"]
   ASS --> FCP["PERFORM f_check_parameters\\nⅠ 存在性チェック"]
   FCP --> SOS["START-OF-SELECTION"]
-  SOS --> FGD["PERFORM f_get_data\\nⅠ－１ データ抽出"]
+  SOS --> GUI["SET PF-STATUS / SET TITLEBAR\\n（Part B のまま）"]
+  GUI --> FGD["PERFORM f_get_data\\nⅠ－１ データ抽出"]
   FGD --> T001["f_get_ktopl: butxt 取得"]
   INIT --> SCR`}
               />
