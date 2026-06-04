@@ -158,7 +158,37 @@ FORM f_check_parameters.
     ENDIF.
   ENDIF.
 
-ENDFORM.                    " F_CHECK_PARAMETERS`
+ENDFORM.                    " F_CHECK_PARAMETERS
+
+*&--------------------------------------------------------------------*
+*& Form F_HANDLE_NO_DATA（Ⅰ－１－(3) 対象データなし）
+*&--------------------------------------------------------------------*
+FORM f_handle_no_data.
+
+  SET CURSOR FIELD 'P_BUKRS'.
+  MESSAGE e000(z01) WITH '対象データは登録されていません'.
+
+ENDFORM.                    " F_HANDLE_NO_DATA`
+  );
+
+  code = code.replace(
+    `  IF gt_bkpf IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.`,
+    `  IF gt_bkpf IS INITIAL.
+    PERFORM f_handle_no_data.
+  ENDIF.`
+  );
+
+  code = code.replace(
+    `  IF gt_out IS INITIAL.
+    MESSAGE s000(z01) WITH '対象データは登録されていません'.
+    LEAVE LIST-PROCESSING.
+  ENDIF.`,
+    `  IF gt_out IS INITIAL.
+    PERFORM f_handle_no_data.
+  ENDIF.`
   );
 
   code = code.replace(

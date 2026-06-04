@@ -127,6 +127,9 @@ export default function ExerciseJournalLedgerScreenCheckLesson() {
                   Part B で <code>START-OF-SELECTION</code> にあった <code>f_init_main</code> の作業領域クリアは{" "}
                   <code>f_get_data</code> 先頭へ移動
                 </li>
+                <li>
+                  対象データなし … <code>f_handle_no_data</code>（メッセージ → カーソルを会社コード → 選択画面へ）
+                </li>
               </ul>
               <ReferenceLinks />
             </>
@@ -317,6 +320,67 @@ ENDFORM.
   FGD --> T001["f_get_ktopl: butxt 取得"]
   INIT --> SCR`}
               />
+              <h3>Ⅰ－１－(3) ＜処理結果＞対象データなし</h3>
+              <p>
+                仕様の「処理結果」どおり、<code>gt_bkpf</code> または <code>gt_out</code> が空のときは
+                下記メッセージ（<strong>タイプ E</strong>）を出し、<strong>カーソルを会社コード</strong>に置いて
+                選択画面へ戻します。Part B の <code>s000</code> ＋ <code>LEAVE LIST-PROCESSING</code> から
+                <code>f_handle_no_data</code> に置き換えます。
+              </p>
+              <InfoPanel title="仕様表（処理結果）" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>項目</th>
+                      <th>値</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>メッセージクラス</td>
+                      <td>
+                        <code>Z01</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>メッセージ番号</td>
+                      <td>
+                        <code>000</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>タイプ</td>
+                      <td>
+                        <code>E</code>（エラー・実行中断）
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>メッセージ</td>
+                      <td>対象データは登録されていません</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`  IF gt_bkpf IS INITIAL.
+    PERFORM f_handle_no_data.
+  ENDIF.
+
+FORM f_handle_no_data.
+  SET CURSOR FIELD 'P_BUKRS'.
+  MESSAGE e000(z01) WITH '対象データは登録されていません'.
+ENDFORM.`}
+              />
+              <Callout variant="tip">
+                <code>MESSAGE e000</code> は <code>MESSAGE ... TYPE 'E'</code> と同じで、実行を止めて選択画面に戻します。
+                <code>SET CURSOR</code> は <code>MESSAGE</code> の<strong>前</strong>に書きます（<code>E</code> の直後は実行されないため）。
+                <code>f_check_parameters</code> の会社コードエラーと同じ <code>Z01/000</code> 系ですが、こちらは 0 件時用の文言です。
+              </Callout>
+              <Callout variant="warning">
+                Part B までの <code>s000</code>（情報）は帳票処理を続行しうるため、仕様の「処理結果」には合いません。
+                研修環境で <code>Z01</code> メッセージ 000 が未登録の場合は SE91 でテキストを登録してください。
+              </Callout>
               <ReferenceLinks />
             </>
           ),
@@ -343,7 +407,12 @@ ENDFORM.
                     <code>START-OF-SELECTION</code> … <code>f_init_main</code> を外し <code>f_get_data</code> のみ
                   </li>
                   <li>
-                    新規 <code>FORM</code> … <code>f_check_parameters</code>（<code>f_init_main</code> は INITIALIZATION 用に再定義）
+                    新規 <code>FORM</code> … <code>f_check_parameters</code>、<code>f_handle_no_data</code>（
+                    <code>f_init_main</code> は INITIALIZATION 用に再定義）
+                  </li>
+                  <li>
+                    0件時 … <code>PERFORM f_handle_no_data</code>（<code>SET CURSOR FIELD 'P_BUKRS'</code> ＋{" "}
+                    <code>MESSAGE e000(z01)</code>）
                   </li>
                   <li>
                     構造 … <code>g_typ_t001</code> / <code>g_typ_dl</code> に <code>butxt</code>

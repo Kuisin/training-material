@@ -43,12 +43,12 @@ FORM f_download.
   ENDIF.
 
   PERFORM f_create_header.
-  PERFORM f_call_download TABLES gt_dl_header USING ' '.
+  PERFORM f_call_download USING ' ' CHANGING gt_dl_header.
   lv_subrc = sy-subrc.
 
   IF lv_subrc = 0.
     PERFORM f_create_item.
-    PERFORM f_call_download TABLES gt_dl_item USING 'X'.
+    PERFORM f_call_download USING 'X' CHANGING gt_dl_item.
     lv_subrc = sy-subrc.
   ENDIF.
 
@@ -142,8 +142,8 @@ ENDFORM.                    " F_CREATE_ITEM
 *&--------------------------------------------------------------------*
 *& Form F_CALL_DOWNLOAD（GUI_DOWNLOAD 汎用モジュール呼び出し）
 *&--------------------------------------------------------------------*
-FORM f_call_download TABLES pt_data STRUCTURE g_typ_dl
-                     USING    pv_append TYPE c.
+FORM f_call_download USING    pv_append TYPE c
+                     CHANGING pt_data   TYPE g_typ_dl_tab.
 
   CALL FUNCTION 'GUI_DOWNLOAD'
     EXPORTING
@@ -200,12 +200,25 @@ TYPES: BEGIN OF g_typ_fname,
   );
 
   code = code.replace(
+    `       END OF g_typ_dl.
+
+*---------------------------------------------------------------------*
+* DATA（グローバル変数）`,
+    `       END OF g_typ_dl.
+
+TYPES g_typ_dl_tab TYPE STANDARD TABLE OF g_typ_dl WITH DEFAULT KEY.
+
+*---------------------------------------------------------------------*
+* DATA（グローバル変数）`
+  );
+
+  code = code.replace(
     `      gt_out   TYPE STANDARD TABLE OF g_typ_out,
       gs_out   TYPE g_typ_out.`,
     `      gt_out   TYPE STANDARD TABLE OF g_typ_out,
       gs_out   TYPE g_typ_out,
-      gt_dl_header TYPE STANDARD TABLE OF g_typ_dl,
-      gt_dl_item   TYPE STANDARD TABLE OF g_typ_dl.`
+      gt_dl_header TYPE g_typ_dl_tab,
+      gt_dl_item   TYPE g_typ_dl_tab.`
   );
 
   code = code.replace(

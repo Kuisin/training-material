@@ -383,8 +383,8 @@ ENDFORM.`}
               />
               <CodeBlock
                 language="ABAP"
-                code={`FORM f_call_download TABLES pt_data STRUCTURE g_typ_dl
-                     USING    pv_append TYPE c.
+                code={`FORM f_call_download USING    pv_append TYPE c
+                     CHANGING pt_data   TYPE g_typ_dl_tab.
 
   CALL FUNCTION 'GUI_DOWNLOAD'
     EXPORTING
@@ -399,6 +399,12 @@ ENDFORM.`}
 
 ENDFORM.`}
               />
+              <Callout variant="warning">
+                <code>TABLES pt_data STRUCTURE g_typ_dl</code> は<strong>使えません</strong>。
+                <code>STRUCTURE</code> は DDIC 構造向けで、<code>TYPES</code> で定義したローカル型は認識されず
+                「Field &apos;G_TYP_DL&apos; is unknown」になります。
+                <code>CHANGING pt_data TYPE g_typ_dl_tab</code> を使ってください。
+              </Callout>
               <InfoPanel title="2 回呼ぶ理由" variant="breakdown">
                 <ol>
                   <li>
@@ -443,12 +449,12 @@ FORM f_download.
   ENDIF.
 
   PERFORM f_create_header.
-  PERFORM f_call_download TABLES gt_dl_header USING ' '.
+  PERFORM f_call_download USING ' ' CHANGING gt_dl_header.
   lv_subrc = sy-subrc.
 
   IF lv_subrc = 0.
     PERFORM f_create_item.
-    PERFORM f_call_download TABLES gt_dl_item USING 'X'.
+    PERFORM f_call_download USING 'X' CHANGING gt_dl_item.
     lv_subrc = sy-subrc.
   ENDIF.
 
@@ -461,8 +467,9 @@ FORM f_download.
 ENDFORM.`}
               />
               <p className="text-sm text-slate-600 dark:text-slate-400">
+                TYPES に <code>g_typ_dl_tab TYPE STANDARD TABLE OF g_typ_dl</code> を追加し、
                 グローバル DATA に <code>gt_dl_header</code> / <code>gt_dl_item</code>（いずれも{" "}
-                <code>STANDARD TABLE OF g_typ_dl</code>）を追加してください。
+                <code>TYPE g_typ_dl_tab</code>）を宣言してください。
                 Part D では <code>g_typ_fname</code> は不要になります。
               </p>
               <ReferenceLinks />
