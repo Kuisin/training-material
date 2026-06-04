@@ -389,7 +389,7 @@ lv_tax = lv_subtotal / 10.`}
                 courseSlug="abap-training"
                 lessonFile="13-good-programming"
                 slide={4}
-                label="第13章: 性能と保守性へ進む"
+                label="第13章: イベント・性能と保守性へ進む"
                 className="mb-4"
               />
             </>

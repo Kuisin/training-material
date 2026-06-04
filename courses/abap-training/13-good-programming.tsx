@@ -14,7 +14,7 @@
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "良いABAP — 性能と保守性・SELECT/LOOPの書き方",
+  title: "良いABAP — レポートイベント・性能と保守性",
   meta: "初学者 · 35分",
 };
 
@@ -24,16 +24,17 @@ export default function GoodProgrammingLesson() {
       chrome={lessonChrome("abap-training", "13-good-programming", lessonMeta.title)}
       slides={[
         {
-          title: "概要",
+          title: "概要 — イベント・性能・保守性",
           plainText:
-            "適切なプログラミング\n性能と保守性。10年後も使われることを見据えた、悪い例・良い例の対比で学ぶ仕上げの章です。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・レポートのイベント駆動（いつ動くかとFORMの役割分担）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
+            "適切なプログラミング — レポートイベント・性能・保守性\nレポートのイベント駆動と、性能・保守性をまとめて学ぶ仕上げの章です。10年後も使われる書き方を、悪い例・良い例の対比で学びます。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・レポートのイベント駆動（いつ動くかとFORMの役割分担）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
           content: (
             <>
               <hgroup>
                 <h1>適切なプログラミング</h1>
                 <p>
                   前章までで「安全に直す」地図と習慣を学びました。
-                  この章では<strong>速さ</strong>と<strong>直しやすさ</strong>のバランス。
+                  この章では<strong>レポートのイベント駆動</strong>（いつ処理が動くか）に加え、
+                  <strong>速さ</strong>と<strong>直しやすさ</strong>のバランス。
                   10年後も使われる書き方。を、悪い例・良い例の対比で学びます。
                 </p>
               </hgroup>
@@ -113,12 +114,12 @@ export default function GoodProgrammingLesson() {
           ),
         },
         {
-          title: "レポートのイベント駆動",
+          title: "レポートイベント駆動（本章で解説）",
           plainText:
-            "ABAPレポートのイベント駆動\n特定のタイミングでだけ処理が走る。イベント＝いつ、FORM＝何。イベントにはPERFORMだけ並べ、中身はFORMへ。\n主な流れ：INITIALIZATION（入力初期化・f_init_main）→ 選択画面 → AT SELECTION-SCREEN（存在性チェック・f_check_parameters）→ START-OF-SELECTION（データ抽出・f_get_data）→ TOP-OF-PAGE（ヘッダ）→ END-OF-SELECTION（一覧）→ AT USER-COMMAND（DL等）。\n良い習慣：イベントにSELECT/LOOPを直書きしない。処理をイベントの外に追い出すと10年後も読みやすい。",
+            "レポートイベント駆動（本章で解説）\n特定のタイミングでだけ処理が走る。イベント＝いつ、FORM＝何。イベントにはPERFORMだけ並べ、中身はFORMへ。\n主な流れ：INITIALIZATION（初期値）→ 選択画面 → AT SELECTION-SCREEN（入力チェック）→ START-OF-SELECTION（データ取得）→ TOP-OF-PAGE（ヘッダ）→ END-OF-SELECTION（一覧）→ AT USER-COMMAND（ボタン操作）。\n良い習慣：イベントにSELECT/LOOPを直書きしない。処理をFORMに追い出すと10年後も読みやすい。",
           content: (
             <>
-              <h2>レポートのイベント駆動</h2>
+              <h2>レポートのイベント駆動（本章で解説）</h2>
               <p>
                 ABAP のレポートプログラムは、<strong>「いつ」処理が動くか</strong>をイベントで決めます。
                 第10章で学んだ <code>FORM</code> / <code>PERFORM</code> と組み合わせると、
@@ -135,14 +136,13 @@ export default function GoodProgrammingLesson() {
                   </li>
                 </ul>
               </Callout>
-              <InfoPanel title="主なイベント（仕訳日記帳レポートの例）" variant="reference">
+              <InfoPanel title="主なイベント（照会レポートの典型）" variant="reference">
                 <table>
                   <thead>
                     <tr>
                       <th>イベント</th>
                       <th>いつ動くか</th>
-                      <th>呼ぶ FORM（例）</th>
-                      <th>処理の意味</th>
+                      <th>よくある処理</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -151,111 +151,92 @@ export default function GoodProgrammingLesson() {
                         <code>INITIALIZATION</code>
                       </td>
                       <td>プログラム起動直後（選択画面の前）</td>
-                      <td>
-                        <code>f_init_main</code>
-                      </td>
-                      <td>Ⅰ データ初期化（検索条件の初期値）</td>
+                      <td>検索条件の初期値、画面タイトル・ボタン定義</td>
                     </tr>
                     <tr>
                       <td>
                         <code>AT SELECTION-SCREEN</code>
                       </td>
                       <td>実行ボタン押下の直前</td>
-                      <td>
-                        <code>f_check_parameters</code>
-                      </td>
-                      <td>Ⅰ 存在性チェック（マスタ存在・日付範囲など）</td>
+                      <td>必須入力・日付範囲・マスタ存在などの入力チェック</td>
                     </tr>
                     <tr>
                       <td>
                         <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code>
                       </td>
                       <td>選択画面の F4（検索ヘルプ）押下時</td>
-                      <td>
-                        <code>f_get_filename</code> など
-                      </td>
-                      <td>ファイルパス選択ダイアログなど</td>
+                      <td>検索ヘルプ・ファイルパス選択ダイアログなど（必要なときだけ）</td>
                     </tr>
                     <tr>
                       <td>
                         <code>START-OF-SELECTION</code>
                       </td>
                       <td>入力チェック通過後（メイン処理の入口）</td>
-                      <td>
-                        <code>f_get_data</code>
-                      </td>
-                      <td>Ⅰ－１ データ抽出（<code>SELECT</code>・結合）</td>
+                      <td>データ取得（<code>SELECT</code>）、内部テーブルへの整形</td>
                     </tr>
                     <tr>
                       <td>
                         <code>TOP-OF-PAGE</code>
                       </td>
                       <td>各ページの先頭</td>
-                      <td>
-                        <code>f_write_head</code>
-                      </td>
-                      <td>帳票ヘッダ（会社コード・日付・列名）</td>
+                      <td>帳票ヘッダ（条件・列名など）</td>
                     </tr>
                     <tr>
                       <td>
                         <code>END-OF-SELECTION</code>
                       </td>
-                      <td>一覧出力のタイミング</td>
-                      <td>
-                        <code>f_write_list</code>
-                      </td>
-                      <td>Ⅰ－２ データ出力（ソート・明細 <code>WRITE</code>）</td>
+                      <td>メイン処理の後（一覧表示のタイミング）</td>
+                      <td>ソート・明細の <code>WRITE</code>、後処理</td>
                     </tr>
                     <tr>
                       <td>
                         <code>AT USER-COMMAND</code>
                       </td>
-                      <td>帳票画面のツールバーボタン押下時</td>
-                      <td>
-                        <code>f_download</code> など
-                      </td>
-                      <td>ダウンロード（機能コード <code>DL</code> など）</td>
+                      <td>一覧画面のツールバーボタン押下時</td>
+                      <td>ダウンロードなど、<code>SY-UCOMM</code> で押された操作を分岐</td>
                     </tr>
                   </tbody>
                 </table>
               </InfoPanel>
               <MermaidDiagram
                 chart={`flowchart TD
-  I["INITIALIZATION\\nf_init_main"] --> S["選択画面"]
-  S --> A["AT SELECTION-SCREEN\\nf_check_parameters"]
-  A --> M["START-OF-SELECTION\\nf_get_data"]
-  M --> H["TOP-OF-PAGE\\nf_write_head"]
-  M --> L["END-OF-SELECTION\\nf_write_list"]
-  L --> U["AT USER-COMMAND\\nf_download など"]`}
+  I["INITIALIZATION\\n初期値・画面設定"] --> S["選択画面"]
+  S --> A["AT SELECTION-SCREEN\\n入力チェック"]
+  A --> M["START-OF-SELECTION\\nデータ取得"]
+  M --> H["TOP-OF-PAGE\\nヘッダ出力"]
+  M --> L["END-OF-SELECTION\\n一覧出力"]
+  L --> U["AT USER-COMMAND\\nボタン操作"]`}
               />
               <CodeBlock
                 language="ABAP"
-                code={`* イベントは「目次」— PERFORM だけ並べる
+                code={`* イベントは「目次」— PERFORM だけ並べ、処理は FORM へ
 INITIALIZATION.
-  PERFORM f_init_main.
+  PERFORM form_init_screen.
 
 AT SELECTION-SCREEN.
-  PERFORM f_check_parameters.
+  PERFORM form_check_input.
 
 START-OF-SELECTION.
-  PERFORM f_get_data.
+  PERFORM form_get_data.
 
 TOP-OF-PAGE.
-  PERFORM f_write_head.
+  PERFORM form_write_header.
 
 END-OF-SELECTION.
-  PERFORM f_write_list.
+  PERFORM form_write_list.
 
 AT USER-COMMAND.
   CASE sy-ucomm.
+    WHEN 'BACK'.
+      LEAVE TO SCREEN 0.
     WHEN 'DL'.
-      PERFORM f_download.
+      PERFORM form_download.
   ENDCASE.`}
               />
               <Callout variant="warning">
                 <strong>保守性の落とし穴</strong> … イベントの中に長い <code>SELECT</code> や <code>LOOP</code> を直書きすると、
                 「いつ動くか」と「何をしているか」が混ざり、後から直しにくくなります。
-                特別演習④ Part C 以降は、<strong>イベント名と FORM 名を構造図どおり揃える</strong>のが実務の型です。
+                <code>FORM</code> 名はチームの命名規則に合わせ、<strong>役割が名前から分かる</strong>ように揃えるのが実務の型です。
               </Callout>
               <div className="mt-4 flex flex-wrap gap-2">
                 <LessonLinkButton
@@ -264,12 +245,6 @@ AT USER-COMMAND.
                   slide={17}
                   label="第11章: イベント駆動処理"
                   variant="back"
-                />
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="97-exercise-journal-ledger-screen-check"
-                  slide={0}
-                  label="特別演習④ Part C: 初期化・存在性チェック"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
