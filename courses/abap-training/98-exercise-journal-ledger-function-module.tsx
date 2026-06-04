@@ -20,10 +20,10 @@ export const lessonMeta = {
   meta: "特別 · 30分",
 };
 
-/** 出発点：Part C 完成コード create_report_5 */
+/** 出発点：Part C 完成コード create_report_5（97-exercise C-⑤ と同一・全文） */
 const START_PROGRAM = partCFinalProgram;
 
-/** Part D 完成形：create_report_6 全文（ダウンロード処理の分割・GUI_DOWNLOAD 分離） */
+/** Part D 完成形：create_report_6 全文（journal-ledger-part-d-program.ts で Part C から生成） */
 const FINAL_PROGRAM = partDFinalProgram;
 
 function ReferenceLinks() {
@@ -33,7 +33,7 @@ function ReferenceLinks() {
         courseSlug="abap-training"
         lessonFile="97-exercise-journal-ledger-screen-check"
         slide={5}
-        label="Part C: 完成コード（create_report_5）"
+        label="Part C: C-⑤ 完成コード（create_report_5）"
         variant="back"
       />
       <LessonLinkButton
@@ -66,7 +66,7 @@ export default function ExerciseJournalLedgerFunctionModuleLesson() {
         {
           title: "概要（Part D：汎用モジュールの活用）",
           plainText:
-            "特別演習④ Part D — 汎用モジュールの活用\nPart C の create_report_5 を出発点に、ダウンロード処理を f_create_header / f_create_item / f_call_download に分割し、GUI_DOWNLOAD を再利用可能な形に整える。\nFILE_SAVE_DIALOG は f_select_file に改名。",
+            "特別演習④ Part D — 汎用モジュールの活用\n出発点は Part C 完成版 create_report_5 全文（INITIALIZATION/AT SELECTION-SCREEN/f_handle_no_data 含む）。完成形は create_report_6 全文（f_select_file、f_download 分割、gt_dl_header/gt_dl_item）。",
           content: (
             <>
               <hgroup>
@@ -113,7 +113,7 @@ export default function ExerciseJournalLedgerFunctionModuleLesson() {
                     <tr>
                       <td><code>START-OF-SELECTION</code></td>
                       <td><code>f_get_data</code></td>
-                      <td>Ⅰ－１ データ抽出</td>
+                      <td>Ⅰ－１ データ抽出（0件時は <code>f_handle_no_data</code>）</td>
                     </tr>
                     <tr>
                       <td><code>AT USER-COMMAND</code></td>
@@ -148,20 +148,39 @@ export default function ExerciseJournalLedgerFunctionModuleLesson() {
         {
           title: "D-① 出発点：Part C の create_report_5 をコピー",
           plainText:
-            "D-① 出発点。Part C 完成版 create_report_5 をそのままコピーして SE38 に貼り、create_report_6 として Part D の出発点にする。ダウンロードは Part B からの一体型 f_download のまま。以降のスライドで分割する。",
+            "D-① 出発点。Part C 完成版 create_report_5 全文をコピーして SE38 に貼り create_report_6 とする。含む: f_init_main/f_check_parameters/f_handle_no_data、butxt、一体型 f_download と f_get_filename。Part D ではダウンロード周りを分割。",
           content: (
             <>
               <h2>D-① ここからコピーして始めてください</h2>
               <p>
-                下のコードは <strong>Part C の完成版</strong> <code>create_report_5</code> そのものです。
-                これを<strong>そのままコピー</strong>して SE38 に貼り付け、新規プログラム{" "}
-                <code>create_report_6</code> として<strong>このパートの出発点</strong>にしてください。
+                下のコードは <strong>Part C の完成版</strong> <code>create_report_5</code> の<strong>全文</strong>です
+                （97-exercise の C-⑤ と同一ソース）。これを<strong>そのままコピー</strong>して SE38 に貼り付け、
+                新規プログラム <code>create_report_6</code> として<strong>このパートの出発点</strong>にしてください。
               </p>
+              <InfoPanel title="出発点に含まれる Part C の処理（そのまま残す）" variant="reference">
+                <ul>
+                  <li>
+                    <code>INITIALIZATION</code> → <code>f_init_main</code>（転記日付の初期値）
+                  </li>
+                  <li>
+                    <code>AT SELECTION-SCREEN</code> → <code>f_check_parameters</code>（存在性チェック）
+                  </li>
+                  <li>
+                    <code>f_handle_no_data</code> … 0件時 <code>MESSAGE e000(z01)</code> ＋ 会社コードへカーソル
+                  </li>
+                  <li>
+                    <code>f_get_ktopl</code> / 帳票・DL の <code>butxt</code>（会社名）
+                  </li>
+                  <li>
+                    ダウンロード … <code>f_get_filename</code> ＋ 一体型 <code>f_download</code>（Part D で分割）
+                  </li>
+                </ul>
+              </InfoPanel>
               <Callout variant="tip">
-                Part C では <code>f_download</code> の中にヘッダ組み立て・データ整形・
-                <code>GUI_DOWNLOAD</code> がすべて入っています。Part D ではこの塊を分解します。
+                <strong>コピーして始める：</strong>下の「出発点コード（Part C 完成版）」を開き、全文を SE38 に貼り付けてから D-② 以降を読み進めてください。
+                Part C をまだ終えていない場合は、97-exercise の C-⑤（完成コード全文）を使ってください。
               </Callout>
-              <Reveal label="出発点コード（Part C 完成版 create_report_5）を見る">
+              <Reveal label="出発点コード（Part C 完成版 create_report_5・全文）を見る">
                 <CodeBlock language="ABAP" code={START_PROGRAM} />
               </Reveal>
               <ReferenceLinks />
@@ -479,7 +498,7 @@ ENDFORM.`}
         {
           title: "D-⑦ Part D 完成コード（差分まとめ）",
           plainText:
-            "D-⑦ create_report_6 完成。f_get_filename→f_select_file。f_download 分割。g_typ_fname 削除、gt_dl_header/gt_dl_item 追加。GUI_DOWNLOAD は f_call_download に集約。",
+            "D-⑦ create_report_6 完成全文。Part C の f_init_main/f_check_parameters/f_handle_no_data/butxt は維持。変更: f_get_filename→f_select_file、f_download 分割、g_typ_fname 削除、gt_dl_header/gt_dl_item、GUI_DOWNLOAD は f_call_download。",
           content: (
             <>
               <h2>D-⑦ Part D 完成コード（差分まとめ）</h2>
@@ -503,16 +522,24 @@ ENDFORM.`}
                     <code>GUI_DOWNLOAD</code> … <code>filetype = &apos;ASC&apos;</code>、
                     ヘッダ・明細で 2 回呼び出し（<code>append</code> で制御）
                   </li>
+                </ul>
+              </InfoPanel>
+              <InfoPanel title="Part C からそのまま（出発点と同じ）" variant="reference">
+                <ul>
                   <li>
-                    帳票・抽出・チェック関連の FORM は Part C のまま
+                    <code>f_init_main</code> / <code>f_check_parameters</code> / <code>f_handle_no_data</code>
+                  </li>
+                  <li>
+                    <code>f_get_data</code> ほか帳票抽出・出力の FORM（<code>butxt</code> 含む）
                   </li>
                 </ul>
               </InfoPanel>
               <Callout variant="tip">
-                <strong>コピーして完成形にする：</strong>下の「Part D 完成コード（全文）」を開き、
-                全文を SE38 に貼り付けてください。
+                <strong>コピーして完成形にする：</strong>下の「Part D 完成コード（create_report_6・全文）」を開き、
+                全文を SE38 に貼り付けてください（<code>f_select_file</code> / <code>f_call_download</code> など
+                分割後の FORM もすべて含みます）。
               </Callout>
-              <Reveal label="Part D 完成コード（create_report_6）を見る">
+              <Reveal label="Part D 完成コード（create_report_6・全文）を見る">
                 <CodeBlock language="ABAP" code={FINAL_PROGRAM} />
               </Reveal>
               <Dialog speaker="closing">
