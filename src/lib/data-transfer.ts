@@ -2,6 +2,7 @@ import type { CompletionData } from "./completion-store";
 import { getCompletionSnapshot, importCompletionData } from "./completion-store";
 import type { AssessmentAttemptRecord, CurrentAttemptState } from "./assessment-storage";
 import { loadAttemptHistory, setAttemptHistory } from "./assessment-storage";
+import { copyText } from "./clipboard";
 
 export interface ExportPayload {
   version: 1;
@@ -63,17 +64,10 @@ export function buildExportPayload(): ExportPayload {
   };
 }
 
-export function downloadExport(): void {
+export async function copyExport(): Promise<boolean> {
   const payload = buildExportPayload();
   const json = JSON.stringify(payload, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const date = new Date().toISOString().slice(0, 10);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `training-data-${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+  return copyText(json);
 }
 
 function mergeAssessmentHistories(
@@ -107,19 +101,7 @@ export function applyImportPayload(payload: ExportPayload): void {
   }
 }
 
-export function importFromFile(file: File): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const payload = JSON.parse(reader.result as string) as ExportPayload;
-        applyImportPayload(payload);
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(file);
-  });
+export function importFromText(text: string): void {
+  const payload = JSON.parse(text) as ExportPayload;
+  applyImportPayload(payload);
 }
