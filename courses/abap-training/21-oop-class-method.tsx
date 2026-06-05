@@ -67,7 +67,7 @@ export default function OopClassMethodLesson() {
         {
           title: "用語の説明",
           plainText:
-            "用語の説明\nBちゃん：OOって何の略？\n先生：Object-Oriented。モノごとにデータと操作をまとめる考え方。\nAくん：クラス＝設計図、オブジェクト＝実体、属性＝データ、メソッド＝操作。\n先生：その4つが核。継承とポリモーフィズムはStep4・5で具体化します。",
+            "用語の説明\nBちゃん：OOって何の略？\n先生：Object-Oriented。モノごとにデータと操作をまとめる考え方。\nAくん：クラス＝設計図、オブジェクト＝実体、属性＝データ、メソッド＝操作。\nBちゃん：オブジェクトとインスタンスは別物？\n先生：同じ実体を指すが、インスタンス＝作る側、オブジェクト＝使う側の言い方。CREATE OBJECTと->呼び出し。\n先生：その4つが核。継承とポリモーフィズムはStep4・5で具体化します。",
           content: (
             <>
               <h2>用語の説明</h2>
@@ -87,7 +87,10 @@ export default function OopClassMethodLesson() {
                     <strong>クラス</strong> … そのモノの設計図
                   </li>
                   <li>
-                    <strong>オブジェクト（インスタンス）</strong> … 設計図から作った、実際に動く1つ1つのモノ
+                    <strong>インスタンス</strong> … クラスから<strong>生み出した</strong>1つ1つの実体（作る側の言い方）
+                  </li>
+                  <li>
+                    <strong>オブジェクト</strong> … その実体を<strong>操作・利用する</strong>ときの呼び方（使う側の言い方）
                   </li>
                   <li>
                     <strong>属性</strong> … そのモノが覚えている値（データ）。例：金額、走行距離
@@ -103,9 +106,63 @@ export default function OopClassMethodLesson() {
                   </li>
                 </ul>
               </InfoPanel>
+              <Dialog speaker="b">
+                辞書に「インスタンス」と「オブジェクト」が別々にありますけど、<strong>別物</strong>なんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                指している<strong>実体は同じ</strong>です。ニュアンスが違います。
+                <strong>インスタンス</strong>は「設計図（クラス）から<strong>1個作った</strong>」という
+                <strong>作る・生み出す</strong>視点。
+                <strong>オブジェクト</strong>は「その1個に<strong>操作を送る</strong>」という
+                <strong>使う・利用する</strong>視点です。
+              </Dialog>
+              <InfoPanel title="オブジェクトとインスタンスの違い" variant="breakdown" lead="同じ1台の車を、見る角度が違うだけです。">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>観点</th>
+                      <th>用語</th>
+                      <th>車のたとえ</th>
+                      <th>ABAP（例）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>作る・生み出す</td>
+                      <td>
+                        <strong>インスタンス</strong>
+                      </td>
+                      <td>
+                        <code>ZCL_CAR</code> の設計図から、工場で社用車を1台組み立てた
+                      </td>
+                      <td>
+                        <code>CREATE OBJECT lo_car.</code>
+                        <br />
+                        「インスタンスを生成する」と言う
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>使う・操作する</td>
+                      <td>
+                        <strong>オブジェクト</strong>
+                      </td>
+                      <td>
+                        組み立て済みのその1台に「走れ」「止まれ」と命令する
+                      </td>
+                      <td>
+                        <code>lo_car-&gt;drive( ).</code>
+                        <br />
+                        「オブジェクトのメソッドを呼ぶ」と言う
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
               <Dialog speaker="a">
-                核は4つですね。<strong>クラス＝設計図</strong>、<strong>オブジェクト＝実体</strong>、
+                整理すると、<strong>クラス＝設計図</strong>、
+                <strong>インスタンス／オブジェクト＝実体</strong>（作る／使うで呼び分け）、
                 <strong>属性＝データ</strong>、<strong>メソッド＝操作</strong>。
+                この4つが核ですね。
               </Dialog>
               <Dialog speaker="b">
                 継承とポリモーフィズムは、名前だけだとピンときません…。
