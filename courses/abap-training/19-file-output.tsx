@@ -544,7 +544,7 @@ export default function FileOutputLesson() {
         {
           title: "ファイル保存ダイアログ",
           plainText:
-            "ファイル保存ダイアログ（f_download の①）\nCL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG で保存先を選ぶ。\n選択画面のパラメータ p_file と AT SELECTION-SCREEN ON VALUE-REQUEST を組み合わせる。\nPERFORM f_get_filename として FORM に分けると読みやすい。",
+            "ファイル保存ダイアログ（f_download の①）\nCL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG で保存先を選ぶ。\nCHANGING の filename＝ファイル名のみ、path＝フォルダ、fullpath＝フォルダ＋ファイル名（GUI_DOWNLOAD に渡す値）。\n選択画面の p_file と AT SELECTION-SCREEN ON VALUE-REQUEST を組み合わせる。",
           content: (
             <>
               <h2>ファイル保存ダイアログ</h2>
@@ -554,21 +554,83 @@ export default function FileOutputLesson() {
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`DATA lv_path TYPE string.
+                code={`DATA: lv_filename TYPE string,
+      lv_path     TYPE string,
+      lv_fullpath TYPE string.
 
 CALL METHOD cl_gui_frontend_services=>file_save_dialog
   EXPORTING
     default_extension = 'xls'
     default_file_name = 'journal_ledger'
   CHANGING
-    filename          = lv_path
+    filename          = lv_filename
+    path              = lv_path
+    fullpath          = lv_fullpath
   EXCEPTIONS
     OTHERS            = 1.
 
 IF sy-subrc = 0.
-  p_file = lv_path.
+  p_file = lv_fullpath.
 ENDIF.`}
               />
+              <InfoPanel title="CHANGING の3つの出力" variant="breakdown">
+                <p>
+                  ダイアログでユーザーが保存先を選ぶと、<code>CHANGING</code> で受け取った変数に
+                  次のように値が入ります（例：デスクトップに <code>journal_ledger.xls</code> を保存した場合）。
+                </p>
+                <KeyValueTable
+                  labelHeader="パラメータ"
+                  valueHeader="返る値（例）"
+                  rows={[
+                    {
+                      label: (
+                        <>
+                          <code>filename</code>
+                        </>
+                      ),
+                      value: (
+                        <>
+                          ファイル名<strong>のみ</strong>（例：<code>journal_ledger.xls</code>）
+                        </>
+                      ),
+                    },
+                    {
+                      label: (
+                        <>
+                          <code>path</code>
+                        </>
+                      ),
+                      value: (
+                        <>
+                          フォルダ（ディレクトリ）のパス<strong>のみ</strong>（例：
+                          <code>C:\Users\Tanaka\Desktop</code>）
+                        </>
+                      ),
+                    },
+                    {
+                      label: (
+                        <>
+                          <code>fullpath</code>
+                        </>
+                      ),
+                      value: (
+                        <>
+                          フォルダ ＋ ファイル名の<strong>フルパス</strong>（例：
+                          <code>C:\Users\Tanaka\Desktop\journal_ledger.xls</code>）
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+                <Callout variant="tip">
+                  <code>GUI_DOWNLOAD</code> の <code>filename</code> には、
+                  <strong>
+                    <code>fullpath</code>（フルパス）
+                  </strong>
+                  を渡します。ファイル名だけ（<code>filename</code>）やフォルダだけ（<code>path</code>）では
+                  保存先が特定できません。
+                </Callout>
+              </InfoPanel>
               <p>選択画面との組み合わせ：</p>
               <CodeBlock
                 language="ABAP"
@@ -580,6 +642,8 @@ AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
               <Dialog speaker="teacher">
                 ダイアログ表示は <code>FORM f_get_filename</code> に分け、
                 <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code> から呼ぶのが定番です。
+                選んだ結果は <code>lv_fullpath</code> を <code>p_file</code> に入れておけば、
+                後続の <code>GUI_DOWNLOAD</code> でそのまま使えます。
               </Dialog>
             </>
           ),

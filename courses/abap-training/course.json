@@ -159,12 +159,7 @@
     {
       "file": "98-exercise-journal-ledger-function-module",
       "title": "特別演習④ Part D — Excelダウンロードと汎用モジュール",
-      "meta": "特別 · 45分",
-      "lock": {
-        "requires": "course",
-        "password": "abap-report-583",
-        "mode": "any"
-      }
+      "meta": "特別 · 45分"
     }
   ]
 }
