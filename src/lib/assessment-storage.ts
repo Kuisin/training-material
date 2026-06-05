@@ -97,3 +97,10 @@ export function appendAttemptHistory(
 export function createAttemptId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+export function setAttemptHistory(
+  storageKey: string,
+  records: AssessmentAttemptRecord[]
+): void {
+  writeJson(historyKey(storageKey), records.slice(0, HISTORY_MAX));
+}
