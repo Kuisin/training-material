@@ -7,6 +7,7 @@ import {
   MermaidDiagram,
   InfoPanel,
   LessonMeta,
+  LessonLinkButton,
   mountLesson,
 } from "../../src/lesson";
 
@@ -23,7 +24,7 @@ export default function OopClassMethodLesson() {
         {
           title: "概要",
           plainText:
-            "オブジェクト指向とは\n先生：この章はコード暗記より、用語の意味をイメージすることがゴールです。\nBちゃん：オブジェクト指向、英語ばっかで不安…\n先生：車のたとえで順に説明します。Step1〜5 → まとめ → なぜOOか → 確認テスト。",
+            "オブジェクト指向とは\n先生：この章はコード暗記より、用語の意味をイメージすることがゴールです。\nBちゃん：オブジェクト指向、英語ばっかで不安…\n先生：車のたとえで順に説明。Step1〜5 → まとめ → サブルーチンとの比較 → なぜOOか → 確認テスト。",
           content: (
             <>
               <hgroup>
@@ -56,6 +57,7 @@ export default function OopClassMethodLesson() {
                 <li>用語の説明（OO・クラス・オブジェクトなど）</li>
                 <li>Step 1〜5 … 車の例でクラス・継承・ポリモーフィズムまで</li>
                 <li>まとめ … 車と仕訳日記帳の対応表</li>
+                <li>サブルーチン（<code>FORM</code> / <code>PERFORM</code>）との比較</li>
                 <li>なぜ OO が生まれたのか、なぜ重要なのか</li>
                 <li>確認テスト</li>
               </ol>
@@ -387,8 +389,196 @@ export default function OopClassMethodLesson() {
                 「モノ・設計図・分類・親子・同じ呼び方で違う動き」——この5つが頭にあれば、用語は怖くなさそうです。
               </Dialog>
               <Dialog speaker="a">
-                車のイメージがそのままコードに載せ替えられる。次は「なぜ OO が必要だったのか」を聞きたいです。
+                車のイメージがそのままコードに載せ替えられる。第10章のサブルーチンとの違いも、比較してみたいです。
               </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "サブルーチンとの比較",
+          plainText:
+            "サブルーチンとの比較\nBちゃん：gv_total_aにも名前入ってる。lo_journal_aと同じでは？\n先生：名前は似ても、'A'を別途渡す二重管理・FORM内のIF・グローバル変数は触れる、が違う。\nOO：add_entryにIF不要。mv_totalはオブジェクト専用。",
+          content: (
+            <>
+              <h2>サブルーチンと OO — 何が違う？（車の例 → 仕訳日記帳のコード）</h2>
+              <Dialog speaker="b">
+                第10章で <code>FORM</code> / <code>PERFORM</code> を学びました。Step 1〜5 の車の例と比べて、
+                OO の<strong>優れている</strong>ところは、どこなんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                いい質問です。サブルーチンも「長い手順書を章に分ける」点では、とても大事な技術です。
+                違いは、<strong>分ける対象</strong>です。まず表で<strong>車</strong>のイメージを整理し、
+                コードは研修題材の<strong>仕訳日記帳</strong>で見ていきましょう（同じ構図です）。
+              </Dialog>
+              <InfoPanel title="サブルーチン vs OO（車で比べる）" variant="breakdown" lead="コードの読み方は、下の仕訳日記帳の例で確認します。">
+                <table>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>サブルーチン（FORM / PERFORM）</th>
+                      <th>OO（クラス / メソッド）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>分けるもの</td>
+                      <td>
+                        <strong>処理（手順）</strong>だけ … 例:「走らせる」「伝票を足す」
+                      </td>
+                      <td>
+                        <strong>データ ＋ 処理</strong>をセット … 例: 走行距離 ＋ 走らせる／合計 ＋ 足す
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>データの置き場</td>
+                      <td>
+                        車なら走行距離が変数2つ。日記帳なら <code>gv_total_a</code> / <code>gv_total_b</code> のように
+                        <strong>別の変数</strong>に置く
+                      </td>
+                      <td>
+                        車なら各<strong>車オブジェクト</strong>の中。日記帳なら <code>lo_journal_a</code> など
+                        <strong>オブジェクトの中（属性）</strong>に持つ
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>呼び方（コード）</td>
+                      <td>
+                        <code>PERFORM add_entry USING 1000 'A'.</code>
+                        <br />
+                        … 金額と<strong>どの日記帳か</strong>を毎回渡す
+                      </td>
+                      <td>
+                        <code>lo_journal_a-&gt;add_entry( 1000 ).</code>
+                        <br />
+                        … <strong>どの日記帳か</strong>はオブジェクト名で決まる
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Step 2 との対応</td>
+                      <td>
+                        白いセダン・赤いSUVの状態を、<strong>変数2つ</strong>で代用（設計図は使わない）
+                      </td>
+                      <td>
+                        設計図（<code>lcl_journal</code> / <code>ZCL_CAR</code>）から<strong>実物を2つ</strong>。
+                        各オブジェクトが<strong>自分の状態</strong>を覚える
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                車のイメージは分かりました。コードでは<strong>どう困る</strong>のか、仕訳日記帳で見せてもらえますか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                会社A用・会社B用の<strong>2冊の仕訳日記帳</strong>を動かす例です。
+                白いセダン＝会社A、赤いSUV＝会社B、走行距離＝合計金額、と読み替えてください。
+              </Dialog>
+
+              <h3>困りごと：会社AとBの仕訳日記帳をサブルーチンだけで扱う</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" 合計は日記帳の冊数ぶん、変数が増える…
+DATA gv_total_a TYPE i.  " 会社Aの仕訳日記帳の合計
+DATA gv_total_b TYPE i.  " 会社Bの仕訳日記帳の合計
+
+PERFORM add_entry USING 1000 'A'.
+PERFORM add_entry USING  500 'B'.
+
+FORM add_entry USING iv_amount TYPE i iv_company TYPE c.
+  " 「伝票を足す」手順は1か所にまとまっているが…
+  IF iv_company = 'A'.
+    gv_total_a = gv_total_a + iv_amount.
+  ELSEIF iv_company = 'B'.
+    gv_total_b = gv_total_b + iv_amount.
+  ENDIF.
+  " 会社Cが増えたら？ gv_total_c と ELSEIF がまた増える…
+ENDFORM.`}
+              />
+              <Dialog speaker="b">
+                「足す」手順は <code>FORM add_entry</code> に1つなのに、合計は<strong>変数が2つ</strong>…。
+                でも <code>gv_total_a</code> って、名前に<strong>もう A が入ってる</strong>じゃないですか？
+                <code>lo_journal_a</code> と、結局同じでは…？
+              </Dialog>
+              <Dialog speaker="teacher">
+                鋭い指摘です。<strong>2冊だけ</strong>なら、変数名に <code>_a</code> / <code>_b</code> を付けるだけで、一見 OO と似た見た目になります。
+                でも<strong>中身の構造</strong>が違います。次の3点を見てください。
+              </Dialog>
+              <InfoPanel title="変数名に A/B を付ける ≠ オブジェクト" variant="breakdown" lead="名前が似ていても、役割が違います。">
+                <ol>
+                  <li>
+                    <strong>呼ぶたびに「どっち？」を別途渡している</strong> …{" "}
+                    <code>PERFORM add_entry USING 1000 'A'.</code> のように、変数名 <code>gv_total_a</code> とは<strong>別に</strong>{" "}
+                    <code>'A'</code> も渡す。<strong>二重管理</strong>で、取り違えの余地がある
+                  </li>
+                  <li>
+                    <strong>FORM の中で IF が必要</strong> … 手順 <code>add_entry</code> は「どの日記帳か」を自分では知らない。
+                    <code>iv_company</code> を見て <code>gv_total_a</code> か <code>gv_total_b</code> か<strong>選び分ける</strong>処理が毎回要る
+                  </li>
+                  <li>
+                    <strong>合計はプログラムのどこからでも触れる</strong> … <code>gv_total_a</code> はグローバル変数なら、
+                    別の <code>FORM</code> からうっかり書き換えられる。<strong>日記帳1冊分</strong>として閉じ込められない
+                  </li>
+                </ol>
+              </InfoPanel>
+              <Dialog speaker="a">
+                つまり変数名は「ラベル」だけど、<strong>手順とデータはまだ離れたまま</strong>。
+                会社が増えると <code>gv_total_*</code> も <code>IF</code> も一緒に増える、と理解しました。
+              </Dialog>
+
+              <h3>OO なら：仕訳日記帳オブジェクトごとに合計が分かれる</h3>
+              <CodeBlock
+                language="ABAP"
+                code={`" Step 2 と同じ。設計図 lcl_journal から2冊作る
+DATA(lo_journal_a) = NEW lcl_journal( ).  " 会社Aの仕訳日記帳
+DATA(lo_journal_b) = NEW lcl_journal( ).  " 会社Bの仕訳日記帳
+
+lo_journal_a->add_entry( 1000 ).  " Aの合計だけ +1000
+lo_journal_b->add_entry(  500 ).  " Bの合計だけ +500
+
+" add_entry の中身（メソッド）— どの日記帳かは「呼ばれたオブジェクト」が決める
+METHOD add_entry.
+  mv_total = mv_total + iv_amount.  " IF iv_company = 'A' は不要
+ENDMETHOD.
+" mv_total はこのオブジェクト専用。会社Cは lo_journal_c を1冊増やすだけ`}
+              />
+              <Dialog speaker="b">
+                あ、<code>lo_journal_a</code> に頼めば、中では <code>IF</code> なしで A の合計だけ足すんですね。
+                変数名 <code>gv_total_a</code> ＋ 引数 <code>'A'</code> の<strong>二重管理</strong>がなくなる。
+              </Dialog>
+              <Dialog speaker="a">
+                サブルーチンは「<strong>足す手順に名前</strong>」、OO は「<strong>合計と足す操作を1冊の日記帳に名前</strong>」。
+                車で言えば、<code>lo_car_white-&gt;drive( )</code> と頼めば白いセダンだけ走る——<strong>どの車か</strong>を別途渡さない、と同じです。
+              </Dialog>
+              <InfoPanel title="OO が効く場面" variant="reference" lead="車のたとえと仕訳日記帳、どちらも同じ構図です。">
+                <ul>
+                  <li>
+                    <strong>同じ種類のモノが複数</strong> … 白いセダン・赤いSUV／会社A・Bの日記帳（Step 2）
+                  </li>
+                  <li>
+                    <strong>データと処理をセットで閉じたい</strong> … <code>lo_journal_a</code> ならAの合計だけ。
+                    <code>gv_total_a</code> は名前で区別するだけで、手順とデータは別々のまま
+                  </li>
+                  <li>
+                    <strong>種類ごとに動きを変えたい</strong> … 乗り物→車・バイク（Step 4・5）。サブルーチンだけだと{" "}
+                    <code>IF</code> が増えがち
+                  </li>
+                  <li>
+                    <strong>大きなプログラム</strong> … 変数と <code>PERFORM</code> が増えると、どの日記帳のデータか追いにくい
+                  </li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                短いプログラムなら、サブルーチンだけでも十分なことが多いです。
+                OO は「日記帳（モノ）が増え、合計と足す操作をセットで考えたい」ときの<strong>次の整理の仕方</strong>です。
+                第10章で学んだ「処理を分ける」は、<strong>そのまま add_entry メソッドの設計</strong>に活きます。
+              </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="10-modularization"
+                label="第10章: モジュール化（FORM/PERFORM）を復習する"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -411,8 +601,8 @@ export default function OopClassMethodLesson() {
                 「この金額を触っている処理はどこ？」と探すのに時間がかかり、コピペで直す場所も雪だるま式に増えます。
               </Dialog>
               <Dialog speaker="a">
-                第10章で「長い手順書は章に分ける」と学びました。OO は、その延長で
-                <strong>データも一緒にモノの単位で分ける</strong>、という発想ですね。
+                第10章で「長い手順書は章に分ける」と学びました。サブルーチンは<strong>章立て</strong>、
+                OO は<strong>データも一緒にモノの単位で分ける</strong>、という延長ですね。
               </Dialog>
               <Dialog speaker="teacher">
                 そのとおり。「仕訳日記帳」「伝票」のように<strong>業務のモノ単位</strong>でまとめよう、
@@ -450,10 +640,13 @@ export default function OopClassMethodLesson() {
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nQ1 OOの意味は？\nQ2 クラスとオブジェクトの関係は？\nQ3 継承とポリモーフィズムの違いは？",
+            "理解度チェック\nQ1 OOの意味は？\nQ2 クラスとオブジェクトの関係は？\nQ3 継承とポリモーフィズムの違いは？\nQ4 サブルーチンとOOの違いは？",
           content: (
             <>
               <h2>理解度チェック</h2>
+              <Dialog speaker="teacher">
+                最後に4問です。車の例とサブルーチンとの比較を思い出しながら答えてみてください。
+              </Dialog>
               <Quiz
                 answer={1}
                 explanation="OOは Object-Oriented（オブジェクト指向）の略で、「モノごとにデータと操作をまとめる」考え方です。"
@@ -484,9 +677,19 @@ export default function OopClassMethodLesson() {
                   "どちらも同じ意味",
                 ]}
               />
+              <Quiz
+                answer={1}
+                explanation="サブルーチン（FORM/PERFORM）は処理（手順）だけ分ける。例: add_entry は1つだが合計は gv_total_a/b と別変数。OOは合計と足す操作を lo_journal_a など日記帳オブジェクトごとにセットでまとめる。"
+                question={<strong>サブルーチンと OO の違いとして正しいのは？</strong>}
+                options={[
+                  "サブルーチンはデータと処理をセット、OOは処理だけ分ける",
+                  "サブルーチンは処理だけ分ける、OOはデータと処理をモノごとにセットでまとめる",
+                  "どちらも全く同じ意味",
+                ]}
+              />
               <Dialog speaker="closing">
-                オブジェクト指向は「モノごとにまとめる」考え方から始まります。
-                車の Step 1〜5 と「なぜ必要か」が分かれば、SAP の資料もぐっと読みやすくなります。お疲れさまでした。
+                サブルーチンで「処理を分ける」、OO で「データもモノにまとめる」——第10章の延長です。
+                車の Step 1〜5 と比較が分かれば、SAP の資料も読みやすくなります。お疲れさまでした。
               </Dialog>
             </>
           ),
