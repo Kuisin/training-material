@@ -587,27 +587,71 @@ AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
         {
           title: "データ整形（WRITE TO）",
           plainText:
-            "データ整形（f_download の②）\nGUI_DOWNLOADに渡す前に、日付・金額などを見やすい文字列に変換する。\nWRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'。\nWRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers。CONDENSEで空白を詰める。\nダウンロード用の型は全項目文字型にするのが定石。",
+            "データ整形（f_download の②）\nGUI_DOWNLOADに渡す前に、列見出し行 lt_fname とデータ行 lt_dl を組み立てる。\nlt_fname は g_typ_dl の 1 行に列名を詰める。gt_out を LOOP し、日付・金額は WRITE ... TO ... で文字型に変換して APPEND。\nダウンロード用の型は全項目文字型にするのが定石。",
           content: (
             <>
-              <h2>データ整形（<code>WRITE ... TO ...</code>）</h2>
+              <h2>データ整形（列見出しとデータ行の組み立て）</h2>
               <p>
-                <code>f_download</code> の第二要素は、<code>GUI_DOWNLOAD</code> に渡す前の<strong>データ整形</strong>です。
-                日付・金額などを見やすい文字列に変換します（数値型・日付型のままだと Excel 側で書式が崩れやすい）。
+                <code>f_download</code> の第二要素は、<code>GUI_DOWNLOAD</code> に渡す
+                <strong>列見出し行</strong>（<code>lt_fname</code>）と<strong>データ行</strong>（<code>lt_dl</code>）を
+                内部テーブルとして組み立てる処理です。帳票で使っている <code>gt_out</code> をループし、
+                日付・金額などは文字型に整形してから詰めます。
+              </p>
+              <h3>① 列見出し行（<code>lt_fname</code>）</h3>
+              <p>
+                <code>fieldnames</code> に渡す 1 行目です。ダウンロード用の行型（例：<code>g_typ_dl</code>）の
+                各項目に列名を入れて <code>APPEND</code> します。
               </p>
               <CodeBlock
                 language="ABAP"
-                code={`DATA: lv_budat_c TYPE c LENGTH 10,
+                code={`DATA: ls_fname TYPE g_typ_dl.
+
+REFRESH lt_fname.
+CLEAR ls_fname.
+
+ls_fname-bukrs = '会社コード'.
+ls_fname-belnr = '伝票番号'.
+ls_fname-budat = '転記日付'.
+ls_fname-dmbtr = '金額'.
+" … 他の列見出し …
+
+APPEND ls_fname TO lt_fname.`}
+              />
+              <h3>② データ行（<code>LOOP AT gt_out</code> → <code>lt_dl</code>）</h3>
+              <p>
+                抽出済みの <code>gt_out</code> を 1 行ずつ読み、<code>g_typ_dl</code> 型の作業行{" "}
+                <code>ls_dl</code> に詰めて <code>lt_dl</code> へ <code>APPEND</code> します。
+                日付・金額は <code>WRITE ... TO ...</code> で文字列に変換します。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`DATA: ls_dl      TYPE g_typ_dl,
+        lv_budat_c TYPE c LENGTH 10,
         lv_dmbtr_c TYPE c LENGTH 16.
 
-" 日付 → ____/__/__ 形式の文字列
-WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
-ls_dl-budat = lv_budat_c.
+REFRESH lt_dl.
 
-" 金額 → 通貨編集済みの文字列
-WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
-CONDENSE lv_dmbtr_c.
-ls_dl-dmbtr = lv_dmbtr_c.`}
+LOOP AT gt_out INTO gs_out.
+
+  CLEAR: ls_dl, lv_budat_c, lv_dmbtr_c.
+
+  ls_dl-bukrs = gs_out-bukrs.
+  ls_dl-belnr = gs_out-belnr.
+
+  " 日付 → ____/__/__ 形式の文字列
+  WRITE gs_out-budat TO lv_budat_c USING EDIT MASK '____/__/__'.
+  ls_dl-budat = lv_budat_c.
+
+  " 金額 → 通貨編集済みの文字列
+  WRITE gs_out-dmbtr TO lv_dmbtr_c CURRENCY gs_out-waers.
+  CONDENSE lv_dmbtr_c.
+  ls_dl-dmbtr = lv_dmbtr_c.
+
+  " … 他の項目も同様に詰める …
+
+  APPEND ls_dl TO lt_dl.
+
+ENDLOOP.`}
               />
               <Callout variant="tip">
                 ダウンロード用の行型（例：<code>g_typ_dl</code>）は、<strong>全項目を文字型</strong>にしておくと
@@ -615,7 +659,16 @@ ls_dl-dmbtr = lv_dmbtr_c.`}
               </Callout>
               <Dialog speaker="a">
                 画面の <code>WRITE</code> と同じ整形命令を、文字変数に向けて使うイメージですね。
+                ループの中で 1 行分ずつ <code>ls_dl</code> を組み立てて <code>lt_dl</code> に溜めていくんですね。
               </Dialog>
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="98-exercise-journal-ledger-function-module"
+                  slide={6}
+                  label="特別演習④ Part D: 全項目の実装例へ"
+                />
+              </div>
             </>
           ),
         },
