@@ -123,3 +123,26 @@ export function importFromFile(file: File): Promise<void> {
     reader.readAsText(file);
   });
 }
+
+export function parseAndValidateImport(text: string): ExportPayload {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    throw new Error("テキストが有効なJSONではありません");
+  }
+  if (typeof payload !== "object" || payload === null) {
+    throw new Error("データの形式が正しくありません");
+  }
+  const p = payload as Record<string, unknown>;
+  if (p["version"] !== 1) {
+    throw new Error(`対応していないバージョンです（version: ${String(p["version"])}）`);
+  }
+  if (!p["completion"] || typeof p["completion"] !== "object") {
+    throw new Error("completion フィールドがありません");
+  }
+  if (!p["exportedAt"] || typeof p["exportedAt"] !== "string") {
+    throw new Error("exportedAt フィールドがありません");
+  }
+  return payload as ExportPayload;
+}
