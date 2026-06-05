@@ -3,6 +3,7 @@ import { prepareContentAccessFromUrl } from "../lib/courses";
 import { readContentPasswordFromSearch } from "../lib/content-lock-url";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "../components/theme-toggle";
+import { DataTransferButton } from "../components/data-transfer-dialog";
 import {
   courseEntryCount,
   courseIndexHref,
@@ -52,7 +53,10 @@ function PageShell({
               研修教材
             </p>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <DataTransferButton />
+            <ThemeToggle />
+          </div>
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
         <p className="mt-2 text-slate-600 dark:text-slate-400">{description}</p>
