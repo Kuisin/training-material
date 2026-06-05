@@ -12,7 +12,7 @@
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "コース全体像 — 入力→取得→加工→出力と照会と登録",
+  title: "コース全体像 — 照会基礎とIF登録の知識",
   meta: "初学者 · 15分",
 };
 
@@ -24,7 +24,7 @@ export default function OverviewLesson() {
         {
           title: "概要",
           plainText:
-            "研修全体マップ\nこれから何を作れるようになるのか。ゴールを先に見て、地図を持って歩き出しましょう。\n⏱ 15分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・研修全体の流れ（照会レポート → 会計伝票登録 → 適切なプログラミング）\n・章ごとの学習段階（基本出力 → データ結合 → 制御 → 構造化）\n・照会レポートでよく求められる出力要件\n・「照会（見るだけ）」と「登録（書き込む）」の違い",
+            "研修全体マップ\nこれから何を学ぶのか。ゴールを先に見て、地図を持って歩き出しましょう。\n⏱ 15分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・2フェーズ：照会基礎（00〜10）と IF登録の知識（11番台〜12）\n・照会レポートの学習段階（基本出力 → データ結合 → 制御 → 構造化）\n・会計伝票登録IFに必要な知識ブロックの流れ\n・「照会（見るだけ）」と「登録（書き込む）」の違い\n・手を動かす演習は別資料であること",
           content: (
             <>
               <hgroup>
@@ -40,11 +40,18 @@ export default function OverviewLesson() {
               />
               <h3>この章で学ぶこと</h3>
               <ul>
-                <li>研修全体の流れ（照会レポート → 会計伝票登録 → 適切なプログラミング）</li>
-                <li>章ごとの学習段階（基本出力 → データ結合 → 制御 → 構造化）</li>
+                <li>
+                  <strong>フェーズ1（00〜10）</strong> … 照会レポートの基礎（選択画面・取得・出力・構造化）
+                </li>
+                <li>
+                  <strong>フェーズ2（11番台〜12）</strong> … 会計伝票登録 IF に必要な知識（全体像・データ設計・ファイル連携・BAPI・性能・品質）
+                </li>
                 <li>照会レポートでよく求められる出力要件</li>
                 <li>「照会（見るだけ）」と「登録（書き込む）」の違い</li>
               </ul>
+              <Callout variant="note">
+                手を動かす演習（プログラム作成・課題）は<strong>別資料</strong>で実施します。本コースは設計書やコードの型が<strong>読める・説明できる</strong>土台を Dialog で学びます。
+              </Callout>
             </>
           ),
         },
@@ -73,51 +80,55 @@ export default function OverviewLesson() {
         {
           title: "研修マップ",
           plainText:
-            "研修の大きな流れ\n本研修は大きく3つのかたまりに分かれる。\n前半（第3〜9章）：仕訳日記帳などの照会レポート\n後半（第10〜11章）：会計伝票の登録\n仕上げ（第12〜13章）：性能と保守性＝適切なプログラミング\n補足（第14〜15章）：開発ツール・ファイル連携／第16章：総仕上げテスト\nAくん：前半で“読む”を練習して、後半で“書く”に進む段階設計なんですね。\n先生：そう。やさしい所から難しい所へ、なだらかに上ります。",
+            "研修の大きな流れ\nフェーズ1（00〜10）：照会レポートの基礎。フェーズ2（11番台〜12）：会計伝票登録IFの知識（全体像→データ設計→FM→ファイル→BAPI→性能→品質）。補足：開発ツール（14）。手を動かす演習は別資料。",
           content: (
             <>
               <h2>研修の大きな流れ</h2>
-              <p>本研修は、おおきく3つのかたまりに分かれます。</p>
+              <p>本コースは、おおきく2つのフェーズに分かれます。</p>
               <Figure
                 src="image/01-roadmap.webp"
-                alt="3区間の道のりマップ。第1区間『前半・照会レポート（選択画面〜帳票出力）』、第2区間『後半・会計伝票登録』、第3区間『仕上げ・適切なプログラミング』。左から右へ上り坂の道で表現。"
-                caption="研修の道のり：見る（照会）→ 書く（登録）→ 磨く（適切なプログラミング）"
+                alt="2区間の道のりマップ。第1区間『照会基礎（選択画面〜帳票出力）』、第2区間『IF登録の知識（全体像〜品質）』。左から右へ上り坂の道で表現。"
+                caption="コースの道のり：照会の型を学ぶ → 登録IFの知識を積み上げる"
                 kind="concept"
               />
               <ul>
-                <li><strong>前半（第3〜9章）</strong>：仕訳日記帳などの照会レポート（選択画面・取得・出力・制御）</li>
                 <li>
-                  <strong>後半（第10〜11章）</strong>：会計伝票を「登録する」プログラム（外部データ取込・BAPI・履歴・排他の型）
+                  <strong>フェーズ1（00〜10）</strong> … 照会レポートの基礎（選択画面・取得・出力・制御・構造化）
                 </li>
-                <li><strong>仕上げ（第12〜13章）</strong>：性能と保守性 ＝「適切なプログラミング」</li>
                 <li>
-                  <strong>補足（第14〜15章）</strong>：SAP開発ツール・ファイル連携・ジョブ・BDC
+                  <strong>フェーズ2 — 知識の順</strong>
+                  <ul>
+                    <li>IF連携の全体像</li>
+                    <li>データ設計（DDIC・履歴テーブル・DB更新）</li>
+                    <li>汎用モジュール（FM・SE37での確認）</li>
+                    <li>ファイル連携・ジョブ</li>
+                    <li>会計伝票登録（BAPI・ロック）</li>
+                    <li>性能設計と実行時間分析</li>
+                    <li>可読性・設計思想・知識の地図</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>補足</strong> … SAP開発ツール（操作の詳細は第14章、概念は各知識レッスン）
                 </li>
               </ul>
               <Dialog speaker="a">
-                前半で“読む”を練習して、後半で“書く”に進む、という段階設計なんですね。
+                照会で“読む型”を身につけてから、登録IFに必要な知識を順番に積み上げる設計なんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                そうです。やさしい所から難しい所へ、なだらかに上っていきます。ツールや連携の操作詳細は第14〜15章で扱います。確認テストは第16章です。
+                その通りです。演習で手を動かすのは別資料ですが、ここで学ぶ知識が設計書やコードを読む土台になります。
               </Dialog>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
                   lessonFile="03-abap-minimum-unit"
                   slide={2}
-                  label="第3章: 最初のABAPから始める"
+                  label="フェーズ1: 最初のABAPから始める"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="11-document-posting"
-                  slide={4}
-                  label="第11章: 会計伝票登録へ進む"
-                />
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="16-final-assessment"
+                  lessonFile="11-if-integration-overview"
                   slide={1}
-                  label="第16章: 総仕上げテスト"
+                  label="フェーズ2: IF連携の全体像へ"
                 />
               </div>
             </>
@@ -229,13 +240,13 @@ export default function OverviewLesson() {
                 読むのは間違えてもやり直せるけれど、書くのは台帳に残るから重い、ということですね。
               </Dialog>
               <Dialog speaker="teacher">
-                その理解で完璧です。今は「あとで登録という重い処理が出てくる」とだけ覚えておけば十分。第11章でじっくり扱います。
+                その理解で完璧です。                今は「あとで登録という重い処理の知識が出てくる」とだけ覚えておけば十分。フェーズ2でじっくり扱います。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="11-document-posting"
-                slide={6}
-                label="第11章: 会計伝票登録の詳細へ"
+                lessonFile="11-if-integration-overview"
+                slide={1}
+                label="フェーズ2: IF連携の全体像へ"
                 className="mb-4"
               />
               <Callout variant="tip">

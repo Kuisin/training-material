@@ -19,7 +19,7 @@ export const lessonMeta = {
 export default function OopClassMethodLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "21-oop-class-method", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a6-oop-class-method", lessonMeta.title)}
       slides={[
         {
           title: "概要",

@@ -20,7 +20,7 @@ export const lessonMeta = {
 export default function HowToDebugProgramLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "20-how-to-debug-program", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a5-how-to-debug-program", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -150,7 +150,7 @@ export default function HowToDebugProgramLesson() {
               />
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="14-sap-development-tools"
+                lessonFile="a1-sap-development-tools"
                 slide={7}
                 label="追加: ST22（実行エラー）の見方"
                 variant="back"
@@ -291,14 +291,14 @@ export default function HowToDebugProgramLesson() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="18-divide-and-conquer"
+                  lessonFile="a3-divide-and-conquer"
                   slide={2}
                   label="追加: 分割統治の考え方"
                   variant="back"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
+                  lessonFile="a1-sap-development-tools"
                   slide={5}
                   label="追加: デバッガの基本操作"
                   variant="back"
@@ -669,7 +669,7 @@ ENDIF.`}
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="14-sap-development-tools"
+                lessonFile="a1-sap-development-tools"
                 slide={5}
                 label="次: SAP開発ツール（画面操作の詳細）"
                 variant="forward"

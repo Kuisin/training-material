@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -14,253 +14,51 @@
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "良いABAP — レポートイベント・性能と保守性",
-  meta: "初学者 · 35分",
+  title: "良いABAP — 性能設計と実行時間分析",
+  meta: "初学者 · 30分",
 };
 
 export default function GoodProgrammingLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "13-good-programming", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "16-good-programming", lessonMeta.title)}
       slides={[
         {
-          title: "概要 — イベント・性能・保守性",
+          title: "概要 — なぜ性能の知識が要るか",
           plainText:
-            "適切なプログラミング — レポートイベント・性能・保守性\nレポートのイベント駆動と、性能・保守性をまとめて学ぶ仕上げの章です。10年後も使われる書き方を、悪い例・良い例の対比で学びます。\n⏱ 35分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・長期運用の視点（継続利用・改修前提の設計）\n・レポートのイベント駆動（いつ動くかとFORMの役割分担）\n・SELECT / 内部テーブルの性能改善\n・実行時間分析の基本（SE30 / SAT）\n・可読性・保守性（コメント・履歴・開発標準）",
+            "性能設計と実行時間分析\n会計伝票登録IFは本番で大量件数を扱う。開発環境の少ないデータでは気づきにくい性能問題を、SELECT最適化と計測の型で学びます。\n⏱ 30分 / 📶 初学者\nこの章で学ぶこと\n・DB往復を減らすSELECTの型\n・NGパターンと内部テーブル技法\n・SE30/SATによる実行時間分析\n・改善サイクル（特定→改修→再測定）",
           content: (
             <>
               <hgroup>
-                <h1>適切なプログラミング</h1>
+                <h1>性能設計と実行時間分析</h1>
                 <p>
-                  前章までで「安全に直す」地図と習慣を学びました。
-                  この章では<strong>レポートのイベント駆動</strong>（いつ処理が動くか）に加え、
-                  <strong>速さ</strong>と<strong>直しやすさ</strong>のバランス。
-                  10年後も使われる書き方。を、悪い例・良い例の対比で学びます。
+                  会計伝票登録 IF は、本番では<strong>大量の取込件数</strong>を扱います。
+                  開発環境の少ないデータでは気づきにくい性能問題を、
+                  <strong>SELECT の型</strong>と<strong>計測の型</strong>で学びます。
                 </p>
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "35分" },
+                  { icon: "⏱", text: "30分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
               <h3>この章で学ぶこと</h3>
               <ul>
-                <li>長期運用の視点（継続利用・改修前提の設計）</li>
-                <li>レポートの<strong>イベント駆動</strong>（<code>INITIALIZATION</code> など「いつ」と <code>FORM</code> の「何」）</li>
-                <li><code>SELECT</code> / 内部テーブルの性能改善（往復削減・LOOP削減）</li>
-                <li>実行時間分析の基本（<code>SE30</code> / <code>SAT</code>）</li>
-                <li>可読性・保守性（コメント・履歴・開発標準・わかりやすい書き方）</li>
+                <li>なぜ性能の知識が IF 開発で重要か（本番件数の視点）</li>
+                <li><code>SELECT</code> の一括取得・<code>WHERE</code> とキー・NGパターン</li>
+                <li><code>FOR ALL ENTRIES</code> / <code>JOIN</code> と内部テーブル技法</li>
+                <li>実行時間分析（<code>SE30</code> / <code>SAT</code>）と改善サイクル</li>
               </ul>
               <Dialog speaker="b">
                 正直、まだ実務経験がないので…「動けばいいのでは？」って思っちゃいます。
-                <br />
                 研修のサンプルだと、どっちの書き方でも同じように見えますよね。
               </Dialog>
               <Dialog speaker="teacher">
                 その感覚、とても自然です。動くことは<strong>最低条件</strong>です。
-                <br />
-                実務では「本番のデータ量」や「次に直す人（未来の自分）」まで含めて、良いコードと呼びます。
-                <br />
-                前章の地図と習慣に、<strong>速さと直しやすさのバランス</strong>を足す。それがこの最終章です。
-              </Dialog>
-              <Dialog speaker="a">
-                つまり、品質は「今の画面で動いたか」だけじゃなく、 <strong>本番件数でも困らないか</strong>と <strong>半年後に読めるか</strong>の両方で測る、ですね。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "長期運用の視点",
-          plainText:
-            "10年後も使われる前提\nプログラムは継続的に使用され、改修される。10年後に開発者がいなくても直せる設計が求められる。\nよくある失敗：少量データでは高速→本番大量データで停止。初期は高速→データ増加で極端に遅延。\nパフォーマンス：日付などの抽出条件、DBキー項目の指定（数倍～数十倍の差）。\n可読性：ルール遵守、シンプルなコード、変更履歴の記録。",
-          content: (
-            <>
-              <h2>10年後も使われる前提で設計する</h2>
-              <p>
-                業務プログラムは「一度作って終わり」ではありません。
-                <strong>継続的に使われ、改修される</strong>ものとして捉えます。
-                10年後に元の開発者がいなくても、誰かが安全に直せる。それが実務の品質基準です。
-              </p>
-              <InfoPanel
-                title="長期運用で意識する2軸"
-                variant="reference"
-                lead="性能と保守性は、時間が経つほど効いてきます。"
-              >
-                <ul>
-                  <li>
-                    <strong>パフォーマンス</strong> … データ抽出条件（とくに日付）、DBキー項目の指定。
-                    キーを使った絞り込みは、数倍～数十倍の差になることもある
-                  </li>
-                  <li>
-                    <strong>可読性・保守性</strong> … 開発標準の遵守、シンプルなコード、
-                    変更履歴（いつ・なぜ・何を）の記録
-                  </li>
-                </ul>
-              </InfoPanel>
-              <Callout variant="warning">
-                <strong>よくある失敗パターン</strong>
-                <ul className="mt-2 list-disc pl-5">
-                  <li>少量データでは高速 → 本番の大量データで処理が停止する</li>
-                  <li>リリース直後は高速 → データが増えるにつれ極端に遅くなる</li>
-                </ul>
-              </Callout>
-              <Dialog speaker="teacher">
-                性能の問題は、開発環境では見えにくいのが怖いところです。
-                「今動く」だけでなく、「データが10倍・100倍になっても耐えられるか」を最初から問いかけましょう。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "レポートイベント駆動（本章で解説）",
-          plainText:
-            "レポートイベント駆動（本章で解説）\n特定のタイミングでだけ処理が走る。イベント＝いつ、FORM＝何。イベントにはPERFORMだけ並べ、中身はFORMへ。\n主な流れ：INITIALIZATION（初期値）→ 選択画面 → AT SELECTION-SCREEN（入力チェック）→ START-OF-SELECTION（データ取得）→ TOP-OF-PAGE（ヘッダ）→ END-OF-SELECTION（一覧）→ AT USER-COMMAND（ボタン操作）。\n良い習慣：イベントにSELECT/LOOPを直書きしない。処理をFORMに追い出すと10年後も読みやすい。",
-          content: (
-            <>
-              <h2>レポートのイベント駆動（本章で解説）</h2>
-              <p>
-                ABAP のレポートプログラムは、<strong>「いつ」処理が動くか</strong>をイベントで決めます。
-                第10章で学んだ <code>FORM</code> / <code>PERFORM</code> と組み合わせると、
-                イベントが<strong>目次</strong>、<code>FORM</code> が<strong>本文</strong>になり、保守しやすくなります。
-              </p>
-              <Callout variant="note">
-                <strong>2つの役割分担</strong>
-                <ul className="mt-2 list-disc pl-5">
-                  <li>
-                    <strong>イベントブロック</strong> … タイミングだけを表す（中身は <code>PERFORM</code> の並び）
-                  </li>
-                  <li>
-                    <strong><code>FORM</code></strong> … 実際の処理（初期化・チェック・取得・出力）
-                  </li>
-                </ul>
-              </Callout>
-              <InfoPanel title="主なイベント（照会レポートの典型）" variant="reference">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>イベント</th>
-                      <th>いつ動くか</th>
-                      <th>よくある処理</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <code>INITIALIZATION</code>
-                      </td>
-                      <td>プログラム起動直後（選択画面の前）</td>
-                      <td>検索条件の初期値、画面タイトル・ボタン定義</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>AT SELECTION-SCREEN</code>
-                      </td>
-                      <td>実行ボタン押下の直前</td>
-                      <td>必須入力・日付範囲・マスタ存在などの入力チェック</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>AT SELECTION-SCREEN ON VALUE-REQUEST</code>
-                      </td>
-                      <td>選択画面の F4（検索ヘルプ）押下時</td>
-                      <td>検索ヘルプ・ファイルパス選択ダイアログなど（必要なときだけ）</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>START-OF-SELECTION</code>
-                      </td>
-                      <td>入力チェック通過後（メイン処理の入口）</td>
-                      <td>データ取得（<code>SELECT</code>）、内部テーブルへの整形</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>TOP-OF-PAGE</code>
-                      </td>
-                      <td>各ページの先頭</td>
-                      <td>帳票ヘッダ（条件・列名など）</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>END-OF-SELECTION</code>
-                      </td>
-                      <td>メイン処理の後（一覧表示のタイミング）</td>
-                      <td>ソート・明細の <code>WRITE</code>、後処理</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <code>AT USER-COMMAND</code>
-                      </td>
-                      <td>一覧画面のツールバーボタン押下時</td>
-                      <td>ダウンロードなど、<code>SY-UCOMM</code> で押された操作を分岐</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </InfoPanel>
-              <MermaidDiagram
-                chart={`flowchart TD
-  I["INITIALIZATION\\n初期値・画面設定"] --> S["選択画面"]
-  S --> A["AT SELECTION-SCREEN\\n入力チェック"]
-  A --> M["START-OF-SELECTION\\nデータ取得"]
-  M --> H["TOP-OF-PAGE\\nヘッダ出力"]
-  M --> L["END-OF-SELECTION\\n一覧出力"]
-  L --> U["AT USER-COMMAND\\nボタン操作"]`}
-              />
-              <CodeBlock
-                language="ABAP"
-                code={`* イベントは「目次」— PERFORM だけ並べ、処理は FORM へ
-INITIALIZATION.
-  PERFORM form_init_screen.
-
-AT SELECTION-SCREEN.
-  PERFORM form_check_input.
-
-START-OF-SELECTION.
-  PERFORM form_get_data.
-
-TOP-OF-PAGE.
-  PERFORM form_write_header.
-
-END-OF-SELECTION.
-  PERFORM form_write_list.
-
-AT USER-COMMAND.
-  CASE sy-ucomm.
-    WHEN 'BACK'.
-      LEAVE TO SCREEN 0.
-    WHEN 'DL'.
-      PERFORM form_download.
-  ENDCASE.`}
-              />
-              <Callout variant="warning">
-                <strong>保守性の落とし穴</strong> … イベントの中に長い <code>SELECT</code> や <code>LOOP</code> を直書きすると、
-                「いつ動くか」と「何をしているか」が混ざり、後から直しにくくなります。
-                <code>FORM</code> 名はチームの命名規則に合わせ、<strong>役割が名前から分かる</strong>ように揃えるのが実務の型です。
-              </Callout>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="11-document-posting"
-                  slide={17}
-                  label="第11章: イベント駆動処理"
-                  variant="back"
-                />
-                <LessonLinkButton
-                  courseSlug="abap-training"
-                  lessonFile="10-modularization"
-                  slide={5}
-                  label="第10章: FORM/PERFORM"
-                  variant="back"
-                />
-              </div>
-              <Dialog speaker="teacher">
-                イベントは「処理の順番表」です。上から読んで、<code>INITIALIZATION</code> で初期値、
-                <code>AT SELECTION-SCREEN</code> でチェック、<code>START-OF-SELECTION</code> で本処理、
-                という流れが一目で分かれば、10年後の改修も楽になります。
-              </Dialog>
-              <Dialog speaker="a">
-                第10章の「イベントは目次、FORM は本文」が、ここで全体の設計原則になっているんですね。
+                取込1万件・10万件の本番では、「往復の回数」がそのまま処理時間になります。
+                可読性や設計思想は次の章で扱います。ここでは<strong>速さの型</strong>に集中しましょう。
               </Dialog>
             </>
           ),
@@ -817,119 +615,43 @@ APPEND LINES OF lt_src TO lt_dest.`}
           ),
         },
         {
-          title: "引き継げる書き方",
+          title: "改善サイクル",
           plainText:
-            "保守性：10年後も誰かが直せるように\n前章の4習慣に加え、部品化で直す範囲を狭く。速いコードでも読めなければ半年後に誰も触れない。\nコード：SELECT * vs 必要列のみの対比。部品化はFORMで塊を切り出す。\nBちゃん：速さだけじゃなく優しさも品質。未来の自分が助かる。\n先生：速くて読みやすく安全に直せる。3つがそろって適切なプログラミング。",
+            "改善サイクル — 特定→改修→再測定\n① SE30/SATでボトルネックを特定（Database時間かABAP時間か）\n② 往復削減・WHERE見直し・LOOP削減などを改修\n③ 同条件で再計測し、改善を確認\n感覚だけで終わらせず、数値で効果を見るのが実務の型。",
           content: (
             <>
-              <h2>保守性：10年後も誰かが直せるように</h2>
+              <h2>改善サイクル — 特定 → 改修 → 再測定</h2>
               <p>
-                前章で学んだコメント・命名・変更履歴・テストに加え、
-                ここでは<strong>部品化</strong>。直す範囲を狭く保つ。を補強します。
-                速いコードでも、読めなければ半年後に誰も触れません。
+                性能改善は一度直せば終わりではありません。
+                <strong>計測 → 改修 → 再計測</strong>のサイクルで、効果を確認しながら進めます。
               </p>
-              <ul>
-                <li><strong>コメント・命名</strong>：意図が読み取れる（前章の地図を読む力の土台）</li>
-                <li><strong>変更履歴</strong>：いつ・なぜ変えたか分かる</li>
-                <li><strong>開発標準に合わせる</strong>：チームで書き方を揃える（<code>lv_</code> など）</li>
-                <li><strong>部品化</strong>：直す範囲を狭く保つ（<code>FORM</code> / <code>FUNCTION</code> に切り出す）</li>
-              </ul>
-              <h3>コードで見る：必要な列だけ取る</h3>
-              <CodeBlock
-                language="ABAP"
-                code={`" ❌ 全部の列を取る（転送・メモリともに無駄になりやすい）
-SELECT * FROM t001
-  INTO TABLE lt_t001
-  FOR ALL ENTRIES IN lt_bseg
-  WHERE bukrs = lt_bseg-bukrs.
-
-" ✅ 必要な列だけ（何のためのデータかも明確になる）
-SELECT bukrs butxt FROM t001
-  INTO TABLE lt_t001
-  FOR ALL ENTRIES IN lt_bseg
-  WHERE bukrs = lt_bseg-bukrs.`}
+              <MermaidDiagram
+                chart={`flowchart LR
+  M[SE30 / SAT で計測] --> A[ボトルネック特定]
+  A --> F[改修 往復削減・WHERE・LOOP]
+  F --> R[同条件で再計測]
+  R -->|まだ遅い| A
+  R -->|改善確認| OK[完了]`}
               />
-              <Dialog speaker="b">
-                <code>SELECT *</code> は楽に見えるのに、実は遅くなることもあるんですね…。
-                <br />
-                速さと読みやすさ、両方に効くんですね。
-              </Dialog>
-              <Dialog speaker="teacher">
-                その通りです。
-                <br />
-                不要な列は<strong>転送もメモリも消費</strong>しますし、 「結局何のデータを使っているの？」が分かりにくくなります。
-                <br />
-                前章の命名・コメントとセットで、<strong>必要な列だけ</strong>を取る習慣をつけましょう。
-              </Dialog>
-              <Dialog speaker="stumble">
-                「とにかく全部取れば安心」。一見安全に見えて、本番件数では<strong>遅さと読みにくさ</strong>の両方の原因になります。
-              </Dialog>
-              <Dialog speaker="a">
-                第10章の部品化ともつながりますね。 取得・照合・出力を <code>FORM</code> に分けておけば、 性能改善も影響分析も<strong>直す範囲が狭い</strong>まま進められます。
-              </Dialog>
-              <Dialog speaker="b">
-                速さだけじゃなく、優しさ（読みやすさ）も品質なんですね。
-                <br />
-                丁寧に書いておくと、未来の自分が助かる。前章と同じですね。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "わかりやすい書き方",
-          plainText:
-            "コメント・条件分岐・明示的な指定\nコメントは処理意図を書く（開発者メモではない）。変更履歴はいつ・なぜ・何を。\nCASE を推奨。IF NOT は避けて肯定条件で書く。SORT は ASCENDING/DESCENDING を明示。",
-          content: (
-            <>
-              <h2>わかりやすいコードの書き方</h2>
-              <p>
-                性能だけでなく、<strong>半年後の自分や後任が読めるか</strong>も品質です。
-                第12章の習慣に加え、次の書き方を意識します。
-              </p>
-              <CodeBlock
-                language="ABAP"
-                code={`" コメント＝処理の意図（「なぜこうするか」）
-" 会社コードで絞った後、日付順に出力するためソート
-SORT lt_bkpf BY bukrs ASCENDING
-                budat ASCENDING.
-
-" 複数値の分岐 → CASE が読みやすい
-CASE ls_bkpf-blart.
-  WHEN 'SA' OR 'KR'.
-    " 総勘定・仕入先
-  WHEN OTHERS.
-    " その他
-ENDCASE.
-
-" ❌ 否定条件は読みにくい
-IF NOT lv_found = 'X'.
-
-" ✅ 肯定条件で書く
-IF lv_found = 'X'.`}
-              />
-              <InfoPanel
-                title="保守性チェックリスト"
-                variant="reference"
-                lead="開発標準（命名規則・文法統一）に合わせつつ、次を守る。"
-              >
+              <InfoPanel title="サイクルの各段階" variant="reference">
                 <ul>
                   <li>
-                    <strong>コメント</strong> … 処理の意図を書く。自分用メモやデバッグ残しではない
+                    <strong>特定</strong> … Database 時間が突出 → <code>SELECT</code> を見直す。ABAP 時間 → <code>LOOP</code> や内部テーブル操作
                   </li>
                   <li>
-                    <strong>変更履歴</strong> … いつ・なぜ・何を変更したか（プログラムヘッダやチケット番号）
+                    <strong>改修</strong> … 往復削減（一括取得・<code>FOR ALL ENTRIES</code>）、キー指定、必要列だけ取得
                   </li>
                   <li>
-                    <strong>明示的な指定</strong> … <code>SORT ... ASCENDING</code> のように、暗黙の既定値に頼らない
-                  </li>
-                  <li>
-                    <strong>条件分岐</strong> … 値の分岐は <code>CASE</code> を優先。<code>IF NOT</code> の多用は避ける
+                    <strong>再測定</strong> … 同じデータ量・同じ条件で比較。開発環境と本番で件数が違う点に注意
                   </li>
                 </ul>
               </InfoPanel>
+              <Dialog speaker="a">
+                「直したつもり」で終わらせず、数値で確認する。これが設計書の性能要件を満たす進め方ですね。
+              </Dialog>
               <Dialog speaker="teacher">
-                「読みにくいから遅い」。直すのに時間がかかれば、結果的にプロジェクト全体が遅くなります。
-                シンプルで、ルールに沿ったコードが、長期運用では最強です。
+                取込件数が増える IF では、このサイクルを前提にコードレビューします。
+                可読性や長期運用の考え方は、次の章でまとめます。
               </Dialog>
             </>
           ),
@@ -937,161 +659,54 @@ IF lv_found = 'X'.`}
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\nBちゃん：実務未経験でも動けばOKじゃない？→最低条件。本番件数と未来の自分まで含めて品質。\n先生：近道＝LOOP内SELECTは試食会では平気・宴会で渋滞。往復は事務所↔倉庫の旅。\nAくん：悪い例はN+1。良い例はFOR ALL ENTRIES＋READ TABLE。空チェック必須。\nつまずき：自分のPCで秒で終わった＝問題ない、は本番で止まる典型。\nBちゃん：往復2つ＋前章の習慣＝速くて読みやすく直せる。研修おつかれさま！\n①往復を減らす ②必要列だけ ③前章の地図と習慣",
+            "対話で整理\n性能の要点：①往復を減らす ②必要列だけ ③計測→改修→再測定。LOOP内SELECTはN+1問題。FOR ALL ENTRIESは空チェック必須。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="b">
-                この章、いちばん最初に思ったのは「実務未経験でも、動けばいいんじゃないの？」でした…。
-                <br />
-                でも最後まで聞くと、<strong>動くことは最低条件</strong>なんだと腹落ちしました。
+                この章、いちばん最初は「動けばいいんじゃないの？」と思っていました…。
+                でも本番の件数を想像すると、往復の回数がそのまま時間になるんですね。
               </Dialog>
               <Dialog speaker="teacher">
-                よくまとまりました。ABAP研修の最終章。前章の「安全に直す」地図と習慣に、 <strong>速さと直しやすさのバランス</strong>を足した章です。
+                性能で覚えるのは<strong>3つ</strong>です。
                 <br />
-                覚えておきたいのは、大きく3つです。
-              </Dialog>
-              <Dialog speaker="teacher">
-                <strong>① 近道は渋滞の原因</strong>。 <code>LOOP</code> の中で <code>SELECT</code> する書き方は、 試食会（10件）では平気でも、宴会（10万件）で止まります。
-                <br />
-                「自分のPCで動いた」＝「本番でも大丈夫」ではありません。
-              </Dialog>
-              <Dialog speaker="a">
-                理由は<strong>往復</strong>ですね。 プログラム（事務所）とDB（倉庫）は別の建物。1回聞くたびに旅が発生します。
-                <br />
-                悪い例は明細件数分の旅（N+1問題）。 良い例は <strong>FOR ALL ENTRIES</strong> で1回まとめて取り、 <strong>READ TABLE</strong> で机の上で照合。往復を激減させます。
-              </Dialog>
-              <Dialog speaker="b">
-                <code>FOR ALL ENTRIES</code> の空チェック、今回でやっと「なぜ必要か」が分かりました。
-                <br />
-                空のとき全件取得。それ、怖いですね…。
-              </Dialog>
-              <Dialog speaker="stumble">
-                「とにかく全部取れば安心（<code>SELECT *</code>）」
-                <br />
-                「自分のPCでは秒で終わったから問題ない」
-                <br />
-                この2つは、実務に入る前に避けたい典型パターンです。
-              </Dialog>
-              <Dialog speaker="teacher">
-                性能で覚えるのは<strong>2つだけ</strong>で十分です。
-                <br />
-                ① DBへの<strong>往復を減らす</strong>
+                ① DBへの<strong>往復を減らす</strong>（一括取得 → メモリ照合）
                 <br />
                 ② <strong>必要な列だけ</strong>取る
                 <br />
-                保守性は前章のコメント・命名・履歴・テストに<strong>部品化</strong>を足す。 速いコードでも読めなければ、半年後に誰も触れません。
+                ③ <strong>計測 → 改修 → 再測定</strong>のサイクル
               </Dialog>
               <Dialog speaker="a">
-                つまり「適切なプログラミング」は、<strong>速くて、読みやすくて、安全に直せる</strong>の3つがそろった状態、ですね。
-                <br />
-                第8章の結合、第10章の部品化、第12章の地図と習慣が、ここで一本の線につながりましたね。
+                悪い例は N+1 問題。良い例は <code>FOR ALL ENTRIES</code> ＋ <code>READ TABLE</code>。
+                空チェック（<code>IS NOT INITIAL</code>）を忘れると全件取得の罠に落ちます。
               </Dialog>
-              <Dialog speaker="b">
-                今は動いていても、データが増えたときに困らない書き方を<strong>最初から選ぶ</strong>。 未来の人（未来の自分）が読めるように書くことまで、品質だと理解できました。
-                <br />
-                研修、ここまで来られて自分でも驚いてます…！
+              <Dialog speaker="stumble">
+                「自分のPCでは秒で終わったから問題ない」— 本番で初めて止まる典型パターンです。
               </Dialog>
               <Callout variant="tip">
                 <strong>最重要3点</strong><br />
                 ① <code>SELECT</code> 最適化（<code>WHERE</code>・キー・一括取得）<br />
-                ② 内部テーブル運用（LOOP削減・<code>BINARY SEARCH</code> など）<br />
-                ③ 可読性（コメント・履歴・シンプルな設計）<br />
-                プログラムは長期使用・改修前提。速くて、読みやすく、安全に直せる。それが適切なプログラミングです。
+                ② 内部テーブル運用（LOOP削減・<code>BINARY SEARCH</code>）<br />
+                ③ 改善サイクル（<code>SE30</code> / <code>SAT</code> で根拠を持って直す）
               </Callout>
-              <Dialog speaker="teacher">
-                ここまで来たあなたは、もう「翻訳者」の入口に立っています。 業務の言葉を、SAPが理解できる形に翻訳する人。
-                <br />
-                おつかれさまでした。自信を持って、次のステップへ進みましょう。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "コースのまとめ",
-          plainText:
-            "研修全体を振り返る\n技術と章の対応：基本文法→第3〜7章、データ結合→第8章、出力最適化→第9章、実務構造→第10章、登録→第11章、開発ツール→第14章、ファイル・ジョブ→第15章。\n実務の要点：SAP帳票の基本はBKPF+BSEG、JOINより内部テーブル処理、サプレスは必須、フラグは多用、最終的にGUI+DLが求められる。\n先生：章の地図と実務の型をセットで覚える。確認は第16章。",
-          content: (
-            <>
-              <h2>研修全体を振り返る</h2>
-              <p>この章の前に、コース全体で学んだ技術と章の対応を整理します。</p>
-              <InfoPanel
-                title="技術スキルと章の対応"
-                variant="reference"
-              >
-                <ul>
-                  <li><strong>基本文法・帳票出力</strong> … 第3〜7章（<code>SELECT</code>・<code>WRITE</code>・選択画面）</li>
-                  <li><strong>データ結合</strong> … 第8章（<code>LOOP</code> / <code>READ TABLE</code> / <code>APPEND</code>）</li>
-                  <li><strong>出力最適化</strong> … 第9章（サプレス・制御ブロック・フラグ）</li>
-                  <li><strong>実務構造</strong> … 第10章（<code>FORM</code>・イベント・GUI・ダウンロード）</li>
-                  <li><strong>会計伝票登録</strong> … 第11章（BAPI・ロック・検証）</li>
-                  <li><strong>開発ツール・連携</strong> … 第14〜15章（SE38・ファイル・ジョブ・BDC）</li>
-                </ul>
-              </InfoPanel>
-              <InfoPanel
-                title="実務で押さえておきたいポイント"
-                variant="breakdown"
-              >
-                <ul>
-                  <li>SAP 会計帳票の基本は <strong>BKPF ＋ BSEG</strong>（環境によって ACDOCA）</li>
-                  <li>複数表の結合は、SQL JOIN より<strong>内部テーブル上の LOOP 処理</strong>が多い</li>
-                  <li><strong>サプレス</strong>（同じ見出しを省く）は実務帳票の必須スキル</li>
-                  <li><strong>フラグ</strong>は状態管理・ネスト回避・<code>SY-SUBRC</code> 補完に多用される</li>
-                  <li>照会レポートも、最終的には<strong>画面整備 ＋ ダウンロード</strong>まで求められることが多い</li>
-                </ul>
-              </InfoPanel>
-              <Dialog speaker="teacher">
-                章の地図（第1章）と、ここでの実務の型をセットで覚えておいてください。
-                <strong>なぜその技術が要るか</strong>はここまでで一通り押さえました。
-              </Dialog>
             </>
           ),
         },
         {
           title: "確認テスト",
           plainText:
-            "理解度チェック\nBちゃん：間違えても大丈夫？→ 解説で復習できる。実務に入る前の型を確認する場。\nQ1 避けたい書き方→ LOOP内で毎回SELECT（N+1）\nQ2 適切なプログラミング→ 性能と保守性の両立\nQ3 往復を減らすと並ぶ方針→ 必要な列に絞る\nQ4 存在性チェックのイベント→ AT SELECTION-SCREEN\n今日のひとこと：翻訳者の入口に立ったあなたへ。良いコードは未来へのやさしさ。",
+            "理解度チェック\nQ1 避けたい書き方→ LOOP内SELECT\nQ2 Database時間突出→ SELECT/WHERE見直し\nQ3 改善サイクル→ 計測→改修→再測定\nQ4 FOR ALL ENTRIESの注意→ 駆動表が空だと全件取得",
           content: (
             <>
               <h2>理解度チェック</h2>
-              <Dialog speaker="b">
-                最終確認、ちょっと緊張します…。
-                <br />
-                間違えても大丈夫ですか？
-              </Dialog>
-              <Dialog speaker="teacher">
-                もちろんです。解説で復習できるので、「覚えたつもり」になっていないかを確かめる場だと思ってください。
-                <br />
-                実務に入る前に、今日の<strong>型</strong>を自分の言葉で押さえましょう。
-              </Dialog>
               <Quiz
                 answer={1}
-                explanation="LOOP の中で毎回 SELECT すると、DBへの往復が件数分くり返されて遅くなります（N+1問題）。先に FOR ALL ENTRIES などでまとめて取得し、READ TABLE でメモリ照合するのが基本の改善です。開発環境の少ない件数では気づきにくくても、本番の大量データでは止まる。この章でいちばん避けたいパターンです。"
+                explanation="LOOP の中で毎回 SELECT すると、DBへの往復が件数分くり返されて遅くなります（N+1問題）。先に FOR ALL ENTRIES などでまとめて取得し、READ TABLE でメモリ照合するのが基本の改善です。"
                 question={<strong>性能上、避けたい代表的な書き方は？</strong>}
                 options={[
                   "必要な列だけを SELECT する",
                   "LOOP の中で毎回 SELECT する",
                   "FOR ALL ENTRIES でまとめて取得する",
-                ]}
-              />
-              <Quiz
-                answer={2}
-                explanation="適切なプログラミングは、速さ（性能）と読みやすさ・直しやすさ（保守性）の両立です。「動けばOK」は最低条件。本番件数でも耐え、半年後に誰か（未来の自分）が安全に直せる。前章とこの章を合わせた品質の考え方です。"
-                question={<strong>「適切なプログラミング」が満たすべきものは？</strong>}
-                options={[
-                  "とにかく実行が速いことだけ",
-                  "とにかく短く書くことだけ",
-                  "性能と保守性（読みやすさ・直しやすさ）の両立",
-                ]}
-              />
-              <Quiz
-                answer={1}
-                explanation="「往復を減らす」と並んで覚えるのは「必要な列だけ取る」です。SELECT * は一見楽ですが、転送・メモリ・読みやすさの三つとも不利になります。FOR ALL ENTRIES や READ TABLE は、むしろ性能改善の味方です。"
-                question={<strong>「DB往復を減らす」と並んで性能改善に有効な基本方針は？</strong>}
-                options={[
-                  "毎回SELECT *で全列を取得する",
-                  "必要な列に絞ってSELECTする",
-                  "READ TABLEを使わず常に二重LOOPにする",
                 ]}
               />
               <Quiz
@@ -1105,24 +720,35 @@ IF lv_found = 'X'.`}
                 ]}
               />
               <Quiz
-                answer={1}
-                explanation="会社コードのマスタ存在チェックなど、実行前の入力検証は AT SELECTION-SCREEN で行います。INITIALIZATION は選択画面表示前の初期値設定、START-OF-SELECTION はチェック通過後の本処理（データ抽出）です。"
-                question={
-                  <strong>
-                    会社コードが T001 に存在するかを、実行ボタン押下前に確認するイベントは？
-                  </strong>
-                }
+                answer={0}
+                explanation="性能改善は感覚だけで終わらせず、SE30/SAT で計測し、改修後に同条件で再計測して効果を確認するのが実務の型です。"
+                question={<strong>性能改善の実務的な進め方として適切なのは？</strong>}
                 options={[
-                  "INITIALIZATION",
-                  "AT SELECTION-SCREEN",
-                  "TOP-OF-PAGE",
+                  "計測 → 改修 → 同条件で再計測",
+                  "感覚で直してテストは省略する",
+                  "本番データで最初から計測する",
+                ]}
+              />
+              <Quiz
+                answer={2}
+                explanation="FOR ALL ENTRIES の駆動テーブルが空のとき、WHERE 句が無視されマスタ全件を取得してしまう罠があります。使う前に IF lt_xxx IS NOT INITIAL. で空チェックを入れます。"
+                question={<strong>FOR ALL ENTRIES を使うときの注意として正しいのは？</strong>}
+                options={[
+                  "駆動テーブルが空でも問題ない",
+                  "SELECT * とセットで使うのが最速",
+                  "駆動テーブルが空のとき全件取得になるので事前に空チェックする",
                 ]}
               />
               <Dialog speaker="closing">
-                ここまで来たあなたは、もう「翻訳者」の入口に立っています。
-                <br />
-                良いコードは、未来へのやさしさです。
+                性能の型を身につけました。次は可読性・設計思想・知識の地図で仕上げます。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="17-real-world"
+                slide={1}
+                label="次へ: 可読性・設計思想・知識の地図"
+                className="mb-4 mt-4"
+              />
             </>
           ),
         },

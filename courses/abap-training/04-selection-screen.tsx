@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -278,14 +278,14 @@ SELECTION-SCREEN END OF BLOCK b1.`}
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
+                  lessonFile="a1-sap-development-tools"
                   slide={2}
                   label="第14章: SE38の開発サイクル"
                   variant="back"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
+                  lessonFile="a1-sap-development-tools"
                   slide={3}
                   label="第14章: テキストエレメント画面"
                   variant="back"

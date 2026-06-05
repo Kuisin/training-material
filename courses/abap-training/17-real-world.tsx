@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -14,38 +14,87 @@
 } from "../../src/lesson";
 
 export const lessonMeta = {
-  title: "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣",
-  meta: "初学者 · 20分",
+  title: "実務と品質 — 可読性・設計思想・知識の地図",
+  meta: "初学者 · 30分",
 };
 
 export default function RealWorldLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "12-real-world", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "17-real-world", lessonMeta.title)}
       slides={[
         {
           title: "概要",
           plainText:
-            "実務っぽい観点\n追加要望が来たとき、どこを見て・どう直し・どう確かめるか。実務の進め方を学びます。\n⏱ 20分 / 📶 初学者 / 🏷 ABAP研修\nこの章で学ぶこと\n・仕様変更が来たときに、最初に見るべきポイント\n・「影響分析 → 修正 → 回帰テスト」という循環\n・コメント・命名・履歴・単体テストが、なぜ実務で大事か",
+            "実務と品質 — 知識の仕上げ\n会計伝票登録IFに必要な知識の最終章。可読性・設計思想・実務の進め方を統合し、学んだ知識の縦串を地図にします。\n⏱ 30分 / 📶 初学者\n手を動かす演習は別資料。ここでは設計書やコードを読み続けられる土台を固めます。",
           content: (
             <>
               <hgroup>
-                <h1>実務っぽい観点</h1>
-                <p>追加要望が来たとき、どこを見て・どう直し・どう確かめるか。実務の進め方を学びます。</p>
+                <h1>実務と品質 — 知識の仕上げ</h1>
+                <p>
+                  会計伝票登録 IF に必要な知識の最終章です。
+                  可読性・設計思想・実務の進め方を統合し、<strong>学んだ知識の縦串</strong>を地図にします。
+                </p>
               </hgroup>
               <LessonMeta
                 items={[
-                  { icon: "⏱", text: "20分" },
+                  { icon: "⏱", text: "30分" },
                   { icon: "📶", text: "初学者" },
                   { icon: "🏷", text: "ABAP研修" },
                 ]}
               />
               <h3>この章で学ぶこと</h3>
               <ul>
-                <li>仕様変更が来たときに、最初に見るべきポイント</li>
-                <li>「影響分析 → 修正 → 回帰テスト」という循環</li>
-                <li>コメント・命名・履歴・単体テストが、なぜ実務で大事か</li>
+                <li>コメント・変更履歴・<code>CASE</code> など可読性の型</li>
+                <li>設計書の読み方と影響分析 → 回帰テストの循環</li>
+                <li>10年後も使えるシンプル設計の考え方</li>
+                <li>会計伝票登録を題材にした<strong>知識の地図</strong></li>
               </ul>
+              <Callout variant="note">
+                手を動かす演習は<strong>別資料</strong>です。本章は知識の仕上げとして、設計書やコードを読み続けられる土台を固めます。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "コメントと明示的な記述",
+          plainText:
+            "コメントは処理意図 — 変更履歴 — CASE・明示的記述\nコメントは「なぜそうするか」を書く。変更履歴はいつ・なぜ・何を。値の分岐はCASE、SORTはASCENDING/DESCENDINGを明示。IF NOTの多用は避ける。",
+          content: (
+            <>
+              <h2>コメントは処理意図 / 変更履歴 / 明示的な記述</h2>
+              <p>
+                性能の型を学んだあと、<strong>半年後の自分や後任が読めるか</strong>が品質の另一半分です。
+              </p>
+              <CodeBlock
+                language="ABAP"
+                code={`" コメント＝処理の意図（「なぜこうするか」）
+" 会社コードで絞った後、日付順に出力するためソート
+SORT lt_bkpf BY bukrs ASCENDING
+                budat ASCENDING.
+
+" 複数値の分岐 → CASE が読みやすい
+CASE ls_bkpf-blart.
+  WHEN 'SA' OR 'KR'.
+    " 総勘定・仕入先
+  WHEN OTHERS.
+    " その他
+ENDCASE.
+
+" 変更履歴の例（プログラムヘッダや修正箇所）
+" 2025/05/31 KS 会社コード絞り込み追加（要件#1234）`}
+              />
+              <InfoPanel title="可読性チェックリスト" variant="reference">
+                <ul>
+                  <li><strong>コメント</strong> … 処理の意図を書く。デバッグ残しではない</li>
+                  <li><strong>変更履歴</strong> … いつ・なぜ・何を（チケット番号も）</li>
+                  <li><strong>明示的な指定</strong> … <code>SORT ... ASCENDING</code> のように暗黙の既定値に頼らない</li>
+                  <li><strong>条件分岐</strong> … 値の分岐は <code>CASE</code> を優先。<code>IF NOT</code> の多用は避ける</li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                「読みにくいから直しにくい」。シンプルでルールに沿ったコードが、長期運用では最強です。
+              </Dialog>
             </>
           ),
         },
@@ -183,7 +232,7 @@ ENDLOOP.`}
             <>
               <h2>登録系プログラムでよくある落とし穴</h2>
               <p>
-                第11〜16章で学んだ「ファイル取込 → BAPI 登録 → 履歴」は、実務の連携案件とほぼ同じ構成です。
+                本コースで学んだ「ファイル取込 → BAPI 登録 → 履歴」は、実務の連携案件とほぼ同じ構成です。
                 保守・テストでは、次の3点を特に確認します。
               </p>
               <ul>
@@ -201,7 +250,7 @@ ENDLOOP.`}
               </ul>
               <Dialog speaker="teacher">
                 仕様変更の影響分析でも、「登録の型」のどの段（読込・検証・ロック・BAPI・履歴）に触れるかを
-                第11章の全体フロー図に当てはめると漏れが減ります。
+                会計伝票登録の全体フローに当てはめると漏れが減ります。
               </Dialog>
             </>
           ),
@@ -289,6 +338,37 @@ lv_tax = lv_subtotal / 10.`}
           ),
         },
         {
+          title: "10年後も使えるコード",
+          plainText:
+            "10年後も使えるコード — シンプル設計 — 保守者は未来の他人\n業務プログラムは継続利用・改修前提。少量データでは高速→本番大量で停止、は典型失敗。部品化（FORM/FM）で直す範囲を狭く。保守者は未来の他人（未来の自分を含む）。",
+          content: (
+            <>
+              <h2>10年後も使えるコード</h2>
+              <p>
+                業務プログラムは「一度作って終わり」ではありません。
+                <strong>継続的に使われ、改修される</strong>ものとして捉えます。
+                10年後に元の開発者がいなくても、誰かが安全に直せる。それが実務の品質基準です。
+              </p>
+              <InfoPanel title="シンプル設計の原則" variant="reference">
+                <ul>
+                  <li><strong>部品化</strong> … 取得・検証・登録・履歴を <code>FORM</code> / FM に分け、直す範囲を狭く保つ</li>
+                  <li><strong>イベントは目次</strong> … イベントブロックには <code>PERFORM</code> だけ並べ、処理は <code>FORM</code> へ</li>
+                  <li><strong>開発標準に合わせる</strong> … 命名規則（<code>lv_</code> など）をチームで揃える</li>
+                  <li><strong>変更履歴を残す</strong> … いつ・なぜ・何を変えたかを記録する</li>
+                </ul>
+              </InfoPanel>
+              <Callout variant="warning">
+                よくある失敗：少量データでは高速 → 本番の大量データで処理が停止する。
+                性能の型（前章）と可読性の型（本章）をセットで守ることが、長期運用の土台です。
+              </Callout>
+              <Dialog speaker="teacher">
+                保守者は<strong>未来の他人</strong>です。未来の自分も、半年後には「他人」に近い。
+                丁寧に書いておくのは、チーム全体へのやさしさです。
+              </Dialog>
+            </>
+          ),
+        },
+        {
           title: "「動けば良い」ではない",
           plainText:
             "「動く」と「使い続けられる」は違う\nその場で動くだけのコードは半年後に誰も触れなくなる。読みやすさ・直しやすさ・確認のしやすさまで含めてはじめて良いプログラム。\nAくん：品質は今動くかだけでなくこれからも安全に変えられるかで測るんですね。\nBちゃん：丁寧に作っておくと未来の自分が助かるんですね。やさしさだ…。",
@@ -302,6 +382,74 @@ lv_tax = lv_subtotal / 10.`}
               <Dialog speaker="b">
                 丁寧に作っておくと、未来の自分が助かるんですね。やさしさだ…。
               </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "知識の地図",
+          plainText:
+            "知識の地図 — 会計伝票登録の縦串\n外部ファイル→論理ファイル→OPEN/READ/SPLIT→検証→ロック→BAPI+RETURN→COMMIT/ROLLBACK→履歴→DEQUEUE。横にDDIC・FM・性能・可読性が支える。",
+          content: (
+            <>
+              <h2>知識の地図 — 会計伝票登録の縦串</h2>
+              <p>
+                本コースで学んだ知識が、会計伝票登録 IF の1本の処理にどう並ぶかを整理します。
+              </p>
+              <MermaidDiagram
+                chart={`flowchart TB
+  subgraph prep [土台の知識]
+    O[IF全体像]
+    D[データ設計 DDIC・履歴]
+    F[汎用モジュール]
+  end
+  subgraph flow [処理の縦串]
+    E1[外部ファイル] --> E2[論理ファイル OPEN/READ]
+    E2 --> E3[SPLIT 分解・検証]
+    E3 --> E4[ENQUEUE ロック]
+    E4 --> E5[BAPI + RETURN]
+    E5 --> E6[COMMIT / ROLLBACK]
+    E6 --> E7[履歴テーブル更新]
+    E7 --> E8[DEQUEUE]
+    E8 --> E9[結果一覧レポート]
+  end
+  subgraph qual [品質の知識]
+    P[性能 SELECT最適化]
+    Q[可読性・設計思想]
+  end
+  prep --> flow
+  qual --> flow`}
+              />
+              <InfoPanel title="各レッスンとの対応" variant="reference">
+                <ul>
+                  <li>IF全体像 … <code>11-if-integration-overview</code></li>
+                  <li>データ設計 … <code>12-data-design</code></li>
+                  <li>汎用モジュール … <code>13-function-modules</code></li>
+                  <li>ファイル連携 … <code>14-files-jobs-and-batch</code></li>
+                  <li>BAPI・ロック … <code>15-document-posting</code></li>
+                  <li>性能 … <code>16-good-programming</code></li>
+                  <li>品質・実務 … 本章</li>
+                </ul>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                設計書を読むときは、この縦串に各処理がどこに当たるかを意識すると、
+                全体像が一度に掴めます。演習で手を動かすときも、この地図を手元に置いてください。
+              </Dialog>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="11-if-integration-overview"
+                  slide={1}
+                  label="IF全体像を復習"
+                  variant="back"
+                />
+                <LessonLinkButton
+                  courseSlug="abap-training"
+                  lessonFile="15-document-posting"
+                  slide={4}
+                  label="BAPI登録を復習"
+                  variant="back"
+                />
+              </div>
             </>
           ),
         },
@@ -381,17 +529,9 @@ lv_tax = lv_subtotal / 10.`}
                 丁寧な仕事は、未来の自分とチームへの贈り物です。
               </Callout>
               <Dialog speaker="teacher">
-                次の章では「速さ」と「直しやすさ」のバランス。
-                10年後も使える書き方。に踏み込みます。
-                ここまでの地図と習慣があれば、きっと乗り越えられます。自信を持って進みましょう。
+                知識の地図まで辿り着きました。設計書やコードを読むときは、
+                この縦串に処理を当てはめる習慣を続けてください。
               </Dialog>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="13-good-programming"
-                slide={4}
-                label="第13章: イベント・性能と保守性へ進む"
-                className="mb-4"
-              />
             </>
           ),
         },

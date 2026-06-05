@@ -48,10 +48,11 @@ function slugFromPath(filePath: string): string {
 }
 
 // カテゴリごとに独立した採番。明示的な num があればそれを優先する。
-// - レッスン: 0 始まりの番号（ファイル名と一致）
-// - コーステスト: "T1", "T2", …
-// - 追加コンテンツ: "A1", "A2", …
-// - 特別コンテンツ: "S1", "S2", …
+// - レッスン: 0 始まりの番号（ファイル名は 00-slug 形式）
+// - コーステスト: "T1", "T2", …（ファイル名は t1-slug 形式）
+// - 追加コンテンツ: "A1", "A2", …（ファイル名は a1-slug 形式）
+// - 特別コンテンツ: "S1", "S2", …（ファイル名は s1-slug 形式）
+// - ツール: "X1", …（ファイル名は x1-slug 形式）
 function mapLessonEntries(
   lessons: CourseJsonLesson[] | undefined,
   prefix = "",

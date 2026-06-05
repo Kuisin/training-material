@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -1918,7 +1918,7 @@ ENDIF.`}
               </Callout>
               <LessonLinkButton
                 courseSlug="abap-taining"
-                lessonFile="13-good-programming"
+                lessonFile="16-good-programming"
                 slide={3}
                 label="第13章: なぜ LOOP 内 SELECT が遅いか（詳しく）"
                 variant="back"

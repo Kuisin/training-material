@@ -10,7 +10,7 @@
     },
     {
       "file": "01-overview",
-      "title": "コース全体像 — 入力→取得→加工→出力と照会と登録",
+      "title": "コース全体像 — 照会基礎とIF登録の知識",
       "meta": "初学者 · 15分"
     },
     {
@@ -64,100 +64,119 @@
       "meta": "初学者 · 25分"
     },
     {
-      "file": "13-good-programming",
-      "title": "良いABAP — レポートイベント・性能と保守性",
-      "meta": "初学者 · 35分"
+      "file": "11-if-integration-overview",
+      "title": "IF連携の全体像 — 業務シナリオとシステム構成",
+      "meta": "初学者 · 20分"
     },
     {
-      "file": "11-document-posting",
+      "file": "12-data-design",
+      "title": "データ設計 — DDIC・アドオン・テーブル・DB更新",
+      "meta": "初学者 · 25分"
+    },
+    {
+      "file": "13-function-modules",
+      "title": "汎用モジュール — 再利用設計と部品の確認",
+      "meta": "初学者 · 25分"
+    },
+    {
+      "file": "14-files-jobs-and-batch",
+      "title": "ファイル連携 — 論理ファイル・読込・フォーマット設計",
+      "meta": "初学者 · 25分"
+    },
+    {
+      "file": "15-document-posting",
       "title": "会計伝票登録 — BAPI・ロック・検証から登録までのフロー",
       "meta": "初学者 · 30分"
     },
     {
-      "file": "12-real-world",
-      "title": "実務の進め方 — 仕様変更・影響分析・回帰テスト・保守の習慣",
-      "meta": "初学者 · 20分"
+      "file": "16-good-programming",
+      "title": "良いABAP — 性能設計と実行時間分析",
+      "meta": "初学者 · 30分"
+    },
+    {
+      "file": "17-real-world",
+      "title": "実務と品質 — 可読性・設計思想・知識の地図",
+      "meta": "初学者 · 30分"
     }
   ],
   "courseTest": [
     {
-      "file": "16-final-assessment",
+      "file": "t1-final-assessment",
       "title": "総仕上げ — レッスン別確認テスト",
       "meta": "初学者 · 60分"
     }
   ],
   "additionalContent": [
     {
-      "file": "14-sap-development-tools",
+      "file": "a1-sap-development-tools",
       "title": "SAP開発ツール — SE38・デバッグ・履歴確認・トランザクション",
       "meta": "初学者 · 35分"
     },
     {
-      "file": "15-files-jobs-and-batch",
-      "title": "ファイル連携とバッチ — 論理ファイル・ジョブ・BDC",
-      "meta": "初学者 · 25分"
-    },
-    {
-      "file": "17-frequently-used-tables",
+      "file": "a2-frequently-used-tables",
       "title": "よく使うテーブルと項目（列）早見表 — BKPF・BSEG・ACDOCAほか",
       "meta": "初学者 · 30分"
     },
     {
-      "file": "18-divide-and-conquer",
+      "file": "a3-divide-and-conquer",
       "title": "分割統治（ディバイド・アンド・コンカー）— 大きな問題を小さく分けて解く",
       "meta": "初学者 · 15分"
     },
     {
-      "file": "19-file-output",
+      "file": "a4-file-output",
       "title": "ファイル出力 — PCへのダウンロードとデータ整形",
       "meta": "初学者 · 20分"
     },
     {
-      "file": "20-how-to-debug-program",
+      "file": "a5-how-to-debug-program",
       "title": "プログラムの直し方（デバッグ）— 非エンジニア向けの手順とよくあるエラー",
       "meta": "初学者 · 25分"
     },
     {
-      "file": "21-oop-class-method",
+      "file": "a6-oop-class-method",
       "title": "オブジェクト指向とは — 車のたとえで学ぶ",
       "meta": "初学者 · 30分"
     }
   ],
   "toolContent": [
-    { "file": "95-table-sandbox", "title": "内部テーブルSandbox — テーブルを定義してコードで書き込みを試す", "meta": "ツール · いつでも" }
+    {
+      "file": "x1-table-sandbox",
+      "title": "内部テーブルSandbox — テーブルを定義してコードで書き込みを試す",
+      "meta": "ツール · いつでも"
+    }
   ],
   "specialContent": [
     {
-      "file": "92-exercise-journal-ledger",
+      "file": "s1-exercise-journal-ledger",
       "title": "特別演習① — 仕訳日記帳プログラムを作る",
       "meta": "特別 · 45分"
     },
     {
-      "file": "93-exercise-journal-ledger-detail",
+      "file": "s2-exercise-journal-ledger-detail",
       "title": "特別演習② — 明細・金額つき仕訳日記帳を作る",
       "meta": "特別 · 60分"
     },
     {
-      "file": "94-exercise-journal-ledger-control-break",
+      "file": "s3-exercise-journal-ledger-control-break",
       "title": "特別演習③ — 伝票見出しをまとめる",
       "meta": "特別 · 45分"
     },
     {
-      "file": "95-exercise-journal-ledger-modularization",
+      "file": "s4-exercise-journal-ledger-modularization",
       "title": "特別演習④ Part A — プログラムの構造化（FORM/PERFORM）",
       "meta": "特別 · 25分"
     },
     {
-      "file": "96-exercise-journal-ledger-download",
+      "file": "s5-exercise-journal-ledger-download",
       "title": "特別演習④ Part B — GUIステータスとボタン設定",
       "meta": "特別 · 25分"
     },
     {
-      "file": "97-exercise-journal-ledger-screen-check",
+      "file": "s6-exercise-journal-ledger-screen-check",
       "title": "特別演習④ Part C — 選択画面の初期化・入力チェックと会社マスタ拡張"
     },
     {
-      "file": "98-exercise-journal-ledger-function-module",
+      "file": "s7-exercise-journal-ledger-function-module",
       "title": "特別演習④ Part D — Excelダウンロードと汎用モジュール",
       "meta": "特別 · 45分"
     }

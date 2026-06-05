@@ -31,7 +31,7 @@ function ReferenceLinks() {
     <div className="mt-4 flex flex-wrap justify-end gap-2">
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="96-exercise-journal-ledger-download"
+        lessonFile="s5-exercise-journal-ledger-download"
         slide={6}
         label="Part B: 完成コード（create_report_4）"
         variant="back"
@@ -45,14 +45,14 @@ function ReferenceLinks() {
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="11-document-posting"
+        lessonFile="15-document-posting"
         slide={8}
         label="第11章: イベント駆動処理"
         variant="back"
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="98-exercise-journal-ledger-function-module"
+        lessonFile="s7-exercise-journal-ledger-function-module"
         slide={1}
         label="Part D: Excelダウンロード（次のステップ）"
       />
@@ -65,7 +65,7 @@ export default function ExerciseJournalLedgerScreenCheckLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "97-exercise-journal-ledger-screen-check",
+        "s6-exercise-journal-ledger-screen-check",
         lessonMeta.title
       )}
       slides={[

@@ -1504,7 +1504,7 @@ function ReferenceLinks() {
     <div className="mt-4 flex flex-wrap justify-end gap-2">
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="93-exercise-journal-ledger-detail"
+        lessonFile="s2-exercise-journal-ledger-detail"
         slide={15}
         label="演習②: 完成コード（土台）"
         variant="back"
@@ -1532,7 +1532,7 @@ export default function ExerciseJournalLedgerControlBreakLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "94-exercise-journal-ledger-control-break",
+        "s3-exercise-journal-ledger-control-break",
         lessonMeta.title
       )}
       slides={[

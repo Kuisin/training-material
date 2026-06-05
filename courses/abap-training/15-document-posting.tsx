@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function DocumentPostingLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "11-document-posting", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "15-document-posting", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -134,21 +134,21 @@ export default function DocumentPostingLesson() {
                 取って終わりではなく、確定（コミット）と記録までが1セットなんですね。途中で止まると中途半端な登録になりそう。
               </Dialog>
               <Callout variant="tip">
-                第15章では「ファイルをどう読むか」、履歴用テーブルと検証用の汎用モジュールは本章で扱い、開発ツールの全体像は第14章を参照します。
+                ファイル読込の知識は<strong>ファイル連携</strong>の章、データ設計・汎用モジュールは前の章で学びました。
                 この章では<strong>登録の責任と順序</strong>に集中します。
               </Callout>
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="15-files-jobs-and-batch"
+                  lessonFile="14-files-jobs-and-batch"
                   slide={5}
-                  label="第15章: ファイル読込の詳細へ"
+                  label="ファイル連携: 読込の詳細へ"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
-                  slide={2}
-                  label="第14章: 開発ツールへ"
+                  lessonFile="12-data-design"
+                  label="データ設計を復習する"
+                  variant="back"
                 />
               </div>
             </>
@@ -305,6 +305,125 @@ ENDIF.`}
                 実務で特に押さえる3点は、<strong>BAPI とコミットのセット</strong>、
                 <strong><code>RETURN</code> のエラー確認</strong>、<strong>ロック（<code>ENQUEUE</code>）</strong>です。
               </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "BAPIパラメータ構造",
+          plainText:
+            "BAPIパラメータ構造 — ヘッダと明細\n会計伝票はヘッダ（documentheader）と明細テーブル（accountgl・tax・amount）の組み合わせ。FIの伝票見出し＋行の構造と同じ。",
+          content: (
+            <>
+              <h2>BAPI のパラメータ構造 — ヘッダと明細</h2>
+              <p>
+                <code>BAPI_ACC_DOCUMENT_POST</code> には、会計伝票の<strong>見出し（ヘッダ）</strong>と
+                <strong>行（明細）</strong>を別々に渡します。第2章で学んだ BKPF/BSEG のイメージと同じです。
+              </p>
+              <InfoPanel title="主なパラメータ（会計伝票）" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>パラメータ</th>
+                      <th>役割</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>documentheader</code></td>
+                      <td>伝票ヘッダ（会社コード・伝票タイプ・転記日付など）</td>
+                    </tr>
+                    <tr>
+                      <td><code>accountgl</code></td>
+                      <td>GL明細（勘定・金額・税コードなど）</td>
+                    </tr>
+                    <tr>
+                      <td><code>accounttax</code></td>
+                      <td>税明細（必要な場合）</td>
+                    </tr>
+                    <tr>
+                      <td><code>currencyamount</code></td>
+                      <td>通貨・金額（必要な場合）</td>
+                    </tr>
+                    <tr>
+                      <td><code>return</code></td>
+                      <td>メッセージ（エラー判定用）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <CodeBlock
+                language="ABAP"
+                code={`" ヘッダ（1件）と明細（複数行）を渡すイメージ
+ls_header-doc_type = 'SA'.
+ls_header-bukrs    = '1000'.
+ls_header-budat    = sy-datum.
+
+APPEND VALUE #( itemno_acc = '0000000001'
+                gl_account = '0000100000'
+                amt_doccur = '1000' ) TO lt_gl.
+
+CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
+  EXPORTING documentheader = ls_header
+  TABLES    accountgl      = lt_gl
+            return           = lt_return.`}
+              />
+              <Dialog speaker="a">
+                ファイルの1行から <code>ls_header</code> と <code>lt_gl</code> を組み立てて BAPI に渡す、
+                という流れが設計書に書いてありそうですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                設計書を読むときは、「どのファイル項目がヘッダのどのフィールドか」「明細は何行になるか」を
+                対応表で確認するのが近道です。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "BDCとBAPIの違い",
+          plainText:
+            "BDCとBAPIの違い\nBDC=画面操作の自動再生。BAPI=公式API。新規はBAPI優先。性能vs汎用性。詳細はファイル連携の章でBDC概念を参照。",
+          content: (
+            <>
+              <h2>BDC と BAPI の違い</h2>
+              <InfoPanel title="ざっくり比較" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>方式</th>
+                      <th>考え方</th>
+                      <th>位置づけ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>BAPI</strong></td>
+                      <td>SAP が用意した公式 API</td>
+                      <td>新規連携では<strong>優先</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>BDC</strong></td>
+                      <td>画面（FB01 等）操作をデータ化して再生</td>
+                      <td>レガシー保守・画面踏襲が必要な場合</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="b">
+                性能と汎用性、どちらが大事なんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                BAPI は標準チェックと拡張が通り、保守しやすいのが強みです。
+                BDC は画面に依存するぶん壊れやすいこともありますが、既存資産では残っていることがあります。
+                設計書に「BAPI」と書いてあれば、まず BAPI の型で読めば十分です。
+              </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="14-files-jobs-and-batch"
+                slide={8}
+                label="ファイル連携: BDC の概念へ"
+                variant="back"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -572,7 +691,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
               <InfoPanel title="各段の担当（章との対応）" variant="reference">
                 <ul>
                   <li>
-                    <strong>①②</strong> … 第15章（<code>OPEN DATASET</code>・<code>SPLIT</code> など）
+                    <strong>①②</strong> … ファイル連携の章（<code>OPEN DATASET</code>・<code>SPLIT</code> など）
                   </li>
                   <li>
                     <strong>③〜⑦</strong> … 本章（BAPI・ロック・確定）
@@ -590,9 +709,9 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="15-files-jobs-and-batch"
+                lessonFile="14-files-jobs-and-batch"
                 slide={5}
-                label="第15章: ファイル読込（①②）の詳細へ"
+                label="ファイル連携: 読込（①②）の詳細へ"
                 className="mb-4"
               />
             </>
@@ -818,361 +937,11 @@ ENDLOOP.`}
               <Dialog speaker="closing">
                 登録は責任が重いぶん、守りの型がしっかり用意されています。型に乗れば安全に進めます。
               </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "フラグ制御",
-          plainText:
-            "フラグ制御（ロジック制御）\nフラグ＝状態を保持する変数（ON/OFF）。SY-SUBRCは上書きされるので、後工程で判定したいときに使う。\n基本：G_FLG = C_ON（ON）/ CLEAR G_FLG（OFF）/ IF G_FLG = C_ON.\n活用：改ページ判定・エラー発生有無・複雑なIFネストの回避。",
-          content: (
-            <>
-              <h2>フラグ制御（ロジック制御）</h2>
-              <h3>フラグとは</h3>
-              <p>状態を保持する変数（ON/OFF）です。</p>
-              <h3>使用理由</h3>
-              <ul>
-                <li>
-                  <code>SY-SUBRC</code> は次の処理で上書きされる
-                </li>
-                <li>ループの後や別の処理のあとで、結果を判定したい</li>
-              </ul>
-              <Callout variant="note">
-                本章の BAPI 判定では <code>RETURN</code> テーブルを見ますが、ループ内の「エラーが1件でもあったか」などは
-                <strong>フラグ</strong>で覚えるのが定石です。
-              </Callout>
-              <h3>基本パターン</h3>
-              <CodeBlock
-                language="ABAP"
-                code={`DATA: g_flg TYPE c.
-
-CONSTANTS: c_on TYPE c VALUE 'X'.
-
-* ON
-g_flg = c_on.
-
-* OFF
-CLEAR g_flg.
-
-* 判定
-IF g_flg = c_on.
-ENDIF.`}
-              />
-              <h3>活用例</h3>
-              <ul>
-                <li>改ページ判定</li>
-                <li>エラー発生有無</li>
-                <li>複雑な <code>IF</code> ネストの回避</li>
-              </ul>
-            </>
-          ),
-        },
-        {
-          title: "改ページ制御と帳票設計",
-          plainText:
-            "改ページ制御と帳票設計\n課題：改ページ後にヘッダが消える。\n対応：フラグ＋イベント（TOP-OF-PAGE など）で制御する。",
-          content: (
-            <>
-              <h2>改ページ制御と帳票設計</h2>
-              <h3>課題</h3>
-              <p>改ページ後にヘッダが消える問題があります。</p>
-              <h3>対応方法</h3>
-              <p>
-                <strong>フラグ</strong> ＋ <strong>イベント</strong>（後述の <code>TOP-OF-PAGE</code> など）で制御します。
-                改ページのタイミングをフラグで覚え、各ページ先頭のイベントでヘッダを再出力するのが基本です。
-              </p>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="07-output-report"
-                slide={4}
-                label="第7章: START-OF-SELECTION / TOP-OF-PAGE を復習する"
-                variant="back"
-                className="mb-4"
-              />
-            </>
-          ),
-        },
-        {
-          title: "プログラム構造化",
-          plainText:
-            "プログラム構造化（演習4の核心）\nなぜ：可読性・保守性・再利用性の向上。\nサブルーチン：FORM f_name. / PERFORM f_name.\n設計原則：処理単位ごとに分割、同じ処理はまとめる、上から読むだけで流れがわかる構造にする。",
-          content: (
-            <>
-              <h2>プログラム構造化（演習4の核心）</h2>
-              <h3>なぜ構造化するか</h3>
-              <ul>
-                <li>可読性向上</li>
-                <li>保守性向上</li>
-                <li>再利用性向上</li>
-              </ul>
-              <Dialog speaker="a">
-                本章の登録コードでも <code>PERFORM build_bapi_data</code> や <code>PERFORM log_result</code> を呼んでいますね。
-                イベント本体を短く保つための分割です。
-              </Dialog>
-              <h3>サブルーチン</h3>
-              <p>定義：</p>
-              <CodeBlock
-                language="ABAP"
-                code={`FORM f_name.
-ENDFORM.`}
-              />
-              <p>呼び出し：</p>
-              <CodeBlock language="ABAP" code={`PERFORM f_name.`} />
-              <h3>設計原則</h3>
-              <ul>
-                <li>処理単位ごとに分割</li>
-                <li>同じ処理はまとめる</li>
-                <li>上から読むだけで流れがわかる構造にする</li>
-              </ul>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="10-modularization"
-                slide={1}
-                label="第10章: FORM/PERFORM の詳細へ"
-                className="mb-4"
-              />
-            </>
-          ),
-        },
-        {
-          title: "パラメータ受け渡し",
-          plainText:
-            "パラメータ受け渡し\nUSING＝入力、CHANGING＝入出力。\nVALUEあり→値渡し（安全）、VALUEなし→参照渡し（注意）。",
-          content: (
-            <>
-              <h2>パラメータ受け渡し</h2>
-              <h3>USING / CHANGING</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>種類</th>
-                    <th>意味</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <code>USING</code>
-                    </td>
-                    <td>入力</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>CHANGING</code>
-                    </td>
-                    <td>入出力</td>
-                  </tr>
-                </tbody>
-              </table>
-              <h3>VALUE の有無</h3>
-              <ul>
-                <li>
-                  <code>VALUE</code> あり → 値渡し（安全）
-                </li>
-                <li>
-                  <code>VALUE</code> なし → 参照渡し（注意）
-                </li>
-              </ul>
-              <CodeBlock
-                language="ABAP"
-                code={`" 本章の登録コードでも USING / CHANGING を使う
-PERFORM build_bapi_data USING ls_row
-  CHANGING ls_header lt_gl lt_return.
-
-PERFORM check_bapi_return USING lt_return CHANGING lv_error.`}
-              />
-            </>
-          ),
-        },
-        {
-          title: "イベント駆動処理",
-          plainText:
-            "イベント駆動処理\n特定のタイミングで処理が実行される。\n主なイベント：INITIALIZATION（起動時）/ AT SELECTION-SCREEN（入力チェック）/ START-OF-SELECTION（メイン）/ END-OF-SELECTION（後処理）/ TOP-OF-PAGE（ヘッダ）/ AT USER-COMMAND（ボタン押下）。",
-          content: (
-            <>
-              <h2>イベント駆動処理</h2>
-              <h3>イベント概念</h3>
-              <p>特定のタイミングで処理が実行されます。</p>
-              <h3>主なイベント</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>イベント</th>
-                    <th>タイミング</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <code>INITIALIZATION</code>
-                    </td>
-                    <td>起動時</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>AT SELECTION-SCREEN</code>
-                    </td>
-                    <td>入力チェック</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>START-OF-SELECTION</code>
-                    </td>
-                    <td>メイン処理</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>END-OF-SELECTION</code>
-                    </td>
-                    <td>後処理</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>TOP-OF-PAGE</code>
-                    </td>
-                    <td>ヘッダ表示</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <code>AT USER-COMMAND</code>
-                    </td>
-                    <td>ボタン押下</td>
-                  </tr>
-                </tbody>
-              </table>
-              <Dialog speaker="teacher">
-                イベントブロックは「いつ動くか」を表す目次に留め、中身は <code>PERFORM</code> で
-                <code>FORM</code> に追い出すと、上から読むだけで全体の流れが把握しやすくなります。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "GUI操作とユーザ操作",
-          plainText:
-            "GUI操作とユーザ操作\nGUIステータス＝ボタン・メニューの定義。\nSET TITLEBAR / SET PF-STATUS で画面を整える。\nSY-UCOMM で押されたボタンを判定する。",
-          content: (
-            <>
-              <h2>GUI操作とユーザ操作</h2>
-              <h3>GUIステータス</h3>
-              <p>ボタン・メニューの定義です。</p>
-              <h3>主要命令</h3>
-              <CodeBlock
-                language="ABAP"
-                code={`SET TITLEBAR 'TITLE'.
-SET PF-STATUS 'STATUS'.`}
-              />
-              <h3>ユーザ操作取得</h3>
-              <CodeBlock
-                language="ABAP"
-                code={`IF sy-ucomm = 'DL'.
-ENDIF.`}
-              />
-              <Callout variant="tip">
-                ファイル出力（ダウンロード）の詳細は追加コンテンツ「ファイル出力」を参照してください。
-              </Callout>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="19-file-output"
-                slide={1}
-                label="ファイル出力: PCへのダウンロードへ"
-                className="mb-4"
-              />
-            </>
-          ),
-        },
-        {
-          title: "典型的な処理フロー",
-          plainText:
-            "典型的な処理フロー（全体像）\nINITIALIZATION→選択画面→AT SELECTION-SCREEN→START-OF-SELECTION（取得・整形）→TOP-OF-PAGE→LOOP（AT NEW・明細）→AT USER-COMMAND→END-OF-SELECTION。",
-          content: (
-            <>
-              <h2>典型的な処理フロー（全体像）</h2>
-              <MermaidDiagram
-                chart={`flowchart TD
-  I[INITIALIZATION] --> S[選択画面入力]
-  S --> A[AT SELECTION-SCREEN チェック]
-  A --> M[START-OF-SELECTION]
-  M --> G[データ取得]
-  G --> T[内部テーブル整形]
-  T --> H[TOP-OF-PAGE ヘッダ出力]
-  H --> L[LOOP]
-  L --> N[AT NEW サプレス]
-  N --> D[明細出力]
-  D --> U[AT USER-COMMAND ダウンロード]
-  U --> E[END-OF-SELECTION]`}
-              />
-              <Dialog speaker="teacher">
-                照会レポート（仕訳日記帳）と登録レポート（本章）では後半が異なりますが、
-                <strong>前半（取得・整形・出力の型）</strong>は共通の土台です。
-              </Dialog>
-            </>
-          ),
-        },
-        {
-          title: "重要ポイントとつまずき",
-          plainText:
-            "事前に理解しておくべき重要ポイント\n最重要：内部テーブル+LOOP / SORTとAT NEW / サプレス / フラグ制御。\n重要：サブルーチン設計 / イベント処理 / GUI制御。\nよくあるつまずき：SORT忘れ / フラグ初期化忘れ / サブルーチンの責務が曖昧 / GUIステータス未設定。",
-          content: (
-            <>
-              <h2>事前に理解しておくべき重要ポイント</h2>
-              <h3>最重要（必須）</h3>
-              <ul>
-                <li>
-                  内部テーブル ＋ <code>LOOP</code>
-                </li>
-                <li>
-                  <code>SORT</code> と <code>AT NEW</code> の関係
-                </li>
-                <li>サプレス処理の意味</li>
-                <li>フラグ制御</li>
-              </ul>
-              <h3>重要</h3>
-              <ul>
-                <li>サブルーチン設計</li>
-                <li>イベント処理</li>
-                <li>GUI制御</li>
-              </ul>
-              <h3>余裕があれば</h3>
-              <ul>
-                <li>
-                  ファイル出力（ダウンロード）… 追加コンテンツ「ファイル出力」
-                </li>
-              </ul>
-              <h2>よくあるつまずき</h2>
-              <ul>
-                <li>
-                  <code>SORT</code> していない → <code>AT NEW</code> が動かない
-                </li>
-                <li>フラグ初期化忘れ</li>
-                <li>サブルーチンの責務が曖昧</li>
-                <li>GUIステータス未設定</li>
-              </ul>
-              <InfoPanel title="関連章へのリンク" variant="reference">
-                <ul>
-                  <li>
-                    サプレス・<code>AT NEW</code> … 第9章
-                  </li>
-                  <li>
-                    フラグ制御 … 第9章（応用）
-                  </li>
-                  <li>
-                    <code>FORM</code> / <code>PERFORM</code> … 第10章
-                  </li>
-                  <li>
-                    BAPI・ロック・確定 … 本章
-                  </li>
-                  <li>
-                    ファイル出力（ダウンロード）… 追加コンテンツ「ファイル出力」
-                  </li>
-                </ul>
-              </InfoPanel>
-              <LessonLinkButton
-                courseSlug="abap-training"
-                lessonFile="19-file-output"
-                slide={1}
-                label="ファイル出力: PCへのダウンロードへ"
-                className="mb-4"
+                lessonFile="16-good-programming"
+                label="次へ: 性能設計と実行時間分析"
+                className="mb-4 mt-4"
               />
             </>
           ),

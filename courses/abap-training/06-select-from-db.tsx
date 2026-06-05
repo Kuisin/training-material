@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -453,7 +453,7 @@ ENDIF.`}
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="14-sap-development-tools"
+                lessonFile="a1-sap-development-tools"
                 slide={6}
                 label="もっと知りたい？　第14章（デバッグ詳細）で理解を深める"
                 className="mb-4"

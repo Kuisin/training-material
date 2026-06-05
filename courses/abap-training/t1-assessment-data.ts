@@ -647,8 +647,8 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
   },
   {
     num: "12",
-    title: "実務の進め方",
-    summary: "仕様変更時の影響分析とテストの流れを確認します。",
+    title: "実務と品質 — 可読性・設計思想",
+    summary: "影響分析・回帰テスト・可読性・知識の地図を確認します。",
     arrangeKind: "flow",
     codeInstruction: "仕様変更に対応する流れを組み立ててください",
     codeLines: [
@@ -695,8 +695,8 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
   },
   {
     num: "13",
-    title: "良いABAP — レポートイベント・性能と保守性",
-    summary: "レポートのイベント駆動と、SELECT・内部テーブルの性能、可読性・保守性の両立を確認します。",
+    title: "良いABAP — 性能設計と実行時間分析",
+    summary: "SELECT最適化・内部テーブル技法・SE30/SAT・改善サイクルを確認します。",
     arrangeKind: "code",
     codeInstruction: "大量データを扱うときの良い取得パターンを組み立ててください",
     codeLines: [
@@ -724,7 +724,7 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
       },
       {
         level: "intermediate",
-        question: "性能・保守性の観点で「良い ABAP」になりやすい選択は？（複数選択）",
+        question: "性能改善の観点で「良い ABAP」になりやすい選択は？（複数選択）",
         options: [
           "必要な列だけ SELECT する",
           "LOOP 内で毎回 SELECT する（ネステッド SELECT）",
@@ -746,6 +746,58 @@ export const ASSESSMENTS: LessonAssessmentData[] = [
         answers: [0, 1, 3],
         explanation:
           "キー・DB アクセス回数・計測に基づく改善が重要です。SELECT * は性能・可読性の両面で避けます。",
+      },
+    ],
+  },
+  {
+    num: "if",
+    title: "IF連携の知識横断",
+    summary: "全体像・データ設計・ファイル連携・BAPI登録の型を横断して確認します。",
+    arrangeKind: "flow",
+    codeInstruction: "会計伝票登録IFの処理順が正しい並びになるよう組み立ててください",
+    codeLines: [
+      "論理ファイルから OPEN/READ で行を取得する。",
+      "SPLIT で項目に分解し、入力値を検証する。",
+      "ENQUEUE で排他ロックを取得する。",
+      "BAPI で会計伝票を登録し、RETURN を確認する。",
+      "成功時のみ COMMIT し、履歴テーブルに結果を記録する。",
+      "DEQUEUE でロックを解放する。",
+    ],
+    quizzes: [
+      {
+        level: "basic",
+        question: "履歴テーブルを残す主な理由として適切なのは？",
+        options: [
+          "再実行時の重複防止と結果の追跡",
+          "画面の見た目を整えるため",
+          "SELECT の速度を上げるため",
+        ],
+        answer: 0,
+        explanation: "履歴は取込・登録の成否を追跡し、再実行時の重複登録を防ぐために設計されます。",
+      },
+      {
+        level: "intermediate",
+        question: "会計伝票登録IFの知識として正しいものは？（複数選択）",
+        options: [
+          "伝票本体は BAPI 経由で登録する",
+          "論理ファイル名は環境ごとに FILE 設定で物理パスへ解決する",
+          "RETURN にエラーがあるのに COMMIT してよい",
+          "ロック取得後は必ず DEQUEUE で解放する",
+        ],
+        answers: [0, 1, 3],
+        explanation: "BAPI・論理ファイル・ロック解放は登録IFの基本です。RETURN エラー時は COMMIT しません。",
+      },
+      {
+        level: "advanced",
+        question: "IF設計書を読むときに確認すべき観点は？（複数選択）",
+        options: [
+          "ファイルの区切り文字・文字コード・項目順",
+          "履歴テーブルの主キーと記録タイミング",
+          "BAPI パラメータ構造と RETURN の判定方法",
+          "演習番号と PowerPoint のページ番号",
+        ],
+        answers: [0, 1, 2],
+        explanation: "設計書ではファイル形式・履歴・BAPI の型を読み取れることが重要です。演習番号は本コースの対象外です。",
       },
     ],
   },

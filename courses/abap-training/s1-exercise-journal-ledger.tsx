@@ -52,7 +52,7 @@ export default function ExerciseJournalLedgerLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "92-exercise-journal-ledger",
+        "s1-exercise-journal-ledger",
         lessonMeta.title
       )}
       slides={[
@@ -968,7 +968,7 @@ END-OF-SELECTION.
                 図の右上「全画面」で拡大表示できます。明細（BSEG）や名称テーブルまで含む関連図は{" "}
                 <LessonLinkButton
                   courseSlug="abap-taining"
-                  lessonFile="93-exercise-journal-ledger-detail"
+                  lessonFile="s2-exercise-journal-ledger-detail"
                   slide={17}
                   label="特別演習②: テーブル関連図"
                   variant="back"

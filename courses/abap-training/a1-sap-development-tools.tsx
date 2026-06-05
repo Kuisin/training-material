@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function SapDevelopmentToolsLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "14-sap-development-tools", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a1-sap-development-tools", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -715,7 +715,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="11-document-posting"
+                  lessonFile="15-document-posting"
                   slide={4}
                   label="第11章: 登録フローを復習する"
                   variant="back"
@@ -952,6 +952,16 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 マスタのメンテナンスは <code>SM30</code>（テーブル更新ダイアログ）で行うことがありますが、
                 連携プログラムからは <code>INSERT</code> 等で更新するのが一般的です。
               </p>
+              <Callout variant="note">
+                DDIC の概念（ドメイン・履歴テーブル・トランザクション）は本編レッスンで詳しく学びます。本章は<strong>SE11 での操作補足</strong>です。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="12-data-design"
+                slide={1}
+                label="本編: データ設計の知識へ"
+                className="mb-4"
+              />
             </>
           ),
         },
@@ -993,7 +1003,7 @@ ROLLBACK WORK.`}
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="11-document-posting"
+                lessonFile="15-document-posting"
                 slide={6}
                 label="第11章: BAPI 登録フローを復習する"
                 variant="back"
@@ -1071,6 +1081,16 @@ IF sy-subrc <> 0.
 ENDIF.`}
               />
               <p>モジュール内部では、異常時に <code>RAISE</code> やメッセージ＋<code>RAISING</code> で呼び出し元に知らせます。</p>
+              <Callout variant="note">
+                FM の IMPORT/EXPORT/例外・SE37 での確認の考え方は本編レッスンで学びます。本章は<strong>SE37 での操作補足</strong>です。
+              </Callout>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="13-function-modules"
+                slide={1}
+                label="本編: 汎用モジュールの知識へ"
+                className="mb-4"
+              />
             </>
           ),
         },

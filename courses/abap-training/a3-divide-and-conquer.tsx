@@ -20,7 +20,7 @@ export const lessonMeta = {
 export default function DivideAndConquerLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "18-divide-and-conquer", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a3-divide-and-conquer", lessonMeta.title)}
       slides={[
         {
           title: "概要",

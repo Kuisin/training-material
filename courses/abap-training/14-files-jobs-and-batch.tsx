@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -20,7 +20,7 @@ export const lessonMeta = {
 export default function FilesJobsAndBatchLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "15-files-jobs-and-batch", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "14-files-jobs-and-batch", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -155,7 +155,7 @@ CALL FUNCTION 'FILE_GET_NAME'
               </h2>
               <p>
                 論理ファイル名から物理パスを得たあと、ABAP は次の<strong>3ステップ</strong>で1行ずつ読みます。
-                第11章の「① ファイル読込」に相当する処理です。
+                会計伝票登録 IF の「ファイル読込」に相当する処理です。
               </p>
               <MermaidDiagram
                 chart={`flowchart LR
@@ -184,7 +184,7 @@ DO.
     EXIT.  " ファイル終端
   ENDIF.
 
-  " ここで SPLIT や検証・登録へ（第11章）
+  " ここで SPLIT や検証・登録へ
 
 ENDDO.
 
@@ -196,9 +196,9 @@ CLOSE DATASET lv_path.`}
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="11-document-posting"
+                lessonFile="15-document-posting"
                 slide={10}
-                label="第11章: 登録フロー（③以降）へ進む"
+                label="次へ: 会計伝票登録（BAPI・ロック）"
                 className="mb-4"
               />
             </>
@@ -213,7 +213,7 @@ CLOSE DATASET lv_path.`}
               <h2>行データの分解（<code>SPLIT</code>）</h2>
               <p>
                 外部ファイルの1行は、しばしば<strong>区切り文字</strong>で連結された文字列です。
-                <code>SPLIT</code> で項目に分け、検証や BAPI 用データ作成（第11章 ③）へ渡します。
+                <code>SPLIT</code> で項目に分け、検証や BAPI 用データ作成へ渡します。
               </p>
               <CodeBlock
                 language="ABAP"
@@ -227,6 +227,59 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
               />
               <Callout variant="tip">
                 区切り文字・文字コード・ヘッダ行の有無は<strong>設計書</strong>で確認します。
+              </Callout>
+            </>
+          ),
+        },
+        {
+          title: "ファイルフォーマット設計",
+          plainText:
+            "ファイルフォーマット設計 — 設計書の読み方\n連携ファイルは設計書で形式が定義される。区切り文字（カンマ・タブ）・文字コード（UTF-8等）・ヘッダ行の有無・項目順・固定長か可変長かを確認する。\n1行の項目数とABAP側の受け皿（構造体・変数）が一致しているかが読み取りの要点。",
+          content: (
+            <>
+              <h2>ファイルフォーマット設計 — 設計書の読み方</h2>
+              <p>
+                外部システムから渡されるファイルは、<strong>設計書のレイアウト定義</strong>に従います。
+                プログラムを書く前に、次の項目が読み取れるかを確認します。
+              </p>
+              <InfoPanel title="設計書で確認する項目" variant="reference">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>項目</th>
+                      <th>確認内容</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>区切り文字</td>
+                      <td>カンマ・タブ・パイプなど（<code>SPLIT</code> の <code>AT</code> 句に対応）</td>
+                    </tr>
+                    <tr>
+                      <td>文字コード</td>
+                      <td>UTF-8 / Shift_JIS など（<code>OPEN DATASET</code> の <code>ENCODING</code>）</td>
+                    </tr>
+                    <tr>
+                      <td>ヘッダ行</td>
+                      <td>1行目をスキップするか、データ行から読むか</td>
+                    </tr>
+                    <tr>
+                      <td>項目順・桁数</td>
+                      <td>固定長か可変長か、何列目が何の業務項目か</td>
+                    </tr>
+                    <tr>
+                      <td>日付・金額の形式</td>
+                      <td><code>YYYYMMDD</code> か <code>YYYY-MM-DD</code> か、小数点の扱い</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </InfoPanel>
+              <Dialog speaker="teacher">
+                設計書の表を見て「1行を <code>SPLIT</code> したあと、何列目をどの変数に入れるか」が説明できる状態が目標です。
+                形式が曖昧なまま読み込むと、検証や BAPI 登録の段階で初めて不整合が出ます。
+              </Dialog>
+              <Callout variant="note">
+                ジョブや BDC の操作手順の細部は、手を動かす演習は別資料で扱います。ここでは<strong>設計の型が読める</strong>ことを重視します。
               </Callout>
             </>
           ),
@@ -260,7 +313,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
   SRV -->|AL11 参照| OPS[運用・調査]`}
               />
               <Dialog speaker="teacher">
-                第11章の「外部ファイル → 検証 → 登録」フローでは、取込<strong>前</strong>にサーバへファイルを置く工程があります。
+                ファイル連携の「外部ファイル → 検証 → 登録」フローでは、取込<strong>前</strong>にサーバへファイルを置く工程があります。
                 その置き場所を <code>AL11</code> で確認する、というつながりです。
               </Dialog>
             </>
@@ -361,7 +414,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
                 </table>
               </InfoPanel>
               <Callout variant="warning">
-                新規開発では <strong>BAPI</strong>（第11章）が優先されることが多いです。BDC はレガシー保守・標準画面をそのまま踏む必要がある場面で登場します。
+                新規開発では <strong>BAPI</strong>（会計伝票登録の章）が優先されることが多いです。BDC はレガシー保守・標準画面をそのまま踏む必要がある場面で登場します。
               </Callout>
             </>
           ),
@@ -401,7 +454,7 @@ ENDIF.`}
         {
           title: "実務でのつながり",
           plainText:
-            "実務でのつながり\nファイル連携（請求・伝票データ）→ 論理ファイル・ジョブ。画面登録の自動化 → BDC または BAPI。夜間処理 → SM36/SM37。\n第11章の登録フローと組み合わせて理解する。",
+            "実務でのつながり\nファイル連携（請求・伝票データ）→ 論理ファイル・ジョブ。画面登録の自動化 → BDC または BAPI。夜間処理 → SM36/SM37。\n会計伝票登録の知識と組み合わせて理解する。",
           content: (
             <>
               <h2>実務でのつながり</h2>
@@ -414,34 +467,34 @@ ENDIF.`}
                   <strong>大量・夜間処理</strong> … バックグラウンドジョブ（<code>SM36</code> / <code>SM37</code>）
                 </li>
                 <li>
-                  <strong>画面経由の登録</strong> … 可能なら BAPI（第11章）、必要に応じて BDC
+                  <strong>画面経由の登録</strong> … 可能なら BAPI、必要に応じて BDC
                 </li>
               </ul>
               <MermaidDiagram
                 chart={`flowchart TB
-  subgraph file [ファイル連携 第15章]
+  subgraph file [ファイル連携]
     F1[外部ファイル] --> F2[サーバ配置 AL11/CG3Z]
     F2 --> F3[OPEN/READ/CLOSE]
     F3 --> F4[SPLIT 分解]
   end
-  subgraph reg [登録 第11章]
+  subgraph reg [登録]
     R1[検証] --> R2[ロック]
     R2 --> R3[BAPI + RETURN]
     R3 --> R4[COMMIT/ROLLBACK]
-    R4 --> R5[履歴 第11章]
+    R4 --> R5[履歴]
     R5 --> R6[DEQUEUE]
   end
   file --> reg`}
               />
               <Dialog speaker="teacher">
-                開発では各パーツを分けて作ることもありますが、本番では第11章の<strong>9段フロー</strong>としてつながります。
+                開発では各パーツを分けて作ることもありますが、本番では<strong>読込から登録・履歴まで1本のフロー</strong>としてつながります。
                 設計書を読むときは「ファイルか・ジョブか・登録か」を意識すると迷いません。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="11-document-posting"
+                lessonFile="15-document-posting"
                 slide={4}
-                label="第11章: 会計伝票登録を復習する"
+                label="次へ: 会計伝票登録（BAPI・ロック）"
                 variant="back"
                 className="mb-4"
               />
@@ -494,6 +547,13 @@ ENDIF.`}
               <Dialog speaker="closing">
                 連携は「論理名・ジョブ・登録」の3層で読むと、設計書がすっきり見えてきます。
               </Dialog>
+              <LessonLinkButton
+                courseSlug="abap-training"
+                lessonFile="15-document-posting"
+                slide={4}
+                label="次へ: 会計伝票登録（BAPI・ロック）"
+                className="mb-4 mt-4"
+              />
             </>
           ),
         },

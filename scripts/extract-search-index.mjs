@@ -204,7 +204,7 @@ export function buildSearchIndex(root) {
       let slides = extractSlidesFromLessonTsx(source);
 
       const assessmentDataPath = path.join(courseDir, `${lesson.file.replace(/-final-assessment$/, '')}-assessment-data.ts`);
-      const altAssessmentPath = path.join(courseDir, '16-assessment-data.ts');
+      const altAssessmentPath = path.join(courseDir, 't1-assessment-data.ts');
       const dataPath = fs.existsSync(assessmentDataPath)
         ? assessmentDataPath
         : lesson.file.includes('assessment') && fs.existsSync(altAssessmentPath)

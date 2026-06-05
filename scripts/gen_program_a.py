@@ -1,6 +1,6 @@
 from pathlib import Path
 
-path = Path(__file__).resolve().parents[1] / "courses/abap-training/94-exercise-journal-ledger-control-break.tsx"
+path = Path(__file__).resolve().parents[1] / "courses/abap-training/s3-exercise-journal-ledger-control-break.tsx"
 text = path.read_text(encoding="utf-8")
 start = text.index("const FINAL_PROGRAM = `") + len("const FINAL_PROGRAM = `")
 end = text.index("`;", start)

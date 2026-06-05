@@ -62,7 +62,7 @@ training-material/
 
 ## 3. スライド構成（abap-training 準拠）
 
-各レッスンは **plainText / blocks / image / dialogs** の4要素で説明する。標準レッスン（`course.json` の `lessons`）は、おおむね次の **型** に沿う（手本: `00-introduction.tsx`〜`13-good-programming.tsx`）。
+各レッスンは **plainText / blocks / image / dialogs** の4要素で説明する。標準レッスン（`course.json` の `lessons`）は、おおむね次の **型** に沿う（手本: `00-introduction.tsx`〜`16-good-programming.tsx`）。
 
 
 | 順      | スライド                  | 内容                                                                                |
@@ -175,7 +175,7 @@ mountLesson(MyLesson);
 <Reveal label="期待される結果を見る">…</Reveal>
 ```
 
-手本: `92-exercise-journal-ledger.tsx`、`05-internal-tables.tsx`（ミニ演習）。
+手本: `s1-exercise-journal-ledger.tsx`、`05-internal-tables.tsx`（ミニ演習）。
 
 **情報パネル（一覧・対応表・キーワード集など、地の文と区別したいまとまり）:**
 
@@ -298,14 +298,14 @@ mountLesson(MyLesson);
     { "file": "02-business-basics", "title": "会計の基本 — …", "meta": "初学者 · 20分" }
   ],
   "courseTest": [
-    { "file": "16-final-assessment", "title": "総仕上げ — …", "meta": "初学者 · 60分" }
+    { "file": "t1-final-assessment", "title": "総仕上げ — …", "meta": "初学者 · 60分" }
   ],
   "additionalContent": [
-    { "file": "14-sap-development-tools", "title": "…", "meta": "…" }
+    { "file": "a1-sap-development-tools", "title": "…", "meta": "…" }
   ],
   "specialContent": [
-    { "file": "92-exercise-journal-ledger", "title": "特別演習① — …", "meta": "特別 · 45分" },
-    { "file": "93-exercise-journal-ledger-detail", "title": "…", "meta": "…", "lock": { "requires": "course", "password": "…", "mode": "any" } }
+    { "file": "s1-exercise-journal-ledger", "title": "特別演習① — …", "meta": "特別 · 45分" },
+    { "file": "s2-exercise-journal-ledger-detail", "title": "…", "meta": "…", "lock": { "requires": "course", "password": "…", "mode": "any" } }
   ]
 }
 ```
@@ -364,7 +364,7 @@ mountLesson(MyLesson);
 | 種別     | course.json         | 例                     | 備考                              |
 | ------ | ------------------- | --------------------- | ------------------------------- |
 | 本編     | `lessons`           | `00`...               | §3 の型に準拠。「対話で整理」推奨              |
-| コーステスト | `courseTest`        | `40-final-assessment` | `16-assessment-data.ts` 等と連携可   |
+| コーステスト | `courseTest`        | `40-final-assessment` | `t1-assessment-data.ts` 等と連携可   |
 | 追加     | `additionalContent` | `50`...               | スライド多め可。「対話で整理」は任意（`15` は省略例）   |
 | 特別演習   | `specialContent`    | `90`...               | `CodeBlock` / `Reveal` 中心。長文 OK |
 

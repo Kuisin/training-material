@@ -56,7 +56,7 @@ export default function ModularizationLesson() {
               </Callout>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="18-divide-and-conquer"
+                lessonFile="a3-divide-and-conquer"
                 label="参考: 分割統治（ディバイド・アンド・コンカー）を学ぶ"
                 className="mb-4"
               />
@@ -625,13 +625,13 @@ CALL FUNCTION 'GUI_DOWNLOAD'
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="19-file-output"
+                  lessonFile="a4-file-output"
                   slide={1}
                   label="ファイル出力: PCへのダウンロードへ"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="11-document-posting"
+                  lessonFile="15-document-posting"
                   slide={6}
                   label="第11章: 会計伝票登録（BAPI）へ進む"
                 />

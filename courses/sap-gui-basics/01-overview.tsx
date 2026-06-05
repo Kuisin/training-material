@@ -122,7 +122,7 @@ export default function OverviewLesson() {
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="14-sap-development-tools"
+                lessonFile="a1-sap-development-tools"
                 slide={3}
                 label="ABAP研修: 開発ツールとショートカット"
                 variant="forward"

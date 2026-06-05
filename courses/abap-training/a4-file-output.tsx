@@ -22,7 +22,7 @@ export const lessonMeta = {
 export default function FileOutputLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-training", "19-file-output", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a4-file-output", lessonMeta.title)}
       slides={[
         {
           title: "概要",
@@ -460,7 +460,7 @@ export default function FileOutputLesson() {
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="96-exercise-journal-ledger-download"
+                  lessonFile="s5-exercise-journal-ledger-download"
                   slide={0}
                   label="特別演習④ Part B: 実装例へ"
                 />
@@ -728,7 +728,7 @@ ENDLOOP.`}
               <div className="mt-4 flex flex-wrap justify-end gap-2">
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="98-exercise-journal-ledger-function-module"
+                  lessonFile="s7-exercise-journal-ledger-function-module"
                   slide={6}
                   label="特別演習④ Part D: 全項目の実装例へ"
                 />
@@ -851,7 +851,7 @@ ENDIF.`}
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="15-files-jobs-and-batch"
+                lessonFile="14-files-jobs-and-batch"
                 slide={1}
                 label="ファイル連携とバッチ: 読込の詳細へ"
                 className="mb-4"

@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   lessonChrome,
   Callout,
@@ -21,7 +21,7 @@ export const lessonMeta = {
 export default function FrequentlyUsedTablesLesson() {
   return (
     <Lesson
-      chrome={lessonChrome("abap-taining", "17-frequently-used-tables", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "a2-frequently-used-tables", lessonMeta.title)}
       slides={[
         {
           title: "概要",

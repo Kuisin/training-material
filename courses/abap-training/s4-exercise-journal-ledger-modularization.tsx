@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   Callout,
   Dialog,
@@ -22,7 +22,7 @@ export const lessonMeta = {
 /**
  * 出発点：演習③（特別演習③）の完成コード create_report_3。
  * 学習者はこれをコピーして、Aパートでこのコードを FORM 構造へリファクタリングする。
- * （94-exercise-journal-ledger-control-break.tsx の FINAL_PROGRAM と同一）
+ * （s3-exercise-journal-ledger-control-break.tsx の FINAL_PROGRAM と同一）
  */
 const START_PROGRAM = `REPORT create_report_3
   NO STANDARD PAGE HEADING
@@ -429,7 +429,7 @@ function ReferenceLinks() {
     <div className="mt-4 flex flex-wrap justify-end gap-2">
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="94-exercise-journal-ledger-control-break"
+        lessonFile="s3-exercise-journal-ledger-control-break"
         slide={20}
         label="演習③: 完成コード（出発点）"
         variant="back"
@@ -457,7 +457,7 @@ export default function ExerciseJournalLedgerModularizationLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "95-exercise-journal-ledger-modularization",
+        "s4-exercise-journal-ledger-modularization",
         lessonMeta.title
       )}
       slides={[

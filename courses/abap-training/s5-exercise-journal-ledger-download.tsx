@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   Callout,
   Dialog,
@@ -32,20 +32,20 @@ function ReferenceLinks() {
     <div className="mt-4 flex flex-wrap justify-end gap-2">
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="19-file-output"
+        lessonFile="a4-file-output"
         slide={2}
         label="ファイル出力: GUI設定手順（全体像）"
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="95-exercise-journal-ledger-modularization"
+        lessonFile="s4-exercise-journal-ledger-modularization"
         slide={9}
         label="Part A: 構造化の完成コード（出発点）"
         variant="back"
       />
       <LessonLinkButton
         courseSlug="abap-training"
-        lessonFile="97-exercise-journal-ledger-screen-check"
+        lessonFile="s6-exercise-journal-ledger-screen-check"
         slide={1}
         label="Part C: 選択画面の初期化・チェック（次のステップ）"
       />
@@ -58,7 +58,7 @@ export default function ExerciseJournalLedgerDownloadLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "96-exercise-journal-ledger-download",
+        "s5-exercise-journal-ledger-download",
         lessonMeta.title
       )}
       slides={[
@@ -275,7 +275,7 @@ export default function ExerciseJournalLedgerDownloadLesson() {
               </Callout>
               <LessonLinkButton
                 courseSlug="abap-training"
-                lessonFile="19-file-output"
+                lessonFile="a4-file-output"
                 slide={4}
                 label="ファイル出力: GUI設定手順（PF-STATUS）"
                 className="mb-4"

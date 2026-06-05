@@ -1,4 +1,4 @@
-﻿import {
+import {
   Lesson,
   Callout,
   Dialog,
@@ -564,7 +564,7 @@ export default function ExerciseJournalLedgerDetailLesson() {
     <Lesson
       chrome={lessonChrome(
         "abap-training",
-        "93-exercise-journal-ledger-detail",
+        "s2-exercise-journal-ledger-detail",
         lessonMeta.title
       )}
       slides={[
@@ -2393,14 +2393,14 @@ TOP-OF-PAGE.
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
+                  lessonFile="a1-sap-development-tools"
                   slide={3}
                   label="追加: テキストエレメント画面"
                   variant="back"
                 />
                 <LessonLinkButton
                   courseSlug="abap-training"
-                  lessonFile="14-sap-development-tools"
+                  lessonFile="a1-sap-development-tools"
                   slide={2}
                   label="追加: SE38の開発サイクル"
                   variant="back"
@@ -2516,7 +2516,7 @@ TOP-OF-PAGE.
                 図の右上「全画面」で拡大表示できます。詳しい項目の意味は{" "}
                 <LessonLinkButton
                   courseSlug="abap-taining"
-                  lessonFile="17-frequently-used-tables"
+                  lessonFile="a2-frequently-used-tables"
                   slide={3}
                   label="第17章: よく使うテーブル早見表"
                   variant="back"
@@ -2708,7 +2708,7 @@ SELECT bkpf~blart
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
-                  lessonFile="13-good-programming"
+                  lessonFile="16-good-programming"
                   slide={9}
                   label="第13章: SELECT の JOIN 技法"
                   variant="back"

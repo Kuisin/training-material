@@ -5,7 +5,6 @@ import {
   Dialog,
   Quiz,
   MermaidDiagram,
-  Figure,
   LessonMeta,
   mountLesson,
 } from "../../src/lesson";

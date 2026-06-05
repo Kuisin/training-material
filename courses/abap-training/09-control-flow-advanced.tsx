@@ -583,7 +583,7 @@ ENDIF.`}
               <div className="mt-4">
                 <LessonLinkButton
                   courseSlug="abap-taining"
-                  lessonFile="94-exercise-journal-ledger-control-break"
+                  lessonFile="s3-exercise-journal-ledger-control-break"
                   label="特別演習③で詳しく学ぶ"
                   variant="forward"
                 />
@@ -818,7 +818,7 @@ ENDLOOP.`}
                 />
                 <LessonLinkButton
                   courseSlug="abap-taining"
-                  lessonFile="94-exercise-journal-ledger-control-break"
+                  lessonFile="s3-exercise-journal-ledger-control-break"
                   label="特別演習③へ（コントロールレベル出力）"
                   variant="forward"
                 />

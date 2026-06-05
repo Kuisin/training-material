@@ -19,7 +19,7 @@ import {
   ASSESSMENTS,
   isMultiQuiz,
   type LessonAssessmentData,
-} from "./16-assessment-data";
+} from "./t1-assessment-data";
 
 const ASSESSMENT_STORAGE_KEY = "abap-final-assessment";
 configureAssessmentStorage(ASSESSMENT_STORAGE_KEY);
@@ -154,18 +154,18 @@ export default function FinalAssessmentLesson() {
   return (
     <Lesson
       key={attemptId}
-      chrome={lessonChrome("abap-training", "16-final-assessment", lessonMeta.title)}
+      chrome={lessonChrome("abap-training", "t1-final-assessment", lessonMeta.title)}
       slides={[
         {
           title: "概要",
           plainText:
-            "総仕上げテスト\n全14レッスン分の確認テスト。各ページで提出して採点。\n⏱ 60分 / 📶 初学者 / 🏷 ABAP研修",
+            "総仕上げテスト\nレッスン別＋IF連携横断の確認テスト。各ページで提出して採点。\n⏱ 60分 / 📶 初学者 / 🏷 ABAP研修",
           content: (
             <>
               <hgroup>
                 <h1>総仕上げテスト</h1>
                 <p>
-                  レッスン 0〜13 それぞれに1ページ。各ページで<strong>フロー/コード組み立て</strong>と
+                  レッスン 0〜13 と IF連携横断ページ。各ページで<strong>フロー/コード組み立て</strong>と
                   <strong>理解度チェック（基礎→応用→発展）</strong>に取り組み、ページごとに提出して採点します。
                 </p>
               </hgroup>
@@ -179,7 +179,7 @@ export default function FinalAssessmentLesson() {
               <h3>進め方</h3>
               <ul>
                 <li>
-                  <strong>1ページ = 1レッスン</strong>（L0 から L13 まで全14ページ）
+                  <strong>1ページ = 1レッスン</strong>（L0 から L13、および IF連携横断）
                 </li>
                 <li>
                   各ページ：<strong>フロー組み立て</strong>（概念・手順）または
@@ -196,7 +196,7 @@ export default function FinalAssessmentLesson() {
                 <li>回答と結果は<strong>ブラウザに自動保存</strong>されます（ページ移動・再読み込み後も保持）</li>
               </ul>
               <Callout variant="note">
-                全 {SCORE_ITEMS.length} 問（14レッスン × 4問：組み立て1 + クイズ3）。最終ページで総合スコア・受験履歴・再テストができます。
+                全 {SCORE_ITEMS.length} 問（各ページ：組み立て1 + クイズ3）。最終ページで総合スコア・受験履歴・再テストができます。
               </Callout>
               <Dialog speaker="teacher">
                 基礎で確認してから応用・発展に進む構成です。間違えた問題は該当レッスンに戻って復習しましょう。
