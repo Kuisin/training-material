@@ -24,7 +24,7 @@ export default function IfIntegrationOverviewLesson() {
         {
           title: "概要",
           plainText:
-            "IF連携の全体像 — 業務シナリオとシステム構成\n会計伝票登録IFに取り組むうえで必要な知識の入口。IF開発・BAPI・DB設計・品質を一連の流れとして理解します。\n⏱ 20分 / 📶 初学者\n手を動かす演習は別資料。ここでは設計書やコードが読める土台を作ります。\n用語注意：ここでの「IF」＝Interface（インターフェース）＝システムとシステムをつなぐ「連携」のこと。第9章で学んだIF文（もし〜なら、の条件分岐）とは別物。\nBちゃん：IFって、第9章の『もし〜なら』のIF文ですか？→先生：いいえ。ここでのIFはInterface（インターフェース）の略で、外部システムとSAPをつなぐ連携のこと。同じつづりだけど別物。文脈で見分けます。",
+            "IF連携の全体像 — 業務シナリオとシステム構成\n会計伝票登録IFに取り組むうえで必要な知識の入口。IF開発・BAPI・DB設計・品質を一連の流れとして理解します。\n⏱ 20分 / 📶 初学者\nここでは設計書やコードが読める土台を作ります。\n用語注意：ここでの「IF」＝Interface（インターフェース）＝システムとシステムをつなぐ「連携」のこと。第9章で学んだIF文（もし〜なら、の条件分岐）とは別物。\nBちゃん：IFって、第9章の『もし〜なら』のIF文ですか？→先生：いいえ。ここでのIFはInterface（インターフェース）の略で、外部システムとSAPをつなぐ連携のこと。同じつづりだけど別物。文脈で見分けます。",
           content: (
             <>
               <hgroup>
@@ -66,7 +66,6 @@ export default function IfIntegrationOverviewLesson() {
                 同じつづりで紛らわしいですが、「IF連携」と書いてあれば<strong>システム連携の話</strong>、と覚えてください。
               </Dialog>
               <Callout variant="note">
-                実際に手を動かす演習は<strong>別資料</strong>で行います。
                 本コースでは、設計書や既存コードを読み解くための知識を学びます。
               </Callout>
             </>
@@ -236,7 +235,7 @@ export default function IfIntegrationOverviewLesson() {
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：IF連携は外部→SAPの自動登録。FB01手入力ではなくバッチ化する典型。1レポートで取込から履歴まで完結。\nBちゃん：演習は別資料、ここは知識の土台。\nAくん：4テーマが1本の処理に並ぶ。",
+            "対話で整理\n先生：IF連携は外部→SAPの自動登録。FB01手入力ではなくバッチ化する典型。1レポートで取込から履歴まで完結。\nBちゃん：ここは知識の土台。\nAくん：4テーマが1本の処理に並ぶ。",
           content: (
             <>
               <h2>対話で整理</h2>
@@ -245,7 +244,7 @@ export default function IfIntegrationOverviewLesson() {
                 <strong>1本の処理で何が起きるか</strong>。用語はこれから増えますが、地図はこの2点に戻れば大丈夫です。
               </Dialog>
               <Dialog speaker="b">
-                演習は別資料なので、ここでは焦らず「読めるようになる」ことだけ意識します。
+                ここでは焦らず「読めるようになる」ことだけ意識します。
               </Dialog>
               <Dialog speaker="a">
                 IF・BAPI・DB・品質の4つが、縦に並んだ1本の処理だと分かりました。次はデータ設計ですね。
@@ -282,7 +281,7 @@ export default function IfIntegrationOverviewLesson() {
               />
               <Quiz
                 answer={2}
-                explanation="本コースは演習の手順ではなく、設計書や既存コードを読み解くための知識を学びます。実際のコーディング演習は別資料で行います。"
+                explanation="本コースは演習の手順ではなく、設計書や既存コードを読み解くための知識を学びます。"
                 question={<strong>本コース（知識編）の到達イメージとして正しいのは？</strong>}
                 options={[
                   "すべての演習をこのコース内で完了する",

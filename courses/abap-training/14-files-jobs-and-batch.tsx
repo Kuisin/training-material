@@ -298,7 +298,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
                 形式が曖昧なまま読み込むと、検証や BAPI 登録の段階で初めて不整合が出ます。
               </Dialog>
               <Callout variant="note">
-                ジョブや BDC の操作手順の細部は、手を動かす演習は別資料で扱います。ここでは<strong>設計の型が読める</strong>ことを重視します。
+                ジョブや BDC の操作手順の細部より、ここでは<strong>設計の型が読める</strong>ことを重視します。
               </Callout>
             </>
           ),

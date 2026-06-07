@@ -230,7 +230,7 @@ ENDIF.`}
                 部品が単体で正しいかを確かめるのが実務の近道です。
               </Dialog>
               <Dialog speaker="b">
-                演習で実際に <code>SE37</code> を触るのは別資料なんですね。ここでは「何を確認すべきか」が分かればOK、ですね。
+                実際に <code>SE37</code> を触らなくても、ここでは「何を確認すべきか」が分かればOK、ですね。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
