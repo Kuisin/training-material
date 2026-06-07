@@ -192,7 +192,7 @@ export default function FrequentlyUsedTablesLesson() {
         {
           title: "BSEG（伝票明細）",
           plainText:
-            "BSEG 会計伝票明細（1件で複数行）\nBUKRS／BELNR／GJAHR はヘッダと同じキー＋BUZEI 明細番号（キー）\nBSCHL 転記キー／SHKZG 貸借区分（S=借方 H=貸方）\nDMBTR 現地通貨額／WRBTR 伝票通貨額／HKONT 総勘定元帳勘定\nKUNNR 得意先／LIFNR 仕入先／KOSTL 原価センタ／MWSKZ 税コード／ZUONR 割当番号／SGTXT 明細テキスト\n先生：1伝票の借方合計と貸方合計は必ず一致する（貸借平均）。",
+            "BSEG 会計伝票明細（1件で複数行）\nBUKRS／BELNR／GJAHR はヘッダと同じキー＋BUZEI 明細番号（キー）\nBSCHL 転記キー／SHKZG 貸借区分（S=借方 H=貸方）\nDMBTR 現地通貨額／WRBTR 伝票通貨額／HKONT 総勘定元帳勘定\nKUNNR 得意先／LIFNR 仕入先／KOSTL 原価センタ／MWSKZ 税コード／ZUONR 割当番号／SGTXT 明細テキスト\n先生：1伝票の借方合計と貸方合計は必ず一致する（貸借平均）。\nBちゃん：現地通貨と伝票通貨ってどう違うの？\n先生：伝票通貨＝伝票を入力したときの通貨（例：USD）、現地通貨＝会社コードの基準通貨（例：JPY）。外貨取引だと両方の金額が記録される。",
           content: (
             <>
               <h2>
@@ -232,6 +232,14 @@ export default function FrequentlyUsedTablesLesson() {
               </InfoPanel>
               <Dialog speaker="teacher">
                 1枚の伝票では、<strong>借方（S）の合計と貸方（H）の合計が必ず一致</strong>します（貸借平均の原則）。金額を集計するときは <code>SHKZG</code> を必ず見ます。
+              </Dialog>
+              <Dialog speaker="b">
+                「現地通貨」と「伝票通貨」って、どう違うんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>伝票通貨</strong>（<code>WRBTR</code>）＝伝票を入力したときの通貨（例: USD）、
+                <strong>現地通貨</strong>（<code>DMBTR</code>）＝会社コードの基準通貨（例: JPY）です。
+                外貨取引だと、この<strong>両方の金額</strong>が記録されます。
               </Dialog>
               <Dialog speaker="stumble">
                 <code>DMBTR</code> と <code>WRBTR</code> を混同しがちです。外貨伝票では値が異なるので、「現地通貨か・伝票通貨か」を設計書で確認します。
@@ -361,7 +369,7 @@ SELECT SINGLE ltext
         {
           title: "取引先・残高テーブル",
           plainText:
-            "取引先マスタと未消込/消込明細\nKNA1 得意先マスタ(一般)：KUNNR 得意先／NAME1 名称／LAND1 国／ORT01 所在地\nLFA1 仕入先マスタ(一般)：LIFNR 仕入先／NAME1 名称／LAND1／ORT01\nBSID 得意先・未消込明細／BSAD 得意先・消込済明細\nBSIK 仕入先・未消込明細／BSAK 仕入先・消込済明細\n先生：BSID 等は『未消込(I=open)/消込済(A=cleared)』『得意先(D)/仕入先(K)』の組み合わせ。S/4 では CDS ビュー経由のことも多い。",
+            "取引先マスタと未消込/消込明細\nKNA1 得意先マスタ(一般)：KUNNR 得意先／NAME1 名称／LAND1 国／ORT01 所在地\nLFA1 仕入先マスタ(一般)：LIFNR 仕入先／NAME1 名称／LAND1／ORT01\nBSID 得意先・未消込明細／BSAD 得意先・消込済明細\nBSIK 仕入先・未消込明細／BSAK 仕入先・消込済明細\n先生：BSID 等は『未消込(I=open)/消込済(A=cleared)』『得意先(D)/仕入先(K)』の組み合わせ。S/4 では CDS ビュー経由のことも多い。\nBちゃん：消込（しょうけし）って何ですか？\n先生：消込＝請求（売掛・買掛）と、その入金・支払を突き合わせて「支払い済み」として消し込むこと。未消込（Open）＝まだ入金/支払が済んでいない、消込済（Cleared）＝済んだ。\nAくん：だからテーブル名が I=未消込／A=消込済、D=得意先／K=仕入先の組み合わせなんですね。BSAD なら消込済(A)の得意先(D)。",
           content: (
             <>
               <h2>取引先マスタ・残高（未消込/消込）テーブル</h2>
@@ -413,8 +421,19 @@ SELECT SINGLE ltext
               <Callout variant="warning">
                 <code>BSID</code> などの古典的な明細テーブルは、S/4HANA では<strong>CDS ビュー経由で参照する</strong>ことが推奨される場合があります。直接読む前にプロジェクト標準を確認してください。
               </Callout>
+              <Dialog speaker="b">
+                そもそも「消込（しょうけし）」って何ですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>消込</strong>＝請求（売掛・買掛）と、その入金・支払を突き合わせて
+                「<strong>支払い済み</strong>」として消し込むことです。
+                <strong>未消込（Open）</strong>＝まだ入金/支払が済んでいない、
+                <strong>消込済（Cleared）</strong>＝済んだ、という状態を表します。
+              </Dialog>
               <Dialog speaker="a">
                 テーブル名の文字に意味があるんですね。<code>BSIK</code> なら「未消込（I）の仕入先（K）」。
+                <code>I</code>=未消込／<code>A</code>=消込済、<code>D</code>=得意先／<code>K</code>=仕入先の組み合わせだから、
+                <code>BSAD</code> は「消込済（A）の得意先（D）」と読めます。
               </Dialog>
             </>
           ),
@@ -422,7 +441,7 @@ SELECT SINGLE ltext
         {
           title: "覚えておきたい値",
           plainText:
-            "覚えておきたいコード値\nSHKZG 貸借区分：S=借方(Soll)／H=貸方(Haben)\nBLART 伝票タイプ（例）：SA 総勘定元帳／KR 仕入先請求／KZ 仕入先支払／DR 得意先請求／DZ 得意先入金／AB 一般\nBSCHL 転記キー（例）：40 G/L借方／50 G/L貸方／01 得意先請求／11 得意先貸方／31 仕入先請求／21 仕入先借方\n先生：これらはカスタマイズで変わり得る代表値。自プロジェクトの設定を必ず確認。",
+            "覚えておきたいコード値\nSHKZG 貸借区分：S=借方(Soll)／H=貸方(Haben)\nBLART 伝票タイプ（例）：SA 総勘定元帳／KR 仕入先請求／KZ 仕入先支払／DR 得意先請求／DZ 得意先入金／AB 一般\nBSCHL 転記キー（例）：40 G/L借方／50 G/L貸方／01 得意先請求／11 得意先貸方／31 仕入先請求／21 仕入先借方\n先生：これらはカスタマイズで変わり得る代表値。自プロジェクトの設定を必ず確認。\nBちゃん：BSCHLとSHKZGはどう違うの？両方とも借方/貸方に関係してそう。\n先生：BSCHL（転記キー）＝その行が「どの種類の勘定（G/L・得意先・仕入先）か」＋「借方か貸方か」をまとめて決める入力用キー（例：40=G/L借方）。SHKZG（貸借区分）＝結果として保存される「借方S／貸方H」だけの区分。入力のときはBSCHLで指定し、テーブルにはSHKZGが借方/貸方の最終結果として残る。\nAくん：BSCHL＝入力キー、SHKZG＝保存される結果。BSCHLが勘定種別と貸借をまとめて持ち、そのうち貸借だけがSHKZGに残るんですね。",
           content: (
             <>
               <h2>覚えておきたいコード値</h2>
@@ -465,6 +484,19 @@ SELECT SINGLE ltext
               <Callout variant="warning">
                 <code>BLART</code> や <code>BSCHL</code> は<strong>カスタマイズで追加・変更され得る</strong>値です。ここに挙げたのは標準の代表例なので、実装では必ず自プロジェクトの設定を確認してください。
               </Callout>
+              <Dialog speaker="b">
+                <code>BSCHL</code> と <code>SHKZG</code> はどう違うんですか？ 両方とも借方/貸方に関係してそうです。
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>BSCHL</code>（転記キー）＝その行が「<strong>どの種類の勘定（G/L・得意先・仕入先）か</strong>」＋
+                「<strong>借方か貸方か</strong>」をまとめて決める<strong>入力用キー</strong>です（例: <code>40</code>=G/L借方）。
+                <code>SHKZG</code>（貸借区分）＝結果として保存される「<strong>借方 S／貸方 H</strong>」だけの区分です。
+                入力のときは <code>BSCHL</code> で指定し、テーブルには <code>SHKZG</code> が借方/貸方の<strong>最終結果</strong>として残ります。
+              </Dialog>
+              <Dialog speaker="a">
+                <code>BSCHL</code>＝入力キー、<code>SHKZG</code>＝保存される結果、ですね。
+                <code>BSCHL</code> が勘定種別と貸借をまとめて持ち、そのうち貸借だけが <code>SHKZG</code> に残る。
+              </Dialog>
               <Dialog speaker="teacher">
                 値の暗記より、<strong>「これはコードだから辞書やカスタマイズで意味が決まる」</strong>と意識するのが大切です。迷ったら <code>T003T</code> などで名称を引きましょう。
               </Dialog>
