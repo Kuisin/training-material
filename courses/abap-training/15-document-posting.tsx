@@ -679,7 +679,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
         {
           title: "実装の全体フロー",
           plainText:
-            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第15章が①②、本章が⑧の土台と③〜⑦の責任。",
+            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第14章（ファイル連携）が①②、本章が⑧の土台と③〜⑦の責任。",
           content: (
             <>
               <h2>実装の全体フロー（最重要）</h2>

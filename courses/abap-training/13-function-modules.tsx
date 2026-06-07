@@ -197,7 +197,7 @@ ENDIF.`}
                 </li>
               </ul>
               <Dialog speaker="stumble">
-                BAPI では <code>RETURN</code> テーブルも見る、と第11章で出てきますね。
+                BAPI では <code>RETURN</code> テーブルも見る、と第15章で出てきます。
                 汎用モジュールでも「<code>sy-subrc</code> だけ見て安心」は禁物です。設計書の戻り方を確認しましょう。
               </Dialog>
             </>
