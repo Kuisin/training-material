@@ -4,96 +4,115 @@
   "description": "SAP ABAP の基礎から会計伝票登録まで、仕訳日記帳を題材に学ぶ研修コース。",
   "lessons": [
     {
+      "num": "0",
       "file": "00-introduction",
       "title": "ABAP開発の役割 — 業務の要望をシステムの動きに翻訳する",
       "meta": "初学者 · 15分"
     },
     {
+      "num": "1",
       "file": "01-overview",
       "title": "コース全体像 — 照会基礎とIF登録の知識",
       "meta": "初学者 · 15分"
     },
     {
+      "num": "2",
       "file": "02-business-basics",
       "title": "会計の基本 — 仕訳日記帳・伝票・ヘッダと明細",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "3",
       "file": "03-abap-minimum-unit",
       "title": "最初のABAP — レポートプログラム・変数・定数・コメント",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "4",
       "file": "04-selection-screen",
       "title": "選択画面 — PARAMETERSとSELECT-OPTIONSで条件入力",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "5",
       "file": "05-internal-tables",
       "title": "内部テーブル — 複数行の保持・LOOP・READ TABLE・並べ替え",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "6",
       "file": "06-select-from-db",
       "title": "SELECT — DB取得・SY-SUBRC・会計テーブル（BKPF/BSEG）",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "7",
       "file": "07-output-report",
       "title": "帳票出力 — WRITE・改行・見やすいレポートの整え方",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "8",
       "file": "08-combine-data",
       "title": "データ結合 — ヘッダと明細をMOVEで一覧に組み立てる",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "9a",
       "file": "09-control-flow",
       "title": "レポート制御（基本）— サプレスとAT NEW/END OF",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "9b",
       "file": "09-control-flow-advanced",
       "title": "レポート制御（応用）— 仕組み・フラグ・設計",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "10",
       "file": "10-modularization",
       "title": "モジュール化 — FORM/PERFORM・引数（USING/CHANGING）・スコープ",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "11",
       "file": "11-if-integration-overview",
       "title": "IF連携の全体像 — 業務シナリオとシステム構成",
       "meta": "初学者 · 20分"
     },
     {
+      "num": "12",
       "file": "12-data-design",
       "title": "データ設計 — DDIC・アドオン・テーブル・DB更新",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "13",
       "file": "13-function-modules",
       "title": "汎用モジュール — 再利用設計と部品の確認",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "14",
       "file": "14-files-jobs-and-batch",
       "title": "ファイル連携 — 論理ファイル・読込・フォーマット設計",
       "meta": "初学者 · 25分"
     },
     {
+      "num": "15",
       "file": "15-document-posting",
       "title": "会計伝票登録 — BAPI・ロック・検証から登録までのフロー",
       "meta": "初学者 · 30分"
     },
     {
+      "num": "16",
       "file": "16-good-programming",
       "title": "良いABAP — 性能設計と実行時間分析",
       "meta": "初学者 · 30分"
     },
     {
+      "num": "17",
       "file": "17-real-world",
       "title": "実務と品質 — 可読性・設計思想・知識の地図",
       "meta": "初学者 · 30分"

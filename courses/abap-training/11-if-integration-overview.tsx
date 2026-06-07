@@ -24,7 +24,7 @@ export default function IfIntegrationOverviewLesson() {
         {
           title: "概要",
           plainText:
-            "IF連携の全体像 — 業務シナリオとシステム構成\n会計伝票登録IFに取り組むうえで必要な知識の入口。IF開発・BAPI・DB設計・品質を一連の流れとして理解します。\n⏱ 20分 / 📶 初学者\n手を動かす演習は別資料。ここでは設計書やコードが読める土台を作ります。",
+            "IF連携の全体像 — 業務シナリオとシステム構成\n会計伝票登録IFに取り組むうえで必要な知識の入口。IF開発・BAPI・DB設計・品質を一連の流れとして理解します。\n⏱ 20分 / 📶 初学者\n手を動かす演習は別資料。ここでは設計書やコードが読める土台を作ります。\n用語注意：ここでの「IF」＝Interface（インターフェース）＝システムとシステムをつなぐ「連携」のこと。第9章で学んだIF文（もし〜なら、の条件分岐）とは別物。\nBちゃん：IFって、第9章の『もし〜なら』のIF文ですか？→先生：いいえ。ここでのIFはInterface（インターフェース）の略で、外部システムとSAPをつなぐ連携のこと。同じつづりだけど別物。文脈で見分けます。",
           content: (
             <>
               <hgroup>
@@ -47,6 +47,24 @@ export default function IfIntegrationOverviewLesson() {
                 <li>なぜ標準画面（FB01）ではなくプログラム化するのか</li>
                 <li>入力・処理・出力が1本のレポートで完結する構成</li>
               </ul>
+              <Callout variant="warning">
+                <strong>用語に注意：「IF」＝Interface（インターフェース）</strong>
+                <br />
+                この章の「IF連携」「IF開発」「IFバッチ」の <strong>IF</strong> は、
+                <strong>Interface（インターフェース）＝システムとシステムをつなぐ「連携」</strong>の略です。
+                第9章で学んだ <code>IF</code> 文（「もし〜なら」の条件分岐）とは<strong>別物</strong>。
+                つづりは同じですが、意味はまったく違うので文脈で見分けます。
+              </Callout>
+              <Dialog speaker="b">
+                「IF」って、第9章で習った「もし〜なら」の <code>IF</code> 文のことですか？
+                急に出てきて、ちょっと混乱しました…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                いい質問です。ここでの「IF」は <strong>Interface（インターフェース）</strong>の略で、
+                外部システムと SAP を<strong>つなぐ仕組み（連携）</strong>のこと。
+                第9章の <code>IF</code> 文（条件分岐）とは<strong>まったく別物</strong>です。
+                同じつづりで紛らわしいですが、「IF連携」と書いてあれば<strong>システム連携の話</strong>、と覚えてください。
+              </Dialog>
               <Callout variant="note">
                 実際に手を動かす演習は<strong>別資料</strong>で行います。
                 本コースでは、設計書や既存コードを読み解くための知識を学びます。
@@ -90,7 +108,7 @@ export default function IfIntegrationOverviewLesson() {
         {
           title: "業務シナリオ",
           plainText:
-            "業務シナリオ — 外部システムからSAPへ\n外部で作った会計データをSAPへ自動登録。履歴管理で二重登録防止、エラー内容の保持。なぜFB01画面ではなくプログラム化するか（夜間・大量・再実行）。",
+            "業務シナリオ — 外部システムからSAPへ\n外部で作った会計データをSAPへ自動登録。履歴管理で二重登録防止、エラー内容の保持。なぜFB01画面ではなくプログラム化するか（夜間・大量・再実行）。\n用語：バッチ＝人が1件ずつ操作する代わりに、大量の処理をまとめて自動実行すること（夜間バッチなど）。作り方は第14章。",
           content: (
             <>
               <h2>業務シナリオ — 外部システムから SAP へ</h2>
@@ -114,6 +132,11 @@ export default function IfIntegrationOverviewLesson() {
               <Dialog speaker="stumble">
                 画面操作をそのまま真似するだけでは足りません。履歴やエラー管理まで含めて設計するのが連携の型です。
               </Dialog>
+              <Callout variant="note">
+                <strong>用語：「バッチ」</strong>＝人が画面で1件ずつ操作する代わりに、
+                <strong>大量の処理をまとめて自動実行</strong>すること（夜間バッチなど）。
+                詳しい作り方（ジョブ登録・実行）は第14章で学びます。
+              </Callout>
             </>
           ),
         },
