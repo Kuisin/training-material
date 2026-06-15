@@ -136,6 +136,11 @@
       "file": "a6-oop-class-method",
       "title": "オブジェクト指向とは — 車のたとえで学ぶ",
       "meta": "初学者 · 30分"
+    },
+    {
+      "file": "a7-lsmw-and-gui-scripting",
+      "title": "LSMWとSAP GUI Scripting — 画面操作の自動化",
+      "meta": "初学者 · 40分"
     }
   ],
   "toolContent": [
