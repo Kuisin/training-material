@@ -26,7 +26,7 @@ export default function CloudBasicsLesson() {
         {
           title: "概要",
           plainText:
-            "クラウドとオンプレミス：エンタープライズシステムの基礎\nSAPをはじめとするエンタープライズシステムを理解するには、クラウドとオンプレミスの違いを押さえることが欠かせません。この補足ではIaaS・PaaS・SaaSの3層、SAP S/4HANAのデプロイ選択肢、ハイブリッドクラウド、コスト構造（CapEx/OpEx）を学びます。\n⏱ 15分 / 📶 補足 / 🏷 クラウド基礎\nこの補足で学ぶこと\n・オンプレミスとクラウドの特徴とメリット・デメリット\n・IaaS・PaaS・SaaSの3層の違いと具体例\n・SAP S/4HANAのデプロイ選択肢（On-Premise／Private Cloud／Public Cloud）\n・ハイブリッドクラウドとは何か\n・CapEx（設備投資）とOpEx（運営費）のコスト比較",
+            "クラウドとオンプレミス：エンタープライズシステムの基礎\nSAPをはじめとするエンタープライズシステムを理解するには、クラウドとオンプレミスの違いを押さえることが欠かせません。この補足ではIaaS・PaaS・SaaSの3層、ハイパースケーラ、SAP S/4HANAのデプロイ選択肢、ハイブリッドクラウド、コスト構造（CapEx/OpEx）を学びます。\n⏱ 15分 / 📶 補足 / 🏷 クラウド基礎\nこの補足で学ぶこと\n・オンプレミスとクラウドの特徴とメリット・デメリット\n・IaaS・PaaS・SaaSの3層の違いと具体例\n・ハイパースケーラ（AWS・Azure・GCP）とS/4HANA Cloudの関係\n・SAP S/4HANAのデプロイ選択肢（On-Premise／Private Cloud／Public Cloud）\n・ハイブリッドクラウドとは何か\n・CapEx（設備投資）とOpEx（運営費）のコスト比較",
           content: (
             <>
               <hgroup>
@@ -46,6 +46,7 @@ export default function CloudBasicsLesson() {
               <ul>
                 <li>オンプレミスとクラウドの特徴とメリット・デメリット</li>
                 <li>IaaS・PaaS・SaaSの3層の違いと具体例</li>
+                <li>ハイパースケーラ（AWS・Azure・GCP）とS/4HANA Cloudの関係</li>
                 <li>SAP S/4HANAのデプロイ選択肢（On-Premise／Private Cloud／Public Cloud）</li>
                 <li>ハイブリッドクラウドとは何か</li>
                 <li>CapEx（設備投資）とOpEx（運営費）のコスト比較</li>
@@ -232,17 +233,83 @@ export default function CloudBasicsLesson() {
           ),
         },
         {
-          title: "SAP S/4HANAのデプロイ選択肢",
+          title: "ハイパースケーラとは",
           plainText:
-            "On-Premise・Private Cloud・Public Cloud（RISE with SAP）の3択\nSAP S/4HANAは導入先の選択肢が複数ある。①On-Premise：自社データセンターにS/4HANAをインストールして運用。最大の制御権、最大のコストと運用負担。②Private Cloud：AWS・Azure・GCP等の専用環境でS/4HANAを動かす。クラウドの柔軟性＋プライベートな分離環境。③Public Cloud（RISE with SAP）：SAPが提供するS/4HANAのパブリッククラウドサービス。Fit to Standardが前提。\n先生：RISE with SAPはSAPが移行から運用まで包括的にサポートするサービスです。クラウド移行を検討する企業にとって有力な選択肢です。\nAくん：選択肢ごとにカスタマイズの自由度と運用負担がトレードオフになっているんですね。",
+            "S/4HANA Cloudの土台を支える巨大クラウド事業者\nハイパースケーラ（Hyperscaler）とは、世界中にデータセンターを持ち、IaaS（仮想サーバー・ストレージ・ネットワーク）を大規模に提供するクラウド事業者のこと。代表的な3社はAWS（Amazon）、Microsoft Azure、Google Cloud（GCP）。\nS/4HANA Cloudを理解するうえで重要なのは、Private CloudやRISE with SAPのS/4HANAは、このハイパースケーラ上の仮想マシン（VM）に載って動いている、という点です。SAPがOS・S/4・HANAまで含めて運用を担い、企業は自社でAWS/Azure/GCPを直接契約・管理する必要がない（RISEの場合）。\nAくん：ハイパースケーラは「土地と建物の大家さん」、SAPは「その上にERPという建物を建てて管理する人」というイメージですね。\n先生：その通りです。S/4HANA Cloud, public edition（マルチテナントSaaS）はSAPが自社クラウドで提供するため、企業がハイパースケーラを選ぶ場面は少ない。一方、private edition（RISE）はAzure/AWS/GCPのいずれか上に載る—ここでハイパースケーラの話が出てきます。\nBちゃん：クラウドプロバイダーとハイパースケーラは同じ意味？",
           content: (
             <>
-              <h2>On-Premise・Private Cloud・Public Cloud（RISE with SAP）の3択</h2>
+              <h2>S/4HANA Cloudの土台を支える巨大クラウド事業者</h2>
+              <p>
+                <strong>ハイパースケーラ（Hyperscaler）</strong>とは、世界中にデータセンターを持ち、
+                <strong>IaaS</strong>（仮想サーバー・ストレージ・ネットワーク）を大規模に提供するクラウド事業者です。
+                代表的な3社は <strong>AWS</strong>（Amazon）、<strong>Microsoft Azure</strong>、<strong>Google Cloud（GCP）</strong> です。
+              </p>
+              <InfoPanel
+                title="ハイパースケーラの3社"
+                variant="reference"
+                lead="S/4HANA Cloud, private edition（RISE with SAP）の基盤として使われます。"
+              >
+                <ul>
+                  <li><strong>AWS</strong>（Amazon Web Services）… 世界最大のクラウドシェア。EC2・S3などIaaSの代表</li>
+                  <li><strong>Microsoft Azure</strong> … Microsoft製品との親和性が高い。多くのSAPクラウド案件で採用</li>
+                  <li><strong>Google Cloud（GCP）</strong> … データ分析・AI基盤に強み。SAPとの提携も拡大中</li>
+                </ul>
+              </InfoPanel>
+              <MermaidDiagram
+                chart={`flowchart BT
+  HS["ハイパースケーラ<br/>AWS / Azure / GCP<br/>（IaaS：VM・ストレージ・ネットワーク）"]
+  OS["OS・カーネル"]
+  S4["S/4HANA スタック<br/>BASIS・各モジュール"]
+  HANA["SAP HANA"]
+  HS --> OS --> S4 --> HANA`}
+              />
+              <p>
+                <strong>RISE with SAP</strong>（S/4HANA Cloud, <em>private edition</em>）では、
+                上図のようにハイパースケーラ上に S/4 スタック全体が載ります。
+                SAP がインフラ運用を含めて管理するため、企業が AWS / Azure / GCP を直接契約する必要はありません。
+              </p>
+              <Callout variant="note">
+                <strong>S/4HANA Cloud 2つのエディションとハイパースケーラ</strong>
+                <ul>
+                  <li>
+                    <strong>Public edition</strong>（マルチテナント SaaS）… SAP が提供する共有クラウド。
+                    企業がハイパースケーラを意識する場面はほぼない
+                  </li>
+                  <li>
+                    <strong>Private edition</strong>（RISE with SAP）… ハイパースケーラ上の<strong>専用環境</strong>で S/4 を運用。
+                    カスタマイズ余地があり、ここで AWS / Azure / GCP の話が重要になる
+                  </li>
+                </ul>
+              </Callout>
+              <Dialog speaker="a">
+                ハイパースケーラは「土地と建物の大家さん」、SAP は「その上に ERP という建物を建てて管理する人」というイメージですね。
+              </Dialog>
+              <Dialog speaker="teacher">
+                その通りです。ハイパースケーラは IaaS 層まで、SAP はその上の OS・S/4・HANA まで担当します。
+                S/4HANA Cloud の話をするとき、まず「どの土台の上で動くか」を押さえると全体像が見えやすくなります。
+              </Dialog>
+              <Dialog speaker="b">
+                「クラウドプロバイダー」と「ハイパースケーラ」は同じ意味ですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                日常会話ではほぼ同じように使われますが、<strong>ハイパースケーラ</strong>は特に AWS・Azure・GCP のような
+                超大規模 IaaS 事業者を指す言葉です。SAP や Salesforce のような SaaS 事業者はハイパースケーラではありません。
+              </Dialog>
+            </>
+          ),
+        },
+        {
+          title: "SAP S/4HANAのデプロイ選択肢",
+          plainText:
+            "On-Premise・Private Cloud・Public Cloud（RISE with SAP）の3択\nSAP S/4HANAは導入先の選択肢が複数ある。①On-Premise：自社データセンターにS/4HANAをインストールして運用。最大の制御権、最大のコストと運用負担。②Private Cloud：AWS・Azure・GCP等のハイパースケーラ上の専用環境でS/4HANAを動かす（RISE with SAP）。クラウドの柔軟性＋プライベートな分離環境。③Public Cloud：SAPが提供するS/4HANA Cloud, public edition（マルチテナントSaaS）。Fit to Standardが前提。\n先生：RISE with SAPはハイパースケーラ上のprivate editionで、SAPが移行から運用まで包括的にサポートするサービスです。\nAくん：選択肢ごとにカスタマイズの自由度と運用負担がトレードオフになっているんですね。",
+          content: (
+            <>
+              <h2>On-Premise・Private Cloud（RISE）・Public Cloud の3択</h2>
               <MermaidDiagram
                 chart={`flowchart LR
   S["SAP S/4HANA<br/>デプロイ選択肢"] --> A["① On-Premise<br/>自社DC・最大制御<br/>コスト大"]
-  S --> B["② Private Cloud<br/>クラウド上の専用環境<br/>柔軟性UP・分離維持"]
-  S --> C["③ Public Cloud<br/>RISE with SAP<br/>SaaS・Fit to Standard前提"]`}
+  S --> B["② Private Cloud<br/>RISE with SAP<br/>ハイパースケーラ上"]
+  S --> C["③ Public Cloud<br/>S/4HANA Cloud<br/>public edition・SaaS"]`}
               />
               <InfoPanel
                 title="3つのデプロイ選択肢の比較"
@@ -251,15 +318,17 @@ export default function CloudBasicsLesson() {
               >
                 <ul>
                   <li><strong>On-Premise</strong>：最大のカスタマイズ自由度。最大の初期費用と運用負担。金融・官公庁など制約の強い業界向け。</li>
-                  <li><strong>Private Cloud</strong>：クラウドの柔軟性を活かしつつ、専用の分離環境でセキュリティ・コンプライアンス要件を満たす中間形態。</li>
-                  <li><strong>Public Cloud（RISE with SAP）</strong>：SAPが移行から運用まで包括サポート。Fit to Standard（標準機能準拠）が前提。最小の運用負担。</li>
+                  <li><strong>Private Cloud（RISE with SAP）</strong>：AWS・Azure・GCP などのハイパースケーラ上の専用環境。SAP が S/4 スタック全体を運用。カスタマイズ余地あり。</li>
+                  <li><strong>Public Cloud（S/4HANA Cloud, public edition）</strong>：SAP が提供するマルチテナント SaaS。Fit to Standard（標準機能準拠）が前提。最小の運用負担。</li>
                 </ul>
               </InfoPanel>
               <Dialog speaker="teacher">
-                RISE with SAPはSAPが移行から運用まで包括的にサポートするサービスです。クラウド移行を検討する企業にとって有力な選択肢です。
+                RISE with SAP はハイパースケーラ上の private edition です。SAP が移行から運用まで包括的にサポートするため、
+                企業は AWS / Azure / GCP を直接管理しなくてよい点が大きなメリットです。
               </Dialog>
               <Dialog speaker="a">
-                選択肢ごとにカスタマイズの自由度と運用負担がトレードオフになっているんですね。自由にしたいほどコストがかかる。
+                選択肢ごとにカスタマイズの自由度と運用負担がトレードオフになっているんですね。
+                ハイパースケーラの話は Private Cloud（RISE）のときに効いてくる、と整理できました。
               </Dialog>
             </>
           ),
@@ -365,15 +434,18 @@ export default function CloudBasicsLesson() {
         {
           title: "対話で整理",
           plainText:
-            "対話で整理\n先生：この章のまとめです。オンプレミスは「所有して完全管理」、クラウドは「利用して費用を払う」モデルです。クラウドにはIaaS・PaaS・SaaSの3層があり、上に行くほど管理が楽になる代わりにカスタマイズ自由度が下がります。SAP S/4HANAはOn-Premise・Private Cloud・Public Cloud（RISE with SAP）の3択で、多くの大企業はハイブリッドクラウドを採用しています。\nAくん：コスト面ではCapEx（一括設備投資）からOpEx（月々の利用料）への移行がクラウドの財務的な魅力ですね。ただし長期では総保有コスト（TCO）で比較すべき。IaaSはインフラ、PaaSは開発環境、SaaSは完成アプリ—3層それぞれで担当範囲が違う点が整理できました。\nBちゃん：最初はクラウドが怖かったけど、大手プロバイダーのセキュリティは自社データセンター以上のこともあると分かって安心しました。「全部一気に移行しなくていい・ハイブリッドでいい」という選択肢があるのも心強いです。",
+            "対話で整理\n先生：この章のまとめです。オンプレミスは「所有して完全管理」、クラウドは「利用して費用を払う」モデルです。クラウドにはIaaS・PaaS・SaaSの3層があり、上に行くほど管理が楽になる代わりにカスタマイズ自由度が下がります。S/4HANA Cloudのprivate edition（RISE）はAWS・Azure・GCPなどのハイパースケーラ上で動き、SAPがその上のS/4スタックを運用します。SAP S/4HANAはOn-Premise・Private Cloud・Public Cloudの3択で、多くの大企業はハイブリッドクラウドを採用しています。\nAくん：コスト面ではCapEx（一括設備投資）からOpEx（月々の利用料）への移行がクラウドの財務的な魅力ですね。ハイパースケーラはIaaS層の「土台」、RISEはその上のS/4—この積み上げ構造がS/4HANA Cloud理解の鍵でした。\nBちゃん：最初はクラウドが怖かったけど、大手プロバイダーのセキュリティは自社データセンター以上のこともあると分かって安心しました。「全部一気に移行しなくていい・ハイブリッドでいい」という選択肢があるのも心強いです。",
           content: (
             <>
               <h2>対話で整理</h2>
               <Dialog speaker="teacher">
-                この章のまとめです。オンプレミスは「所有して完全管理」、クラウドは「利用して費用を払う」モデルです。クラウドにはIaaS・PaaS・SaaSの3層があり、上に行くほど管理が楽になる代わりにカスタマイズ自由度が下がります。SAP S/4HANAの3つのデプロイ選択肢と、大企業が採るハイブリッドクラウドの概念も覚えておいてください。
+                この章のまとめです。オンプレミスは「所有して完全管理」、クラウドは「利用して費用を払う」モデルです。
+                クラウドには IaaS・PaaS・SaaS の3層があり、<strong>ハイパースケーラ</strong>（AWS・Azure・GCP）は IaaS 層の土台です。
+                S/4HANA Cloud の private edition（RISE）はその上に S/4 スタックが載る—この積み上げ構造を覚えておいてください。
               </Dialog>
               <Dialog speaker="a">
-                コスト面ではCapEx（一括設備投資）からOpEx（月々の利用料）への移行がクラウドの財務的な魅力ですね。ただし長期ではTCOで比較すべき。IaaSはインフラ、PaaSは開発環境、SaaSは完成アプリ—3層それぞれで担当範囲が違う点が整理できました。
+                コスト面では CapEx から OpEx への移行がクラウドの財務的な魅力ですね。
+                ハイパースケーラは「土地の大家」、SAP は「建物の管理者」—S/4HANA Cloud を語るときの鍵になるイメージが定着しました。
               </Dialog>
               <Dialog speaker="b">
                 最初はクラウドが怖かったけど、大手プロバイダーのセキュリティは自社データセンター以上のこともあると分かって安心しました。「全部一気に移行しなくていい・ハイブリッドでいい」という選択肢があるのも心強いです。

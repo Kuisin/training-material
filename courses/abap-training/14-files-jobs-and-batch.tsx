@@ -147,7 +147,7 @@ CALL FUNCTION 'FILE_GET_NAME'
         {
           title: "OPEN DATASETで読む",
           plainText:
-            "OPEN DATASETで読む\nFILE_GET_NAMEで物理パス取得→OPEN FOR INPUT→READ DATASETで1行ずつ→CLOSE。TEXT MODE ENCODING UTF-8がCSV/テキストで一般的。DOループ＋sy-subrc<>0でEXITが定番。",
+            "OPEN DATASETで読む\nFILE_GET_NAMEで物理パス取得→OPEN FOR INPUT→READ DATASETで1行ずつ→CLOSE。TEXT MODE ENCODING UTF-8がCSV/テキストで一般的。DOループ＋sy-subrc<>0でEXITが定番。\nBちゃん：SELECTと何が違うの？なぜOPEN/CLOSEが要るの？\n先生：読む相手が違う。SELECT＝DBの表、LOOP＝内部テーブル、ここはサーバ上のテキストファイル＝行が並んだ1本のファイル。ファイルは開く→1行ずつ読む→閉じる。本のしおりのように順に進み、最後まで読むとREADのsy-subrcが0以外＝ファイル終端の合図。\n用語メモ：IN TEXT MODE ENCODING UTF-8＝テキストとして・文字コードUTF-8で読む指定。\nAくん：読む対象で命令が決まる。表→SELECT／内部テーブル→LOOP／ファイル→OPEN/READ/CLOSE。",
           content: (
             <>
               <h2>
@@ -193,6 +193,25 @@ CLOSE DATASET lv_path.`}
               <Dialog speaker="teacher">
                 物理パスをプログラムに直書きしない。<code>FILE_GET_NAME</code> とセットで覚えると、
                 開発・本番の切り替えが楽になります。
+              </Dialog>
+              <Dialog speaker="b">
+                <code>SELECT</code> と何が違うの？ なぜ <code>OPEN</code> や <code>CLOSE</code> が要るんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                読む<strong>相手</strong>が違うんです。<code>SELECT</code> は DB の<strong>表</strong>を読み、
+                <code>LOOP</code> は<strong>内部テーブル</strong>を読みます。ここで読むのは
+                サーバ上の<strong>テキストファイル</strong>＝行が並んだ1本のファイルです。
+                ファイルは「開く → 1行ずつ読む → 閉じる」が基本動作。本のしおりのように先頭から順に進み、
+                最後まで読むと <code>READ</code> の <code>sy-subrc</code> が0以外になる＝ファイル終端の合図です。
+                だから <code>OPEN</code> で開き、読み終わったら <code>CLOSE</code> で閉じる、がセットになります。
+              </Dialog>
+              <Callout variant="note">
+                用語メモ：<code>IN TEXT MODE ENCODING UTF-8</code>＝ファイルを<strong>テキストとして</strong>、
+                <strong>文字コード UTF-8</strong> で読む指定です。区切り文字や文字コードは設計書で確認します。
+              </Callout>
+              <Dialog speaker="a">
+                「読む対象」で命令が決まるんですね。表＝<code>SELECT</code>、内部テーブル＝<code>LOOP</code>、
+                ファイル＝<code>OPEN</code> / <code>READ</code> / <code>CLOSE</code>。対象が違えば道具も違う、と整理しました。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"
@@ -279,7 +298,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
                 形式が曖昧なまま読み込むと、検証や BAPI 登録の段階で初めて不整合が出ます。
               </Dialog>
               <Callout variant="note">
-                ジョブや BDC の操作手順の細部は、手を動かす演習は別資料で扱います。ここでは<strong>設計の型が読める</strong>ことを重視します。
+                ジョブや BDC の操作手順の細部より、ここでは<strong>設計の型が読める</strong>ことを重視します。
               </Callout>
             </>
           ),
@@ -322,7 +341,7 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
         {
           title: "バックグラウンドジョブ",
           plainText:
-            "バックグラウンドジョブ\n大量データや夜間処理は、対話実行ではなくバックグラウンド（バッチ）で動かす。SE38から簡易起動、SM36で詳細定義（スケジュール・優先度）、SM37で一覧・ログ確認。",
+            "バックグラウンドジョブ\n大量データや夜間処理は、対話実行ではなくバックグラウンド（バッチ）で動かす。SE38から簡易起動、SM36で詳細定義（スケジュール・優先度）、SM37で一覧・ログ確認。\nBちゃん：対話実行とバックグラウンドの違いは？スプールって？\n先生：対話実行＝画面を見ながら実行・終わるまで待つ／バックグラウンド＝裏で実行・画面を占有しない・夜間や大量向き。スプール＝バッチの出力（帳票・結果）が貯まる場所（SM37で確認）。",
           content: (
             <>
               <h2>バックグラウンドジョブ</h2>
@@ -352,13 +371,22 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
               <Dialog speaker="a">
                 会計の夜間バッチや大量の取込後処理は、ほぼ必ずジョブとしてスケジュールされますね。
               </Dialog>
+              <Dialog speaker="b">
+                対話実行とバックグラウンドは、何が違うんですか？ スプールってよく聞きます。
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>対話実行</strong>は画面を見ながら実行し、終わるまで待ちます。
+                <strong>バックグラウンド</strong>は裏で実行し、画面を占有しません。夜間や大量処理向きです。
+                <strong>スプール</strong>は、バッチの出力（帳票・結果）が貯まる場所のこと。
+                <code>SM37</code> でジョブと一緒に確認できます。
+              </Dialog>
             </>
           ),
         },
         {
           title: "バッチインプット",
           plainText:
-            "バッチインプット（BDC）\n画面操作をデータ化して自動再生する仕組み。SM35で記録→BDCテーブル→ABAPでCALL TRANSACTION等。\nBDCDATA：PROGRAM DYNPRO FNAM FVAL。SY-SUBRCで成否判定。",
+            "バッチインプット（BDC）\n画面操作をデータ化して自動再生する仕組み。SM35で記録→BDCテーブル→ABAPでCALL TRANSACTION等。\nBDCDATA：PROGRAM DYNPRO FNAM FVAL。SY-SUBRCで成否判定。\nBちゃん：画面操作をデータにするってどういうこと？\n先生：自動操縦・台本のイメージ。BDC＝人が画面で行うキー入力・操作を台本（データ）に記録し、プログラムが台本どおりに自動で画面を操作する仕組み。DYNPRO＝画面番号、FNAM＝入力する欄の名前、FVAL＝その欄に入れる値。\nAくん：BDCとBAPIの使い分けは？\n先生：BAPI＝SAPが用意した正式な登録の入口（推奨）、BDC＝正式な入口が無い／使えないとき人の画面操作を真似て登録する代替。新規はBAPI優先。",
           content: (
             <>
               <h2>バッチインプット（BDC）</h2>
@@ -413,6 +441,24 @@ SPLIT lv_line AT ',' INTO lv_a lv_b lv_c.
                   </tbody>
                 </table>
               </InfoPanel>
+              <Dialog speaker="b">
+                「画面操作をデータにする」ってどういうことですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>自動操縦</strong>や<strong>台本</strong>をイメージしてください。BDC は、人が画面で行う
+                キー入力や操作（どの画面で・どの欄に・何を入れるか）を<strong>台本（データ）</strong>に記録しておき、
+                プログラムがその台本どおりに自動で画面を操作する仕組みです。
+                台本の中身が <code>BDCDATA</code> で、<code>DYNPRO</code>＝画面番号、
+                <code>FNAM</code>＝入力する欄の名前、<code>FVAL</code>＝その欄に入れる値、を1行ずつ並べたものです。
+              </Dialog>
+              <Dialog speaker="a">
+                BDC と BAPI は、どう使い分けるんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>BAPI</strong> は SAP が用意した<strong>正式な登録の入口</strong>（API）で、新規開発では推奨です。
+                <strong>BDC</strong> は、正式な入口が無い・使えないときに、人の画面操作を真似て登録する<strong>代替手段</strong>。
+                新規はまず BAPI を優先し、BDC は標準画面をそのまま踏む必要がある場面で使う、と覚えてください。
+              </Dialog>
               <Callout variant="warning">
                 新規開発では <strong>BAPI</strong>（会計伝票登録の章）が優先されることが多いです。BDC はレガシー保守・標準画面をそのまま踏む必要がある場面で登場します。
               </Callout>

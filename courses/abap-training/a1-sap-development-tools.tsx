@@ -909,7 +909,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
         {
           title: "データ辞書の作成順",
           plainText:
-            "データ辞書の作成順\nアドオンテーブルは SE11 で、ドメイン→データエレメント→テーブルの順が基本。ドメイン＝型と桁、DE＝項目定義、テーブル＝データ保持。主キー・拡張不可など技術設定もここで決める。",
+            "データ辞書の作成順\nアドオンテーブルは SE11 で、ドメイン→データエレメント→テーブルの順が基本。ドメイン＝型と桁、DE＝項目定義、テーブル＝データ保持。主キー・拡張不可など技術設定もここで決める。\nBちゃん：ドメイン・データエレメント・テーブルの違いがよく分かりません。なぜこの順番なんですか？\n先生：家を建てる順番でたとえると、ドメイン＝型と桁のルール（例：文字10桁）、データエレメント＝その項目の意味・画面ラベル（例：ファイルID）、テーブル＝実際にデータが入る箱。作成順は「ルールを決める→意味に名前をつける→箱を組み立てる」。下から積み上げるので、先にルールがないと名前を付けられず、名前がないと箱に並べられない。\nAくん：ドメイン＝どう書くか、データエレメント＝何を表すか、テーブル＝どこに入れるか、と役割が分かれているんですね。",
           content: (
             <>
               <h2>データ辞書（<code>SE11</code>）の作成順</h2>
@@ -952,6 +952,19 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
                 マスタのメンテナンスは <code>SM30</code>（テーブル更新ダイアログ）で行うことがありますが、
                 連携プログラムからは <code>INSERT</code> 等で更新するのが一般的です。
               </p>
+              <Dialog speaker="b">
+                ドメイン・データエレメント・テーブルの違いがよく分かりません。なぜこの順番で作るんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                家を建てる順番でたとえます。<strong>ドメイン＝型と桁のルール</strong>（例: 文字10桁）、
+                <strong>データエレメント＝その項目の意味・画面ラベル</strong>（例: ファイル ID）、
+                <strong>テーブル＝実際にデータが入る箱</strong>です。作成順は
+                「<strong>ルールを決める → 意味に名前をつける → 箱を組み立てる</strong>」。
+                下から積み上げるので、先にルールがないと名前を付けられず、名前がないと箱に並べられません。
+              </Dialog>
+              <Dialog speaker="a">
+                ドメイン＝どう書くか、データエレメント＝何を表すか、テーブル＝どこに入れるか、と役割が分かれているんですね。
+              </Dialog>
               <Callout variant="note">
                 DDIC の概念（ドメイン・履歴テーブル・トランザクション）は本編レッスンで詳しく学びます。本章は<strong>SE11 での操作補足</strong>です。
               </Callout>
@@ -968,7 +981,7 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
         {
           title: "アドオンテーブルとDB更新",
           plainText:
-            "アドオンテーブルとDB更新\n履歴用Z表へのINSERT/UPDATE/MODIFY/DELETE。更新後はCOMMIT WORKで確定、失敗時はROLLBACK。標準伝票テーブルへの直接INSERTはNG（第11章）。自社履歴だけ直接更新するイメージ。",
+            "アドオンテーブルとDB更新\n履歴用Z表へのINSERT/UPDATE/MODIFY/DELETE。更新後はCOMMIT WORKで確定、失敗時はROLLBACK。標準伝票テーブルへの直接INSERTはNG（第11章）。自社履歴だけ直接更新するイメージ。\nBちゃん：INSERT/UPDATE/MODIFYの違いは？ COMMIT WORKって何？\n先生：INSERT＝新規追加（既にあるとエラー）、UPDATE＝既存を書き換え（無いと何も起きない）、MODIFY＝あれば更新・なければ追加。COMMIT WORK＝DBへの変更を確定する命令（実行するまで仮）、ROLLBACK WORK＝確定前に取り消す。\nAくん：「ある／ない」でエラーになるのがINSERT/UPDATE、どちらでもいいのがMODIFYですね。書いた直後はまだ仮で、COMMITで初めて本当に保存される。",
           content: (
             <>
               <h2>アドオンテーブルへの DB 更新</h2>
@@ -996,6 +1009,21 @@ COMMIT WORK.
 " まとめて取り消すとき
 ROLLBACK WORK.`}
               />
+              <Dialog speaker="b">
+                <code>INSERT</code> / <code>UPDATE</code> / <code>MODIFY</code> の違いは？
+                それと <code>COMMIT WORK</code> って何ですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>INSERT</code>＝新規追加（既に同じキーがあると<strong>エラー</strong>）、
+                <code>UPDATE</code>＝既存を書き換え（対象が無いと<strong>何も起きない</strong>）、
+                <code>MODIFY</code>＝<strong>あれば更新・なければ追加</strong>。
+                <code>COMMIT WORK</code>＝DBへの変更を<strong>確定する命令</strong>（実行するまでは仮の状態）、
+                <code>ROLLBACK WORK</code>＝確定前に<strong>取り消す</strong>命令です。
+              </Dialog>
+              <Dialog speaker="a">
+                「ある／ない」でエラーになるのが <code>INSERT</code> / <code>UPDATE</code>、どちらでもよいのが
+                <code>MODIFY</code> ですね。書いた直後はまだ仮で、<code>COMMIT WORK</code> で初めて本当に保存される、と。
+              </Dialog>
               <Dialog speaker="teacher">
                 <code>zif_hist</code> は架空の履歴テーブル名です。実プロジェクトでは設計書の表名を使います。
                 伝票登録の確定は BAPI 側のコミットとセットで考え、履歴の書き込みタイミングは
@@ -1015,7 +1043,7 @@ ROLLBACK WORK.`}
         {
           title: "自社汎用モジュール",
           plainText:
-            "自社汎用モジュール\nSE80で汎用グループ、SE37でFunction Module。パラメータはIMPORT/EXPORT/CHANGING/EXCEPTIONS。TABLESは新規では非推奨。例外はRAISEまたはMESSAGE … RAISING。履歴登録・検証の共通化に使う。",
+            "自社汎用モジュール\nSE80で汎用グループ、SE37でFunction Module。パラメータはIMPORT/EXPORT/CHANGING/EXCEPTIONS。TABLESは新規では非推奨。例外はRAISEまたはMESSAGE … RAISING。履歴登録・検証の共通化に使う。\nBちゃん：FORM（サブルーチン）と汎用モジュールはどう違うの？\n先生：FORM＝そのプログラム内専用、汎用モジュール＝別プログラムからも呼べる共通部品。共通化して使い回したいならFM、その場限りならFORM。\nAくん：IMPORTって入力なのにEXPORTINGで渡すのが紛らわしいです。\n先生：パラメータ種別の名前はモジュール側から見た向きです。IMPORT＝モジュールが受け取る＝呼び出し側の入力、EXPORT＝モジュールが返す＝呼び出し側が受け取る出力。だから呼ぶ側のEXPORTINGはモジュールのIMPORTに値を渡している。",
           content: (
             <>
               <h2>自社の汎用モジュール（<code>SE37</code>）</h2>
@@ -1024,6 +1052,14 @@ ROLLBACK WORK.`}
                 履歴登録・行検証・重複チェックなどを <code>CALL FUNCTION</code> で共通化します。
                 第10章の <code>FORM</code> より、<strong>プログラムをまたいで</strong>使える点が違います。
               </p>
+              <Dialog speaker="b">
+                <code>FORM</code>（サブルーチン）と汎用モジュールは、どう違うんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>FORM</code>＝<strong>そのプログラム内専用</strong>の部品、汎用モジュール＝
+                <strong>別のプログラムからも呼べる共通部品</strong>です。
+                共通化して使い回したいなら汎用モジュール、その場限りの分割なら <code>FORM</code> を使います。
+              </Dialog>
               <InfoPanel title="パラメータの種別" variant="reference">
                 <table>
                   <thead>
@@ -1060,6 +1096,15 @@ ROLLBACK WORK.`}
                   </tbody>
                 </table>
               </InfoPanel>
+              <Dialog speaker="a">
+                <code>IMPORT</code> は「入力」のはずなのに、呼び出し側では <code>EXPORTING</code> で渡すのが紛らわしいです。向きが逆に見えます。
+              </Dialog>
+              <Dialog speaker="teacher">
+                パラメータ種別の名前は、<strong>モジュール側から見た向き</strong>です。
+                <code>IMPORT</code>＝<strong>モジュールが受け取る</strong>＝呼び出し側の入力、
+                <code>EXPORT</code>＝<strong>モジュールが返す</strong>＝呼び出し側が受け取る出力。
+                だから呼ぶ側の <code>EXPORTING</code> は、モジュールの <code>IMPORT</code> に値を渡しているわけです。
+              </Dialog>
               <Callout variant="warning">
                 パラメータ種別 <code>TABLES</code> はレガシーです。新規設計では
                 <code>IMPORT</code> に内部テーブルを渡す形が一般的です（詳細はプロジェクト標準に従う）。

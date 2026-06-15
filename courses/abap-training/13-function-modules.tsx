@@ -1,6 +1,7 @@
 import {
   Lesson,
   lessonChrome,
+  Callout,
   Dialog,
   CodeBlock,
   Quiz,
@@ -96,10 +97,14 @@ export default function FunctionModulesLesson() {
         {
           title: "IF設計",
           plainText:
-            "IF設計 — IMPORT/EXPORT/CHANGING/EXCEPTIONS\n入力・出力・例外。sy-subrcで成否判定。戻り値と例外の使い分け。",
+            "IF設計 — IMPORT/EXPORT/CHANGING/EXCEPTIONS\n入力・出力・例外。sy-subrcで成否判定。戻り値と例外の使い分け。\nインターフェースとは：部品の「入力・出力・例外の約束ごと（仕様）」のこと。中身の作りを知らなくても、この約束さえ分かれば呼び出せる。\nQ(B): 表ではIMPORTが入力なのに、コードではEXPORTINGで入力を渡しているのは逆では？\nA(先生): パラメータ種別の名前（IMPORT/EXPORT）は「部品（モジュール）から見た向き」。CALL FUNCTION文のEXPORTING/IMPORTINGは「呼び出し側から見た向き」。呼び出し側がEXPORTING（送り出す）した値を、部品がIMPORT（受け取る）。だから〈呼ぶ側のEXPORTING〉と〈部品のIMPORT〉がペア、〈呼ぶ側のIMPORTING〉と〈部品のEXPORT〉がペア。視点が逆なだけで矛盾していない。\nA(A): 「誰から見た向きか」をそろえれば迷わない。",
           content: (
             <>
               <h2>インターフェース設計 — 引数と例外</h2>
+              <Callout variant="note">
+                <strong>インターフェース</strong>とは、部品の「入力・出力・例外の約束ごと（仕様）」のことです。
+                中身の作りを知らなくても、この約束さえ分かれば呼び出せます。
+              </Callout>
               <InfoPanel title="パラメータの種別" variant="reference">
                 <table>
                   <thead>
@@ -149,6 +154,22 @@ IF sy-subrc <> 0.
   " 例外が発生 → 登録せずエラー処理
 ENDIF.`}
               />
+              <Dialog speaker="b">
+                あれ？表では <code>IMPORT</code> が入力なのに、コードでは <code>EXPORTING</code> で入力を渡しているのは逆では？
+              </Dialog>
+              <Dialog speaker="teacher">
+                よい気づきです。パラメータ種別の名前（<code>IMPORT</code> / <code>EXPORT</code>）は
+                「<strong>部品（モジュール）から見た向き</strong>」です。
+                一方 <code>CALL FUNCTION</code> 文の <code>EXPORTING</code> / <code>IMPORTING</code> は
+                「<strong>呼び出し側から見た向き</strong>」です。
+                呼び出し側が <code>EXPORTING</code>（送り出す）した値を、部品が <code>IMPORT</code>（受け取る）。
+                だから〈呼ぶ側の <code>EXPORTING</code>〉と〈部品の <code>IMPORT</code>〉がペア、
+                〈呼ぶ側の <code>IMPORTING</code>〉と〈部品の <code>EXPORT</code>〉がペアになります。
+                視点が逆なだけで、矛盾していません。
+              </Dialog>
+              <Dialog speaker="a">
+                「誰から見た向きか」をそろえれば迷わない、ということですね。
+              </Dialog>
               <Dialog speaker="a">
                 <code>EXPORT</code> で結果を受け取るパターンと、<code>EXCEPTIONS</code> で
                 「失敗した種類」を <code>sy-subrc</code> で見るパターン、両方ありますね。
@@ -176,7 +197,7 @@ ENDIF.`}
                 </li>
               </ul>
               <Dialog speaker="stumble">
-                BAPI では <code>RETURN</code> テーブルも見る、と第11章で出てきますね。
+                BAPI では <code>RETURN</code> テーブルも見る、と第15章で出てきます。
                 汎用モジュールでも「<code>sy-subrc</code> だけ見て安心」は禁物です。設計書の戻り方を確認しましょう。
               </Dialog>
             </>
@@ -209,7 +230,7 @@ ENDIF.`}
                 部品が単体で正しいかを確かめるのが実務の近道です。
               </Dialog>
               <Dialog speaker="b">
-                演習で実際に <code>SE37</code> を触るのは別資料なんですね。ここでは「何を確認すべきか」が分かればOK、ですね。
+                実際に <code>SE37</code> を触らなくても、ここでは「何を確認すべきか」が分かればOK、ですね。
               </Dialog>
               <LessonLinkButton
                 courseSlug="abap-training"

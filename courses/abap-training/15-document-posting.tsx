@@ -311,7 +311,7 @@ ENDIF.`}
         {
           title: "BAPIパラメータ構造",
           plainText:
-            "BAPIパラメータ構造 — ヘッダと明細\n会計伝票はヘッダ（documentheader）と明細テーブル（accountgl・tax・amount）の組み合わせ。FIの伝票見出し＋行の構造と同じ。",
+            "BAPIパラメータ構造 — ヘッダと明細\n会計伝票はヘッダ（documentheader）と明細テーブル（accountgl・tax・amount）の組み合わせ。FIの伝票見出し＋行の構造と同じ。\nBちゃん：なぜヘッダはEXPORTING、明細はTABLESで渡すの？\n先生：渡すデータの形が違う。EXPORTING＝1件の値（ヘッダのような単一データ）を渡す、TABLES＝複数行（明細のような内部テーブル）を渡す古くからの書き方、IMPORTING＝結果（伝票番号など）を受け取る。BAPIでは歴史的に明細をTABLESで渡すものが多い。",
           content: (
             <>
               <h2>BAPI のパラメータ構造 — ヘッダと明細</h2>
@@ -367,6 +367,16 @@ CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
   TABLES    accountgl      = lt_gl
             return           = lt_return.`}
               />
+              <Dialog speaker="b">
+                どうしてヘッダは <code>EXPORTING</code>、明細は <code>TABLES</code> で渡すんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                渡すデータの<strong>形</strong>が違うからです。
+                <code>EXPORTING</code>＝<strong>1件の値</strong>（ヘッダのような単一データ）を渡す書き方。
+                <code>TABLES</code>＝<strong>複数行</strong>（明細のような内部テーブル）を渡す古くからの書き方。
+                <code>IMPORTING</code>＝<strong>結果</strong>（伝票番号など）を受け取る書き方です。
+                BAPI では歴史的に、明細を <code>TABLES</code> で渡すものが多く残っています。
+              </Dialog>
               <Dialog speaker="a">
                 ファイルの1行から <code>ls_header</code> と <code>lt_gl</code> を組み立てて BAPI に渡す、
                 という流れが設計書に書いてありそうですね。
@@ -669,7 +679,7 @@ CALL FUNCTION 'DEQUEUE_EZ_BKPF'
         {
           title: "実装の全体フロー",
           plainText:
-            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第15章が①②、本章が⑧の土台と③〜⑦の責任。",
+            "実装の全体フロー（最重要）\n①ファイル読込 ②行の分解 ③BAPI用データ作成 ④ロック ⑤BAPI ⑥RETURNでエラー判定 ⑦COMMIT/ROLLBACK ⑧履歴更新 ⑨ロック解除。\n第14章（ファイル連携）が①②、本章が⑧の土台と③〜⑦の責任。",
           content: (
             <>
               <h2>実装の全体フロー（最重要）</h2>

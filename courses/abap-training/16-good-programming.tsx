@@ -367,7 +367,7 @@ WHERE bukrs = p_bukrs          " EQ（等しい）
         {
           title: "SELECTの技法",
           plainText:
-            "SELECT SINGLE / 集計 / ビュー / JOIN\n1件だけなら SELECT SINGLE。MAX など集計関数もDB側で処理。\nSAP標準ビューや JOIN で、複数表を1回の取得にまとめる。\nBちゃん：往復1回で済むなら、それが一番ですね。",
+            "SELECT SINGLE / 集計 / ビュー / JOIN\n1件だけなら SELECT SINGLE。MAX など集計関数もDB側で処理。\nSAP標準ビューや JOIN で、複数表を1回の取得にまとめる。\nBちゃん：ビューって何ですか？\n先生：ビュー＝複数テーブルをあらかじめ結合・整形して1つの表のように見せるSAP標準の仕組み。自分でJOINを書かずに済むことがある。\nBちゃん：往復1回で済むなら、それが一番ですね。",
           content: (
             <>
               <h2><code>SELECT</code> のその他の技法</h2>
@@ -399,6 +399,14 @@ SELECT mkpf~mblnr mseg~matnr mseg~menge
                 SAP標準<strong>ビュー</strong>を使うと、アプリ側で複雑な <code>JOIN</code> を書かずに
                 まとめて取得できる場合があります。既存の標準ビューがないか、先に調べるのも有効です。
               </Callout>
+              <Dialog speaker="b">
+                <code>JOIN</code> の上に出てきた<strong>ビュー</strong>って、何のことですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>ビュー</strong>は、複数のテーブルを<strong>あらかじめ結合・整形して、1つの表のように見せる</strong>SAP標準の仕組みです。
+                <br />
+                既に用意されたビューを使えば、自分で <code>JOIN</code> を書かずに済むことがあります。
+              </Dialog>
               <Dialog speaker="b">
                 往復1回で済むなら、それがいちばんですね。
               </Dialog>
@@ -447,7 +455,7 @@ SELECT mkpf~mblnr mseg~matnr mseg~menge
         {
           title: "内部テーブルで速く",
           plainText:
-            "内部テーブルの性能\nLOOP回数を減らし、処理をシンプルに。条件付きLOOP、BINARY SEARCH、一括挿入など。\nSORTしてから READ TABLE ... BINARY SEARCH で高速検索。\nAくん：DB往復を減らしたあとは、手元の棚の操作を効率化する段階ですね。",
+            "内部テーブルの性能\nLOOP回数を減らし、処理をシンプルに。条件付きLOOP、BINARY SEARCH、一括挿入など。\nSORTしてから READ TABLE ... BINARY SEARCH で高速検索。\nBちゃん：BINARY SEARCHって何ですか？なぜ先にSORTが要るんですか？\n先生：BINARY SEARCH＝真ん中を見て要らない半分を捨てるのをくり返す高速検索（二分探索）。半分ずつ捨てる前提として事前にSORTで並んでいる必要がある（並んでいないと真ん中の大小判断ができない）。並べ忘れると誤った「見つからない」結果になることがある。\nAくん：DB往復を減らしたあとは、手元の棚の操作を効率化する段階ですね。",
           content: (
             <>
               <h2>内部テーブル：LOOPを減らす</h2>
@@ -471,6 +479,16 @@ READ TABLE lt_bkpf INTO ls_bkpf
 " 一括挿入
 APPEND LINES OF lt_src TO lt_dest.`}
               />
+              <Dialog speaker="b">
+                <code>BINARY SEARCH</code> って何ですか？ なぜ先に <code>SORT</code> が要るんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <code>BINARY SEARCH</code> は<strong>真ん中を見て、要らない半分を捨てる</strong>のをくり返す高速検索です（二分探索）。
+                <br />
+                半分ずつ捨てられる前提として、事前に <code>SORT</code> で<strong>並んでいる</strong>必要があります。 並んでいないと、真ん中の値と大小を比べても「どちらの半分を捨てるか」が判断できないからです。
+                <br />
+                並べ忘れると、本当はある行でも誤って<strong>「見つからない」</strong>結果になることがあるので注意してください。
+              </Dialog>
               <Dialog speaker="a">
                 DB往復を減らしたあとは、手元の棚の操作を効率化する段階ですね。
               </Dialog>

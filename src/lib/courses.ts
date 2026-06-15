@@ -132,7 +132,8 @@ export function getLessonNum(courseSlug: string, lessonFile: string): string | u
 }
 
 /**
- * レッスン番号から「第{n}章」ラベルを生成（num が数字のときのみ）。
+ * レッスン番号から「第{n}章」ラベルを生成（num が数字始まりのときのみ）。
+ * 末尾の英字サフィックス（例: 9a / 9b）も許容し「第9a章」のように表示する。
  * 教材本文の章番号表記はファイル名ではなくこの採番に合わせる。
  */
 export function lessonChapterLabel(
@@ -141,7 +142,7 @@ export function lessonChapterLabel(
   options?: { suffix?: string }
 ): string {
   const num = getLessonNum(courseSlug, lessonFile);
-  if (!num || !/^\d+$/.test(num)) return "";
+  if (!num || !/^\d+[a-z]?$/i.test(num)) return "";
   const suffix = options?.suffix ?? "";
   return `第${num}章${suffix}`;
 }

@@ -26,7 +26,7 @@ export default function RealWorldLesson() {
         {
           title: "概要",
           plainText:
-            "実務と品質 — 知識の仕上げ\n会計伝票登録IFに必要な知識の最終章。可読性・設計思想・実務の進め方を統合し、学んだ知識の縦串を地図にします。\n⏱ 30分 / 📶 初学者\n手を動かす演習は別資料。ここでは設計書やコードを読み続けられる土台を固めます。",
+            "実務と品質 — 知識の仕上げ\n会計伝票登録IFに必要な知識の最終章。可読性・設計思想・実務の進め方を統合し、学んだ知識の縦串を地図にします。\n⏱ 30分 / 📶 初学者\n本章は知識の仕上げとして、設計書やコードを読み続けられる土台を固めます。",
           content: (
             <>
               <hgroup>
@@ -51,7 +51,7 @@ export default function RealWorldLesson() {
                 <li>会計伝票登録を題材にした<strong>知識の地図</strong></li>
               </ul>
               <Callout variant="note">
-                手を動かす演習は<strong>別資料</strong>です。本章は知識の仕上げとして、設計書やコードを読み続けられる土台を固めます。
+                本章は知識の仕上げとして、設計書やコードを読み続けられる土台を固めます。
               </Callout>
             </>
           ),
@@ -227,7 +227,7 @@ ENDLOOP.`}
         {
           title: "登録系の落とし穴",
           plainText:
-            "登録系プログラムの落とし穴\n連携登録は実案件と同型。RETURN未確認のCOMMIT、DEQUEUE忘れ、履歴なしの再実行で二重登録、が典型障害。設計書でロック単位・コミットタイミング・履歴キーを必ず確認。",
+            "登録系プログラムの落とし穴\n連携登録は実案件と同型。RETURN未確認のCOMMIT、DEQUEUE忘れ、履歴なしの再実行で二重登録、が典型障害。設計書でロック単位・コミットタイミング・履歴キーを必ず確認。\n用語：COMMIT＝DBへの変更を確定する命令（実行するまで変更は仮）／ENQUEUE・DEQUEUE＝ロックの取得・解放（他の人が同時に同じ伝票を触らないようにする）／RETURNテーブル＝BAPIが返すメッセージ一覧（成功・警告・エラーが行で入る）。\nBちゃん：COMMITとかENQUEUEとか、言葉が難しいです…。\n先生：COMMIT＝保存ボタン、ENQUEUE＝使用中の札をかける、DEQUEUE＝札を外す。SY-SUBRCは入口の合図だけで、RETURNの中身まで見ないと本当の成否は分からない。\nAくん：登録系は「成功したつもり」が一番こわい。RETURNを見て、確定して、札を外すまでが1セット。",
           content: (
             <>
               <h2>登録系プログラムでよくある落とし穴</h2>
@@ -248,6 +248,27 @@ ENDLOOP.`}
                   履歴なしの再実行は二重登録につながる
                 </li>
               </ul>
+              <Callout variant="note">
+                <strong>用語ミニ辞典</strong><br />
+                <code>COMMIT</code> … DBへの変更を<strong>確定</strong>する命令（実行するまで変更は仮）<br />
+                <code>ENQUEUE</code> / <code>DEQUEUE</code> … ロックの<strong>取得・解放</strong>（他の人が同時に同じ伝票を触らないようにする）<br />
+                <code>RETURN</code> テーブル … BAPIが返す<strong>メッセージ一覧</strong>（成功・警告・エラーが行で入る）
+              </Callout>
+              <Dialog speaker="b">
+                <code>COMMIT</code> とか <code>ENQUEUE</code> とか、言葉が難しいです…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                身近なものに置き換えると、<code>COMMIT</code>＝<strong>保存ボタン</strong>、
+                <code>ENQUEUE</code>＝<strong>「使用中」の札をかける</strong>、
+                <code>DEQUEUE</code>＝<strong>札を外す</strong>、です。
+                <br />
+                注意したいのは、<code>SY-SUBRC</code> は<strong>入口の合図</strong>だけということ。
+                <code>RETURN</code> の中身まで見ないと、本当に成功したかは分かりません。
+              </Dialog>
+              <Dialog speaker="a">
+                登録系は「<strong>成功したつもり</strong>」が一番こわいですね。
+                <code>RETURN</code> を見て、確定して、札を外すまでが<strong>1セット</strong>だと覚えます。
+              </Dialog>
               <Dialog speaker="teacher">
                 仕様変更の影響分析でも、「登録の型」のどの段（読込・検証・ロック・BAPI・履歴）に触れるかを
                 会計伝票登録の全体フローに当てはめると漏れが減ります。
@@ -258,7 +279,7 @@ ENDLOOP.`}
         {
           title: "図解：修正の循環",
           plainText:
-            "図で見る：影響分析 → 修正 → テスト\nflowchart：仕様差分を理解 → 影響分析 → 修正 → 回帰テスト →(問題あり)影響分析へ戻る／(OK)リリース\n先生：直したら必ず前と同じ動きが壊れていないか（回帰テスト）を確認する。直した所だけでなく周りも見るのがプロ。",
+            "図で見る：影響分析 → 修正 → テスト\nflowchart：仕様差分を理解 → 影響分析 → 修正 → 回帰テスト →(問題あり)影響分析へ戻る／(OK)リリース\n用語：影響分析＝直すと他のどこに影響が出るかを事前に洗い出すこと／回帰テスト＝直したあと、前から動いていた機能が壊れていないか確かめるテスト。\n先生：直したら必ず前と同じ動きが壊れていないか（回帰テスト）を確認する。直した所だけでなく周りも見るのがプロ。\nBちゃん：回帰テストって、直した所をテストすることだと思っていました…。\n先生：触っていない周りの機能まで確かめるのが回帰テスト。1か所の修正が別の場所に響くことがあるから。問題ありなら、また影響分析へ戻ってループする。\nAくん：影響分析で「どこに響くか」を予想し、回帰テストで「本当に響いていないか」を確かめる。予想と検証はセット。",
           content: (
             <>
               <h2>図で見る：影響分析 → 修正 → テスト</h2>
@@ -270,8 +291,25 @@ ENDLOOP.`}
   D -->|問題あり| B
   D -->|OK| E[リリース]`}
               />
+              <Callout variant="note">
+                <strong>影響分析</strong> … 直すと<strong>他のどこに影響が出るか</strong>を事前に洗い出すこと<br />
+                <strong>回帰テスト</strong> … 直したあと、<strong>前から動いていた機能が壊れていないか</strong>を確かめるテスト
+              </Callout>
               <Dialog speaker="teacher">
                 直したら必ず「前と同じ動きが壊れていないか（回帰テスト）」を確認します。直した所だけでなく、周りも見るのがプロです。
+              </Dialog>
+              <Dialog speaker="b">
+                「回帰テスト」って、直した所をテストすることだと思っていました…。
+              </Dialog>
+              <Dialog speaker="teacher">
+                直した所ではなく、<strong>触っていない周りの機能まで</strong>確かめるのが回帰テストです。
+                1か所の修正が別の場所に響くことがあるからですね。
+                <br />
+                問題が見つかったら、また<strong>影響分析へ戻って</strong>ループします。
+              </Dialog>
+              <Dialog speaker="a">
+                影響分析で「どこに響くか」を<strong>予想</strong>し、回帰テストで「本当に響いていないか」を<strong>確かめる</strong>。
+                予想と検証はセットなんですね。
               </Dialog>
             </>
           ),

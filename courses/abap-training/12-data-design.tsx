@@ -188,7 +188,7 @@ export default function DataDesignLesson() {
         {
           title: "DB更新の基礎",
           plainText:
-            "DB更新 — INSERT/UPDATE/MODIFY/DELETE\n履歴テーブルへの書き込み。伝票本体はBAPI経由。",
+            "DB更新 — INSERT/UPDATE/MODIFY/DELETE\n履歴テーブルへの書き込み。伝票本体はBAPI経由。\nQ(B): INSERT/UPDATE/MODIFYの違いは？\nA(先生): 主キーが既にあるか／無いかで使い分ける。INSERT=新規追加（同じ主キーが既にあるとエラー）、UPDATE=既存行の上書き（該当行が無ければ何も起きない）、MODIFY=あれば更新・なければ追加（INSERTとUPDATEのいいとこ取り）、DELETE=条件に合う行を削除。\nA(A): 主キーが「既にあるか／無いか」で使い分ける。",
           content: (
             <>
               <h2>DB更新の基礎</h2>
@@ -214,16 +214,34 @@ DELETE FROM zif_hist WHERE file_id = lv_file_id.`}
                   <li><code>DELETE</code> … 条件に合う行を削除</li>
                 </ul>
               </InfoPanel>
+              <Dialog speaker="b">
+                <code>INSERT</code> と <code>UPDATE</code> と <code>MODIFY</code> が似ていて区別がつきません…。何が違うんですか？
+              </Dialog>
+              <Dialog speaker="teacher">
+                <strong>主キーが既にあるか／無いか</strong>で考えると分かりやすいです。
+                <code>INSERT</code>＝新規追加（同じ主キーが既にあると<strong>エラー</strong>になる）、
+                <code>UPDATE</code>＝既存行の上書き（該当行が無ければ<strong>何も起きない</strong>）、
+                <code>MODIFY</code>＝あれば更新・なければ追加（<code>INSERT</code> と <code>UPDATE</code> のいいとこ取り）、
+                <code>DELETE</code>＝条件に合う行を削除、です。
+              </Dialog>
+              <Dialog speaker="a">
+                主キーが「既にあるか／無いか」で使い分ける、と整理すれば迷わなさそうですね。
+              </Dialog>
             </>
           ),
         },
         {
           title: "トランザクション",
           plainText:
-            "COMMIT / ROLLBACK\n成功時に確定、失敗時に取り消し。エラー時にどうするかを設計に含める。",
+            "COMMIT / ROLLBACK\n成功時に確定、失敗時に取り消し。エラー時にどうするかを設計に含める。\n補足: ここでの「トランザクション」＝一連の更新をまとめて「全部成功か、全部取り消しか」にする単位（SE38などの画面コードのトランザクションとは別の意味）。COMMIT WORKで確定、ROLLBACK WORKで全部取り消し。",
           content: (
             <>
               <h2>トランザクション — COMMIT / ROLLBACK</h2>
+              <Callout variant="note">
+                ここでの「トランザクション」＝一連の更新をまとめて「全部成功か、全部取り消しか」にする単位です
+                （<code>SE38</code> などの画面コードのトランザクションとは別の意味）。
+                <code>COMMIT WORK</code> で確定、<code>ROLLBACK WORK</code> で全部取り消しになります。
+              </Callout>
               <CodeBlock
                 language="ABAP"
                 code={`" 更新を DB に反映
